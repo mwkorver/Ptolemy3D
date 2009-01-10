@@ -1,0 +1,102 @@
+<entity>
+	<Orientation>131094464,60321657,9567203.79444206,13.0839129353974,-49.5035534993031</Orientation>
+
+	<CenterX>0</CenterX>
+	<CenterY>0</CenterY>
+	<DisplayRatio>1</DisplayRatio>
+
+	<Server>192.168.10.56</Server>
+
+	<MapDataSvr1>192.168.10.56</MapDataSvr1>
+	<MServerKey1></MServerKey1>
+	<MapJp2Store1>/mnts/karuizawa/</MapJp2Store1>
+	<MapDemStore1>/mnts/karuizawa/dem/</MapDemStore1>
+	<nMapDataSvr>1</nMapDataSvr>
+
+	<TILECOLOR>47,47,86</TILECOLOR>
+	<Area>00</Area>
+	<HORIZON>10000</HORIZON>
+	<FlightFrameDelay>200</FlightFrameDelay>
+	<TIN>1</TIN>
+	<HUD>1</HUD>
+	<FOLLOWDEM>0</FOLLOWDEM>
+	<Units>DD</Units>
+	<BGCOLOR>0,0,0</BGCOLOR>
+	<SubTextures>1</SubTextures>
+
+
+	<NumLayers>6</NumLayers>
+
+	<LayerWidth_1>52428800</LayerWidth_1>
+	<LayerDEM_1>9</LayerDEM_1>
+	<LayerMIN_1>50000</LayerMIN_1>
+	<LayerMAX_1>10000000</LayerMAX_1>
+	<LayerDIVIDER_1>0</LayerDIVIDER_1>
+	<LayerWidth_2>6553600</LayerWidth_2>
+	<LayerDEM_2>9</LayerDEM_2>
+	<LayerMIN_2>10000</LayerMIN_2>
+	<LayerMAX_2>5000000</LayerMAX_2>
+	<LayerDIVIDER_2>0</LayerDIVIDER_2>
+	<LayerWidth_3>819200</LayerWidth_3>
+	<LayerDEM_3>9</LayerDEM_3>
+	<LayerMIN_3>2000</LayerMIN_3>
+	<LayerMAX_3>500000</LayerMAX_3>
+	<LayerDIVIDER_3>0</LayerDIVIDER_3>
+	<LayerWidth_4>102400</LayerWidth_4>
+	<LayerDEM_4>9</LayerDEM_4>
+	<LayerMIN_4>0</LayerMIN_4>
+	<LayerMAX_4>50000</LayerMAX_4>
+	<LayerDIVIDER_4>0</LayerDIVIDER_4>
+	<LayerWidth_5>12800</LayerWidth_5>
+	<LayerDEM_5>9</LayerDEM_5>
+	<LayerMIN_5>0</LayerMIN_5>
+	<LayerMAX_5>10000</LayerMAX_5>
+	<LayerDIVIDER_5>0</LayerDIVIDER_5>
+	<LayerWidth_6>1600</LayerWidth_6>
+	<LayerDEM_6>5</LayerDEM_6>
+	<LayerMIN_6>0</LayerMIN_6>
+	<LayerMAX_6>2000</LayerMAX_6>
+	<LayerDIVIDER_6>0</LayerDIVIDER_6>
+
+
+	<NumPlugins>13</NumPlugins>
+
+	<PluginType_1>org.ptolemy3d.plugin.POILabelPlugin</PluginType_1>
+	<PluginParam_1>P -status 1 -jspurl /JS3DApi/servlet/JSpoi?&amp;POOL=jsapps&amp;CONDITIONS=&amp;ID_COL=id&amp;ICON_COL=group%5Fid&amp;TEXT_COL=name&amp;GEOM_COL=the%5Fgeom&amp;USER=1&amp;UID_COL=user_id&amp;tf=4301;4301 -layer karuizawa_points -iconquerywidth 100000 -numicons 8 -iconprefix /JetStreamLib/icons/karuizawa/icon_1_ -mindistance 80 -encoding UTF-8 -bgcolor 0:204:51:120 -fontcolor 255:255:102:255 -bordercolor 100:100:250:0 -minalt 0 -maxalt 20000 -position CA -pinpoint 0 </PluginParam_1>
+
+	<PluginType_2>org.ptolemy3d.plugin.XVRMLPlugin</PluginType_2>
+	<PluginParam_2>P -status 1 -jspurl /JS3DApi/servlet/JSxvrml?POOL=jsapps&amp;USER=1&amp;UID_COL=user_id&amp;CONDITIONS=&amp;ID_COL=id&amp;GEOM_COL=the_geom&amp;XVRML_COL=x3d_id&amp;tf=4301;4301&amp;TF_COL=transform -x3durl /JS3DApi/servlet/JSgetXvrmlObj?STORE=%2Fusr%2Flocal%2Fapache%2Fhtdocs%2FJetStreamLib%2Fx3d%2Fkaruizawa%2Fguest%2F&amp;RSLV=%2FJetStreamLib%2Fx3d%2Fkaruizawa%2Fguest%2F&amp;NAME=karuizawa_xobj_1_ -layer karuizawa_x3dpt -querywidth 100000 -displayradius 50000 -maxalt 20000 -minalt 0 -maxobjects 200</PluginParam_2>
+
+	<PluginType_3>org.ptolemy3d.plugin.GisToolPlugin</PluginType_3>
+	<PluginParam_3>1</PluginParam_3>
+
+	<PluginType_4>org.ptolemy3d.plugin.POILabelPlugin</PluginType_4>
+	<PluginParam_4>P -status 0 -jspurl /JS3DApi/servlet/JSpoi?&amp;POOL=karuizawa&amp;tf=4301;4301&amp;CONDITIONS=&amp;ID_COL=gid&amp;TEXT_COL=label&amp;GEOM_COL=the%5Fgeom -layer c_gname -iconquerywidth 50000 -numicons 1 -iconprefix /JetStreamLib/common/icon/gname -fontcolor 23:23:157 -maxalt 10000</PluginParam_4>
+
+	<PluginType_5>org.ptolemy3d.plugin.POILabelPlugin</PluginType_5>
+	<PluginParam_5>P -status 0 -jspurl /JS3DApi/servlet/JSpoi?&amp;POOL=karuizawa&amp;tf=4301;4301&amp;CONDITIONS=&amp;ID_COL=gid&amp;TEXT_COL=label&amp;GEOM_COL=the%5Fgeom -layer c_eki_jr -iconquerywidth 50000 -numicons 1 -iconprefix /JetStreamLib/common/icon/eki -bgcolor 255:255:255:255 -fontcolor 40:200:50 -maxalt 10000</PluginParam_5>
+
+	<PluginType_6>org.ptolemy3d.plugin.POILabelPlugin</PluginType_6>
+	<PluginParam_6>P -status 0 -jspurl /JS3DApi/servlet/JSpoi?&amp;POOL=karuizawa&amp;tf=4301;4301&amp;CONDITIONS=&amp;ID_COL=gid&amp;TEXT_COL=label&amp;GEOM_COL=the%5Fgeom -layer c_road -iconquerywidth 50000 -numicons 1 -iconprefix /JetStreamLib/common/icon/road -fontcolor 23:23:23 -maxalt 10000</PluginParam_6>
+
+	<PluginType_7>org.ptolemy3d.plugin.POILabelPlugin</PluginType_7>
+	<PluginParam_7>P -status 0 -jspurl /JS3DApi/servlet/JSpoi?&amp;POOL=karuizawa&amp;tf=4301;4301&amp;CONDITIONS=&amp;ID_COL=gid&amp;TEXT_COL=label&amp;GEOM_COL=the%5Fgeom -layer c_water -iconquerywidth 50000 -numicons 1 -iconprefix /JetStreamLib/common/icon/dot -fontcolor 123:123:243 -maxalt 10000</PluginParam_7>
+
+	<PluginType_8>org.ptolemy3d.plugin.VectorPlugin</PluginType_8>
+	<PluginParam_8>P -status 0 -jspurl /JS3DApi/servlet/JSvector?&amp;POOL=karuizawa&amp;CONDITIONS=&amp;ID_COL=gid&amp;GEOM_COL=the%5Fgeom -layer l_road_all -querywidth 30000 -displayradius 15000 -maxalt 10000 -vectorraise 30 -stroke 70:220:80 -linew 2 -interpolation 20</PluginParam_8>
+
+	<PluginType_9>org.ptolemy3d.plugin.VectorPlugin</PluginType_9>
+	<PluginParam_9>P -status 0 -jspurl /JS3DApi/servlet/JSvector?&amp;POOL=karuizawa&amp;CONDITIONS=&amp;ID_COL=gid&amp;GEOM_COL=the%5Fgeom -layer l_jr_all -querywidth 40000 -displayradius 20000 -maxalt 10000 -vectorraise 30 -stroke 20:20:20 -linew 3 -interpolation 20</PluginParam_9>
+
+	<PluginType_10>org.ptolemy3d.plugin.VectorPlugin</PluginType_10>
+	<PluginParam_10>P -status 0 -jspurl /JS3DApi/servlet/JSvector?&amp;POOL=karuizawa&amp;CONDITIONS=&amp;ID_COL=gid&amp;GEOM_COL=the%5Fgeom -layer l_koku_g -querywidth 100000 -displayradius 30000 -maxalt 20000 -minalt 1000 -vectorraise 75 -stroke 220:20:20 -linew 5 -interpolation 50</PluginParam_10>
+
+	<PluginType_11>org.ptolemy3d.plugin.VectorPlugin</PluginType_11>
+	<PluginParam_11>P -status 0 -jspurl /JS3DApi/servlet/JSvector?&amp;POOL=karuizawa&amp;CONDITIONS=&amp;ID_COL=gid&amp;GEOM_COL=the%5Fgeom -layer l_ken_g -querywidth 100000 -displayradius 30000 -maxalt 20000 -minalt 1000 -vectorraise 75 -stroke 20:220:220 -linew 5 -interpolation 50</PluginParam_11>
+
+	<PluginType_12>org.ptolemy3d.plugin.VectorPlugin</PluginType_12>
+	<PluginParam_12>P -status 0 -jspurl /JS3DApi/servlet/JSvector?&amp;POOL=karuizawa&amp;CONDITIONS=&amp;ID_COL=gid&amp;GEOM_COL=the%5Fgeom -layer p_city -querywidth 100000 -displayradius 30000 -maxalt 20000 -minalt 1000 -vectorraise 75 -stroke 220:220:20 -linew 5 -interpolation 50</PluginParam_12>
+
+	<PluginType_13>org.ptolemy3d.plugin.HudPlugin</PluginType_13>
+	<PluginParam_13>-hudPrefix1 Center: -hudPrefix2 Streaming%20Speed: -hudSuffix2 kb/sec -hudPrefix3 Altitude: -hudSuffix3 meters</PluginParam_13>
+</entity>

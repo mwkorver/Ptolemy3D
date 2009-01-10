@@ -1,0 +1,48 @@
+<entity>
+	<Orientation>132457400,34386018,534.99620798371,48.9524780456691,-50.8786522076171</Orientation>
+
+	<CenterX>0</CenterX>
+	<CenterY>0</CenterY>
+	<DisplayRatio>1</DisplayRatio>
+
+	<Server>127.0.0.1:8080</Server>
+
+	<MapDataSvr1>127.0.0.1:8080</MapDataSvr1>
+	<MServerKey1></MServerKey1>
+	<MapJp2Store1>/</MapJp2Store1>
+	<MapDemStore1>/</MapDemStore1>
+	<nMapDataSvr>1</nMapDataSvr>
+
+	<TILECOLOR>47,47,86</TILECOLOR>
+	<Area>00</Area>
+	<HORIZON>10000</HORIZON>
+	<FlightFrameDelay>200</FlightFrameDelay>z
+	<TIN>0</TIN>
+	<HUD>1</HUD>
+	<FOLLOWDEM>0</FOLLOWDEM>
+	<Units>DD</Units>
+	<BGCOLOR>0,0,0</BGCOLOR>
+	<SubTextures>1</SubTextures>
+
+	<NumLayers>2</NumLayers>
+
+	<LayerWidth_1>6553600</LayerWidth_1>
+	<LayerDEM_1>9</LayerDEM_1>
+	<LayerMIN_1>50000</LayerMIN_1>
+	<LayerMAX_1>10000000</LayerMAX_1>
+	<LayerDIVIDER_1>0</LayerDIVIDER_1>
+
+	<LayerWidth_2>819200</LayerWidth_2>
+	<LayerDEM_2>9</LayerDEM_2>
+	<LayerMIN_2>1000</LayerMIN_2>
+	<LayerMAX_2>10000000</LayerMAX_2>
+	<LayerDIVIDER_2>0</LayerDIVIDER_2>
+	
+	<NumPlugins>1</NumPlugins>
+
+	<PluginType_1>org.ptolemy3d.plugin.LogoPlugin</PluginType_1>
+	<PluginParam_1>/logo_test.png,2</PluginParam_1>
+
+	<PluginType_2>org.ptolemy3d.plugin.HudPlugin</PluginType_2>
+	<PluginParam_2>-hudPrefix1 Center: -hudPrefix2 Streaming%20Speed: -hudSuffix2 kb/sec -hudPrefix3 Altitude: -hudSuffix3 meters</PluginParam_2>
+</entity>

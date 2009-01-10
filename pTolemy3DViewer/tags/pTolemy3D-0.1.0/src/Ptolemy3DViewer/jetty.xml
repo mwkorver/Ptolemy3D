@@ -1,0 +1,54 @@
+<entity>
+	<Orientation>132457400,34386018,534.99620798371,48.9524780456691,-50.8786522076171</Orientation>
+
+	<CenterX>0</CenterX>
+	<CenterY>0</CenterY>
+	<DisplayRatio>1</DisplayRatio>
+
+	<Server>127.0.0.1:8080</Server>
+
+	<MapDataSvr1>127.0.0.1:8080</MapDataSvr1>
+	<MServerKey1></MServerKey1>
+	<MapJp2Store1>/</MapJp2Store1>
+	<MapDemStore1>/</MapDemStore1>
+	<nMapDataSvr>1</nMapDataSvr>
+
+	<TILECOLOR>47,47,86</TILECOLOR>
+	<Area>00</Area>
+	<HORIZON>10000</HORIZON>
+	<FlightFrameDelay>200</FlightFrameDelay>
+	<TIN>0</TIN>
+	<HUD>1</HUD>
+	<FOLLOWDEM>0</FOLLOWDEM>
+	<Units>DD</Units>
+	<BGCOLOR>0,0,0</BGCOLOR>
+	<SubTextures>1</SubTextures>
+
+	<NumLayers>2</NumLayers>
+
+	<LayerWidth_1>6553600</LayerWidth_1>
+	<LayerDEM_1>9</LayerDEM_1>
+	<LayerMIN_1>50000</LayerMIN_1>
+	<LayerMAX_1>10000000</LayerMAX_1>
+	<LayerDIVIDER_1>0</LayerDIVIDER_1>
+
+	<LayerWidth_2>819200</LayerWidth_2>
+	<LayerDEM_2>9</LayerDEM_2>
+	<LayerMIN_2>1000</LayerMIN_2>
+	<LayerMAX_2>10000000</LayerMAX_2>
+	<LayerDIVIDER_2>0</LayerDIVIDER_2>
+	
+	<NumPlugins>4</NumPlugins>
+
+	<PluginType_1>org.ptolemy3d.plugin.POILabelPlugin</PluginType_1>
+	<PluginParam_1>P -status 1 -jspurl /JS3DApi/servlet/JSpoi?POOL=jsapps&amp;CONDITIONS=&amp;ID_COL=id&amp;ICON_COL=group%5Fid&amp;TEXT_COL=name&amp;GEOM_COL=the%5Fgeom&amp;USER=1&amp;UID_COL=user_id&amp;tf=4301;4301 -layer chuden_points -iconquerywidth 1000000 -numicons 5 -iconprefix /JetStreamLib/icons/chuden/icon_1_ -mindistance 50 -encoding UTF-8 -bgcolor 255:255:255:0 -fontcolor 255:255:0:200 -bordercolor 0:102:0:0 -minalt 0 -maxalt 0 -position RM -pinpoint 0 </PluginParam_1>
+
+	<PluginType_2>org.ptolemy3d.plugin.XVRMLPlugin</PluginType_2>
+	<PluginParam_2>P -status 1 -jspurl /JS3DApi/servlet/JSxvrml?POOL=jsapps&amp;USER=1&amp;UID_COL=user_id&amp;CONDITIONS=&amp;ID_COL=id&amp;GEOM_COL=the_geom&amp;XVRML_COL=x3d_id&amp;tf=4301;4301&amp;TF_COL=transform -x3durl /JS3DApi/servlet/JSgetXvrmlObj?STORE=%2Fusr%2Flocal%2Fapache%2Fhtdocs%2FJetStreamLib%2Fx3d%2Fchuden%2Fguest%2F&amp;RSLV=%2FJetStreamLib%2Fx3d%2Fchuden%2Fguest%2F&amp;NAME=chuden_xobj_1_ -layer chuden_x3dpt -querywidth 1000000 -displayradius 500000 -maxalt 0 -minalt 0 -maxobjects 200</PluginParam_2>
+
+	<PluginType_3>org.ptolemy3d.plugin.GisToolPlugin</PluginType_3>
+	<PluginParam_3>1</PluginParam_3>
+
+	<PluginType_4>org.ptolemy3d.plugin.HudPlugin</PluginType_4>
+	<PluginParam_4>-hudPrefix1 Center: -hudPrefix2 Streaming%20Speed: -hudSuffix2 kb/sec -hudPrefix3 Altitude: -hudSuffix3 meters</PluginParam_4>
+</entity>

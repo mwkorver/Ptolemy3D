@@ -1,0 +1,500 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>Map</title>
+
+
+<script language="JavaScript">
+
+var Js3dObj = null;
+
+function flyToPosition(set_x,set_y,set_alt,set_pitch,set_direction,flight_type,flight_tsval,flight_pitch,flight_alt){
+	if(SLegend != null){
+		parent.legend.doSnap = true;
+	}
+
+	if(Js3dObj != null){
+		if(flight_type == "0"){
+			Js3dObj.flyToPositionS(set_x,set_alt,set_y,set_direction,set_pitch,flight_alt,flight_pitch,flight_tsval);
+		}
+		else if(flight_type == "1"){
+			Js3dObj.flyToPositionT(set_x,set_alt,set_y,set_direction,set_pitch,flight_alt,flight_pitch,flight_tsval);
+		}
+	}
+}
+
+/*
+ set type = 0 for line trace mode.
+
+*/
+
+function startAutopilot(tx,ty,type,speed,flightpitch,flightarc,stopalt,stoppitch){
+
+	if(SLegend != null){
+		parent.legend.doSnap = true;
+	}
+
+	if(Js3dObj != null){
+		Js3dObj.flyTo(tx , stopalt , ty , speed , stoppitch , flightpitch , type , flightarc );
+	}
+}
+
+function findPlugin(ptype){
+	if(Js3dObj != null){
+		var pix = 1;
+		var ret = "";
+		var pstr=null,parr=null;
+		while((ret != "NA") && (pix < 10000)){
+			ret = "";
+			pstr = Js3dObj.pluginAction(pix,"getInfo","");
+			if(pstr != null) parr = pstr.split(",");
+
+			if((parr != null) && (parr.length > 0)) ret = parr[0];
+
+			if(ret == ptype) return pix;
+			pix = pix - -1;
+		}
+	}
+	return -1;
+}
+
+function setOrientation(startx,starty,startalt,startdir,startpitch){
+	if(Js3dObj != null){
+		Js3dObj.setOrientation(startx,starty,startalt,startdir,startpitch);
+	}
+}
+
+function spinPanorama(tx,ty,pma){
+	var multp = (mapmode == "1") ? 1000000 : 1;
+
+	if((Js3dObj != null)&&(pma != "")){
+		var pargs = pma.split(",");
+		var t_x = tx*multp;
+		var t_y = ty*multp;
+		Js3dObj.panorama(t_x,t_y,pargs[0],pargs[1],pargs[2],pargs[3]);
+	}
+}
+
+function pluginAction(pluginIndex , command , parameters){
+	if(Js3dObj != null){
+		return Js3dObj.pluginAction(pluginIndex , command , parameters);
+	}
+	else return "NA";
+}
+
+function flyStop(){
+	if(Js3dObj != null){
+		Js3dObj.flyStop();
+	}
+}
+
+function flyStop(){
+	if(Js3dObj != null){
+		Js3dObj.flyStop();
+	}
+}
+
+function getOrientation(){
+	if(Js3dObj != null){
+		return Js3dObj.getOrientation();
+	}
+}
+
+function setDisplayMode(ix){
+	if(Js3dObj != null){
+		Js3dObj.setDisplayMode(ix);
+	}
+}
+
+function setAltitude(alt){
+	if(Js3dObj != null){
+		Js3dObj.setAltitude(alt);
+	}
+}
+
+function copyScene(){
+	if(Js3dObj != null){
+		Js3dObj.copyScene();
+	}
+}
+
+function setTerrainScale(val){
+	if(Js3dObj != null){
+		Js3dObj.setTerrainScale(val);
+	}
+}
+
+function setAccelleration(val){
+	if(Js3dObj != null){
+		Js3dObj.setAccelleration(val);
+	}
+}
+
+function setVelocity(val){
+	if(Js3dObj != null){
+		Js3dObj.setVelocity(val);
+	}
+}
+
+function setAngularSpeed(val){
+	if(Js3dObj != null){
+		Js3dObj.setAngularSpeed(val);
+	}
+}
+
+function realisticFlightOn(val){
+	if(Js3dObj != null){
+		Js3dObj.realisticFlightOn(val);
+	}
+}
+
+function addCursor(server , curfile , nam){
+	if(Js3dObj != null){
+		Js3dObj.addCursor(server , curfile , nam);
+	}
+}
+
+function setCursor(val){
+	if(Js3dObj != null){
+		Js3dObj.setCursor(val);
+	}
+}
+
+function setOnClickMode(val){
+	if(Js3dObj != null){
+		Js3dObj.setOnClickMode(val);
+	}
+}
+
+function asciiKeyRelease(val){
+	if(Js3dObj != null){
+		Js3dObj.asciiKeyRelease(val);
+	}
+}
+
+function asciiKeyPress(val){
+	if(Js3dObj != null){
+		Js3dObj.asciiKeyPress(val);
+	}
+}
+
+function setTerrainFollowMode(val){
+	if(Js3dObj != null){
+		Js3dObj.setTerrainFollowMode(val);
+	}
+}
+
+function getTlAvgBandwidth(val){
+	if(Js3dObj != null){
+		Js3dObj.getTlAvgBandwidth(val);
+	}
+}
+
+function getCameraPosition(){
+	if(Js3dObj != null){
+		return Js3dObj.getCameraPosition();
+	}
+	else return "0,0";
+}
+
+var popwin = null;
+window.onunload = closeUp;
+function closeUp() {
+	closeWin(popwin);
+}
+function openwin(page,w,h,pagename){
+	closeUp();
+	var windowprops = "width="+w+",height="+h+",location=no,toolbar=no,menubar=yes,scrollbars=0,resizable=yes,status=no,alwaysRaised=yes,titlebar='false'";
+	popwin = window.open(page,pagename,windowprops);
+}
+
+function closeWin(obj){
+	if (obj != null) {
+  		if (typeof(obj) == "object") {
+      		obj.close();
+			obj = null;
+      	}
+    }
+}
+
+function destroyApplet(){
+	if(Js3dObj != null){
+		Js3dObj.stop();
+	}
+}
+
+</script>
+
+<script language="JavaScript">
+var JS3DTestStr = "";
+var MapReady = false;
+var PathWindow = null;
+var js3dmuid = "1";
+if((js3dmuid == "") || (js3dmuid == "-1")) window.parent.top.location = "/js3dServ/html/invalid.html";
+
+var startpath = "-1";
+
+var InfoManager = null;
+var Panel = null;
+var GisTools = null;
+
+var Horizon = 10000;
+
+var mapmode = "1";
+var rfm = 0;
+var velocity = 8000;
+var accel = 160;
+var dmode = 0;
+var tmode = true;
+var hmode = true;
+var ControlPanel = null;
+var SLegend = null;
+var MsLegend = null;
+
+function showoutput(msg1,msg2){
+	window.status = "message : " + msg1;
+}
+function plotPosition(lat,lon,alt){
+	if(Panel != null){
+		Panel.plotPosition(lat,lon,alt);
+	}
+
+	if(InfoManager != null){
+		InfoManager.setCoords(lon,lat,alt);
+	}
+	if(GisTools != null){
+		GisTools.setPoint(lon,lat,alt);
+	}
+
+}
+function updatePosition(x,y,theta,alt,fx,fy){
+	if(SLegend != null){
+		SLegend.updatePosition(x,y,theta,alt,fx,fy);
+	}
+	if(ControlPanel != null){
+		ControlPanel.updatePos(x,y,theta,alt,fx,fy);
+	}
+	if(MsLegend != null){
+		MsLegend.PLANE.updatePosition(x,y,theta,alt,fx,fy);
+	}
+}
+
+function init(){
+}
+
+function goHome(){
+	initPage(parent.legend,0);
+	initPage(parent.msraster,0);
+	initPage(parent.controller,0);
+	initPage(parent.categories,0);
+	initPage(parent.tabs,startpath);
+
+	if(SLegend != null){
+		SLegend.centerframeOn(138473040,34764185);
+	}
+
+}
+
+var initCalled = false;
+function sc_init(){
+	Js3dObj = document.getElementById("Map3d").getSubApplet();
+
+	if(initCalled) return;
+	parent.MAP_IS_INIT = true;
+	initCalled = true;
+
+	setTimeout("goHome();",500);
+
+	MapReady = true;
+}
+
+function initPage(pageObj,arg){
+	if(pageObj){
+		if((!pageObj.initComplete)&&(pageObj.isPageLoaded)){
+			pageObj.initComplete = true;
+			pageObj.waitForInit(arg);
+		}
+	}
+}
+
+function actionById(p1,p2,p3){
+openInfoTabnW(p1,p2,p3);;
+}
+
+function openInfoTab(p1,p2,p3){
+
+	var loc = "pgItemInfo.jsp?id=" + p1 + "&plix=" + p3;
+	var infotab = "4";
+	parent.tabs.onSelect(infotab,loc);
+
+}
+
+function openInfoTabnW(p1,p2,p3){
+
+	var loc = "pgItemInfo.jsp?id=" + p1 + "&plix=" + p3;
+
+	openwin(loc,300,300,"iteminfo");
+}
+
+function poiClicked(idnum,str,plugin){
+	if(plugin == 1){
+		var loc = "info.jsp?id=" + idnum;
+		var infotab = "4";
+		parent.tabs.onSelect(infotab,loc);
+	}
+}
+
+function legendGoToObject(tx,ty,talt,arcangle){
+	var alt = talt;
+
+	if(mapmode == 0){
+		startAutopilot(tx,ty,0,"-1","-65",arcangle,alt,"-85");
+	} else{
+		startAutopilot(tx,ty,0,"-1","-0",arcangle,alt,"0");
+	}
+}
+
+function goToObject(tx,ty,talt){
+	var alt = 759;
+	var arcAngle = "35";
+
+	if((talt != "") && (talt > 0)) alt = talt;
+
+	if(mapmode == 0){
+		startAutopilot(tx,ty,0,"-1","-65",arcAngle,alt,"-85");
+	} else{
+		startAutopilot(tx,ty,0,"-1","-0",arcAngle,alt,"0");
+	}
+}
+
+function transport(tx,ty,talt){
+	var alt = 759;
+	var pit = (mapmode == 0) ? -90 : 0;
+	if((talt != "") && (talt > 0)) alt = talt;
+	setOrientation(tx,ty,alt,0,pit);
+}
+function onAutoPilotStop(){
+	if(PathWindow != null){
+		PathWindow.nextStop();
+	}
+}
+</script></head><body onload="init();" leftmargin="0" rightmargin="0" topmargin="0" bottommargin="0" background="" bgcolor="#265e98">
+<div align="center">
+<applet code="com.sun.opengl.util.JOGLAppletLauncher"
+		align="center" width="80%" height="80%"
+		id="Map3d" Name="Map3d"
+		codebase="."
+		archive="jogl.jar,gluegen-rt.jar,netscape.jar,ptolemy3d.jar,ptolemy3d-viewer.jar,ptolemy3d-plugins.jar" MAYSCRIPT>
+	<param name="subapplet.classname" VALUE="org.ptolemy3d.viewer.Ptolemy3DApplet">
+	<param name="subapplet.displayname" VALUE="JS3D-JOGL Applet">
+	<param name="progressbar" value="true">
+	<param name="noddraw.check" value="true">
+	<param name="noddraw.check.silent" value="true">
+	<param name="cache_archive" VALUE="jogl.jar,gluegen-rt.jar,netscape.jar,ptolemy3d.jar,ptolemy3d-viewer.jar,ptolemy3d-plugins.jar">
+	<param name="cache_archive_ex" VALUE="jogl.jar;preload,gluegen-rt.jar;preload,netscape.jar;preload,ptolemy3d.jar;preload,ptolemy3d-viewer.jar;preload,ptolemy3d-plugins.jar;preload">
+
+	<param name="Orientation" value="138473040,34764185,41357.0726172664,313.312501475566,-58.4989908828571">
+
+	<param name="CenterX" value="0">
+	<param name="CenterY" value="0">
+	<param name="DisplayRatio" value="1">
+
+	<param name="Server" value="192.168.10.56">
+
+	<param name="MapDataSvr1" value="192.168.10.56">
+<param name="MServerKey1" value="">
+<param name="MapJp2Store1" value="/mnts/shizuoka/guest/,/mnts/shizuoka/">
+<param name="MapDemStore1" value="/mnts/shizuoka/dem/">
+<param name="nMapDataSvr" value="1">
+
+	<param name="TILECOLOR" value="47,47,86">
+	<param name="Area" value="00">
+	<param name="HORIZON" value="10000">
+	<param name="FlightFrameDelay" value="200">
+	<param name="TIN" value="1">
+	<param name="HUD" value="1">
+	<param name="FOLLOWDEM" value="0">
+	<param name="Units" value="DD">
+	<param name="BGCOLOR" value="0,0,0">
+	<param name="SubTextures" value="1">
+
+
+	<param name="NumLayers" value="6">
+
+	<param name="LayerWidth_1" value="52428800">
+	<param name="LayerDEM_1" value="9">
+	<param name="LayerMIN_1" value="50000">
+	<param name="LayerMAX_1" value="10000000">
+	<param name="LayerDIVIDER_1" value="0">
+	<param name="LayerWidth_2" value="6553600">
+	<param name="LayerDEM_2" value="9">
+	<param name="LayerMIN_2" value="10000">
+	<param name="LayerMAX_2" value="5000000">
+	<param name="LayerDIVIDER_2" value="0">
+	<param name="LayerWidth_3" value="819200">
+	<param name="LayerDEM_3" value="9">
+	<param name="LayerMIN_3" value="2000">
+	<param name="LayerMAX_3" value="500000">
+	<param name="LayerDIVIDER_3" value="0">
+	<param name="LayerWidth_4" value="102400">
+	<param name="LayerDEM_4" value="9">
+	<param name="LayerMIN_4" value="0">
+	<param name="LayerMAX_4" value="50000">
+	<param name="LayerDIVIDER_4" value="0">
+	<param name="LayerWidth_5" value="12800">
+	<param name="LayerDEM_5" value="9">
+	<param name="LayerMIN_5" value="0">
+	<param name="LayerMAX_5" value="10000">
+	<param name="LayerDIVIDER_5" value="1000000">
+	<param name="LayerWidth_6" value="1600">
+	<param name="LayerDEM_6" value="9">
+	<param name="LayerMIN_6" value="0">
+	<param name="LayerMAX_6" value="2000">
+	<param name="LayerDIVIDER_6" value="100000">
+
+
+	<param name="NumPlugins" value="11">
+
+	<param name="PluginType_1" value="org.ptolemy3d.plugin.POILabelPlugin">
+	<param name="PluginParam_1" value="P -status 1 -jspurl /JS3DApi/servlet/JSpoi?POOL=jsapps&amp;CONDITIONS=&amp;ID_COL=id&amp;ICON_COL=group%5Fid&amp;TEXT_COL=name&amp;GEOM_COL=the%5Fgeom&amp;USER=1&amp;UID_COL=user_id -layer shizuoka_points -iconquerywidth 1000000 -numicons 7 -iconprefix /JetStreamLib/icons/shizuoka/icon_1_ -mindistance 65 -encoding UTF-8 -bgcolor 240:240:240:0 -fontcolor 255:0:0:255 -bordercolor 100:100:250:0 -minalt 0 -maxalt 47200 -position RM -pinpoint 0 ">
+
+	<param name="PluginType_2" value="org.ptolemy3d.plugin.XVRMLPlugin">
+	<param name="PluginParam_2" value="P -status 1 -jspurl /JS3DApi/servlet/JSxvrml?POOL=jsapps&amp;USER=1&amp;UID_COL=user_id&amp;CONDITIONS=&amp;ID_COL=id&amp;GEOM_COL=the_geom&amp;XVRML_COL=x3d_id&amp;TF_COL=transform -x3durl /JS3DApi/servlet/JSgetXvrmlObj?STORE=%2Fusr%2Flocal%2Fapache%2Fhtdocs%2FJetStreamLib%2Fx3d%2Fshizuoka%2Fguest%2F&amp;RSLV=%2FJetStreamLib%2Fx3d%2Fshizuoka%2Fguest%2F&amp;NAME=shizuoka_xobj_1_ -layer shizuoka_x3dpt -querywidth 1000000 -displayradius 500000 -maxalt 47200 -minalt 0 -maxobjects 200">
+
+	<param name="PluginType_3" value="org.ptolemy3d.plugin.GisToolPlugin">
+	<param name="PluginParam_3" value="1">
+
+	<param name="PluginType_4" value="org.ptolemy3d.plugin.POILabelPlugin">
+	<param name="PluginParam_4" value="P -status 0 -jspurl /JS3DApi/servlet/JSpoi?POOL=jsapps&amp;CONDITIONS=&amp;ID_COL=gid&amp;ICON_COL=icon%5Fid&amp;TEXT_COL=country%5Fj&amp;GEOM_COL=the%5Fgeom -layer world_country -iconquerywidth 30000000 -numicons 1 -iconprefix /JetStreamLib/common/earth/icon/country -mindistance 50 -encoding UTF-8 -bgcolor 108:148:118:0 -fontcolor 240:50:190:255 -bordercolor 83:119:91:0 -minalt 100000 -maxalt 10000000">
+
+	<param name="PluginType_5" value="org.ptolemy3d.plugin.POILabelPlugin">
+	<param name="PluginParam_5" value="P -status 0 -jspurl /JS3DApi/servlet/JSpoi?POOL=jsapps&amp;CONDITIONS=&amp;ID_COL=gid&amp;ICON_COL=icon%5Fid&amp;TEXT_COL=text%5Fj&amp;GEOM_COL=the%5Fgeom -layer world_seas -iconquerywidth 45000000 -numicons 1 -iconprefix /JetStreamLib/common/earth/icon/sea -mindistance 60 -encoding UTF-8 -bgcolor 75:139:255 -fontcolor 10:60:95 -bordercolor 95:159:255 -minalt 100000 -maxalt 10000000">
+
+	<param name="PluginType_6" value="org.ptolemy3d.plugin.POILabelPlugin">
+	<param name="PluginParam_6" value="P -status 0 -jspurl /JS3DApi/servlet/JSpoi?POOL=jsapps&amp;CONDITIONS=&amp;ID_COL=gid&amp;ICON_COL=icon%5Fid&amp;TEXT_COL=text%5Fj&amp;GEOM_COL=the%5Fgeom -layer world_islands -iconquerywidth 45000000 -numicons 1 -iconprefix /JetStreamLib/common/earth/icon/island -mindistance 60 -encoding UTF-8 -bgcolor 250:250:250 -fontcolor 10:60:95 -bordercolor 230:230:240 -minalt 100000 -maxalt 10000000">
+
+	<param name="PluginType_7" value="org.ptolemy3d.plugin.POILabelPlugin">
+	<param name="PluginParam_7" value="P -status 0 -jspurl /JS3DApi/servlet/JSpoi?POOL=jsapps&amp;CONDITIONS=&amp;ID_COL=gid&amp;ICON_COL=icon%5Fid&amp;TEXT_COL=city%5Fj&amp;GEOM_COL=the%5Fgeom -layer world_cities -iconquerywidth 5000000 -numicons 7 -iconprefix /JetStreamLib/common/earth/icon/city -mindistance 70 -encoding UTF-8 -bgcolor 210:210:210 -fontcolor 80:80:80 -bordercolor 230:230:240 -minalt 2000 -maxalt 1000000">
+
+	<param name="PluginType_8" value="org.ptolemy3d.plugin.VectorPlugin">
+	<param name="PluginParam_8" value="P -status 0 -jspurl /JS3DApi/servlet/JSvector?POOL=jsapps&amp;CONDITIONS=&amp;ID_COL=gid&amp;GEOM_COL=the%5Fgeom -layer country_poly -querywidth 40000000 -displaywidth 10000000 -maxalt 10000000 -minalt 50000 -vectorraise 100 -stroke 240:250:30 -linew 2">
+
+	<param name="PluginType_9" value="org.ptolemy3d.plugin.VectorPlugin">
+	<param name="PluginParam_9" value="P -status 0 -jspurl /JS3DApi/servlet/JSvector?POOL=jsapps&amp;CONDITIONS=&amp;ID_COL=gid&amp;GEOM_COL=the%5Fgeom -layer shimodaroad -querywidth 30000 -displaywidth 15000 -maxalt 10000 -vectorraise 2 -stroke 70:220:80 -linew 2 -interpolation 100">
+
+	<param name="PluginType_10" value="org.ptolemy3d.plugin.BuildingPlugin">
+	<param name="PluginParam_10" value="0,1,/JS3DApi/servlet/JSbuilding?POOL=jsapps&amp;CONDITIONS=&amp;ID_COL=gid&amp;GEOM_COL=the%5Fgeom&amp;HT_COL=roofht&amp;WALL_ID_COL=wallid,shimodatatemono,30000,15000,10000,8,/JetStreamLib/walls/dm2_">
+
+	<param name="PluginType_11" value="org.ptolemy3d.plugin.HudPlugin">
+	<param name="PluginParam_11" value="-hudPrefix1 Center: -hudPrefix2 Streaming%20Speed: -hudSuffix2 kb/sec -hudPrefix3 Altitude: -hudSuffix3 meters">
+</applet>
+</div>
+<!--
+<table width="100%" style="font-weight:bold;font-size:12px;size:12px;background-color:#222222;color:#EEEEEE;font-color:#EEEEEE;">
+<tr>
+	<td width="21%" align="center">&nbsp; X , Y</td>
+	<td align="center" width="47%">??M?X?s?[?h</td>
+	<td align="center" width="16%">?k??</td>
+	<td align="center" width="16%">???x?i???j</td>
+</tr>
+</table>
+-->
+</body></html>

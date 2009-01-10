@@ -1,0 +1,15 @@
+i=../../datas/input/52428800/00x0y0.png
+o=../../datas/output/52428800/00x0y0.jp2
+tiles=1024 1024
+lossless=on
+#rate=3
+Wlev=3
+Aptype=res
+Alayers=st
+pph_tile=on
+#pph_main=on
+#Psop=on
+#Peph=on
+#Ralign=on
+#file_format=off
+#tile_parts=1

@@ -1,0 +1,54 @@
+Map Server
+	Server - 192.168.10.56</Server>
+	nMapDataSvr - Number of map servers
+	MapDataSvr<i>i</i> - IP of the map server <i>i</i>
+	MServerKey<i>i</i> - Key of the map server <i>i</i>
+	MapJp2Store<i>i</i> - List of jp2 datas folder on the map server <i>i</i>, separated with comma.
+	MapDemStore<i>i</i> - List of dem datas folder on the map server <i>i</i>, separated with comma.
+
+
+Layers
+	NumLayers - Number of layers
+
+	LayerWidth_<i>i</i> - 
+	LayerDEM_<i>i</i> - 
+	LayerMIN_<i>i</i> - 
+	LayerMAX_<i>i</i> - 
+	LayerDIVIDER_<i>i</i> - 
+
+
+Positioning
+	Orientation - Initial position in the format: longitude,latitude,altitude,direction,pitch
+	              Units are: DD,DD,METERS,RADIANS,RADIANS
+	FOLLOWDEM - Camera follow globe elevation.
+
+
+Coordinate system
+	CenterX - Default is 0
+	CenterY - Default is 0
+
+
+JP2 Tiles
+	Area - Default is 00
+	TILECOLOR - Default tile color, when jp2 is not yet downloaded.
+	FlightFrameDelay - JP2 Tile downloader delayed when flying in auto-mode.
+
+
+Miscellaneous
+	BGCOLOR - Background color
+	HORIZON - Horizon/Atmosphere altitude.
+	TIN - Enable/Disable TIN elevation model
+	SubTextures - Internal texture management behavior.
+
+
+Plugins
+	NumPlugins - Number of plugins
+
+	PluginType_<i>i</i> - Plugin <i>i</i> full class name
+	PluginParam_1>P -status 1 -jspurl /JS3DApi/servlet/JSpoi?POOL=jsapps&amp;CONDITIONS=&amp;ID_COL=id&amp;ICON_COL=group%5Fid&amp;TEXT_COL=name&amp;GEOM_COL=the%5Fgeom&amp;USER=1&amp;UID_COL=user_id&amp;tf=4301;4301 -layer setagaya_points -iconquerywidth 1000000 -numicons 13 -iconprefix /JetStreamLib/icons/setagaya/icon_1_ -mindistance 65 -encoding UTF-8 -bgcolor 255:255:255:255 -fontcolor 10:10:10:255 -bordercolor 100:100:250:255 -minalt 0 -maxalt 0 -position RM -pinpoint 0 </PluginParam_1>
+
+
+Deprecated (not used anymore)
+	Units - 
+	HUD - 
+	DisplayRatio - 

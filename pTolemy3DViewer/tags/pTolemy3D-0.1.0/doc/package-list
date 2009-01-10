@@ -1,0 +1,9 @@
+org.ptolemy3d
+org.ptolemy3d.font
+org.ptolemy3d.io
+org.ptolemy3d.math
+org.ptolemy3d.scene
+org.ptolemy3d.tile
+org.ptolemy3d.tile.jp2
+org.ptolemy3d.util
+org.ptolemy3d.view

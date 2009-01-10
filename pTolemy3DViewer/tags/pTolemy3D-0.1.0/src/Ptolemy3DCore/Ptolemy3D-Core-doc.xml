@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="javadoc">
+    <target name="javadoc">
+        <javadoc access="public"
+        	doctitle="Ptolemy 3D (ptolemy3d.org)"
+        	additionalparam=" -windowtitle &quot;Ptolemy 3D&quot;" author="true"
+        	classpath="..\..\lib\jogl.jar;
+        			   ..\..\lib\netscape.jar;
+        			   ..\..\lib\gluegen-rt.jar"
+        	destdir="D:\Mes documents\Mes Programmes\Ptolemy3D\Ptolemy3D\doc"
+        	nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false"
+        	packagenames="
+        		org.ptolemy3d,
+        		org.ptolemy3d.font,
+        		org.ptolemy3d.io,
+        		org.ptolemy3d.math,
+        		org.ptolemy3d.scene,
+        		org.ptolemy3d.tile,
+        		org.ptolemy3d.tile.jp2,
+        		org.ptolemy3d.util,
+        		org.ptolemy3d.view"
+        	source="1.5" sourcepath="." splitindex="true" use="true" version="true"/>
+    </target>
+</project>

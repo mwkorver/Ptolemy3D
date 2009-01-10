@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="WINDOWS-1252" standalone="no"?>
+<jardesc>
+    <jar path="D:/Mes documents/Mes Programmes/Ptolemy3D/Ptolemy3D/tools/jj2000-5.1-mod.jar"/>
+    <options buildIfNeeded="true" compress="true" descriptionLocation="/jj2000-5.1/src/jj2000-5.1-mod-jar.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="false" overwrite="true" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
+    <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
+    <selectedProjects/>
+    <manifest generateManifest="true" manifestLocation="" manifestVersion="1.0" reuseManifest="false" saveManifest="false" usesManifest="true">
+        <sealing sealJar="false">
+            <packagesToSeal/>
+            <packagesToUnSeal/>
+        </sealing>
+    </manifest>
+    <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
+        <javaElement handleIdentifier="=jj2000-5.1/src&lt;icc"/>
+        <javaElement handleIdentifier="=jj2000-5.1/src&lt;jj2000.j2k.wavelet"/>
+        <javaElement handleIdentifier="=jj2000-5.1/src&lt;jj2000.j2k.codestream"/>
+        <javaElement handleIdentifier="=jj2000-5.1/src&lt;jj2000.j2k.codestream.reader"/>
+        <javaElement handleIdentifier="=jj2000-5.1/src&lt;jj2000.j2k.entropy.encoder"/>
+        <javaElement handleIdentifier="=jj2000-5.1/src&lt;icc.lut"/>
+        <javaElement handleIdentifier="=jj2000-5.1/src&lt;jj2000.j2k.fileformat.reader"/>
+        <javaElement handleIdentifier="=jj2000-5.1/src&lt;colorspace.boxes"/>
+        <javaElement handleIdentifier="=jj2000-5.1/src&lt;jj2000.j2k.fileformat"/>
+        <javaElement handleIdentifier="=jj2000-5.1/src&lt;jj2000.j2k.io"/>
+        <javaElement handleIdentifier="=jj2000-5.1/src&lt;jj2000.j2k.wavelet.analysis"/>
+        <javaElement handleIdentifier="=jj2000-5.1/src&lt;jj2000.j2k.wavelet.synthesis"/>
+        <javaElement handleIdentifier="=jj2000-5.1/src&lt;"/>
+        <javaElement handleIdentifier="=jj2000-5.1/src&lt;colorspace"/>
+        <javaElement handleIdentifier="=jj2000-5.1/src&lt;jj2000.j2k"/>
+        <javaElement handleIdentifier="=jj2000-5.1/src&lt;jj2000.j2k.fileformat.writer"/>
+        <javaElement handleIdentifier="=jj2000-5.1/src&lt;jj2000.j2k.util"/>
+        <javaElement handleIdentifier="=jj2000-5.1/src&lt;jj2000.disp"/>
+        <javaElement handleIdentifier="=jj2000-5.1/src&lt;jj2000.j2k.decoder"/>
+        <javaElement handleIdentifier="=jj2000-5.1/src&lt;jj2000.j2k.image.invcomptransf"/>
+        <javaElement handleIdentifier="=jj2000-5.1/src&lt;jj2000.j2k.quantization"/>
+        <javaElement handleIdentifier="=jj2000-5.1/src&lt;jj2000.j2k.roi.encoder"/>
+        <javaElement handleIdentifier="=jj2000-5.1/src&lt;jj2000.j2k.entropy"/>
+        <javaElement handleIdentifier="=jj2000-5.1/src&lt;jj2000.j2k.image.input"/>
+        <javaElement handleIdentifier="=jj2000-5.1/src&lt;jj2000.j2k.image"/>
+        <javaElement handleIdentifier="=jj2000-5.1/src&lt;jj2000.j2k.entropy.decoder"/>
+        <javaElement handleIdentifier="=jj2000-5.1/src&lt;icc.types"/>
+        <javaElement handleIdentifier="=jj2000-5.1/src&lt;jj2000.j2k.quantization.dequantizer"/>
+        <javaElement handleIdentifier="=jj2000-5.1/src&lt;jj2000.j2k.codestream.writer"/>
+        <javaElement handleIdentifier="=jj2000-5.1/src&lt;icc.tags"/>
+        <javaElement handleIdentifier="=jj2000-5.1/src&lt;jj2000.j2k.encoder"/>
+        <javaElement handleIdentifier="=jj2000-5.1/src&lt;jj2000.j2k.image.output"/>
+        <javaElement handleIdentifier="=jj2000-5.1/src&lt;jj2000.j2k.image.forwcomptransf"/>
+        <javaElement handleIdentifier="=jj2000-5.1/src&lt;jj2000.j2k.roi"/>
+        <javaElement handleIdentifier="=jj2000-5.1/src&lt;jj2000.j2k.quantization.quantizer"/>
+    </selectedElements>
+</jardesc>

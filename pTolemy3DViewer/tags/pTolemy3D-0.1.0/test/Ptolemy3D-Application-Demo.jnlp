@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<jnlp spec="1.0+" codebase="./" href="Ptolemy3D-Application-Demo.jnlp">
+	<information>
+		<title>Graphic Engine</title>
+		<vendor>pTolemy3D.org</vendor>
+		<homepage href="http://www.ptolemy3d.org/"/>
+		<description>pTolemy3D Viewer</description>
+		<offline-allowed/>
+	</information>
+
+	<security>
+		<all-permissions/>
+	</security>
+
+	<resources>
+		<j2se version="1.5+"/>
+		<jar href="../bin/ptolemy3d.jar"/>
+		<jar href="../bin/ptolemy3d-plugins.jar"/>
+		<jar href="../bin/ptolemy3d-viewer.jar"/>
+		<extension name="JOGL" href="jogl.jnlp" />
+	</resources>
+
+	<component-desc />
+	
+	<application-desc main-class="org.ptolemy3d.viewer.Ptolemy3DFrame">
+		<argument>-xmlfile demo.xml -w 640 -h 480</argument>
+	</application-desc>
+</jnlp>

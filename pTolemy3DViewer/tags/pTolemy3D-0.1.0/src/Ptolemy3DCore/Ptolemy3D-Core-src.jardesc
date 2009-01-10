@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="WINDOWS-1252" standalone="no"?>
+<jardesc>
+    <jar path="D:/Mes documents/Mes Programmes/Ptolemy3D/Ptolemy3D/bin/ptolemy3d-src.jar"/>
+    <options buildIfNeeded="true" compress="true" descriptionLocation="/Ptolemy3D-Core/Ptolemy3D-Core-src.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="false" overwrite="true" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
+    <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
+    <selectedProjects/>
+    <selectedElements exportClassFiles="false" exportJavaFiles="true" exportOutputFolder="false">
+        <javaElement handleIdentifier="=Ptolemy3D-Core/&lt;org.ptolemy3d"/>
+        <javaElement handleIdentifier="=Ptolemy3D-Core/&lt;org.ptolemy3d.debug"/>
+        <javaElement handleIdentifier="=Ptolemy3D-Core/&lt;org.ptolemy3d.font"/>
+        <javaElement handleIdentifier="=Ptolemy3D-Core/&lt;org.ptolemy3d.io"/>
+        <javaElement handleIdentifier="=Ptolemy3D-Core/&lt;org.ptolemy3d.math"/>
+        <javaElement handleIdentifier="=Ptolemy3D-Core/&lt;org.ptolemy3d.scene"/>
+        <javaElement handleIdentifier="=Ptolemy3D-Core/&lt;org.ptolemy3d.tile"/>
+        <javaElement handleIdentifier="=Ptolemy3D-Core/&lt;org.ptolemy3d.tile.jp2"/>
+        <javaElement handleIdentifier="=Ptolemy3D-Core/&lt;org.ptolemy3d.util"/>
+        <javaElement handleIdentifier="=Ptolemy3D-Core/&lt;org.ptolemy3d.view"/>
+    </selectedElements>
+</jardesc>

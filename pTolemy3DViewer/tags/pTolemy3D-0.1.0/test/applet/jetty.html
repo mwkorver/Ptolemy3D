@@ -1,0 +1,450 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"><title>Map</title>
+
+
+<script language="JavaScript">
+
+var Js3dObj = null;
+
+function flyToPosition(set_x,set_y,set_alt,set_pitch,set_direction,flight_type,flight_tsval,flight_pitch,flight_alt){
+	if(SLegend != null){
+		parent.legend.doSnap = true;
+	}
+
+	if(Js3dObj != null){
+		if(flight_type == "0"){
+			Js3dObj.flyToPositionS(set_x,set_alt,set_y,set_direction,set_pitch,flight_alt,flight_pitch,flight_tsval);
+		}
+		else if(flight_type == "1"){
+			Js3dObj.flyToPositionT(set_x,set_alt,set_y,set_direction,set_pitch,flight_alt,flight_pitch,flight_tsval);
+		}
+	}
+}
+
+/*
+ set type = 0 for line trace mode.
+
+*/
+
+function startAutopilot(tx,ty,type,speed,flightpitch,flightarc,stopalt,stoppitch){
+
+	if(SLegend != null){
+		parent.legend.doSnap = true;
+	}
+
+	if(Js3dObj != null){
+		Js3dObj.flyTo(tx , stopalt , ty , speed , stoppitch , flightpitch , type , flightarc );
+	}
+}
+
+function findPlugin(ptype){
+	if(Js3dObj != null){
+		var pix = 1;
+		var ret = "";
+		var pstr=null,parr=null;
+		while((ret != "NA") && (pix < 10000)){
+			ret = "";
+			pstr = Js3dObj.pluginAction(pix,"getInfo","");
+			if(pstr != null) parr = pstr.split(",");
+
+			if((parr != null) && (parr.length > 0)) ret = parr[0];
+
+			if(ret == ptype) return pix;
+			pix = pix - -1;
+		}
+	}
+	return -1;
+}
+
+function setOrientation(startx,starty,startalt,startdir,startpitch){
+	if(Js3dObj != null){
+		Js3dObj.setOrientation(startx,starty,startalt,startdir,startpitch);
+	}
+}
+
+function spinPanorama(tx,ty,pma){
+	var multp = (mapmode == "1") ? 1000000 : 1;
+
+	if((Js3dObj != null)&&(pma != "")){
+		var pargs = pma.split(",");
+		var t_x = tx*multp;
+		var t_y = ty*multp;
+		Js3dObj.panorama(t_x,t_y,pargs[0],pargs[1],pargs[2],pargs[3]);
+	}
+}
+
+function pluginAction(pluginIndex , command , parameters){
+	if(Js3dObj != null){
+		return Js3dObj.pluginAction(pluginIndex , command , parameters);
+	}
+	else return "NA";
+}
+
+function flyStop(){
+	if(Js3dObj != null){
+		Js3dObj.flyStop();
+	}
+}
+
+function flyStop(){
+	if(Js3dObj != null){
+		Js3dObj.flyStop();
+	}
+}
+
+function getOrientation(){
+	if(Js3dObj != null){
+		return Js3dObj.getOrientation();
+	}
+}
+
+function setDisplayMode(ix){
+	if(Js3dObj != null){
+		Js3dObj.setDisplayMode(ix);
+	}
+}
+
+function setAltitude(alt){
+	if(Js3dObj != null){
+		Js3dObj.setAltitude(alt);
+	}
+}
+
+function copyScene(){
+	if(Js3dObj != null){
+		Js3dObj.copyScene();
+	}
+}
+
+function setTerrainScale(val){
+	if(Js3dObj != null){
+		Js3dObj.setTerrainScale(val);
+	}
+}
+
+function setAccelleration(val){
+	if(Js3dObj != null){
+		Js3dObj.setAccelleration(val);
+	}
+}
+
+function setVelocity(val){
+	if(Js3dObj != null){
+		Js3dObj.setVelocity(val);
+	}
+}
+
+function setAngularSpeed(val){
+	if(Js3dObj != null){
+		Js3dObj.setAngularSpeed(val);
+	}
+}
+
+function realisticFlightOn(val){
+	if(Js3dObj != null){
+		Js3dObj.realisticFlightOn(val);
+	}
+}
+
+function addCursor(server , curfile , nam){
+	if(Js3dObj != null){
+		Js3dObj.addCursor(server , curfile , nam);
+	}
+}
+
+function setCursor(val){
+	if(Js3dObj != null){
+		Js3dObj.setCursor(val);
+	}
+}
+
+function setOnClickMode(val){
+	if(Js3dObj != null){
+		Js3dObj.setOnClickMode(val);
+	}
+}
+
+function asciiKeyRelease(val){
+	if(Js3dObj != null){
+		Js3dObj.asciiKeyRelease(val);
+	}
+}
+
+function asciiKeyPress(val){
+	if(Js3dObj != null){
+		Js3dObj.asciiKeyPress(val);
+	}
+}
+
+function setTerrainFollowMode(val){
+	if(Js3dObj != null){
+		Js3dObj.setTerrainFollowMode(val);
+	}
+}
+
+function getTlAvgBandwidth(val){
+	if(Js3dObj != null){
+		Js3dObj.getTlAvgBandwidth(val);
+	}
+}
+
+function getCameraPosition(){
+	if(Js3dObj != null){
+		return Js3dObj.getCameraPosition();
+	}
+	else return "0,0";
+}
+
+var popwin = null;
+window.onunload = closeUp;
+function closeUp() {
+	closeWin(popwin);
+}
+function openwin(page,w,h,pagename){
+	closeUp();
+	var windowprops = "width="+w+",height="+h+",location=no,toolbar=no,menubar=yes,scrollbars=0,resizable=yes,status=no,alwaysRaised=yes,titlebar='false'";
+	popwin = window.open(page,pagename,windowprops);
+}
+
+function closeWin(obj){
+	if (obj != null) {
+  		if (typeof(obj) == "object") {
+      		obj.close();
+			obj = null;
+      	}
+    }
+}
+
+function destroyApplet(){
+	if(Js3dObj != null){
+		Js3dObj.stop();
+	}
+}
+
+</script>
+
+<script language="JavaScript">
+var JS3DTestStr = "";
+var MapReady = false;
+var PathWindow = null;
+var js3dmuid = "1";
+if((js3dmuid == "") || (js3dmuid == "-1")) window.parent.top.location = "/js3dServ/html/invalid.html";
+
+var startpath = "-1";
+
+var InfoManager = null;
+var Panel = null;
+var GisTools = null;
+
+var Horizon = 10000;
+
+var mapmode = "1";
+var rfm = 0;
+var velocity = 8000;
+var accel = 160;
+var dmode = 0;
+var tmode = true;
+var hmode = true;
+var ControlPanel = null;
+var SLegend = null;
+var MsLegend = null;
+
+function showoutput(msg1,msg2){
+	window.status = "message : " + msg1;
+}
+function plotPosition(lat,lon,alt){
+	if(Panel != null){
+		Panel.plotPosition(lat,lon,alt);
+	}
+
+	if(InfoManager != null){
+		InfoManager.setCoords(lon,lat,alt);
+	}
+	if(GisTools != null){
+		GisTools.setPoint(lon,lat,alt);
+	}
+
+}
+function updatePosition(x,y,theta,alt,fx,fy){
+	if(SLegend != null){
+		SLegend.updatePosition(x,y,theta,alt,fx,fy);
+	}
+	if(ControlPanel != null){
+		ControlPanel.updatePos(x,y,theta,alt,fx,fy);
+	}
+	if(MsLegend != null){
+		MsLegend.PLANE.updatePosition(x,y,theta,alt,fx,fy);
+	}
+}
+
+function init(){
+}
+
+function goHome(){
+	initPage(parent.legend,0);
+	initPage(parent.msraster,0);
+	initPage(parent.controller,0);
+	initPage(parent.categories,0);
+	initPage(parent.tabs,startpath);
+
+	if(SLegend != null){
+		SLegend.centerframeOn(132457400,34386018);
+	}
+
+}
+
+var initCalled = false;
+function sc_init(){
+	Js3dObj = document.getElementById("Map3d").getSubApplet();
+
+	if(initCalled) return;
+	parent.MAP_IS_INIT = true;
+	initCalled = true;
+
+	setTimeout("goHome();",500);
+
+	MapReady = true;
+}
+
+function initPage(pageObj,arg){
+	if(pageObj){
+		if((!pageObj.initComplete)&&(pageObj.isPageLoaded)){
+			pageObj.initComplete = true;
+			pageObj.waitForInit(arg);
+		}
+	}
+}
+
+function actionById(p1,p2,p3){
+openInfoTabnW(p1,p2,p3);;
+}
+
+function openInfoTab(p1,p2,p3){
+
+	var loc = "pgItemInfo.jsp?id=" + p1 + "&plix=" + p3;
+	var infotab = "3";
+	parent.tabs.onSelect(infotab,loc);
+
+}
+
+function openInfoTabnW(p1,p2,p3){
+
+	var loc = "pgItemInfo.jsp?id=" + p1 + "&plix=" + p3;
+
+	openwin(loc,300,300,"iteminfo");
+}
+
+function poiClicked(idnum,str,plugin){
+	if(plugin == 1){
+		var loc = "info.jsp?id=" + idnum;
+		var infotab = "3";
+		parent.tabs.onSelect(infotab,loc);
+	}
+}
+
+function legendGoToObject(tx,ty,talt,arcangle){
+	var alt = talt;
+
+	if(mapmode == 0){
+		startAutopilot(tx,ty,0,"-1","-65",arcangle,alt,"-85");
+	} else{
+		startAutopilot(tx,ty,0,"-1","-0",arcangle,alt,"0");
+	}
+}
+
+function goToObject(tx,ty,talt){
+	var alt = 1000;
+	var arcAngle = "10";
+
+	if((talt != "") && (talt > 0)) alt = talt;
+
+	if(mapmode == 0){
+		startAutopilot(tx,ty,0,"-1","-65",arcAngle,alt,"-85");
+	} else{
+		startAutopilot(tx,ty,0,"-1","-0",arcAngle,alt,"0");
+	}
+}
+
+function transport(tx,ty,talt){
+	var alt = 1000;
+	var pit = (mapmode == 0) ? -90 : 0;
+	if((talt != "") && (talt > 0)) alt = talt;
+	setOrientation(tx,ty,alt,0,pit);
+}
+function onAutoPilotStop(){
+	if(PathWindow != null){
+		PathWindow.nextStop();
+	}
+}
+</script></head><body onload="init();" leftmargin="0" rightmargin="0" topmargin="0" bottommargin="0" background="" bgcolor="#265e98">
+<div align="center">
+<applet code="com.sun.opengl.util.JOGLAppletLauncher"
+		align="center" width="80%" height="80%"
+		id="Map3d" Name="Map3d"
+		codebase="."
+		archive="jogl.jar,gluegen-rt.jar,netscape.jar,ptolemy3d.jar,ptolemy3d-viewer.jar,ptolemy3d-plugins.jar" MAYSCRIPT>
+	<param name="subapplet.classname" VALUE="org.ptolemy3d.viewer.Ptolemy3DApplet">
+	<param name="subapplet.displayname" VALUE="JS3D-JOGL Applet">
+	<param name="progressbar" value="true">
+	<param name="noddraw.check" value="true">
+	<param name="noddraw.check.silent" value="true">
+	<param name="cache_archive" VALUE="jogl.jar,gluegen-rt.jar,netscape.jar,ptolemy3d.jar,ptolemy3d-viewer.jar,ptolemy3d-plugins.jar">
+	<param name="cache_archive_ex" VALUE="jogl.jar;preload,gluegen-rt.jar;preload,netscape.jar;preload,ptolemy3d.jar;preload,ptolemy3d-viewer.jar;preload,ptolemy3d-plugins.jar;preload">
+
+	<param name="Orientation" value="132457400,34386018,534.99620798371,48.9524780456691,-50.8786522076171">
+
+	<param name="CenterX" value="0">
+	<param name="CenterY" value="0">
+	<param name="DisplayRatio" value="1">
+
+	<param name="Server" value="127.0.0.1:8080">
+
+	<param name="MapDataSvr1" value="127.0.0.1:8080">
+<param name="MServerKey1" value="">
+<param name="MapJp2Store1" value="/">
+<param name="MapDemStore1" value="/">
+<param name="nMapDataSvr" value="1">
+
+	<param name="TILECOLOR" value="47,47,86">
+	<param name="Area" value="00">
+	<param name="HORIZON" value="10000">
+	<param name="FlightFrameDelay" value="200">
+	<param name="TIN" value="0">
+	<param name="HUD" value="1">
+	<param name="FOLLOWDEM" value="0">
+	<param name="Units" value="DD">
+	<param name="BGCOLOR" value="0,0,0">
+	<param name="SubTextures" value="1">
+
+
+	<param name="NumLayers" value="2">
+
+	<param name="LayerWidth_1" value="6553600">
+	<param name="LayerDEM_1" value="9">
+	<param name="LayerMIN_1" value="5000">
+	<param name="LayerMAX_1" value="10000000">
+	<param name="LayerDIVIDER_1" value="0">
+	<param name="LayerWidth_2" value="819200">
+	<param name="LayerDEM_2" value="9">
+	<param name="LayerMIN_2" value="500">
+	<param name="LayerMAX_2" value="10000000">
+	<param name="LayerDIVIDER_2" value="0">
+
+
+	<param name="NumPlugins" value="1">
+
+	<param name="PluginType_1" value="org.ptolemy3d.plugin.HudPlugin">
+	<param name="PluginParam_1" value="-hudPrefix1 Center: -hudPrefix2 Streaming%20Speed: -hudSuffix2 kb/sec -hudPrefix3 Altitude: -hudSuffix3 meters">
+</applet>
+</div>
+<!--
+<table width="100%" style="font-weight:bold;font-size:12px;size:12px;background-color:#222222;color:#EEEEEE;font-color:#EEEEEE;">
+<tr>
+	<td width="21%" align="center">&nbsp; X , Y</td>
+	<td align="center" width="47%">??M?X?s?[?h</td>
+	<td align="center" width="16%">?k??</td>
+	<td align="center" width="16%">???x?i???j</td>
+</tr>
+</table>
+-->
+</body></html>

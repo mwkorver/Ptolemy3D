@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Ptolemy3D-Core"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Ptolemy3D-Plugins"/>
+	<classpathentry kind="lib" path="D:/Mes documents/Mes Programmes/Ptolemy3D/Ptolemy3D/lib/netscape.jar"/>
+	<classpathentry kind="lib" path="D:/Mes documents/Mes Programmes/Ptolemy3D/Ptolemy3D/lib/gluegen-rt.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="D:/Mes documents/Mes Programmes/Ptolemy3D/Ptolemy3D/lib/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="D:/Mes documents/Mes Programmes/Ptolemy3D/Ptolemy3D/lib/jogl.jar" sourcepath="D:/Mes documents/Mes Programmes/OpenGl/ThirdParties/JOGL-JSR231/JOGL-JSR231-Src.zip">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="D:/Mes documents/Mes Programmes/Ptolemy3D/Ptolemy3D/lib/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

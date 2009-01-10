@@ -1,0 +1,43 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      py:strip="">
+
+  <!--! Add site-specific style sheet -->
+  <head py:match="head" py:attrs="select('@*')">
+    ${select('*|comment()|text()')}
+    <link rel="stylesheet" type="text/css"
+          href="${href.chrome('site/style.css')}" />
+  </head>
+
+  <body py:match="body" py:attrs="select('@*')">
+    <!--! Add site-specific header -->
+    <div id="siteheader">
+<div style="background-color:#006600;width:100%;height:92px;margin-bottom:-92px;"></div>
+      <!--! Place your header content here... -->
+<font style="float:right; font-size:12px; color:#66cc66; padding-top:14px; padding-right:22px;">
+Open-source project to develop custom web-based 3d geospatial applications without restraints</font>
+    </div>
+
+    ${select('*|text()')}
+
+    <!--! Add site-specific footer -->
+    <div id="sitefooter">
+<div style="padding:10px;background-color:#006600;width:100%;text-align:center;color:#66cc66;">pTolemy3d is supported by <a href="http://www.SpatialCloud.com">SpatialCloud</a></div>
+      <!--! Place your footer content here... -->
+    </div>
+
+<!--! Google Analytics -->
+
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-1705692-3");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+
+  </body>
+</html>
+

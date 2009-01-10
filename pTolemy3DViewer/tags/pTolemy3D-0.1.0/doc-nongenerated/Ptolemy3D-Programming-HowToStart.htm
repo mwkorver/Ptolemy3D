@@ -1,0 +1,268 @@
+<HTML>
+
+<HEAD>
+<META HTTP-EQUIV="Content-Language" CONTENT="fr">
+<TITLE>Ptolemy3D - Programming 'How to Start ?'</TITLE>
+</HEAD>
+
+<BODY>
+
+<H1 ALIGN="center">Ptolemy3D<BR>
+-<BR>
+Programming 'How to start'</H1>
+<H2 ALIGN="left">Introduction</H2>
+<P ALIGN="left">The aim of this document is to introduce how to initialize use Ptolemy3D
+Core and to describe the basis feature you'll need to learn to know how things
+works.</P>
+<P ALIGN="left">As example, Ptolemy3D Viewer will be used to </P>
+<P ALIGN="left">&nbsp;</P>
+<H2 ALIGN="left">Ptolemy3D: Integration in an Application</H2>
+<P ALIGN="left">Ptolemy3D is initialized from a set of configuration parameters
+related to map server, initiale position, plugins, ...</P>
+<P ALIGN="left">The list of parameters is
+not introduced and explained here, for that look at the document: XXX.</P>
+<DIV ALIGN=CENTER>
+<TABLE BORDER="1" CELLPADDING="0" CELLSPACING="0" STYLE="border-collapse: collapse; text-align: center" WIDTH="80%" ID="AutoNumber1" HEIGHT="108">
+  <TR>
+    <TD WIDTH="100%" HEIGHT="20">
+    <H3>Ptolemy3D Initialization</H3>
+    </TD>
+  </TR>
+  <TR>
+    <TD WIDTH="100%" STYLE="margin-left: 10" VALIGN="top" HEIGHT="87">
+    <P STYLE="text-align: left"><FONT FACE="Courier New">/*<BR>
+&nbsp;* Ptolemy3D instanciation<BR>
+&nbsp;*/<BR>
+    final Ptolemy3D ptolemy = new Ptolemy3D();<BR>
+    <BR>
+    /*<BR>
+&nbsp;* Ptolemy3D initialization<BR>
+&nbsp;*/<BR>
+    //Build document from the XML configuration file<BR>
+    //If null is passed, parameters will be search inside the applet tag.<BR>
+    Element config = Ptolemy3DConfiguration.buildXMLDocument(xmlFile);<BR>
+    ptolemy.init(config);<BR>
+&nbsp;</FONT></TD>
+  </TR>
+</TABLE>
+</DIV>
+<P ALIGN="left">&nbsp;</P>
+<P ALIGN="left">Ptolemy 3d uses JOGL OpenGL Binding. For flexibility, the user
+can choose between a GLCanvas (AWT) or a GLJPanel (Swing/Lightweight) component
+for the Ptolemy3D rendering area.</P>
+<DIV ALIGN=CENTER>
+<TABLE BORDER="1" CELLPADDING="0" CELLSPACING="0" STYLE="border-collapse: collapse; text-align: center" WIDTH="80%" ID="AutoNumber2" HEIGHT="108">
+  <TR>
+    <TD WIDTH="100%" HEIGHT="20">
+    <H3>Ptolemy3D Rendering Area</H3>
+    </TD>
+  </TR>
+  <TR>
+    <TD WIDTH="100%" STYLE="margin-left: 10" VALIGN="top" HEIGHT="87">
+    <P STYLE="text-align: left"><FONT FACE="Courier New">//Creating the
+    rendering area for Ptolemy rendering<BR>
+    final GLCanvas component3d = new GLCanvas();<BR>
+    //final GLJPanel component3d = new GLJPanel();<BR>
+    <BR>
+    //Register Ptolemy3D rendering events<BR>
+    component3d.addGLEventListener(ptolemy.events);<BR>
+    <BR>
+    component3d.setSize(new Dimension(width, height));<BR>
+&nbsp;</FONT></TD>
+  </TR>
+</TABLE>
+</DIV>
+<P ALIGN="left">Finally, you can integrate the rendering area component as
+wanted inside any application or applet. </P>
+<P ALIGN="left">The next code integrate the rendering area created above inside
+an application (the full source code is available in:
+org.ptolemy3d.example.SimpleFrame).</P>
+<DIV ALIGN=CENTER>
+<TABLE BORDER="1" CELLPADDING="0" CELLSPACING="0" STYLE="border-collapse: collapse; text-align: center" WIDTH="80%" ID="AutoNumber3" HEIGHT="108">
+  <TR>
+    <TD WIDTH="100%" HEIGHT="20">
+    <H3>Integration inside an application</H3>
+    </TD>
+  </TR>
+  <TR>
+    <TD WIDTH="100%" STYLE="margin-left: 10" VALIGN="top" HEIGHT="87">
+    <P STYLE="text-align: left"><FONT FACE="Courier New">/*<BR>
+&nbsp;* Ptolemy3D Example Application<BR>
+&nbsp;*/<BR>
+    //Creating the Frame and adding the Ptolemy3D rendering area<BR>
+    final JFrame frame = new JFrame(&quot;Ptolemy3D Example - Simple Frame&quot;);<BR>
+    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);<BR>
+    frame.setLayout(new BorderLayout());<BR>
+    frame.add(component3d, BorderLayout.CENTER);<BR>
+    frame.pack();<BR>
+    <BR>
+    //Register listeners<BR>
+    this.addMouseListener(new MouseAdapter() {<BR>
+&nbsp;&nbsp;&nbsp; public void mouseEntered(MouseEvent e) {<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; requestFocus();<BR>
+&nbsp;&nbsp;&nbsp; }<BR>
+    });<BR>
+    this.addWindowListener(new WindowAdapter( ){<BR>
+&nbsp;&nbsp;&nbsp; public void windowClosing(WindowEvent e) {<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    getInputContext().removeNotify(component3d);<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Ptolemy3D destruction<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ptolemy3d.destroy();<BR>
+    <BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; frame.remove(component);<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; frame.dispose();<BR>
+&nbsp;&nbsp;&nbsp; }<BR>
+    });<BR>
+    <BR>
+    /*<BR>
+&nbsp;* Show the frame and start Ptolemy3D Rendering<BR>
+&nbsp;*/<BR>
+    frame.setVisible(true);</FONT></TD>
+  </TR>
+</TABLE>
+</DIV>
+<P ALIGN="left">&nbsp;</P>
+<H2 ALIGN="left">Ptolemy3D: Integration in an Applet</H2>
+<P ALIGN="left">An interesting way to use Ptolemy3D is inside an applet. The
+initialization is similar and the example below show how to integrate Ptolemy3D
+within the applet life time.</P>
+<P ALIGN="left">&nbsp;(the
+full source code is available in: org.ptolemy3d.example.SimpleApplet).</P>
+<P ALIGN="left">&nbsp;</P>
+<DIV ALIGN=CENTER>
+<TABLE BORDER="1" CELLPADDING="0" CELLSPACING="0" STYLE="border-collapse: collapse; text-align: center" WIDTH="80%" ID="AutoNumber4" HEIGHT="108">
+  <TR>
+    <TD WIDTH="100%" HEIGHT="20">
+    <H3>Integration inside an applet</H3>
+    </TD>
+  </TR>
+  <TR>
+    <TD WIDTH="100%" STYLE="margin-left: 10" VALIGN="top" HEIGHT="87">
+    <P STYLE="text-align: left"><FONT FACE="Courier New">private Ptolemy3D
+    ptolemy3d;<BR>
+    private GLCanvas component3d;<BR>
+    private JSObject jsObject;<BR>
+    <BR>
+    public void init()<BR>
+    {<BR>
+&nbsp;&nbsp;&nbsp; /*<BR>
+&nbsp;&nbsp;&nbsp; &nbsp;* Javascript link with Ptolemy3D<BR>
+&nbsp;&nbsp;&nbsp;
+&nbsp;*/<BR>
+&nbsp;&nbsp;&nbsp; if(jsObject == null) {<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; JSObject obj;<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; try {<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; obj =
+    JSObject.getWindow(this);<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } catch(RuntimeException e) {<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; obj = null;<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.jsObject = obj;<BR>
+&nbsp;&nbsp;&nbsp; }<BR>
+    <BR>
+&nbsp;&nbsp;&nbsp; /*<BR>
+&nbsp;&nbsp;&nbsp; &nbsp;* Ptolemy3D standard initialization<BR>
+&nbsp;&nbsp;&nbsp;
+&nbsp;*/<BR>
+&nbsp;&nbsp;&nbsp; if(ptolemy3d == null) {<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ptolemy3d = new Ptolemy3D();<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ptolemy3d.javascript = this;&nbsp;
+    //this implements Ptolemy3DJavascript interface<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ptolemy3d.init(null);<BR>
+    <BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.component3d = new GLCanvas();<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    this.component3d.addGLEventListener(ptolemy3d.events);<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.component3d.setSize(getSize());<BR>
+    <BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.setLayout(new BorderLayout());<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.add(this.component3d,
+    BorderLayout.CENTER);<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.addMouseListener(new
+    MouseAdapter() {<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public void
+    mouseEntered(MouseEvent e) {<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    requestFocus();<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });<BR>
+&nbsp;&nbsp;&nbsp; }<BR>
+    }<BR>
+    <BR>
+    public void start()<BR>
+    {<BR>
+&nbsp;&nbsp;&nbsp; if(ptolemy3d == null) {<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; init();<BR>
+&nbsp;&nbsp;&nbsp; }<BR>
+&nbsp;&nbsp;&nbsp; <BR>
+&nbsp;&nbsp;&nbsp; requestFocus();<BR>
+    }<BR>
+    <BR>
+    public void stop()<BR>
+    {<BR>
+&nbsp;&nbsp;&nbsp; getInputContext().removeNotify(component3d);<BR>
+    <BR>
+&nbsp;&nbsp;&nbsp; /*<BR>
+&nbsp;&nbsp;&nbsp; &nbsp;* Ptolemy3D destruction<BR>
+&nbsp;&nbsp;&nbsp;
+&nbsp;*/<BR>
+&nbsp;&nbsp;&nbsp; ptolemy3d.destroy();<BR>
+&nbsp;&nbsp;&nbsp; ptolemy3d = null;<BR>
+    <BR>
+&nbsp;&nbsp;&nbsp; //Remove 3D component<BR>
+&nbsp;&nbsp;&nbsp; removeAll();<BR>
+&nbsp;&nbsp;&nbsp; component3d = null;<BR>
+    }<BR>
+    <BR>
+    @Override<BR>
+    public void destroy()<BR>
+    {<BR>
+    <BR>
+    }<BR>
+    <BR>
+    /* Ptolemy3DJavascript interface */<BR>
+    <BR>
+    public Applet getApplet()<BR>
+    {<BR>
+&nbsp;&nbsp;&nbsp; return this;<BR>
+    }<BR>
+    <BR>
+    public JSObject getJSObject()<BR>
+    {<BR>
+&nbsp;&nbsp;&nbsp; return jsObject;<BR>
+    }</FONT></TD>
+  </TR>
+</TABLE>
+</DIV>
+<P ALIGN="left">&nbsp;</P>
+
+<H2 ALIGN="left">What next ?</H2>
+
+<P ALIGN="left">We've seen how to initialize and integrate Ptolemy3D in every
+kind of java application, now we'll see how to use and understand how Ptolemy3D
+works.</P>
+
+<P>&nbsp;</P>
+<P>Ptolemy3D (org.ptolemy3d.Ptolemy3D) is the core object for accessing every
+datas of Ptolemy3D. The documentation related to this is located in the javadoc
+at:</P>
+<P ALIGN="center">
+<A HREF="http://www.ptolemy3d.org/javadoc/org/ptolemy3d/Ptolemy3D.html">
+http://www.ptolemy3d.org/javadoc/org/ptolemy3d/Ptolemy3D.html</A></P>
+<UL>
+  <LI>
+  <P ALIGN="left">Camera: </LI>
+  <LI>
+  <P ALIGN="left">CameraMovement: </LI>
+  <LI>
+  <P ALIGN="left">Scene: </LI>
+</UL>
+
+<P ALIGN="left">&nbsp;</P>
+
+<P ALIGN="left">&nbsp;</P>
+
+</BODY>
+
+</HTML>

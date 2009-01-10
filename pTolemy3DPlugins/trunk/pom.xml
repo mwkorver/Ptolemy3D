@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!--
+    ================================================
+    Project Information
+    ================================================
+    -->
+    <groupId>org.ptolemy3d.plugin</groupId>
+    <artifactId>ptolemy3dplugin</artifactId>
+    <packaging>jar</packaging>
+    <version>1.0-SNAPSHOT</version>
+
+    <!--
+    ================================================
+    Extended Project Information
+    ================================================
+    -->
+    <name>pTolemy3D-Plugins</name>
+    <description>pTolemy3D Plugins is the open source project that contains all the basic plugins for pTolemy3D.</description>
+    <url>http://www.ptolemy3d.org</url>
+    <inceptionYear>2008</inceptionYear>
+    <licenses>
+        <license>
+            <name>GPLv3</name>
+            <url>http://www.gnu.org/licenses/gpl-3.0.txt</url>
+        </license>
+    </licenses>
+
+    <!--
+    ================================================
+    Environment Settings
+    ================================================
+    -->
+
+    <!--
+    ================================================
+    Project Dependencies
+    ================================================
+    -->
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>3.8.1</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- pTolemy3D dependency which also includes JOGL dependency -->
+        <dependency>
+            <groupId>org.ptolemy3d</groupId>
+            <artifactId>ptolemy3d</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+
+    <!--
+    ================================================
+    Build Settings
+    ================================================
+    -->
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.0.2</version>
+                <configuration>
+                    <source>1.5</source>
+                    <target>1.5</target>
+                </configuration>
+            </plugin>
+
+            <!-- Maven plugin to sign our pTolemy3D Plugins JAR file and use in
+            an applet.
+            By default you need to have a 'pTolemy3D' key in the default key store.
+            You can create one using:
+            > keytool -genkey -alias pTolemy3D -keypass pTolemy3D
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <!--<keystore>/path/to/your/keystore</keystore>-->
+                    <alias>pTolemy3D</alias>
+                    <storepass>pTolemy3D</storepass>
+                    <signedjar>${project.build.directory}/signed/${project.build.finalName}.jar</signedjar>
+                    <verify>true</verify>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <!--
+    ================================================
+    Reporting Settings
+    ================================================
+    -->
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </reporting>
+</project>

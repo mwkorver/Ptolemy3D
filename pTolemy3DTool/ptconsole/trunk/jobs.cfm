@@ -1,16 +1,23 @@
 <!--- 
-* Loop on tilewidth to create a list of jp2 filenames for some bbox
+* Ptolemy3D - a Java-based 3D Viewer for GeoWeb applications.
+* Copyright (C) 2008 Mark W. Korver
 *
-* @param tilewidth     width and height of jp2 file. (Required)
-* @param BBOX     Extents as list (llrlong,lllat, urlong, urlat. (Required)
-* @return Returns List
-* @author Mark Korver
-* @version 1, 9/22/2008
+* This program is free software: you can redistribute it and/or modify * it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --->
 
 <cfprocessingdirective suppresswhitespace="Yes">
-<cfset debugMaxMessages = "49" />
-<cfset debugMaxQueue = "9999" />
+<cfset MaxMessages = "50" />
+<cfset MaxQueue = "500" />
 
 <CFINCLUDE template="head.cfm">
 
@@ -23,18 +30,22 @@
 		<li><a href="map.cfm">MAP</a></li>
 		<li><span>JOBS</span> </li>
 		<li><a href="run.cfm">RUN</a></li>
+		<li><a href="../view/index.cfm">3D</a></li>
     </ul>
 </div>
 
 <div id="main">
 <div id="contents">
-    <strong>Populate Embedded db Job Queue With Jp2 Processing Directives</strong></p>
+    <strong>Populate Embedded db Job Queue With Jp2 Processing Directives</strong><BR>
 	
-	Default action is to show list of jp2 path/filenames as a function of BBOX and tile width.<br> Change radio button to "Add Jobs" to add data to SQS.
+	Default action is to show list of jp2 path/filenames as a function of BBOX and tile width.<br> 
+	Change radio button to "Add Jobs" to the Job Queue.<br>
+	Then go to RUN tab to process the queue.<br><br>
+	
 	
 	<form action="<cfoutput>#CGI.SCRIPT_NAME#</cfoutput>" method="post" name="sqsForm" id="sqsForm" >
 		<cfparam name="form.tilewidth" type="string" default="52.428800" />
-		<table width="80%" border="1" cellspacing="1" cellpadding="1">
+		<table width="60%" border="0" cellspacing="1" cellpadding="1">
 		<tr>
 		<td align="right" valign="middle">
 			Jp2 Tile Width in DD:
@@ -52,9 +63,9 @@
 		</td>
 		<td></td>
 		</tr>
-		<cfif isdefined("url.bbox")>
-			<cfif url.bbox NEQ "">
-				<cfparam name="form.BBOX" type="string" default="#url.bbox#">	
+		<cfif isdefined("session.bbox")>
+			<cfif session.bbox NEQ "">
+				<cfparam name="form.BBOX" type="string" default="#session.bbox#">	
 			<cfelse>
 				<cfparam name="form.BBOX" type="string" default="-180,-90,180,90">
 			</cfif>
@@ -62,14 +73,14 @@
 			<cfparam name="form.BBOX" type="string" default="-180,-90,180,90">	
 		</cfif>		
 		<tr>
-		<td align="right" valign="middle">BBOX in DD:</td>
+		<td align="right" valign="top">BBOX in DD:</td>
 		<td valign="middle"><input type="text" name="BBOX" value="<cfoutput>#form.BBOX#</cfoutput>" /><br>
-		content of this bbox is a function of values in WMS tab
+		 BBOX values can be changed via the MAP tab
 		</td>
 		
 		<input type="hidden" name="action" value="listJobs"/>
 		<td align="right" valign="top">		
-		Add Jobs to db (limit <cfoutput>#debugMaxQueue#</cfoutput>):<br>
+		Add Jobs to db (limit <cfoutput>#MaxQueue#</cfoutput>):<br>
 		List Jobs to Page (test mode limit 100):
 		</td>
 		<td>
@@ -79,10 +90,12 @@
 		</tr>
 		<tr>
 		<td>
-		<input id="submitbutton" type="submit" value="List Files to Create" >
+		&nbsp;
 		</td>
 		<td>
-		Process Jp2s  <a href=myRunLocal.cfm> here </a> (wrapper for jp2 servlet)
+		</td>
+		<td align="right" colspan="2">
+		<input id="submitbutton" type="submit" value="List Files to Create" >
 		</td>
 		</tr>				
 		
@@ -103,10 +116,8 @@ for (var i=0; i < document.sqsForm.radiobutton.length; i++)
 	  document.sqsForm.submitbutton.value = "Add Jobs to Job Queue"; }
 	  else { 
 	  document.sqsForm.submitbutton.value = "List Files to Create";
-	  }
-	
-	  
-      }
+	  }	  
+     }
    }
 }
 
@@ -155,9 +166,7 @@ for (var i=0; i < document.sqsForm.radiobutton.length; i++)
 		start lon/latitude: #numberformat(startx,'9.999999')#/#numberformat(starty,'9.999999')#  (jp2 tile name is upper left corner of tile)<hr>
 	</cfoutput>
 
-<!--- Loop through from  ---> 	
-<cfset counter=0 />
-<cfset messagecounter=0 />
+
 
 <cfset tileWidthX1M=#evaluate(form.tilewidth*1000000)#>
 
@@ -167,6 +176,10 @@ for (var i=0; i < document.sqsForm.radiobutton.length; i++)
 		CREATE TABLE JOBS#tileWidthX1M#(ID INT PRIMARY KEY, FILENAME VARCHAR(255), PROCESSED BOOLEAN);	
 	</cfquery>
 </cfif>
+
+<!--- Loop through from  ---> 	
+<cfset counter=0 />
+<cfset messagecounter=0 />
 
 <cfloop index="a" from="#startx#" to="#lonmax#" step="#tilewidth#">
 	<cfloop index="b" from="#starty#" to="#latmax#" step="#tilewidth#">
@@ -180,18 +193,21 @@ for (var i=0; i < document.sqsForm.radiobutton.length; i++)
 		<!-- if createjobs is true add to jobs db -->
 		<cfif action EQ "createjobs">			
 			<cfquery datasource="jobqueue" name="inserttest" username="test" password="test">
-				INSERT INTO JOBS#tileWidthX1M# VALUES(#messagecounter#,'#message#',FALSE);
-			</cfquery>
+				INSERT INTO JOBS#tileWidthX1M# VALUES(#counter#,'#message#',FALSE);
+			</cfquery> 
         </cfif>        
-           <cfif counter LT debugMaxMessages>
+           <cfif counter LTE MaxMessages>
 				<cfoutput>#message#<br></cfoutput>
                 <cfset messagecounter = messagecounter + 1 /> 
 	       </cfif>        
 		<cfset counter = counter + 1 /> 
 		
-		<cfif counter GT debugMaxQueue><cfbreak></cfif>
+		<cfif counter GT MaxQueue><cfbreak></cfif>
         
 	</cfloop>
+	
+	<cfif counter GT MaxQueue><cfbreak></cfif>
+	
 </cfloop>
 
 		<cfif action EQ "createjobs">

@@ -8,7 +8,7 @@
 <head>
 <title>Ptolemy3D Console (job processor)</title>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
-<LINK REL="stylesheet" HREF="scripts/basic.css" SRC="scripts/basic.css">
-<LINK REL="stylesheet" HREF="scripts/tabs.css" SRC="scripts/tabs.css">
+<LINK REL="stylesheet" HREF="/ptconsole/scripts/basic.css" SRC="scripts/basic.css">
+<LINK REL="stylesheet" HREF="/ptconsole/scripts/tabs.css" SRC="scripts/tabs.css">
 </head>
 

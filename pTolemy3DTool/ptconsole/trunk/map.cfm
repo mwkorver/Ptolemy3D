@@ -1,183 +1,45 @@
 <!--- 
-* Loop on tilewidth to create a list of jp2 filenames for some bbox
+* Ptolemy3D - a Java-based 3D Viewer for GeoWeb applications.
+* Copyright (C) 2008 Mark W. Korver
 *
-* @param tilewidth     width and height of jp2 file. (Required)
-* @param BBOX     Extents as list (llrlong,lllat, urlong, urlat. (Required)
-* @return Returns List
-* @author Mark Korver
-* @version 1, 9/22/2008
+* This program is free software: you can redistribute it and/or modify * it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --->
 
 <CFINCLUDE template="head.cfm">
 
+<!--- sets default session params on startup --->
+<cfparam name="session.server" default="onearth.jpl.nasa.gov/wms.cgi">
+<cfparam name="session.map" default="">
+<cfparam name="session.srs" default="EPSG:4326">
+<cfparam name="session.styles" default="">
+<cfparam name="session.bbox" default="-90,-90,90,90">
+<cfparam name="session.layers" default="daily_afternoon">
+<cfparam name="session.width" default="1024">
+<cfparam name="session.version" default="1.1.1">
+<cfparam name="session.format" default="image/png">
+
+<script type="text/javascript" src="./scripts/jquery.js"></script>
+<script type="text/javascript" src="./scripts/map.js"></script>
+
 <script language="JavaScript">
-
 var origLLLON=-90.00; var origLLLAT=-90.00; var origURLON=90.00; var origURLAT=90.00;
-
 var WMSstr="";
-var BBOX="";
-
+var BBOX="<cfoutput>#session.bbox#</cfoutput>";
 var debugMode="false";
-
-function getMouseXY(e) // works on IE6,FF,Moz,Opera7
-{ 
-  if (!e) e = window.event; // works on IE, but not NS (we rely on NS passing us the event)
-
-  if (e)
-  { 
-    if (e.pageX || e.pageY)
-    { // this doesn't work on IE6!! (works on FF,Moz,Opera7)
-      mousex = e.pageX;
-      mousey = e.pageY;
-      algor = '[e.pageX]';
-      if (e.clientX || e.clientY) algor += ' [e.clientX] '
-    }
-    else if (e.clientX || e.clientY)
-    { // works on IE6,FF,Moz,Opera7
-      mousex = e.clientX + document.body.scrollLeft;
-      mousey = e.clientY + document.body.scrollTop;
-      algor = '[e.clientX]';
-      if (e.pageX || e.pageY) algor += ' [e.pageX] '
-    }  
-  }
-  
-  calcMap(mousex,mousey);  
-  }
- 
- 
-  
-function calcMap(mousex,mousey) {
-  
-  mousex = mousex - 24 ;
-  //mouse position is from top so to get y from LL of image, the 211 is the offset from page
-  mousey = (document.mapimage.height - mousey) + 211;
-  
-	var LonDif = (document.wmsForm.LLLON.value - document.wmsForm.URLON.value);
-	var LatDif = (document.wmsForm.LLLAT.value - document.wmsForm.URLAT.value);
-	
-	var OnePixelLonValue = Math.abs(LonDif/document.mapimage.width);
-	var OnePixelLatValue = Math.abs(LatDif/document.mapimage.height);
-	
-	var NewCenterLon = (1*document.wmsForm.LLLON.value) + (mousex * OnePixelLonValue);
-	var NewCenterLat = (1*document.wmsForm.LLLAT.value) +  (mousey * OnePixelLatValue);
-	
-	var zoom = document.getElementById('ZOOM').value
-	
-	//get corners from center as a function of zoom level
-	var NLLLON = (NewCenterLon + zoom * (LonDif/2)).toFixed(6);
-	var NLLLAT = (NewCenterLat + zoom * (LatDif/2)).toFixed(6);
-	var NURLON = (NewCenterLon - zoom * (LonDif/2)).toFixed(6);
-	var NURLAT = (NewCenterLat - zoom * (LatDif/2)).toFixed(6);
-	
-	BBOX = NLLLON + ',' + NLLLAT + ',' + NURLON + ',' + NURLAT;
-
-	if(debugMode) {	
-		var mousexy = 'x: ' + mousex + ', y: ' + mousey;
-		var LonLatDif = 'londif: ' + LonDif + ', latdif: ' + LatDif;
-		var lonlatpixvalues = 'lon: ' + OnePixelLonValue + ', lat: ' + OnePixelLatValue;
-		var NewCenterLonLat = 'Center: ' + NewCenterLon + ', ' + NewCenterLat;
-		
-		logAppend('------------------------------------------','keep'); 
-		logAppend('BBOX is ' + BBOX,'keep'); 
-		logAppend('mousexy: ' + mousexy,'keep');   
-		logAppend('LonLatDif: ' + LonLatDif,'keep'); 
-		logAppend('NewCenterLonLat: ' + NewCenterLonLat,'keep');
-		}
-
-	document.wmsForm.LLLON.value = NLLLON;
-	document.wmsForm.LLLAT.value = NLLLAT;	
-	document.wmsForm.URLON.value = NURLON;
-	document.wmsForm.URLAT.value = NURLAT; 
-	document.wmsForm.sbbox.value = BBOX;
-	
-	// now that we have the newly calculated BBOX we can update the map
-	updateMap(); 
-     
-}
-
-function logAppend(i,mode) {
-	if (mode=="keep") {
-	var existingLog = document.getElementById('logSpan').innerHTML
-	var i = i + '<br>' + existingLog;
-	}
-	document.getElementById('logSpan').innerHTML=i;
-}
-
-function updateMap() {
-	BBOX = document.wmsForm.LLLON.value + ',' + document.wmsForm.LLLAT.value + ',' + document.wmsForm.URLON.value + ',' + document.wmsForm.URLAT.value;
-	
-	var WMSstr = document.wmsForm.SERVER.value;
-
-	WMSstr = WMSstr + '?SRS=' + document.wmsForm.SRS.value;
-	if (document.wmsForm.MAP.value !="") {			
-		WMSstr = WMSstr + '&MAP=' + document.wmsForm.MAP.value;}
-	WMSstr = WMSstr + '&BBOX=' + BBOX;
-	WMSstr = WMSstr + '&LAYERS=' + document.wmsForm.LAYERS.value;
-	WMSstr = WMSstr + '&STYLES=' + document.wmsForm.STYLES.value;
-	WMSstr = WMSstr + '&WIDTH=' + document.wmsForm.WIDTH.value;
-	WMSstr = WMSstr + '&HEIGHT=' + document.wmsForm.HEIGHT.value;
-	//WMSstr = WMSstr + '&ZOOM=' + document.wmsForm.ZOOM.selectedValue;
-	WMSstr = WMSstr + '&ZOOM=' + document.getElementById('ZOOM').value
-	// WMSstr = WMSstr + '&FORMAT=' + document.wmsForm.FORMAT.value; //taken out here because it contains chars that need to be escaped
-	WMSstr = WMSstr + '&VERSION=' + document.wmsForm.VERSION.value;
-	WMSstr = WMSstr + '&SERVICE=WMS';
-	WMSstr = WMSstr + '&REQUEST=GetMap';
-<!--- 	var MapUrl = "<img id=mapimage src='http://" + WMSstr + "&FORMAT=" + document.wmsForm.FORMAT.value + "' border='0' height='" + document.wmsForm.SHEIGHT.value + "' onClick=getMouseXY(event);>"; --->
-	
-	var MapSrc = "http://" + WMSstr + "&FORMAT=" + document.wmsForm.FORMAT.value;
-	
-	//alert(MapUrl);
-	if(document.wmsForm.showWMSrequest.checked) {
-	logAppend(WMSstr);
-	}
-	
-	//alert(MapSrc);
-		document.getElementById('mapimage').src=MapSrc; 
-	
-<!--- 	document.getElementById('mapTD').innerHTML="loading";
-	document.getElementById('mapTD').innerHTML=MapUrl; --->
-	
-}
-
-function resetBBOX() {
-	document.wmsForm.LLLON.value = origLLLON;
-	document.wmsForm.LLLAT.value = origLLLAT;
-	document.wmsForm.URLON.value = origURLON;
-	document.wmsForm.URLAT.value = origURLAT;	
-	document.wmsForm.sbbox.value = origLLLON + ',' + origLLLAT + ',' + origURLON + ',' + origURLAT;
-}
-
-// gets desired DD width from selectbox and updates BBOX
-function updateBBOX(option_value) {
-	var t_width = option_value/1000000;
-	
-	LonCenter = parseInt(document.wmsForm.LLLON.value) + ((document.wmsForm.URLON.value - document.wmsForm.LLLON.value)/2);
-	LatCenter = parseInt(document.wmsForm.LLLAT.value) + ((document.wmsForm.URLAT.value - document.wmsForm.LLLAT.value)/2);
-	
-	//get corners from center as a function of selected
-	var NLLLON = (LonCenter - t_width/2).toFixed(4);
-	var NLLLAT = (LatCenter - t_width/2).toFixed(4);
-	var NURLON = (LonCenter + t_width/2).toFixed(4);
-	var NURLAT = (LatCenter + t_width/2).toFixed(4);
-	
-	// update form elements
-	document.wmsForm.sbbox.value = NLLLON + ',' + NLLLAT + ',' + NURLON + ',' + NURLAT;
-	document.wmsForm.LLLON.value = NLLLON;
-	document.wmsForm.LLLAT.value = NLLLAT;
-	document.wmsForm.URLON.value = NURLON;
-	document.wmsForm.URLAT.value = NURLAT; 
-}
-
-
-function getBBOX() {
-	alert(BBOX);
-	document.location="jobs.cfm?bbox=" + BBOX;
-}
-
 </script>
 
+<body onload=updateMap()>
 
-<body onload=resetBBOX()>
 <h2 style="font-size:24px; color:#666666">pTolemy3D Create JP2 Console</h2>
 
 
@@ -187,91 +49,97 @@ function getBBOX() {
 		<li><span>MAP</span> </li>
 		<li><a onclick="getBBOX();">JOBS</a></li>
 		<li><a href="run.cfm">RUN</a></li>
+		<li><a href="../view/index.cfm">3D</a></li>
     </ul>
 </div>
 <div id="main">
 
 <div id="contents">
+<form name="wmsForm" id="wmsForm">
 
-<table border='1' cellspacing='0' cellpadding='0'>
+Use your own or try one of the sample WMS sources. Please use these servers sparingly!<br> 
+Your IP could (will) get restricted if you overuse them<br>
+
+<a href="http://onearth.jpl.nasa.gov" target="_blank">JPL OnEarth daily_afternoon (MODIS)</a>&nbsp;<input type="radio" id=wms_radio name=wms_radio checked onclick="wmsRadio('onearth.jpl.nasa.gov/wms.cgi','daily_afternoon')"/>&nbsp;
+<a href="http://onearth.jpl.nasa.gov" target="_blank">JPL WMS Global Mosaic, pansharpened pseudo color</a>&nbsp;<input type="radio" id=wms_radio name=wms_radio  onclick="wmsRadio('wms.jpl.nasa.gov/wms.cgi','global_mosaic')"/>
+
+<table border='0' cellspacing='5' cellpadding='1'>
 <tr>
 <td align="left" valign="top" id="mapTD">
-<img id=mapimage src='./img/openaerialmap.org.jpg' border='1' height='256' width='256' onClick=getMouseXY(event);>
+<img id='mapimage' name='mapimage' src='./img/openaerialmap.org.jpg' border='1' height='512' width='512' alt='click map to recenter' onClick=getMouseXY(event);>
 </td>
 
-<td>
-<table border='1' bgcolor='#C0C0C0' cellspacing='0' cellpadding='0'>
-<form name="wmsForm" id="wmsForm">
+<td valign="top" width=300>
+<table border='0' bgcolor='' cellspacing='1' cellpadding='1'>
+
 <tr>
 	<td>SERVER&nbsp;&nbsp;http://</td>
-	<td colspan=3><input type="text" name="SERVER" value="openaerialmap.org/wms/" size="50"></td>
+<!--- 	<td colspan=3><input type="text" name="SERVER" value="openaerialmap.org/wms/" size="50"></td> --->	
+<cfoutput>
+	<td colspan=3><input type="text" name="SERVER" value="#session.server#" size="50"></td>
 </tr>
 <tr>
 	<td>MAP</td>
 	<td colspan=3>
-		<input type="text" name="MAP" value="" size="50"></td></tr>
+		<input type="text" name="MAP" value="#session.map#" size="50"></td></tr>
 <tr>
 	<td>SRS</td>
-	<td><input type="text" name="SRS" value="EPSG:4326"></td>
+	<td><input type="text" name="SRS" value="#session.srs#"></td>
+</tr>
+<tr>
 	<td>FORMAT</td>
-	<td><input type="text" name="FORMAT" value="image/jpeg"></td>
+	<td colspan=3>
+		<input type="radio" name="FORMAT" value="image/png" <cfif session.format EQ "image/png">checked</cfif> >png
+		<input type="radio" name="FORMAT" value="image/png; mode=24bit" <cfif session.format EQ "image/png; mode=24bit">checked</cfif> >24bit png (best)
+		<input type="radio" name="FORMAT" value="image/jpeg" <cfif session.format EQ "image/jpeg">checked</cfif> >jpeg</td>
 </tr>
 <tr>
 	<td>LAYERS</td>
-	<td><input type="text" name="LAYERS" value="World"></td>
+	<td><input type="text" name="LAYERS" value="#session.layers#"></td>
 	<td>STYLES</td>
-	<td><input type="text" name="STYLES" value="">
+	<td><input type="text" name="STYLES" value="#session.styles#">
 	</td>
 </tr>
 <tr>
 	<td>WIDTH</td>
-	<td><input type="text" name="WIDTH" value="512"></td>
+	<td><input type="text" name="WIDTH" value="#session.width#" onchange="document.getElementById('spanHEIGHT').innerHTML=this.value"/></td>
 	<td>HEIGHT</td>
-	<td><input type="text" name="HEIGHT" value="512"></td>
+	<td><span id="spanHEIGHT">#session.width#</span></td>
 </tr>
 <tr>
 	<td>VERSION</td>
-	<td colspan=3><input type="text" name="VERSION" value="1.1.1"></td>
+	<td colspan=3><input type="text" name="VERSION" value="#session.version#"></td>
 </tr>
 <tr>
 	<td>BBOX</td>
-	<td colspan=3><input type="text" name="sbbox" size=30 value=""></td>
+	<td colspan=3><input type="text" name="SBBOX" size=30 value="#session.bbox#">&nbsp;&nbsp;<input type="button" name="button1" value="Reset" onClick='resetBBOX()';></td>
+</tr>
+		<input type="hidden" name="LLLON" value="#listgetat(session.bbox,1,",")#">
+		<input type="hidden" name="LLLAT" value="#listgetat(session.bbox,2,",")#">		
+		<input type="hidden" name="URLON" value="#listgetat(session.bbox,3,",")#">
+		<input type="hidden" name="URLAT" value="#listgetat(session.bbox,4,",")#">
+<tr>
+	<td>
+
+	</td>
 </tr>
 <tr>
-	<td colspan="4">
-		<table border="1" bgcolor="#8080FF">
-		<tr>
-			<td align="right">upper right ---> </td>
-			<td>
-				<input type="text" name="URLON" value="90" size="10">&nbsp;
-				<input type="text" name="URLAT" value="45" size="10"></td></tr>
-		<tr>
-			<td>
-				<input type="text" name="LLLON" value="-90" size="10">&nbsp;
-				<input type="text" name="LLLAT" value="-45" size="10"></td>
-			<td><--- lower left</td>
-		</tr>
-		<tr>
-			<td></td>
-			<td align="right"><input type="button" name="button1" value="Reset BBOX" onClick='resetBBOX()';>
-			</td></tr>
-		<tr>
-			<td>DD WIDTH 
-		      <select id="DDWIDTH" name="DDWIDTH" onChange="updateBBOX(this.options[this.selectedIndex].value);"> 
-		      <option value="52428800" > 52.4288
-		      <option value="6553600" > 06.5536
-		      <option value="819200" > 00.8192
-		      <option value="102400" > 00.1024
-		      <option value="12800" > 00.0128
-		      <option value="1600" > 00.0016
-		      </select>
-			</td>
-			<td align="right">xx</td></tr>
-	</table>
-</td>
+	<td>DD WIDTH</td>
+	<td colspan=3>
+      <select id="DDWIDTH" name="DDWIDTH" onChange="updateBBOX(this.options[this.selectedIndex].value);">
+	  <option value="select" > Select Layer 
+      <option value="52428800" > Layer 1 - 52.4288DD
+      <option value="6553600" > Layer 2 - 06.5536DD
+      <option value="819200" > Layer 3 - 00.8192DD
+      <option value="102400" > Layer 4 - 00.1024DD
+      <option value="12800" > Layer 5 - 00.0128DD
+      <option value="1600" > Layer 6 - 00.0016DD
+      </select>
+	  &nbsp; pTolemy3D tile sizes
+	</td>
 </tr>
 <tr>
-	<td>on map click</td>
+	<td>Zoom Level</td>
 	<td colspan=3>
       <select id="ZOOM" name="ZOOM" size="1">
       <option value=".25" > Zoom in 4 times
@@ -281,19 +149,22 @@ function getBBOX() {
       <option value="4" > Zoom out 4 times
       </select>&nbsp;
       <input type="button" name="button1" value="update map" onClick="updateMap()">
-
 	  &nbsp;&nbsp;	  Show WMS <input type="checkbox" name="showWMSrequest"><br>
-	  show map at this height&nbsp; <input type="text" name="SHEIGHT" value="512">
+	 
 	</td>
 </tr>
-</table>
+<tr>
+	<td colspan=3> show map at this height&nbsp; <input type="text" name="SHEIGHT" value="512"></td>
+</tr>
 
+</table>
+</cfoutput>
 </form>
 
-</td></tr>
-
-</table>
 <span id="logSpan"></span>
+</td></tr>
+</table>
+
 
 
 

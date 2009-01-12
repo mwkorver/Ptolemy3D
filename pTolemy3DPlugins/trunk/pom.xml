@@ -33,6 +33,10 @@
     Environment Settings
     ================================================
     -->
+    <issueManagement>
+    	<system>Trac</system>
+    	<url>http://trac.ptolemy3d.org/</url>    
+    </issueManagement>
 
     <!--
     ================================================

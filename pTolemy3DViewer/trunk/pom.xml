@@ -40,8 +40,12 @@ geospatial applications without restraints.
         <repository>
             <id>java.net</id>
             <url>http://download.java.net/maven/2/</url>
-        </repository>
+        </repository>        
     </repositories>
+    <issueManagement>
+    	<system>Trac</system>
+    	<url>http://trac.ptolemy3d.org/</url>    
+    </issueManagement>
 
     <!--
     ================================================

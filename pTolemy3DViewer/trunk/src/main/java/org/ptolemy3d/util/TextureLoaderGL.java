@@ -64,10 +64,10 @@ public class TextureLoaderGL
 
 		int cty;
 		switch(color_type) {
+			case 4: cty = GL.GL_RGBA; break;
 			default:
-			case 4: cty = GL.GL_RGBA;
-			case 3: cty = GL.GL_RGB;
-			case 1: cty = GL.GL_LUMINANCE_ALPHA;
+			case 3: cty = GL.GL_RGB; break;
+			case 1: cty = GL.GL_LUMINANCE_ALPHA; break;
 		}
 		gl.glTexImage2D(GL.GL_TEXTURE_2D, 0, cty, width, height, 0, cty, GL.GL_UNSIGNED_BYTE, ByteBuffer.wrap(imgdat));
 	}

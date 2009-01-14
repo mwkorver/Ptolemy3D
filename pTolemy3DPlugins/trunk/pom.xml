@@ -74,6 +74,43 @@
                 </configuration>
             </plugin>
 
+			<!-- JAR creation options -->
+			<plugin>
+        		<groupId>org.apache.maven.plugins</groupId>
+        		<artifactId>maven-jar-plugin</artifactId>
+        		<configuration>
+        			<archive>
+            			<manifest>
+            				<addClasspath>true</addClasspath>
+            				<classpathPrefix>lib/</classpathPrefix>
+              				<mainClass>org.ptolemy3d.viewer.Ptolemy3DFrame</mainClass>
+            			</manifest>
+          			</archive>
+        		</configuration>
+			
+			</plugin>
+			
+			<!--  Copy project dependencies to simplify execution. -->
+			<plugin>
+        		<groupId>org.apache.maven.plugins</groupId>
+        		<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-dependencies</id>
+					  	<phase>package</phase>
+					  	<goals>
+					    	<goal>copy-dependencies</goal>
+					  	</goals>
+					  	<configuration>
+					    	<outputDirectory>${project.build.directory}/lib</outputDirectory>
+					    	<overWriteReleases>false</overWriteReleases>
+					    	<overWriteSnapshots>false</overWriteSnapshots>
+					    	<overWriteIfNewer>true</overWriteIfNewer>
+					  	</configuration>
+					</execution>
+				</executions>
+		    </plugin>
+		    
             <!-- Maven plugin to sign our pTolemy3D Plugins JAR file and use in
             an applet.
             By default you need to have a 'pTolemy3D' key in the default key store.

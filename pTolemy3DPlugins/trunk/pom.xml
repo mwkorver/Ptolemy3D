@@ -37,6 +37,11 @@
     	<system>Trac</system>
     	<url>http://trac.ptolemy3d.org/</url>    
     </issueManagement>
+    <scm>
+    	<connection>scm:svn:http://svn.ptolemy3d.org/pTolemy3DViewer/trunk</connection>
+    	<developerConnection>scm:svn:http://svn.ptolemy3d.org/pTolemy3DViewer/trunk</developerConnection>
+    	<url>scm:svn:http://svn.ptolemy3d.org/pTolemy3DViewer/trunk</url>
+    </scm>
 
     <!--
     ================================================

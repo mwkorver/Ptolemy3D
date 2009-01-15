@@ -135,6 +135,13 @@
                     <verify>true</verify>
                 </configuration>
             </plugin>
+            
+            <!--  Changelog plugin -->
+            <plugin>
+        		<groupId>org.apache.maven.plugins</groupId>
+        		<artifactId>maven-changelog-plugin</artifactId>
+      		</plugin>
+      		
         </plugins>
     </build>
 

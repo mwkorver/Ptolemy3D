@@ -46,6 +46,11 @@ geospatial applications without restraints.
     	<system>Trac</system>
     	<url>http://trac.ptolemy3d.org/</url>    
     </issueManagement>
+    <scm>
+    	<connection>scm:svn:http://svn.ptolemy3d.org/pTolemy3DViewer/trunk</connection>
+    	<developerConnection>scm:svn:http://svn.ptolemy3d.org/pTolemy3DViewer/trunk</developerConnection>
+    	<url>scm:svn:http://svn.ptolemy3d.org/pTolemy3DViewer/trunk</url>
+    </scm>
 
     <!--
     ================================================
@@ -152,6 +157,13 @@ geospatial applications without restraints.
                     <verify>true</verify>
                 </configuration>
             </plugin>
+            
+            <!--  Changelog plugin -->
+            <plugin>
+        		<groupId>org.apache.maven.plugins</groupId>
+        		<artifactId>maven-changelog-plugin</artifactId>
+      		</plugin>
+            
         </plugins>
     </build>
 

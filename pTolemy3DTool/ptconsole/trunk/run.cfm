@@ -63,14 +63,24 @@
 		If no jobs are listed go back to the JOBS tab to make some.<br>
 		<hr width=60% align=left>
 		
+
+		<cftry>    
+		<cfquery datasource="jobqueue" name="getTableNames" username="test" password="test">
+			SHOW tables 
+		</cfquery>
+		<cfcatch tpe="" type="Database">
+			Database connecton error, go to 
+			http://127.0.0.1:8080/bluedragon/administrator/
+			go to the Datasources menu item on left.
+			Follow directions at <a href="http://trac.ptolemy3d.org/wiki/PtolemyToolPtconsole">this wiki page </a>.
+			<cfabort>
+		</cfcatch> 
+		</cftry>
+		
 		<table border="0" cellspacing="1" cellpadding="1">
 		<tr>
 			<td align="left">Queue Name</td><td>Items</td>
 		</tr>
-			    
-		<cfquery datasource="jobqueue" name="getTableNames" username="test" password="test">
-			SHOW tables 
-		</cfquery>
 		
 		<cfoutput query="getTableNames">
 			<cfif left(TABLE_NAME,3) IS "JOB"><tr><td>#TABLE_NAME#</td>
@@ -121,7 +131,7 @@
 			<script language="Javascript1.1" type="text/javascript">
 				<!--
 				function rld(){
-					setTimeout('document.location.reload(true)',2000);
+					setTimeout('document.location.reload(true)',500);
 				}
 				//-->
 			</script>
@@ -224,11 +234,9 @@
 			<cfoutput>Wrote to #outputpath##slash##fname#.jp2<br></cfoutput> 
  
 			<!--- calculates world file information --->
-			<cfset jpwstring = makeWorldfileString("#fpath#/#fname#.jp2","1024")/>			  
-			
+			<cfset jpwstring = makeWorldfileString("#fpath#/#fname#.jp2","1024")/>			  		
 	
 			<cffile addnewline="false" action="write" output="#jpwstring#" file="#outputpath##slash##fname#.j2w" nameconflict="OVERWRITE" />
-			<cfoutput>Wrote to #outputpath##slash##fname#.j2w<br></cfoutput> 
 			
 			<cfset aString = "true">
 		

@@ -26,9 +26,9 @@ function getMouseXY(e) // works on IE6,FF,Moz,Opera7
   
 function calcMap(mousex,mousey) {
   
-  mousex = mousex - 24 ;
-  //mouse position is from top so to get y from LL of image, the 211 is the offset from page
-  mousey = (document.mapimage.height - mousey) + 211;
+  mousex = mousex - 48 ;
+  //mouse position is from top so to get y from LL of image, the 190 is the offset from page
+  mousey = (document.mapimage.height - mousey) + 190;
   
 	var LonDif = (document.wmsForm.LLLON.value - document.wmsForm.URLON.value);
 	var LatDif = (document.wmsForm.LLLAT.value - document.wmsForm.URLAT.value);

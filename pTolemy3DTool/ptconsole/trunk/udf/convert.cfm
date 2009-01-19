@@ -74,14 +74,6 @@ writes --->
 <cfset bin_dir = "#ExpandPath(".")##slash#bin">
 <cfset arguments = "-classpath #bin_dir##slash#jj2000-5.1-mod.jar JJ2KEncoder#encoder_args#">
 
-<!-- this need to be optimized using java -->
-<cffile action="APPEND" file="#working_dir##slash#check.log" 
-				output="encoder_args: #encoder_args#" addnewline="Yes">
-<cffile action="APPEND" file="#working_dir##slash#check.log" 
-				output="bin_dir: #bin_dir#" addnewline="Yes">
-<cffile action="APPEND" file="#working_dir##slash#check.log" 
-				output="arguments: #arguments#" addnewline="Yes"><br />
-
 	<!--- Having written the file to disk, we use encoder to convert it --->
 	<cfexecute name="java" 
 		variable="stdout" 
@@ -90,9 +82,14 @@ writes --->
 		timeout="#timeOut#">
 	</cfexecute>
 	
+	<!-- this need to be optimized using java -->
+	<cffile action="APPEND" file="#working_dir##slash#error.log" 
+					output="Error output: #errorout#" addnewline="Yes">
+
+	
 	<cffile action="READBINARY" file="#working_out_dir##slash##fname#.jp2" variable="jp2image"> 
 
-	<!--- <cffile action="delete" file="#working_in_dir##slash##fname#.#fname_ext#">--->
+	<cffile action="delete" file="#working_in_dir##slash##fname#.#fname_ext#">
 	<cffile action="delete" file="#working_out_dir##slash##fname#.jp2">	
 			 
 	<cfreturn jp2image>

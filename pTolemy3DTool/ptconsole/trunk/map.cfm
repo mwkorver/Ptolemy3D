@@ -18,12 +18,12 @@
 <CFINCLUDE template="head.cfm">
 
 <!--- sets default session params on startup --->
-<cfparam name="session.server" default="onearth.jpl.nasa.gov/wms.cgi">
-<cfparam name="session.map" default="">
+<cfparam name="session.server" default="mapserv.spatialcloud.com/cgi-bin/mapserv">
+<cfparam name="session.map" default="/var/www/maps/mwk_test6.819200.map">
 <cfparam name="session.srs" default="EPSG:4326">
 <cfparam name="session.styles" default="">
 <cfparam name="session.bbox" default="-90,-90,90,90">
-<cfparam name="session.layers" default="daily_afternoon">
+<cfparam name="session.layers" default="tm_250m_lev3">
 <cfparam name="session.width" default="1024">
 <cfparam name="session.version" default="1.1.1">
 <cfparam name="session.format" default="image/png">
@@ -60,8 +60,8 @@ var debugMode="false";
 Use your own or try one of the sample WMS sources. Please use these servers sparingly!<br> 
 Your IP could (will) get restricted if you overuse them<br>
 
-<a href="http://onearth.jpl.nasa.gov" target="_blank">JPL OnEarth daily_afternoon (MODIS)</a>&nbsp;<input type="radio" id=wms_radio name=wms_radio checked onclick="wmsRadio('onearth.jpl.nasa.gov/wms.cgi','daily_afternoon')"/>&nbsp;
-<a href="http://onearth.jpl.nasa.gov" target="_blank">JPL WMS Global Mosaic, pansharpened pseudo color</a>&nbsp;<input type="radio" id=wms_radio name=wms_radio  onclick="wmsRadio('wms.jpl.nasa.gov/wms.cgi','global_mosaic')"/>
+<a href="http://onearth.jpl.nasa.gov" target="_blank">Spatialcloud BlueMarble </a>&nbsp;<input type="radio" id=wms_radio name=wms_radio checked onclick="wmsRadio('mapserv.spatialcloud.com/cgi-bin/mapserv','tm_250m_lev3','/var/www/maps/mwk_test6.819200.map')"/>&nbsp;
+<a href="http://onearth.jpl.nasa.gov" target="_blank">JPL WMS Global Mosaic, pansharpened pseudo color</a>&nbsp;<input type="radio" id=wms_radio name=wms_radio  onclick="wmsRadio('wms.jpl.nasa.gov/wms.cgi','global_mosaic','')"/>
 
 <table border='0' cellspacing='5' cellpadding='1'>
 <tr>
@@ -128,18 +128,18 @@ Your IP could (will) get restricted if you overuse them<br>
 	<td colspan=3>
       <select id="DDWIDTH" name="DDWIDTH" onChange="updateBBOX(this.options[this.selectedIndex].value);">
 	  <option value="select" > Select Layer 
-      <option value="52428800" > Layer 1 - 52.4288DD
-      <option value="6553600" > Layer 2 - 06.5536DD
-      <option value="819200" > Layer 3 - 00.8192DD
-      <option value="102400" > Layer 4 - 00.1024DD
-      <option value="12800" > Layer 5 - 00.0128DD
-      <option value="1600" > Layer 6 - 00.0016DD
+      <option value="52428800" > Level 52.4288
+      <option value="6553600" > Level 06.5536
+      <option value="819200" > Level 00.8192
+      <option value="102400" > Level 00.1024
+      <option value="12800" > Level 00.0128
+      <option value="1600" > Level 00.0016
       </select>
 	  &nbsp; pTolemy3D tile sizes
 	</td>
 </tr>
 <tr>
-	<td>Zoom Level</td>
+	<td>Click Mode</td>
 	<td colspan=3>
       <select id="ZOOM" name="ZOOM" size="1">
       <option value=".25" > Zoom in 4 times
@@ -148,13 +148,17 @@ Your IP could (will) get restricted if you overuse them<br>
       <option value="2" > Zoom out 2 times
       <option value="4" > Zoom out 4 times
       </select>&nbsp;
-      <input type="button" name="button1" value="update map" onClick="updateMap()">
+      
 	  &nbsp;&nbsp;	  Show WMS <input type="checkbox" name="showWMSrequest"><br>
 	 
 	</td>
 </tr>
 <tr>
-	<td colspan=3> show map at this height&nbsp; <input type="text" name="SHEIGHT" value="512"></td>
+	<td> <input type="text" name="SHEIGHT" value="400" size="10"></td><td colspan=2> Show map at this height <br>(constrain image size)</td>
+</tr>
+
+<tr><td></td>
+	<td colspan=2><input type="button" name="button1" value="update map" onClick="updateMap()"></td>
 </tr>
 
 </table>

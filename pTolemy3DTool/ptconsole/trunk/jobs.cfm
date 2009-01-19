@@ -52,12 +52,12 @@
 		</td>
 		<td valign="middle">
 		<select name="tilewidth" id="tilewidth">
-				<option <cfif form.tilewidth EQ "52.428800">SELECTED</cfif> value="52.428800">52.428800</option>
-				<option <cfif form.tilewidth EQ "6.553600">SELECTED</cfif> value="6.553600">6.553600</option>
-				<option <cfif form.tilewidth EQ ".819200">SELECTED</cfif> value=".819200">.819200</option>
-				<option <cfif form.tilewidth EQ ".102400">SELECTED</cfif> value=".102400">.102400</option>
-              <!--   <option <cfif form.tilewidth EQ ".012800">SELECTED</cfif> value=".012800">.012800</option> -->
-              <!--   <option <cfif form.tilewidth EQ ".001600">SELECTED</cfif> value=".001600">.001600</option> -->
+				<option <cfif form.tilewidth EQ "52.428800">SELECTED</cfif> value="52.428800">Level 52.428800</option>
+				<option <cfif form.tilewidth EQ "6.553600">SELECTED</cfif> value="6.553600">Level 6.553600</option>
+				<option <cfif form.tilewidth EQ ".819200">SELECTED</cfif> value=".819200">Level .819200</option>
+				<option <cfif form.tilewidth EQ ".102400">SELECTED</cfif> value=".102400">Level .102400</option>
+	            <option <cfif form.tilewidth EQ ".012800">SELECTED</cfif> value=".012800">Level .012800</option>
+	            <option <cfif form.tilewidth EQ ".001600">SELECTED</cfif> value=".001600">Level .001600</option> 
         </select>
 		to process
 		</td>
@@ -169,13 +169,21 @@ for (var i=0; i < document.sqsForm.radiobutton.length; i++)
 
 
 <cfset tileWidthX1M=#evaluate(form.tilewidth*1000000)#>
-
+<cftry>
 <cfif action EQ "createjobs">
 	<cfquery datasource="jobqueue" name="inserttest" username="test" password="test">	
 		DROP TABLE IF EXISTS JOBS#tileWidthX1M#;	
 		CREATE TABLE JOBS#tileWidthX1M#(ID INT PRIMARY KEY, FILENAME VARCHAR(255), PROCESSED BOOLEAN);	
 	</cfquery>
 </cfif>
+		<cfcatch tpe="" type="Database">
+			Database connecton error, go to 
+			http://127.0.0.1:8080/bluedragon/administrator/
+			go to the Datasources menu item on left.
+			Follow directions at <a href="http://trac.ptolemy3d.org/wiki/PtolemyToolPtconsole">this wiki page </a>.
+			<cfabort>
+		</cfcatch> 
+</cftry>
 
 <!--- Loop through from  ---> 	
 <cfset counter=0 />

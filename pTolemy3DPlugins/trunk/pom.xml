@@ -38,9 +38,9 @@
     	<url>http://trac.ptolemy3d.org/</url>    
     </issueManagement>
     <scm>
-    	<connection>scm:svn:http://svn.ptolemy3d.org/pTolemy3DViewer/trunk</connection>
-    	<developerConnection>scm:svn:http://svn.ptolemy3d.org/pTolemy3DViewer/trunk</developerConnection>
-    	<url>scm:svn:http://svn.ptolemy3d.org/pTolemy3DViewer/trunk</url>
+    	<connection>scm:svn:http://svn.ptolemy3d.org/pTolemy3DPlugins/trunk</connection>
+    	<developerConnection>scm:svn:http://svn.ptolemy3d.org/pTolemy3DPlugins/trunk</developerConnection>
+    	<url>scm:svn:http://svn.ptolemy3d.org/pTolemy3DPlugins/trunk</url>
     </scm>
 
     <!--
@@ -55,12 +55,18 @@
             <version>3.8.1</version>
             <scope>test</scope>
         </dependency>
+        <!-- GLUEGEN dependency -->
+        <dependency>
+            <groupId>net.java.jogl</groupId>
+            <artifactId>gluegen-rt.jar</artifactId>
+            <version>1.1.1</version>
+        </dependency>
         <!-- pTolemy3D dependency which also includes JOGL dependency -->
         <dependency>
             <groupId>org.ptolemy3d</groupId>
             <artifactId>ptolemy3d</artifactId>
             <version>1.0-SNAPSHOT</version>
-        </dependency>
+        </dependency>        
     </dependencies>
 
     <!--

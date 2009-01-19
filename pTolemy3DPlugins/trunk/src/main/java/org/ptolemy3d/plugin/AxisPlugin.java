@@ -44,7 +44,7 @@ public class AxisPlugin implements Plugin
     //
     private Ptolemy3D ptolemy = null;
     private GL gl = null;
-    private TextRenderer renderer = new TextRenderer(new Font(Font.SANS_SERIF, Font.BOLD, 14));
+    private TextRenderer renderer = new TextRenderer(new Font("SansSerif", Font.BOLD, 14));
     //
     private boolean showLabels = false;
 

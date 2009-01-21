@@ -162,8 +162,6 @@ public class Ptolemy3D
 				IO.printStackRenderer(e);
 			}
 		}
-
-		ptolemy.callJavascript("sc_stop", null, null, null);
 	}
 
 	/**

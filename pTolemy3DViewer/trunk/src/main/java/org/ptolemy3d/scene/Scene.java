@@ -32,11 +32,11 @@ import org.ptolemy3d.debug.ProfilerInterface.ProfilerEventInterface;
 import org.ptolemy3d.view.View;
 
 /**
- * <H1>Overview</H1>
- * <BR>
+ * <H1>Overview</H1> <BR>
  * The scene is a manager to initialize, render and destruct of:<BR>
  * <ul>
- * <li><a href="Landscape.html">Landcscape</a>: manage landscape visibility, rendering ...<BR>
+ * <li><a href="Landscape.html">Landcscape</a>: manage landscape visibility,
+ * rendering ...<BR>
  * For more information, see the related documentation.</li>
  * <li><a href="Sky.html">Sky</a>: manage sky, atmosphere and stars.</li>
  * <li><a href="Plugins.html">Plugins</a>: manage ptolemy plugins<BR>
@@ -46,8 +46,7 @@ import org.ptolemy3d.view.View;
  * Among other thing, it contains the 3D rendering loop.<BR>
  * <BR>
  */
-public class Scene implements _Drawable
-{
+public class Scene implements _Drawable {
 	/** Ptolemy3D Instance */
 	private final Ptolemy3D ptolemy;
 
@@ -61,25 +60,26 @@ public class Scene implements _Drawable
 	/** Light */
 	public final Light light;
 
-	/** Do a screenshot of the next frame in <code>clipboardImage</code>. @see #clipboardImage */
+	/**
+	 * Do a screenshot of the next frame in <code>clipboardImage</code>. @see
+	 * #clipboardImage
+	 */
 	public boolean screenshot = false;
 	/** Screenshot image */
 	public Image clipboardImage;
 
-    public Scene(Ptolemy3D ptolemy)
-    {
-    	this.ptolemy = ptolemy;
+	public Scene(Ptolemy3D ptolemy) {
+		this.ptolemy = ptolemy;
 
-    	this.landscape = new Landscape(ptolemy);
-    	this.sky = new Sky();
-    	this.plugins = new Plugins(ptolemy);
+		this.landscape = new Landscape(ptolemy);
+		this.sky = new Sky();
+		this.plugins = new Plugins(ptolemy);
 
-    	this.light = new Light();
-    }
+		this.light = new Light();
+	}
 
 	/** Initialize non OpenGL data of the scene. */
-	public void init(Ptolemy3D ptolemy)
-	{
+	public void init(Ptolemy3D ptolemy) {
 		landscape.init(ptolemy);
 		sky.init(ptolemy);
 		plugins.init(ptolemy);
@@ -87,8 +87,7 @@ public class Scene implements _Drawable
 	}
 
 	/** Initialize OpenGL data of the scene. */
-	public void initGL(GL gl)
-	{
+	public void initGL(GL gl) {
 		landscape.initGL(gl);
 		sky.initGL(gl);
 		plugins.initGL(gl);
@@ -96,48 +95,53 @@ public class Scene implements _Drawable
 	}
 
 	/** Destroy OpenGL data of the scene. */
-	public void destroyGL(GL gl)
-	{
+	public void destroyGL(GL gl) {
 		landscape.destroyGL(gl);
 		sky.destroyGL(gl);
 		plugins.destroyGL(gl);
 		light.destroyGL(gl);
 
-		//Destroy Ptolemy3D OpenGL datas
-		if(ptolemy.fontTextRenderer != null) {
+		// Destroy Ptolemy3D OpenGL datas
+		if (ptolemy.fontTextRenderer != null) {
 			ptolemy.fontTextRenderer.destroyGL(gl);
 			ptolemy.fontTextRenderer = null;
 		}
-		if(ptolemy.fontNumericRenderer != null) {
+		if (ptolemy.fontNumericRenderer != null) {
 			ptolemy.fontNumericRenderer.destroyGL(gl);
 			ptolemy.fontNumericRenderer = null;
 		}
 	}
 
 	/** Draw the scene with OpenGL. */
-	public void draw(GL gl)
-	{
-		if(ptolemy.tileLoader == null) {
-			gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);	//Just clear out the screen
+	public void draw(GL gl) {
+		if (ptolemy.tileLoader == null) {
+			gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT); // Just
+																			// clear
+																			// out
+																			// the
+																			// screen
 			return;
 		}
 
 		final View view = ptolemy.view;
 
-		if(DEBUG) ProfilerInterface.start(ProfilerEventInterface.Frame);
-		if(DEBUG) ProfilerInterface.start(ProfilerEventInterface.Prepare);
+		if (DEBUG)
+			ProfilerInterface.start(ProfilerEventInterface.Frame);
+		if (DEBUG)
+			ProfilerInterface.start(ProfilerEventInterface.Prepare);
 		/* Camera */
 		view.update(gl);
 		/* Prepare frame */
 		landscape.prepareFrame(gl);
 		plugins.prepareFrame(gl);
-		if(DEBUG) ProfilerInterface.stop(ProfilerEventInterface.Prepare);
+		if (DEBUG)
+			ProfilerInterface.stop(ProfilerEventInterface.Prepare);
 
 		/* Standard OpenGL Init: Clear frame buffer color and z */
 		gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 
 		/* Lighting */
-		light.draw(gl);	//FIXME Strange here, must be after camera ?
+		light.draw(gl); // FIXME Strange here, must be after camera ?
 
 		/* Perspective matrix */
 		gl.glMatrixMode(GL.GL_PROJECTION);
@@ -147,39 +151,52 @@ public class Scene implements _Drawable
 		gl.glLoadMatrixd(view.modelview.m, 0);
 
 		/* Rendering */
-		if(DEBUG) ProfilerInterface.start(ProfilerEventInterface.Sky);
+		if (DEBUG)
+			ProfilerInterface.start(ProfilerEventInterface.Sky);
 		sky.draw(gl);
-		if(DEBUG) ProfilerInterface.stop(ProfilerEventInterface.Sky);
-		if(DEBUG) ProfilerInterface.start(ProfilerEventInterface.Landscape);
+		if (DEBUG)
+			ProfilerInterface.stop(ProfilerEventInterface.Sky);
+		if (DEBUG)
+			ProfilerInterface.start(ProfilerEventInterface.Landscape);
 		landscape.draw(gl);
-		if(DEBUG) ProfilerInterface.stop(ProfilerEventInterface.Landscape);
-		if(DEBUG) ProfilerInterface.start(ProfilerEventInterface.Plugins);
+		if (DEBUG)
+			ProfilerInterface.stop(ProfilerEventInterface.Landscape);
+		if (DEBUG)
+			ProfilerInterface.start(ProfilerEventInterface.Plugins);
 		plugins.draw(gl);
-		if(DEBUG) ProfilerInterface.stop(ProfilerEventInterface.Plugins);
+		if (DEBUG)
+			ProfilerInterface.stop(ProfilerEventInterface.Plugins);
 
 		/* Screenshot */
-		if(DEBUG) ProfilerInterface.start(ProfilerEventInterface.Screenshot);
-		if(screenshot) getSceneImage(gl);
-		if(DEBUG) ProfilerInterface.stop(ProfilerEventInterface.Screenshot);
+		if (DEBUG)
+			ProfilerInterface.start(ProfilerEventInterface.Screenshot);
+		if (screenshot)
+			getSceneImage(gl);
+		if (DEBUG)
+			ProfilerInterface.stop(ProfilerEventInterface.Screenshot);
 
-		if(DEBUG) ProfilerInterface.stop(ProfilerEventInterface.Frame);
-		if(DEBUG) ProfilerInterface.drawProfiler(ptolemy, gl);
+		if (DEBUG)
+			ProfilerInterface.stop(ProfilerEventInterface.Frame);
+		if (DEBUG)
+			ProfilerInterface.drawProfiler(ptolemy, gl);
 	}
 
-	protected void getSceneImage(GL gl)
-	{
-		final int GL_WIDTH  = ptolemy.events.drawWidth;
+	protected void getSceneImage(GL gl) {
+		final int GL_WIDTH = ptolemy.events.drawWidth;
 		final int GL_HEIGHT = ptolemy.events.drawHeight;
 
 		byte[] pixels = new byte[(GL_WIDTH + 1) * (GL_HEIGHT + 1) * 3];
-		gl.glReadPixels(0, 0, GL_WIDTH, GL_HEIGHT, GL.GL_RGB, GL.GL_UNSIGNED_BYTE, ByteBuffer.wrap(pixels));
+		gl.glReadPixels(0, 0, GL_WIDTH, GL_HEIGHT, GL.GL_RGB,
+				GL.GL_UNSIGNED_BYTE, ByteBuffer.wrap(pixels));
 
 		try {
-			clipboardImage = Toolkit.getDefaultToolkit().createImage(new SceneProducer(pixels, GL_WIDTH, GL_HEIGHT));
-			Toolkit.getDefaultToolkit().getSystemClipboard().setContents(ptolemy.events, null);
-		}
-		catch (Exception e) {
-			ptolemy.sendErrorMessage("Security Exception : Unable to access clipboard.");
+			clipboardImage = Toolkit.getDefaultToolkit().createImage(
+					new SceneProducer(pixels, GL_WIDTH, GL_HEIGHT));
+			Toolkit.getDefaultToolkit().getSystemClipboard().setContents(
+					ptolemy.events, null);
+		} catch (Exception e) {
+			ptolemy
+					.sendErrorMessage("Security Exception : Unable to access clipboard.");
 		}
 	}
 }

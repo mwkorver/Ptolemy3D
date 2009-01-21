@@ -589,7 +589,7 @@ public class Landscape
 	protected void destroyGL(GL gl)
 	{
 		try {
-			textureManager.destroyTrashTextures(gl);
+//			textureManager.destroyTrashTextures(gl);
 			textureManager.emptyRecyler(gl);
 		} catch(Exception e) {
 			IO.printStackRenderer(e);

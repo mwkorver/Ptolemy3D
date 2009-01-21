@@ -364,6 +364,7 @@ public class Ptolemy3DConfiguration
 
 	private String getXmlParameter(String name, Element elem)
 	{
+		
 		try
 		{
 			if(elem != null)

@@ -22,6 +22,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.io.File;
 import java.util.StringTokenizer;
+import java.util.logging.Logger;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -37,59 +38,27 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 /**
- * <H1>Configuration</H1>
- * <BR>
+ * <H1>Configuration</H1> <BR>
  * Set of Ptolemy3D configuration parameters.<BR>
- * This is used for example to specify the map server, globe geometry settings (number of levels)), the initial view position, ...<BR>
+ * This is used for example to specify the map server, globe geometry settings
+ * (number of levels)), the initial view position, ...<BR>
  * <BR>
- * List of parameters description can be found at: <a href="http://ptolemy3d.org/wiki/PtolemyViewerConfig">Ptolemy3D wiki</a>.<BR>
+ * List of parameters description can be found at: <a
+ * href="http://ptolemy3d.org/wiki/PtolemyViewerConfig">Ptolemy3D wiki</a>.<BR>
  */
-public class Ptolemy3DConfiguration
-{
-	/**
-	 * Parse an XML file and construct the document elements for Ptolemy3D.
-	 */
-	public final static Element buildXMLDocument(String xmlFile)
-	{
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+public class Ptolemy3DConfiguration {
 
-		Document document = null;
-		try {
-			DocumentBuilder builder = factory.newDocumentBuilder();
-			if (xmlFile.indexOf("http://") == -1) {
-				document = builder.parse(new File(xmlFile));
-			}
-			else {
-				document = builder.parse(xmlFile);
-			}
-		}
-		catch (SAXException sxe) {
-			Exception x = sxe;
-			if (sxe.getException() != null) {
-				x = sxe.getException();
-			}
-			IO.printStack(x);
-		}
-		catch (Exception e) {
-			IO.printStack(e);
-		}
-
-		if (document == null) {
-			return null;
-		}
-		return document.getDocumentElement();
-	}
-
-	/* Contains all datas read from the configuration file. */
-	/** Ptolemy3D Instance */
+	// Logger instance.
+	private static final Logger logger = Logger
+			.getLogger(Ptolemy3DConfiguration.class.getName());
+	// Ptolemy3D Instance
 	private final Ptolemy3D ptolemy;
-
-	/** Globe radius */
-	public final static int EARTH_RADIUS = 500000;//6378136;
-
-	/** Clearing color (back ground color) */
-	public float[] backgroundColor = { 0.541176470588f, 0.540176470588f, 0.540176470588f };
-	/** Initial position of the camera. Use to call FlightMovement.setOrientation */
+	// Globe radius
+	public final static int EARTH_RADIUS = 500000;// 6378136;
+	// Clearing color (back ground color)
+	public float[] backgroundColor = { 0.541176470588f, 0.540176470588f,
+			0.540176470588f };
+	// Initial position of the camera. Use to call FlightMovement.setOrientation
 	public String initialPosition = null;
 
 	public String server = "";
@@ -102,7 +71,7 @@ public class Ptolemy3DConfiguration
 	public String DEMLocation[][];
 
 	public Color numberColor = new Color(240, 240, 240);
-	public Color textColor   = new Color(250, 250, 250);
+	public Color textColor = new Color(250, 250, 250);
 	public Color hudBackgroundColor = new Color(20, 20, 20, 128);
 
 	public Font defaultFont = null;
@@ -112,24 +81,51 @@ public class Ptolemy3DConfiguration
 	public boolean useTIN = false;
 	public int flightFrameDelay = 1;
 
-	public Ptolemy3DConfiguration(Ptolemy3D ptolemy)
-	{
+	/**
+	 * Creates a new configuration instance.
+	 * 
+	 * @param ptolemy
+	 */
+	public Ptolemy3DConfiguration(Ptolemy3D ptolemy) {
 		this.ptolemy = ptolemy;
 	}
 
-	private void loadSystemUnit(Element docelem)
-	{
-		//Coordinate System Units
-		int meterX, meterZ;
-		float COORDSYS_RATIO;
-		meterX = Integer.parseInt(getXmlParameter("CenterX", docelem));
-		meterZ = Integer.parseInt(getXmlParameter("CenterY", docelem));
-		COORDSYS_RATIO = (float) EARTH_RADIUS / 6378136;
+	/**
+	 * Parse an XML file and construct the document elements for Ptolemy3D.
+	 */
+	public final static Element buildXMLDocument(String xmlFile) {
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 
-		ptolemy.unit = new Ptolemy3DUnit(meterX, meterZ, COORDSYS_RATIO);
+		Document document = null;
+		try {
+			DocumentBuilder builder = factory.newDocumentBuilder();
+			if (xmlFile.indexOf("http://") == -1) {
+				document = builder.parse(new File(xmlFile));
+			} else {
+				document = builder.parse(xmlFile);
+			}
+		} catch (SAXException sxe) {
+			Exception x = sxe;
+			if (sxe.getException() != null) {
+				x = sxe.getException();
+			}
+			IO.printStack(x);
+		} catch (Exception e) {
+			IO.printStack(e);
+		}
+
+		if (document == null) {
+			return null;
+		}
+		return document.getDocumentElement();
 	}
-	public void loadSettings(Element docelem)
-	{
+
+	/**
+	 * Loads the configuration settings.
+	 * 
+	 * @param docelem
+	 */
+	public void loadSettings(Element docelem) {
 		loadSystemUnit(docelem);
 
 		final CameraMovement cameraController = ptolemy.cameraController;
@@ -138,23 +134,23 @@ public class Ptolemy3DConfiguration
 		final Sky sky = ptolemy.scene.sky;
 		final Plugins plugins = ptolemy.scene.plugins;
 
-		//Read settings
+		// Read settings
 		String fontface = "Veranda";
 		int font_style = Font.BOLD;
 
-		//Server informations
+		// Server informations
 		server = getXmlParameter("Server", docelem);
 
 		int nDataServers = -1;
 		try {
 			// parameters for a clustered drill down setup.
-			nDataServers = Integer.parseInt(getXmlParameter("nMapDataSvr", docelem));
+			nDataServers = Integer.parseInt(getXmlParameter("nMapDataSvr",
+					docelem));
 		} catch (Exception e) {
 
 		}
 
-		if (nDataServers <= 0)
-		{
+		if (nDataServers <= 0) {
 			headerKeys = new String[1];
 			dataServers = new String[1];
 			locations = new String[1][1];
@@ -165,15 +161,15 @@ public class Ptolemy3DConfiguration
 			if ((dataServers[0] = getXmlParameter("MDataServer", docelem)) == null) {
 				dataServers[0] = server;
 			}
-			locations[0][0] = addTrailingChar(getXmlParameter("LocationRoot", docelem), "/");
+			locations[0][0] = addTrailingChar(getXmlParameter("LocationRoot",
+					docelem), "/");
 
-			DEMLocation[0][0] = addTrailingChar(getXmlParameter("DEM", docelem), "/");
+			DEMLocation[0][0] = addTrailingChar(
+					getXmlParameter("DEM", docelem), "/");
 			keepAlives[0] = true;
 			headerKeys[0] = getXmlParameter("MHeaderKey", docelem);
 			urlAppends[0] = getXmlParameter("MUrlAppend", docelem);
-		}
-		else
-		{
+		} else {
 			headerKeys = new String[nDataServers];
 			dataServers = new String[nDataServers];
 			locations = new String[nDataServers][];
@@ -181,8 +177,7 @@ public class Ptolemy3DConfiguration
 			keepAlives = new boolean[nDataServers];
 			urlAppends = new String[nDataServers];
 
-			for (int i = 1; i <= nDataServers; i++)
-			{
+			for (int i = 1; i <= nDataServers; i++) {
 				dataServers[i - 1] = getXmlParameter("MapDataSvr" + i, docelem);
 				headerKeys[i - 1] = getXmlParameter("MHeaderKey" + i, docelem);
 				urlAppends[i - 1] = getXmlParameter("MUrlAppend" + i, docelem);
@@ -190,42 +185,43 @@ public class Ptolemy3DConfiguration
 				String temppm = getXmlParameter("MapJp2Store" + i, docelem);
 				if (temppm == null) {
 					locations[i - 1] = null;
-				}
-				else {
+				} else {
 					StringTokenizer ptok = new StringTokenizer(temppm, ",");
-					
+
 					locations[i - 1] = new String[ptok.countTokens()];
 					for (int nfloc = 0; nfloc < locations[i - 1].length; nfloc++) {
-						locations[i - 1][nfloc] = addTrailingChar(ptok.nextToken(), "/");
+						locations[i - 1][nfloc] = addTrailingChar(ptok
+								.nextToken(), "/");
 					}
 				}
 
 				temppm = getXmlParameter("MapDemStore" + i, docelem);
 				if (temppm == null) {
 					DEMLocation[i - 1] = null;
-				}
-				else {
+				} else {
 					StringTokenizer ptok = new StringTokenizer(temppm, ",");
-					
+
 					DEMLocation[i - 1] = new String[ptok.countTokens()];
 					for (int nfloc = 0; nfloc < DEMLocation[i - 1].length; nfloc++) {
-						DEMLocation[i - 1][nfloc] = addTrailingChar(ptok.nextToken(), "/");
+						DEMLocation[i - 1][nfloc] = addTrailingChar(ptok
+								.nextToken(), "/");
 					}
 				}
-				
+
 				temppm = getXmlParameter("isKeepAlive" + i, docelem);
 				if (temppm == null) {
 					keepAlives[i - 1] = true;
-				}
-				else {
+				} else {
 					keepAlives[i - 1] = (temppm.equals("0")) ? false : true;
 				}
 
 			}
 		}
 
+		// Area
 		area = getXmlParameter("Area", docelem);
 
+		// Background image
 		backgroundImageUrl = getXmlParameter("BackgroundImageUrl", docelem);
 		if (backgroundImageUrl != null) {
 			if (backgroundImageUrl.indexOf("?") == -1) {
@@ -233,40 +229,31 @@ public class Ptolemy3DConfiguration
 			}
 		}
 
-
+		// Colors and fonts
 		try {
 			String temppm;
-			if ((temppm = getXmlParameter("TILECOLOR", docelem)) != null)
-			{
+			if ((temppm = getXmlParameter("TILECOLOR", docelem)) != null) {
 				StringTokenizer stok = new StringTokenizer(temppm, ",");
 				landScape.tileColor[0] = (Float.parseFloat(stok.nextToken()) / 255);
 				landScape.tileColor[1] = (Float.parseFloat(stok.nextToken()) / 255);
 				landScape.tileColor[2] = (Float.parseFloat(stok.nextToken()) / 255);
 			}
-			if ((temppm = getXmlParameter("BGCOLOR", docelem)) != null)
-			{
+			if ((temppm = getXmlParameter("BGCOLOR", docelem)) != null) {
 				StringTokenizer stok = new StringTokenizer(temppm, ",");
 				backgroundColor[0] = (Float.parseFloat(stok.nextToken()) / 255);
 				backgroundColor[1] = (Float.parseFloat(stok.nextToken()) / 255);
 				backgroundColor[2] = (Float.parseFloat(stok.nextToken()) / 255);
 			}
 
-			if ((temppm = getXmlParameter("FontFace", docelem)) != null)
-			{
+			if ((temppm = getXmlParameter("FontFace", docelem)) != null) {
 				fontface = temppm;
 			}
-			if ((temppm = getXmlParameter("FontStyle", docelem)) != null)
-			{
-				if (temppm.equalsIgnoreCase("bold"))
-				{
+			if ((temppm = getXmlParameter("FontStyle", docelem)) != null) {
+				if (temppm.equalsIgnoreCase("bold")) {
 					font_style = Font.BOLD;
-				}
-				else if (temppm.equalsIgnoreCase("plain"))
-				{
+				} else if (temppm.equalsIgnoreCase("plain")) {
 					font_style = Font.PLAIN;
-				}
-				else if (temppm.equalsIgnoreCase("italic"))
-				{
+				} else if (temppm.equalsIgnoreCase("italic")) {
 					font_style = Font.ITALIC;
 				}
 			}
@@ -305,112 +292,127 @@ public class Ptolemy3DConfiguration
 				useSubtexturing = temppm.equals("1") ? true : false;
 			}
 			if ((temppm = getXmlParameter("FOLLOWDEM", docelem)) != null) {
-				cameraController.setFollowDem(temppm.equals("1") ? true : false);
+				cameraController
+						.setFollowDem(temppm.equals("1") ? true : false);
 			}
 			temppm = getXmlParameter("KEYBOARD", docelem);
-			cameraController.inputs.keyboardEnabled = ((temppm != null) && (temppm.equals("0"))) ? false : true;
+			cameraController.inputs.keyboardEnabled = ((temppm != null) && (temppm
+					.equals("0"))) ? false : true;
 
-			//TODO Not used anymore
-			//temppm = getXmlParameter("COMPONENT", docelem);
-			//landScape.componentEnabled = ((temppm != null) && (temppm.equals("0"))) ? false : true;
+			// TODO Not used anymore
+			// temppm = getXmlParameter("COMPONENT", docelem);
+			// landScape.componentEnabled = ((temppm != null) &&
+			// (temppm.equals("0"))) ? false : true;
 
 			if ((temppm = getXmlParameter("HTSCALE", docelem)) != null) {
 				landScape.maxColorHeight = Short.parseShort(temppm);
 			}
 			temppm = getXmlParameter("isOffscreenRendering", docelem);
-			offscreenRender = ((temppm != null) && (temppm.equals("1"))) ? true : false;
-		}
-		catch (Exception e) {
+			offscreenRender = ((temppm != null) && (temppm.equals("1"))) ? true
+					: false;
+		} catch (Exception e) {
+			logger.warning(e.getMessage());
 		}
 
 		initialPosition = getXmlParameter("Orientation", docelem);
 		if (initialPosition != null) {
 			StringTokenizer pstok = new StringTokenizer(initialPosition, ",");
 			if (pstok.countTokens() >= 5) {
-				cameraController.setOrientation(
-						Double.parseDouble(pstok.nextToken()),
-						Double.parseDouble(pstok.nextToken()),
-						Double.parseDouble(pstok.nextToken()),
-						Double.parseDouble(pstok.nextToken()),
-						Double.parseDouble(pstok.nextToken()));
+				cameraController.setOrientation(Double.parseDouble(pstok
+						.nextToken()), Double.parseDouble(pstok.nextToken()),
+						Double.parseDouble(pstok.nextToken()), Double
+								.parseDouble(pstok.nextToken()), Double
+								.parseDouble(pstok.nextToken()));
 			}
 		}
 
-		//Landscape levels (resolution levels)
-		int NumLevels = Integer.parseInt(getXmlParameter("NumLayers", docelem));
-		landScape.levels = new Level[NumLevels];
-		for (int i = 0; i < NumLevels; i++)
-		{
-			int tilePixel = Integer.parseInt(getXmlParameter("LayerWidth_" + (i + 1), docelem));
-			int minZoom = Integer.parseInt(getXmlParameter("LayerMIN_" + (i + 1), docelem));
-			int maxZoom = Integer.parseInt(getXmlParameter("LayerMAX_" + (i + 1), docelem));
-			String temppm = getXmlParameter("LayerDIVIDER_" + (i + 1), docelem);
-			int divider = (temppm != null) ? Integer.parseInt(temppm) : 0;
+		// Landscape levels (resolution levels)
+		try {
+			int NumLevels = Integer.parseInt(getXmlParameter("NumLayers",
+					docelem));
+			landScape.levels = new Level[NumLevels];
+			for (int i = 0; i < NumLevels; i++) {
+				int tilePixel = Integer.parseInt(getXmlParameter("LayerWidth_"
+						+ (i + 1), docelem));
+				int minZoom = Integer.parseInt(getXmlParameter("LayerMIN_"
+						+ (i + 1), docelem));
+				int maxZoom = Integer.parseInt(getXmlParameter("LayerMAX_"
+						+ (i + 1), docelem));
+				String temppm = getXmlParameter("LayerDIVIDER_" + (i + 1),
+						docelem);
+				int divider = (temppm != null) ? Integer.parseInt(temppm) : 0;
 
-			Level level = new Level(i, minZoom, maxZoom, tilePixel, divider);
-			landScape.levels[i] = level;
+				Level level = new Level(i, minZoom, maxZoom, tilePixel, divider);
+				landScape.levels[i] = level;
+			}
+		} catch (NumberFormatException ex) {
+			logger.severe("Problem loading layers: "+ex.toString());
 		}
 
-		//Plugins
-		int numplugins = Integer.parseInt(getXmlParameter("NumPlugins", docelem));
-		for (int g = 0; g < numplugins; g++) {
-			try {
-				plugins.addPlugin(getXmlParameter("PluginType_" + (g + 1), docelem), getXmlParameter("PluginParam_" + (g + 1), docelem));
+		// Plugins
+		try {
+			int numplugins = Integer.parseInt(getXmlParameter("NumPlugins",
+					docelem));
+			for (int g = 0; g < numplugins; g++) {
+				try {
+					plugins.addPlugin(getXmlParameter("PluginType_" + (g + 1),
+							docelem), getXmlParameter("PluginParam_" + (g + 1),
+							docelem));
+				} catch (Exception e) {
+				}
 			}
-			catch (Exception e) {
-			}
+		} catch (NumberFormatException ex) {
+			logger.severe("Problem loading plugins: "+ex.toString());
 		}
 	}
 
-	private String getXmlParameter(String name, Element elem)
-	{
-		
-		try
-		{
-			if(elem != null)
-			{
-				return ((Element) (elem.getElementsByTagName(name).item(0))).getChildNodes().item(0).getNodeValue();
-			}
-			else
-			{
+	private void loadSystemUnit(Element docelem) {
+		// Coordinate System Units
+		int meterX, meterZ;
+		float COORDSYS_RATIO;
+		meterX = Integer.parseInt(getXmlParameter("CenterX", docelem));
+		meterZ = Integer.parseInt(getXmlParameter("CenterY", docelem));
+		COORDSYS_RATIO = (float) EARTH_RADIUS / 6378136;
+
+		ptolemy.unit = new Ptolemy3DUnit(meterX, meterZ, COORDSYS_RATIO);
+	}
+
+	private String getXmlParameter(String name, Element elem) {
+
+		try {
+			if (elem != null) {
+				return ((Element) (elem.getElementsByTagName(name).item(0)))
+						.getChildNodes().item(0).getNodeValue();
+			} else {
 				return ptolemy.javascript.getApplet().getParameter(name);
 			}
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			return null;
 		}
 	}
-	private String addTrailingChar(String s, String tr)
-	{
-		if (!s.substring(s.length() - 1, s.length()).equals(tr))
-		{
+
+	private String addTrailingChar(String s, String tr) {
+		if (!s.substring(s.length() - 1, s.length()).equals(tr)) {
 			return s + tr;
-		}
-		else
-		{
+		} else {
 			return s;
 		}
 	}
-	private Color getAwtColor(String col)
-	{
-		try
-		{
+
+	private Color getAwtColor(String col) {
+		try {
 			StringTokenizer stok = new StringTokenizer(col, ",");
 			int r = Integer.parseInt(stok.nextToken());
 			int g = Integer.parseInt(stok.nextToken());
 			int b = Integer.parseInt(stok.nextToken());
-			if (stok.hasMoreTokens())
-			{
+			if (stok.hasMoreTokens()) {
 				int a = Integer.parseInt(stok.nextToken());
 				return new Color(r, g, b, a);
-			}
-			else
-			{
+			} else {
 				return new Color(r, g, b);
 			}
+		} catch (Exception e) {
 		}
-		catch (Exception e) {}
 
 		return new Color(0, 0, 0, 0);
 	}

@@ -11,10 +11,10 @@
  *
  * COPYRIGHT:
  * 
- * This software module was originally developed by Raphaël Grosbois and
+ * This software module was originally developed by Raphaï¿½l Grosbois and
  * Diego Santa Cruz (Swiss Federal Institute of Technology-EPFL); Joel
- * Askelöf (Ericsson Radio Systems AB); and Bertrand Berthelot, David
- * Bouchard, Félix Henry, Gerard Mozelle and Patrice Onno (Canon Research
+ * Askelï¿½f (Ericsson Radio Systems AB); and Bertrand Berthelot, David
+ * Bouchard, Fï¿½lix Henry, Gerard Mozelle and Patrice Onno (Canon Research
  * Centre France S.A) in the course of development of the JPEG2000
  * standard as specified by ISO/IEC 15444 (JPEG 2000 Standard). This
  * software module is an implementation of a part of the JPEG 2000
@@ -42,146 +42,161 @@
  * */
 package jj2000.j2k.encoder;
 
-import jj2000.j2k.util.*;
+import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Enumeration;
 
-import java.util.*;
-import java.io.*;
+import jj2000.j2k.util.FacilityManager;
+import jj2000.j2k.util.ParameterList;
+import jj2000.j2k.util.StringFormatException;
 
 /**
  * This class runs JJ2000's encoder from the command line interface. It parses
- * command-line arguments to fill a ParameterList object which will be
- * provided to an Encoder object.
+ * command-line arguments to fill a ParameterList object which will be provided
+ * to an Encoder object.
  * */
-public class CmdLnEncoder{
-    /** The parameter list (arguments) */
-    private ParameterList pl;
+public class CmdLnEncoder {
 
-    /** The default parameter list (arguments) */
-    private ParameterList defpl;
+	private BufferedImage bufferedImage = null;
 
-    /** The current encoder object */
-    private Encoder enc;
+	/** The parameter list (arguments) */
+	private ParameterList pl;
 
-    /**
-     * The starting point of the program. It creates a CmdLnEncoder
-     * object, initializes it, and performs coding.
-     *
-     * @param argv The command line arguments
-     * */
-    public static void main(String argv[]) {
-        if (argv.length == 0) {
-            FacilityManager.getMsgLogger()
-                .println("CmdLnEncoder: JJ2000's JPEG 2000 Encoder\n"+
-                         "    use jj2000.j2k.encoder.CmdLnEncoder -u "+
-                         "to get help\n",0,0);
-            System.exit(1);
-        }
+	/** The default parameter list (arguments) */
+	private ParameterList defpl;
 
-	new CmdLnEncoder(argv);
-    }
+	/** The current encoder object */
+	private Encoder enc;
 
-    /**
-     * Instantiates a command line encoder object, with the 'argv' command
-     * line arguments. It also initializes the default parameters. If the
-     * argument list is empty an IllegalArgumentException is thrown. If an
-     * error occurs while parsing the arguments error messages are written to
-     * stderr and the run exit code is set to non-zero, see getExitCode()
-     *
-     * @exception IllegalArgumentException If 'argv' is empty
-     *
-     * @see Encoder#getExitCode
-     * */
-    public CmdLnEncoder(String argv[]) {
-        // Initialize default parameters
-        defpl = new ParameterList();
-	String[][] param = Encoder.getAllParameters();
+	/**
+	 * The starting point of the program. It creates a CmdLnEncoder object,
+	 * initializes it, and performs coding.
+	 * 
+	 * @param argv
+	 *            The command line arguments
+	 * */
+	public static void main(String argv[]) {
+		if (argv.length == 0) {
+			FacilityManager.getMsgLogger().println(
+					"CmdLnEncoder: JJ2000's JPEG 2000 Encoder\n"
+							+ "    use jj2000.j2k.encoder.CmdLnEncoder -u "
+							+ "to get help\n", 0, 0);
+			System.exit(1);
+		}
 
-        for (int i=param.length-1; i>=0; i--) {
-	    if(param[i][3]!=null){
-		defpl.put(param[i][0],param[i][3]);
-            }
-        }
-
-        // Create parameter list using defaults
-        pl = new ParameterList(defpl);
-
-        if (argv.length == 0 ) {
-            throw new IllegalArgumentException("No arguments!");
-        }
-
-        // Parse arguments from argv
-        try {
-            pl.parseArgs(argv);
-        }
-        catch (StringFormatException e) {
-            System.err.println("An error occured while parsing the "+
-                               "arguments:\n"+e.getMessage());
-            return;
-        }
-
-        // Parse the arguments from some file?
-        if (pl.getParameter("pfile") != null) {
-            // Load parameters from file
-            ParameterList tmpPl = new ParameterList();
-            InputStream is;
-            try {
-                is = new FileInputStream(pl.getParameter("pfile"));
-                is = new BufferedInputStream(is);
-                tmpPl.load(is);
-            }
-            catch (FileNotFoundException e) {
-                System.err.println("Could not load the argument file " +
-				   pl.getParameter("pfile"));
-                return;
-            }
-            catch (IOException e) {
-                System.err.println("An error ocurred while reading from the "+
-                                   "argument file " + pl.getParameter("pfile"));
-                return;
-            }
-            try {
-                is.close();
-            }
-            catch (IOException e) {
-                System.out.println("[WARNING] Could not close the argument file"+
-				   " after reading");
-            }
-            Enumeration e = tmpPl.keys();
-            String str;
-
-            while(e.hasMoreElements()){
-                str = (String)e.nextElement();
-                if(pl.get(str)==null){
-                    pl.put(str,tmpPl.get(str));
-                }
-            }
-        }
-     
-	// **** Check parameters ****
-	try {
-	    pl.checkList(Encoder.vprfxs,pl.toNameArray(param));
-	}
-	catch (IllegalArgumentException e) {
-	    System.err.println(e.getMessage());
-	    return;
+		new CmdLnEncoder(argv);
 	}
 
-	// Instantiate encoder
-        enc = new Encoder(pl);
-        if (enc.getExitCode() != 0) { // An error ocurred
-            System.exit(enc.getExitCode());
-        }
-        // Run the encoder
-        try {
-            enc.run();
-        }
-        catch (Throwable e) {
-            e.printStackTrace();
-        }
-        finally {
-            if (enc.getExitCode() != 0) {
-                System.exit(enc.getExitCode());
-            }
-        }
-    }
+	/**
+	 * Instantiates a command line encoder object, with the 'argv' command line
+	 * arguments. It also initializes the default parameters. If the argument
+	 * list is empty an IllegalArgumentException is thrown. If an error occurs
+	 * while parsing the arguments error messages are written to stderr and the
+	 * run exit code is set to non-zero, see getExitCode()
+	 * 
+	 * @exception IllegalArgumentException
+	 *                If 'argv' is empty
+	 * 
+	 * @see Encoder#getExitCode
+	 * */
+	public CmdLnEncoder(String argv[]) {
+		// Initialize default parameters
+		defpl = new ParameterList();
+		String[][] param = Encoder.getAllParameters();
+
+		for (int i = param.length - 1; i >= 0; i--) {
+			if (param[i][3] != null) {
+				defpl.put(param[i][0], param[i][3]);
+			}
+		}
+
+		// Create parameter list using defaults
+		pl = new ParameterList(defpl);
+
+		if (argv.length == 0) {
+			throw new IllegalArgumentException("No arguments!");
+		}
+
+		// Parse arguments from argv
+		try {
+			pl.parseArgs(argv);
+		} catch (StringFormatException e) {
+			System.err.println("An error occured while parsing the "
+					+ "arguments:\n" + e.getMessage());
+			return;
+		}
+
+		// Parse the arguments from some file?
+		if (pl.getParameter("pfile") != null) {
+			// Load parameters from file
+			ParameterList tmpPl = new ParameterList();
+			InputStream is;
+			try {
+				is = new FileInputStream(pl.getParameter("pfile"));
+				is = new BufferedInputStream(is);
+				tmpPl.load(is);
+			} catch (FileNotFoundException e) {
+				System.err.println("Could not load the argument file "
+						+ pl.getParameter("pfile"));
+				return;
+			} catch (IOException e) {
+				System.err.println("An error ocurred while reading from the "
+						+ "argument file " + pl.getParameter("pfile"));
+				return;
+			}
+			try {
+				is.close();
+			} catch (IOException e) {
+				System.out
+						.println("[WARNING] Could not close the argument file"
+								+ " after reading");
+			}
+			Enumeration e = tmpPl.keys();
+			String str;
+
+			while (e.hasMoreElements()) {
+				str = (String) e.nextElement();
+				if (pl.get(str) == null) {
+					pl.put(str, tmpPl.get(str));
+				}
+			}
+		}
+
+		// **** Check parameters ****
+		try {
+			pl.checkList(Encoder.vprfxs, pl.toNameArray(param));
+		} catch (IllegalArgumentException e) {
+			System.err.println(e.getMessage());
+			return;
+		}
+
+		// Instantiate encoder
+		enc = new Encoder(pl);
+		if (enc.getExitCode() != 0) { // An error ocurred
+			System.exit(enc.getExitCode());
+		}
+	}
+
+	public void setBufferedImage(BufferedImage bimage) {
+		this.bufferedImage = bimage;
+		enc.setBufferedImage(bimage);
+	}
+
+	public int run() {
+		// Run the encoder
+		try {
+			enc.run();
+		} catch (Throwable e) {
+			e.printStackTrace();
+		} finally {
+			// if (enc.getExitCode() != 0) {
+			// System.exit(enc.getExitCode());
+			// }
+			return enc.getExitCode();
+		}
+	}
 }

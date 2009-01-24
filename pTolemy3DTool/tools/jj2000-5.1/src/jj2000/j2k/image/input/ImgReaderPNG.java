@@ -76,7 +76,7 @@ public class ImgReaderPNG extends ImgReader {
 	 * @exception EOFException if an EOF is read
 	 * @exception IOException if an error occurs when opening the file
 	 * */
-	private ImgReaderPNG(BufferedImage bi) {
+	public ImgReaderPNG(BufferedImage bi) {
 		image = bi;
 		w = image.getWidth();
 		h = image.getHeight();

@@ -21,10 +21,13 @@ package org.ptolemy3d;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 
 import javax.media.opengl.GL;
 import javax.media.opengl.GLAutoDrawable;
+import javax.media.opengl.GLContext;
 import javax.media.opengl.GLEventListener;
 
 import org.ptolemy3d.debug.IO;
@@ -211,16 +214,31 @@ public class Ptolemy3DEvents implements GLEventListener, Transferable {
 		removeListeners();
 
 		// Destroy OpenGL Datas
-		try {
-			ptolemy.scene.destroyGL(gl);
-		} catch (Exception e) {
-			IO.printStackRenderer(e);
-		}
+		runInContext(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ptolemy.scene.destroyGL(gl);
+			}
+		});
 
 		renderingLoopOn = false;
 		isInit = false;
 	}
+	private void runInContext(ActionListener action)
+	{
+		final GLContext glContext = glAutoDrawable.getContext();
+		int result = glContext.makeCurrent();
+		if(result != GLContext.CONTEXT_NOT_CURRENT) {
+			try {
+				action.actionPerformed(null);
+			} catch(Exception e) { } catch(Error e) { }
 
+			glContext.release();
+
+			if(result == GLContext.CONTEXT_CURRENT_NEW) {
+				glContext.destroy();
+			}
+		}
+	}
 	public void displayChanged(GLAutoDrawable drawable, boolean modeChanged,
 			boolean deviceChanged) {
 	}

@@ -89,7 +89,7 @@ public class View
 					perspective.setPerspectiveProjection(fov, aspectRatio, 1, FOG_RADIUS + 10000);
 				}
 				else {
-					double maxView = Math.tan(gamma) * (camera.getAltitudeDD() + cameraController.ground_ht) * 2;
+					double maxView = Math.tan(gamma) * (camera.getLatAltLon().getAltitudeDD() + cameraController.ground_ht) * 2;
 					if (maxView >= FOG_RADIUS + 10000) {
 						perspective.setPerspectiveProjection(fov, aspectRatio, 1, FOG_RADIUS + 10000);
 					}

@@ -143,7 +143,7 @@ public class CameraMovement
 		final Camera camera = ptolemy.camera;
 		final Ptolemy3DUnit unit = ptolemy.unit;
 
-		double vpPos_1_bak = camera.alt, tilt_bak = camera.tilt;
+		double vpPos_1_bak = camera.latLonAlt.alt, tilt_bak = camera.tilt;
 
 		Matrix9d vpMat_bak = new Matrix9d();
 		camera.vpMat.copyTo(vpMat_bak);
@@ -168,7 +168,7 @@ public class CameraMovement
 			if (fmode == 0)
 			{
 				// alter velocity and accel according to current altitude.
-				mmx = accel = (int) ((2 * (Math.tan(0.5235987756) * (camera.alt + 1))) * 25 * relspdmult);
+				mmx = accel = (int) ((2 * (Math.tan(0.5235987756) * (camera.latLonAlt.alt + 1))) * 25 * relspdmult);
 				horz_velocity = vert_velocity = velocity = 0;
 				lr_rot_velocity = mouse_lr_rot_velocity;
 				ud_rot_velocity = mouse_ud_rot_velocity;
@@ -361,15 +361,15 @@ public class CameraMovement
 			a_vec[1] += (horz_velocity * scaler);
 
 			{
-				camera.alt += velocity * scaler; // distance away from surface...
+				camera.latLonAlt.alt += velocity * scaler; // distance away from surface...
 
 				double min_rot = 0.000002;
 
-				if (camera.alt < 1) {
-					camera.alt = 1;
+				if (camera.latLonAlt.alt < 1) {
+					camera.latLonAlt.alt = 1;
 				}
-				if (camera.alt > maxAlt) {
-					camera.alt = maxAlt;
+				if (camera.latLonAlt.alt > maxAlt) {
+					camera.latLonAlt.alt = maxAlt;
 				}
 				double rot_scaler = 0.000005;
 				double rot_y = (lr_rot_velocity * rot_vel_scaler / 10) * Math3D.degToRad;
@@ -381,14 +381,14 @@ public class CameraMovement
 					final double GL_HEIGHT = ptolemy.events.drawHeight;
 
 					// this is to cancel out the relative acceleration.
-					horz_velocity /= (2 * (0.57735026919189393373967470078005 * camera.alt));
-					vert_velocity /= (2 * (0.57735026919189393373967470078005 * camera.alt));
-					rot_y = (((0.57735026919189393373967470078005 * camera.alt) / GL_WIDTH) * lr_rot_velocity / 10) * Math.PI / 180 * relspdmult;
+					horz_velocity /= (2 * (0.57735026919189393373967470078005 * camera.latLonAlt.alt));
+					vert_velocity /= (2 * (0.57735026919189393373967470078005 * camera.latLonAlt.alt));
+					rot_y = (((0.57735026919189393373967470078005 * camera.latLonAlt.alt) / GL_WIDTH) * lr_rot_velocity / 10) * Math.PI / 180 * relspdmult;
 					if ((Math.abs(rot_y) < min_rot) && (rot_y != 0))
 					{
 						rot_y = min_rot * ((rot_y > 0) ? 1 : -1);
 					}
-					rot_x = -(((0.57735026919189393373967470078005 * camera.alt) / GL_HEIGHT) * ud_rot_velocity / 10) * Math.PI / 180 * relspdmult;
+					rot_x = -(((0.57735026919189393373967470078005 * camera.latLonAlt.alt) / GL_HEIGHT) * ud_rot_velocity / 10) * Math.PI / 180 * relspdmult;
 					if ((Math.abs(rot_x) < min_rot) && (rot_x != 0))
 					{
 						rot_x = min_rot * ((rot_x > 0) ? 1 : -1);
@@ -431,7 +431,7 @@ public class CameraMovement
 			}
 		} // end of !autopilot condition
 
-		ground_ht = landscape.groundHeight(camera.lon, camera.lat, 0);
+		ground_ht = landscape.groundHeight(camera.latLonAlt.lon, camera.latLonAlt.lat, 0);
 		setCameraMatrix(followDemOn);
 
 		{
@@ -439,44 +439,44 @@ public class CameraMovement
 			{
 				vpMat_bak.copyTo(camera.vpMat);
 				camera.tilt = tilt_bak;
-				if (vpPos_1_bak > camera.alt) // always allow to zoom out
+				if (vpPos_1_bak > camera.latLonAlt.alt) // always allow to zoom out
 				{
-					camera.alt = vpPos_1_bak;
+					camera.latLonAlt.alt = vpPos_1_bak;
 				}
 				setCameraMatrix(followDemOn); //reset the camera matrix
 			}
 
 			modelView.identityMatrix();
-			modelView.translate(0, 0, -camera.alt);
+			modelView.translate(0, 0, -camera.latLonAlt.alt);
 			modelView.rotateX(camera.tilt);
 			modelView.translate(0, 0, -EARTH_RADIUS - ((followDemOn) ? ground_ht : 0));
 			modelView.multiply(camera.vpMat);
 
 			//Old code
 //			gl.glLoadIdentity();
-//			gl.glTranslated(0, 0, -camera.alt);
+//			gl.glTranslated(0, 0, -camera.latLonAlt.alt);
 //			gl.glRotated(camera.tilt * JetMath3d.radToDegConst, 1.0f, 0.0f, 0);
 //			gl.glTranslated(0, 0, -EARTH_RADIUS - ((followDemOn) ? ground_ht : 0));
 //			gl.glMultMatrixd(Matrix16d.from(camera.vpMat).m, 0);
 
 			/***  set coordinate information using current matrices ****/
-			camera.lat = Math.asin(camera.vpMat.m[1][2]) * Math3D.radToDeg;
-			camera.lon = Math3D.angle2dvec(-1, 0, camera.vpMat.m[2][2], camera.vpMat.m[0][2], true);
+			camera.latLonAlt.lat = Math.asin(camera.vpMat.m[1][2]) * Math3D.radToDeg;
+			camera.latLonAlt.lon = Math3D.angle2dvec(-1, 0, camera.vpMat.m[2][2], camera.vpMat.m[0][2], true);
 			if (camera.vpMat.m[0][2] >= 0)
 			{
-				camera.lon = -camera.lon;
+				camera.latLonAlt.lon = -camera.latLonAlt.lon;
 				// set camera.direction, use yup angle of current matrix with yup of a north facing one.
 				// north facing y up vector
 			}
-			double yup_x = (Math.sin((Math3D.degToRad * camera.lon)) * Math.sin((camera.lat * Math3D.degToRad)));
-			double yup_y = Math.cos((Math3D.degToRad * camera.lat));
-			double yup_z = (Math.cos((Math3D.degToRad * camera.lon)) * Math.sin((camera.lat * Math3D.degToRad)));
+			double yup_x = (Math.sin((Math3D.degToRad * camera.latLonAlt.lon)) * Math.sin((camera.latLonAlt.lat * Math3D.degToRad)));
+			double yup_y = Math.cos((Math3D.degToRad * camera.latLonAlt.lat));
+			double yup_z = (Math.cos((Math3D.degToRad * camera.latLonAlt.lon)) * Math.sin((camera.latLonAlt.lat * Math3D.degToRad)));
 
-			camera.lon *= unit.DD;
-			camera.lat *= unit.DD;
+			camera.latLonAlt.lon *= unit.DD;
+			camera.latLonAlt.lat *= unit.DD;
 
 			camera.direction = Math3D.angle3dvec(yup_x, yup_y, yup_z, camera.vpMat.m[0][1], camera.vpMat.m[1][1], camera.vpMat.m[2][1], false);
-			if ((camera.lon > (90 * unit.DD)) || (camera.lon < (-90 * unit.DD)))
+			if ((camera.latLonAlt.lon > (90 * unit.DD)) || (camera.latLonAlt.lon < (-90 * unit.DD)))
 			{
 				if (((yup_x * camera.vpMat.m[1][1]) - (yup_y * camera.vpMat.m[0][1])) < 0) {	//rotate left
 					camera.direction = Math3D.twoPi - camera.direction;
@@ -492,14 +492,14 @@ public class CameraMovement
 
 		// check for any bad numbers, if any unacceptable values set back to 0.
 		{
-			if (Double.isNaN(camera.lon)) {
-				camera.lon = 0;
+			if (Double.isNaN(camera.latLonAlt.lon)) {
+				camera.latLonAlt.lon = 0;
 			}
-			if (Double.isNaN(camera.alt)) {
-				camera.alt = 5000;
+			if (Double.isNaN(camera.latLonAlt.alt)) {
+				camera.latLonAlt.alt = 5000;
 			}
-			if (Double.isNaN(camera.lat)) {
-				camera.lat = 0;
+			if (Double.isNaN(camera.latLonAlt.lat)) {
+				camera.latLonAlt.lat = 0;
 			}
 			if (Double.isNaN(camera.direction)) {
 				camera.direction = 0;
@@ -523,9 +523,9 @@ public class CameraMovement
 		rotMat.rotX(-camera.tilt);
 		Matrix9d.multiply(camera.vpMat, rotMat, camera.cameraMat);
 
-		camera.cameraPos[0] = (camera.vpMat.m[0][2] * (EARTH_RADIUS + groundH)) + (camera.cameraMat.m[0][2] * camera.alt);
-		camera.cameraPos[1] = (camera.vpMat.m[1][2] * (EARTH_RADIUS + groundH)) + (camera.cameraMat.m[1][2] * camera.alt);
-		camera.cameraPos[2] = (camera.vpMat.m[2][2] * (EARTH_RADIUS + groundH)) + (camera.cameraMat.m[2][2] * camera.alt);
+		camera.cameraPos[0] = (camera.vpMat.m[0][2] * (EARTH_RADIUS + groundH)) + (camera.cameraMat.m[0][2] * camera.latLonAlt.alt);
+		camera.cameraPos[1] = (camera.vpMat.m[1][2] * (EARTH_RADIUS + groundH)) + (camera.cameraMat.m[1][2] * camera.latLonAlt.alt);
+		camera.cameraPos[2] = (camera.vpMat.m[2][2] * (EARTH_RADIUS + groundH)) + (camera.cameraMat.m[2][2] * camera.latLonAlt.alt);
 
 		camera.vertAltDD = Math.sqrt((camera.cameraPos[0] * camera.cameraPos[0]) + (camera.cameraPos[1] * camera.cameraPos[1]) + (camera.cameraPos[2] * camera.cameraPos[2])) - EARTH_RADIUS;
 		camera.vertAlt = camera.vertAltDD / unit.coordSystemRatio;
@@ -578,8 +578,8 @@ public class CameraMovement
 					jsArgs[1] = String.valueOf(camera.cameraY);
 					jsArgs[2] = String.valueOf(camera.direction * Math3D.radToDeg);
 					jsArgs[3] = String.valueOf(camera.getVerticalAltitudeMeters());
-					jsArgs[4] = String.valueOf(camera.getLongitudeDD());
-					jsArgs[5] = String.valueOf(camera.getLatitudeDD());
+					jsArgs[4] = String.valueOf(camera.latLonAlt.getLongitudeDD());
+					jsArgs[5] = String.valueOf(camera.latLonAlt.getLatitudeDD());
 					ptolemy.javascript.getJSObject().call("updatePosition", jsArgs);
 				}
 				catch (Exception e)
@@ -596,11 +596,15 @@ public class CameraMovement
 		ptolemy.callJavascript("plotPosition", String.valueOf(dispout[0]), String.valueOf(dispout[1]), String.valueOf(dispout[2]));
 	}
 
-	public final void setOrientation(double lon, double lat, double alt, double dir, double pit)
+	public final void setOrientation(LatLonAlt latLonAlt, double dir, double pit)
 	{
 		final Camera camera = ptolemy.camera;
 		final Ptolemy3DUnit unit = ptolemy.unit;
 
+		double lon = latLonAlt.lon;
+		double alt = latLonAlt.alt;
+		double lat = latLonAlt.lat;
+		
 		stopMovement();
 		inAutoPilot = 0;
 
@@ -622,9 +626,9 @@ public class CameraMovement
 
 			camera.tilt = pit * Math3D.degToRad;
 
-			camera.lon = lon;
-			camera.lat = lat;
-			camera.alt = alt * unit.coordSystemRatio;
+			camera.latLonAlt.lon = lon;
+			camera.latLonAlt.lat = lat;
+			camera.latLonAlt.alt = alt * unit.coordSystemRatio;
 		} catch (NumberFormatException e){}
 
 		updatecounter = UPDATE_INC + 1;
@@ -764,9 +768,9 @@ public class CameraMovement
 
 		if (prev && !followDemOn)
 		{
-			double ht = landscape.groundHeight(camera.lon, camera.lat, 0);
+			double ht = landscape.groundHeight(camera.latLonAlt.lon, camera.latLonAlt.lat, 0);
 
-			camera.alt += (ht / Math.cos(-camera.tilt));
+			camera.latLonAlt.alt += (ht / Math.cos(-camera.tilt));
 
 			rotMat.rotX(-Math.atan((ht * Math.tan(-camera.tilt)) / EARTH_RADIUS));
 			camera.vpMat.copyTo(evtclnMat);
@@ -774,9 +778,9 @@ public class CameraMovement
 		}
 		else if (!prev && followDemOn)
 		{
-			double ht = landscape.groundHeight(camera.lon, camera.lat, 0);
+			double ht = landscape.groundHeight(camera.latLonAlt.lon, camera.latLonAlt.lat, 0);
 
-			camera.alt -= (ht / Math.cos(-camera.tilt));
+			camera.latLonAlt.alt -= (ht / Math.cos(-camera.tilt));
 
 			rotMat.rotX(Math.atan((ht * Math.tan(-camera.tilt)) / EARTH_RADIUS));
 			camera.vpMat.copyTo(evtclnMat);
@@ -787,9 +791,9 @@ public class CameraMovement
 	/**
 	 * Time flight
 	 */
-	public final void flyToPositionTime(double x, double z, double y, double s_direction, double s_tilt, double flight_arc, double cruise_tilt, double time)
+	public final void flyToPositionTime(LatLonAlt latLonAlt, double s_direction, double s_tilt, double flight_arc, double cruise_tilt, double time)
 	{
-		flyToPositionDD(x, y, z, s_direction, s_tilt, flight_arc, cruise_tilt);
+		flyToPositionDD(latLonAlt, s_direction, s_tilt, flight_arc, cruise_tilt);
 		max_rate = 0.2;
 		ud_accel = angle / (time * 1000);
 
@@ -799,9 +803,9 @@ public class CameraMovement
 	/**
 	 * Speed flight
 	 */
-	public final void flyToPositionSpeed(double x, double z, double y, double s_direction, double s_tilt, double flight_arc, double cruise_tilt, double speed)
+	public final void flyToPositionSpeed(LatLonAlt latLonAlt, double s_direction, double s_tilt, double flight_arc, double cruise_tilt, double speed)
 	{
-		flyToPositionDD(x, y, z, s_direction, s_tilt, flight_arc, cruise_tilt);
+		flyToPositionDD(latLonAlt, s_direction, s_tilt, flight_arc, cruise_tilt);
 		// 1 km is approx 2.0 * Math.atan(/EARTH_RADIUS)
 		max_rate = (2.0 * Math.atan(500.0 / EARTH_RADIUS) * speed * (0.05)) * scaler;
 		ud_accel = max_rate / 20;
@@ -809,24 +813,27 @@ public class CameraMovement
 		inAutoPilot = 1;
 	}
 	/* flyTo Implementation */
-	private final void flyToPositionDD(double x, double y, double z, double s_direction, double s_tilt, double flight_arc, double cruise_tilt)
+	private final void flyToPositionDD(LatLonAlt latLonAlt, double s_direction, double s_tilt, double flight_arc, double cruise_tilt)
 	{
 		final Camera camera = ptolemy.camera;
 		final Ptolemy3DUnit unit = ptolemy.unit;
 
-
+		double lon = latLonAlt.lon;
+		double alt = latLonAlt.alt;
+		double lat = latLonAlt.lat;
+		
 		initAutopilot();
-		start_y = camera.alt;
+		start_y = camera.latLonAlt.alt;
 
-		if (Math3D.distance2D(camera.lon, x, camera.lat, z) < 10)
+		if (Math3D.distance2D(camera.latLonAlt.lon, lon, camera.latLonAlt.lat, lat) < 10)
 		{
-			x += 7;
-			z += 7;
+			lon += 7;
+			lat += 7;
 		}
 
-		auto_x = x;
-		auto_y = y * unit.coordSystemRatio;
-		auto_z = z;
+		auto_x = lon;
+		auto_y = alt * unit.coordSystemRatio;
+		auto_z = lat;
 
 		if ((auto_x >= 180000000) || (auto_x <= -180000000) || (auto_z <= -90000000) || (auto_z >= 90000000))
 		{
@@ -842,7 +849,7 @@ public class CameraMovement
 
 		if ((angle = Math3D.angle3dvec(0, 0, 1, endpoint[0], endpoint[1], endpoint[2], false)) == 0)
 		{
-			camera.alt = auto_y;
+			camera.latLonAlt.alt = auto_y;
 		}
 		if (quat == null)
 		{
@@ -981,13 +988,13 @@ public class CameraMovement
 
 			// control our y pos
 			if (rot_lr_trav < halfway) {
-				camera.alt = ((Math.sin(((Math.PI * rot_lr_trav) / angle)) * (cruise_alt - start_y)) + start_y);
+				camera.latLonAlt.alt = ((Math.sin(((Math.PI * rot_lr_trav) / angle)) * (cruise_alt - start_y)) + start_y);
 			}
 			else {
-				camera.alt = ((Math.sin(((Math.PI * rot_lr_trav) / angle)) * (cruise_alt - auto_y)) + auto_y);
+				camera.latLonAlt.alt = ((Math.sin(((Math.PI * rot_lr_trav) / angle)) * (cruise_alt - auto_y)) + auto_y);
 			}
-			if (camera.alt > maxAlt) {
-				camera.alt = maxAlt;
+			if (camera.latLonAlt.alt > maxAlt) {
+				camera.latLonAlt.alt = maxAlt;
 			}
 		}
 
@@ -1049,33 +1056,37 @@ public class CameraMovement
 	/**
 	 * @param type 0=LOOP, 1=LINE
 	 */
-	public final void flyTo(double longitude, double latitude, double altitude,
+	public final void flyTo(LatLonAlt latLonAlt,
 			int speed, int ld_angle, int fly_angle, int type, int arc_angle)
 	{
 		final Camera camera = ptolemy.camera;
 
 		initAutopilot();
 
-		start_y = camera.alt;
+		start_y = camera.latLonAlt.alt;
 
-		flyToDD(longitude, altitude, latitude, speed, ld_angle, fly_angle, type, arc_angle);
+		flyToDD(/*lon, alt, lat*/latLonAlt, speed, ld_angle, fly_angle, type, arc_angle);
 
 		inAutoPilot = 1;
 	}
 	/* flyTo implementation */
-	private final void flyToDD(double x, double y, double z, int speed, int ld_angle, int fly_angle, int type, int arc_angle)
+	private final void flyToDD(LatLonAlt latLonAlt, int speed, int ld_angle, int fly_angle, int type, int arc_angle)
 	{
 		final Camera camera = ptolemy.camera;
 		final Ptolemy3DUnit unit = ptolemy.unit;
 
-		if (Math3D.distance2D(camera.lon, x, camera.lat, z) < 10) {
-			x += 7;
-			z += 7;
+		double lon = latLonAlt.lon;
+		double alt = latLonAlt.alt;
+		double lat = latLonAlt.lat;
+		
+		if (Math3D.distance2D(camera.latLonAlt.lon, lon, camera.latLonAlt.lat, lat) < 10) {
+			lon += 7;
+			lat += 7;
 		}
 
-		auto_x = x;
-		auto_y = y * unit.coordSystemRatio;
-		auto_z = z;
+		auto_x = lon;
+		auto_y = alt * unit.coordSystemRatio;
+		auto_z = lat;
 
 		if ((auto_x >= 180000000) || (auto_x <= -180000000) || (auto_z <= -90000000) || (auto_z >= 90000000))
 		{
@@ -1088,7 +1099,7 @@ public class CameraMovement
 		setCrossVert();
 
 		if ((angle = Math3D.angle3dvec(0, 0, 1, endpoint[0], endpoint[1], endpoint[2], false)) == 0) {
-			camera.alt = auto_y;
+			camera.latLonAlt.alt = auto_y;
 		}
 		if (quat == null) {
 			quat = new Quaternion4d();        // predict y rotate
@@ -1158,13 +1169,13 @@ public class CameraMovement
 	}
 
 	/******************************   functions for panorama ************************************/
-	public void panorama(double tx, double tz, double camht, int rtimes, double rspeed, double rpitch)
+	public void panorama(LatLonAlt latLonAlt, int rtimes, double rspeed, double rpitch)
 	{
 		final Camera camera = ptolemy.camera;
 		initAutopilot();
-
+		
 		setang = rpitch;
-		total_distance = camht;
+		total_distance = latLonAlt.alt;
 		rot_lr_trav = (rtimes == 0) ? Integer.MAX_VALUE : rtimes; // use a var from autopilot...
 
 		current_lr_rot = rspeed * Math.abs(rspeed) * 0.001;
@@ -1173,7 +1184,7 @@ public class CameraMovement
 			rot_lr_trav--;
 		}
 		setFollowDem(false);
-		setOrientation(tx, tz, camht, 0, rpitch);
+		setOrientation(latLonAlt, 0, rpitch);
 
 		{
 			setCameraMatrix(false);
@@ -1268,7 +1279,7 @@ public class CameraMovement
 				{
 					return;
 				}
-				ty = camera.alt / unit.coordSystemRatio;
+				ty = camera.latLonAlt.alt / unit.coordSystemRatio;
 				if (zoomin)
 				{
 					ty /= 4;
@@ -1279,7 +1290,7 @@ public class CameraMovement
 						ty = efloor;
 					}
 				}
-				flyTo(tx, tz, ty, -1, 0, 0, 0, 0);
+				flyTo(LatLonAlt.fromDD(tz, tx, ty), -1, 0, 0, 0, 0);
 				ud_accel = angle / 1000;
 				max_rate = 2;
 			}

@@ -17,8 +17,6 @@
  */
 package org.ptolemy3d.view;
 
-import org.ptolemy3d.Ptolemy3D;
-import org.ptolemy3d.Ptolemy3DUnit;
 import org.ptolemy3d.math.Math3D;
 import org.ptolemy3d.math.Matrix16d;
 import org.ptolemy3d.math.Matrix9d;
@@ -85,15 +83,7 @@ import org.ptolemy3d.math.Matrix9d;
  */
 public class Camera
 {
-	/** Ptolemy3D Instance */
-	private final Ptolemy3D ptolemy;
-
-	/** Longitude of the view point. */
-	protected double lon;
-	/** Distance from the view point. May not be vertical (distance not altitude). */
-	protected double alt;
-	/** Latitude of the view point. */
-	protected double lat;
+	protected final LatLonAlt latLonAlt;
 	/** Direction defined with a rotation around the vertical axis <i>(axis that goes from the earth center to the longitude/latitude position)</i>. */
 	protected double direction;
 	/** Tilt defined with a rotation around the side axis. */
@@ -110,57 +100,23 @@ public class Camera
 	public Matrix9d cameraMat = new Matrix9d();
 	public Matrix16d cameraMatInv = Matrix16d.identity();
 
-	public Camera(Ptolemy3D ptolemy)
+	public Camera()
 	{
-		this.ptolemy = ptolemy;
-
-		this.lon = 0;
-		this.alt = 5000;
-		this.lat = 0;
+		this.latLonAlt = LatLonAlt.fromDD(0, 0, 5000);
 		this.vertAlt = 0;
 		this.direction = 0.0;
 		this.tilt = 0;
 	}
 
-	/** @return longitude in degrees. */
-	public final double getLongitudeDegrees()
-	{
-		final Ptolemy3DUnit unit = ptolemy.unit;
-		return lon / unit.DD;
-	}
-	/** @return longitude in DD. */
-	public final double getLongitudeDD()
-	{
-		return lon;
-	}
-
-	/** @return latitude in degrees. */
-	public final double getLatitudeDegrees()
-	{
-		final Ptolemy3DUnit unit = ptolemy.unit;
-		return lat / unit.DD;
-	}
-	/** @return latitude in DD. */
-	public final double getLatitudeDD()
-	{
-		return lat;
-	}
-
-	/** @return the altitude in view space (altitude axis may not be vertical), zero is the altitude of the ground with no elevation. */
-	public final double getAltitude()
-	{
-		final Ptolemy3DUnit unit = ptolemy.unit;
-		return alt / unit.coordSystemRatio;
-	}
-	/** @return the altitude in view space (altitude axis may not be vertical), zero is the altitude of the ground with no elevation. */
-	public final double getAltitudeDD()
-	{
-		return alt;
-	}
 	/** @return the altitude in world space (vertical altitude), zero is the altitude of the ground with no elevation. */
 	public final double getVerticalAltitudeMeters()
 	{
 		return vertAlt;
+	}
+	
+	public final LatLonAlt getLatAltLon()
+	{
+		return latLonAlt;
 	}
 
 	/** @return direction: unit is degrees. */
@@ -218,7 +174,7 @@ public class Camera
 	public String toString()
 	{
 		return String.format("lon:%f, lat:%f, alt:%f, dir:%f, tilt:%f, x:%f, y:%f, z:%f",
-				(float)lon, (float)lat, (float)alt, (float)direction, tilt,
+				(float)latLonAlt.lon, (float)latLonAlt.lat, (float)latLonAlt.alt, (float)direction, tilt,
 				(float)cameraPos[0], (float)cameraPos[1], (float)cameraPos[2]);
 	}
 }

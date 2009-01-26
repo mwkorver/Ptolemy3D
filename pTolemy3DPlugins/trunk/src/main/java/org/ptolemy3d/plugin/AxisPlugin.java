@@ -26,6 +26,7 @@ import javax.media.opengl.glu.GLU;
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.Ptolemy3DConfiguration;
 import org.ptolemy3d.io.Communicator;
+import org.ptolemy3d.math.Math3D;
 import org.ptolemy3d.scene.Plugin;
 import org.ptolemy3d.view.Camera;
 
@@ -250,24 +251,7 @@ public class AxisPlugin implements Plugin
      */
     public boolean isCartesianPointInView(final double point[])
     {
-        final Camera camera = Ptolemy3D.ptolemy.camera;
-
-        // View forward vector
-        double[] forward =
-        {
-            -camera.cameraMat.m[0][2], -camera.cameraMat.m[1][2], -camera.cameraMat.m[2][2]
-        };
-
-        // Angle between vector (front/back face test)
-        double dot = (forward[0] * point[0]) + (forward[1] * point[1]) + (forward[2] * point[2]);
-        if (dot <= 0)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+    	return Math3D.isPointInView(point);
     }
 
     /**

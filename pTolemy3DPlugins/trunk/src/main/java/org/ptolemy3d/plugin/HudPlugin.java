@@ -38,6 +38,7 @@ import org.ptolemy3d.scene.Sky;
 import org.ptolemy3d.tile.Jp2TileLoader;
 import org.ptolemy3d.util.TextureLoaderGL;
 import org.ptolemy3d.view.Camera;
+import org.ptolemy3d.view.LatLonAlt;
 
 /**
  * Default ptolemy HUD.<BR>
@@ -144,6 +145,7 @@ public class HudPlugin implements Plugin
 
 		final Sky sky = ptolemy.scene.sky;
 		final Camera camera = ptolemy.camera;
+		final LatLonAlt latLonAlt = camera.getLatAltLon();
 		final Ptolemy3DUnit unit = ptolemy.unit;
 		final int DDBuffer = unit.DD;
 
@@ -206,10 +208,10 @@ public class HudPlugin implements Plugin
 		fontNumeric.bindTexture(gl);
 		{//DD
 			//lat
-			dval = camera.getLatitudeDD() / DDBuffer;//using texture font
+			dval = latLonAlt.getLatitudeDD() / DDBuffer;//using texture font
 			str_length += fontNumeric.drawLeftToRight(gl, dval, decplace, ulx + str_length, uly, 0, 1, 1);
 			//lon
-			dval = camera.getLongitudeDD() / DDBuffer;//using texture font
+			dval = latLonAlt.getLongitudeDD() / DDBuffer;//using texture font
 			str_length += fontNumeric.drawLeftToRight(gl, dval, decplace, ulx + str_length + 1, uly, 0, 1, 1);
 		}
 		fontText.bindTexture(gl);

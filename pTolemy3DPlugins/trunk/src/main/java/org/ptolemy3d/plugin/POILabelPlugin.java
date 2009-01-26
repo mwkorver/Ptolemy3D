@@ -48,6 +48,7 @@ import org.ptolemy3d.util.ByteReader;
 import org.ptolemy3d.util.PngDecoder;
 import org.ptolemy3d.util.TextureLoaderGL;
 import org.ptolemy3d.view.Camera;
+import org.ptolemy3d.view.LatLonAlt;
 
 public class POILabelPlugin implements Plugin
 {
@@ -898,10 +899,12 @@ public class POILabelPlugin implements Plugin
 	public final void loadFeaturesWFS(boolean force, Communicator JC) throws IOException{
 		if(!jspquery) return;
 
+		final Camera camera = ptolemy.camera;
+		final LatLonAlt latLonAlt = camera.getLatAltLon();
+		
 		int tx,ty;
-
-		tx = (int)ptolemy.camera.getLongitudeDD();
-		ty = (int)ptolemy.camera.getLatitudeDD();
+		tx = (int)latLonAlt.getLongitudeDD();
+		ty = (int)latLonAlt.getLatitudeDD();
 
 		if(tx==tx_on_prev_load && ty==ty_on_prev_load) return;//no need to reload features if focus hasn't changed
 
@@ -1028,10 +1031,11 @@ public class POILabelPlugin implements Plugin
 
     	final Ptolemy3DUnit unit = ptolemy.unit;
     	final Camera camera = ptolemy.camera;
-
+    	final LatLonAlt latLonAlt = camera.getLatAltLon();
+    	
     	int tx, ty;
-    	tx = (int) camera.getLongitudeDD();
-    	ty = (int) camera.getLatitudeDD();
+    	tx = (int) latLonAlt.getLongitudeDD();
+    	ty = (int) latLonAlt.getLatitudeDD();
     	
 		if(tx==tx_on_prev_load && ty==ty_on_prev_load) return;
 
@@ -1263,13 +1267,14 @@ public class POILabelPlugin implements Plugin
     public final void prepareFeatures(boolean force)
     {
     	final Camera camera = ptolemy.camera;
+    	final LatLonAlt latLonAlt = camera.getLatAltLon();
 
-    	if ((camera.getLongitudeDD() == feature_center_x) && (camera.getLatitudeDD() == feature_center_z) && (!force)) {
+    	if ((latLonAlt.getLongitudeDD() == feature_center_x) && (latLonAlt.getLatitudeDD() == feature_center_z) && (!force)) {
     		return;
     	}
 
-    	feature_center_x = camera.getLongitudeDD();
-    	feature_center_z = camera.getLatitudeDD();
+    	feature_center_x = latLonAlt.getLongitudeDD();
+    	feature_center_z = latLonAlt.getLatitudeDD();
 
     	if (FeatureBuffer != null) {
     		FeatureBuffer.flush();

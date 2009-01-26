@@ -39,6 +39,7 @@ import org.ptolemy3d.plugin.util.VectorClass;
 import org.ptolemy3d.plugin.util.VectorNode;
 import org.ptolemy3d.plugin.util.XsltVector;
 import org.ptolemy3d.view.Camera;
+import org.ptolemy3d.view.LatLonAlt;
 
 public class VectorPlugin implements Plugin
 {
@@ -374,6 +375,7 @@ public class VectorPlugin implements Plugin
 		final Landscape landscape = ptolemy.scene.landscape;
 		final Ptolemy3DUnit unit = ptolemy.unit;
 		final Camera camera = ptolemy.camera;
+		final LatLonAlt latLonAlt = camera.getLatAltLon();
 
 		if (isFixed == null) {
 			return;
@@ -384,7 +386,7 @@ public class VectorPlugin implements Plugin
 		float closest = Float.MAX_VALUE;
 		float dist;
 
-		double approxht = landscape.groundHeight(camera.getLongitudeDD(), camera.getLatitudeDD(), 0) / unit.coordSystemRatio;
+		double approxht = landscape.groundHeight(latLonAlt.getLongitudeDD(), latLonAlt.getLatitudeDD(), 0) / unit.coordSystemRatio;
 
 		boolean fixNonVis = false;
 
@@ -396,7 +398,7 @@ public class VectorPlugin implements Plugin
 			{
 				if (!isFixed[i][n])
 				{
-					dist = (float) Math3D.distance2D(camera.getLongitudeDD(), ctds[i][ 0], camera.getLatitudeDD(), ctds[i][ 1]);
+					dist = (float) Math3D.distance2D(latLonAlt.getLongitudeDD(), ctds[i][ 0], latLonAlt.getLatitudeDD(), ctds[i][ 1]);
 					if (dist < closest)
 					{
 						closest = dist;
@@ -565,8 +567,11 @@ public class VectorPlugin implements Plugin
 	private final void loadDataWFS(boolean force, Communicator JC)  throws IOException{
 		int tx,ty;
 		
-		tx = (int)ptolemy.camera.getLongitudeDD();
-		ty = (int)ptolemy.camera.getLatitudeDD();
+		final Camera camera = ptolemy.camera;
+		final LatLonAlt latLonAlt = camera.getLatAltLon();
+		
+		tx = (int)latLonAlt.getLongitudeDD();
+		ty = (int)latLonAlt.getLatitudeDD();
 		
 		int dispr = (int)(DisplayRadius/2);
 		int factor = ptolemy.unit.DD;
@@ -744,10 +749,11 @@ public class VectorPlugin implements Plugin
 	{
 		final Ptolemy3DUnit unit = ptolemy.unit;
 		final Camera camera = ptolemy.camera;
+		final LatLonAlt latLonAlt = camera.getLatAltLon();
 
 		int tx, ty;
-		tx = (int) camera.getLongitudeDD();
-		ty = (int) camera.getLatitudeDD();
+		tx = (int) latLonAlt.getLongitudeDD();
+		ty = (int) latLonAlt.getLatitudeDD();
 		int dispr = (DisplayRadius / 2);
 		int factor = unit.DD;
 		if ((((tx - dispr) < feature_minx) || ((tx + dispr) > feature_maxx) || ((ty + dispr) > feature_maxz) || ((ty - dispr) < feature_minz)) || (force))

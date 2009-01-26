@@ -212,10 +212,7 @@ public class Ptolemy3DEvents implements GLEventListener, Transferable {
 
 		// Destroy OpenGL Datas
 		try {
-			
-			// TODO - This line seems to produce a browser crash.
-			// FIXME - Solve the crash problem.
-//			ptolemy.scene.destroyGL(gl);
+			ptolemy.scene.destroyGL(gl);
 		} catch (Exception e) {
 			IO.printStackRenderer(e);
 		}

@@ -33,6 +33,7 @@ import org.ptolemy3d.scene.Landscape;
 import org.ptolemy3d.scene.Plugin;
 import org.ptolemy3d.util.TextureLoaderGL;
 import org.ptolemy3d.view.Camera;
+import org.ptolemy3d.view.LatLonAlt;
 
 public class RasterPlugin implements Plugin
 {
@@ -273,13 +274,14 @@ public class RasterPlugin implements Plugin
 	{
 		final Ptolemy3DUnit unit = ptolemy.unit;
 		final Camera camera = ptolemy.camera;
+		final LatLonAlt latLonAlt = camera.getLatAltLon();
 
-		if ((center_x == camera.getLongitudeDD()) && (center_z == camera.getLatitudeDD()) && (!force)) {
+		if ((center_x == latLonAlt.getLongitudeDD()) && (center_z == latLonAlt.getLatitudeDD()) && (!force)) {
 			return;
 		}
 
-		center_x = camera.getLongitudeDD();
-		center_z = camera.getLatitudeDD();
+		center_x = latLonAlt.getLongitudeDD();
+		center_z = latLonAlt.getLatitudeDD();
 
 		demRes = 0;
 		clicker = 11;

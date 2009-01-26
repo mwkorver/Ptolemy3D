@@ -71,11 +71,28 @@ public class TextureLoaderGL
 		}
 		gl.glTexImage2D(GL.GL_TEXTURE_2D, 0, cty, width, height, 0, cty, GL.GL_UNSIGNED_BYTE, ByteBuffer.wrap(imgdat));
 	}
+	
+	/**
+	 * Safetly delete texture from the GPU
+	 * @param gl
+	 * @param textures array of texture ID
+	 * @param numTextures number of texture to delete
+	 */
+	public final static void deleteTextures(GL gl, int[] textures, int numTextures)
+	{
+		final int[] tmp = new int[1];
+		for(int i = 0; i < numTextures; i++) {
+			tmp[0] = textures[i];
+			if(gl.glIsTexture(tmp[0])) {
+				gl.glDeleteTextures(1, tmp, 0);
+			}
+		}
+	}
 
 	public final static void loadRaster(GL gl, float[] pms, int[] tex_id, byte[] data, byte[] img, short transparency, int[] tran_color)
 	{
 		if (tex_id[0] != -1) {
-			gl.glDeleteTextures(1, tex_id, 0);
+			TextureLoaderGL.deleteTextures(gl, tex_id, 1);
 		}
 
 		int[] meta = new int[10];
@@ -199,7 +216,7 @@ public class TextureLoaderGL
 				}
 			}
 
-			TextureLoaderGL.setGLTexture(gl, tex_id, 4, (int) raster_width, (int) raster_height, img, false);
+			setGLTexture(gl, tex_id, 4, (int) raster_width, (int) raster_height, img, false);
 		}
 	}
 }

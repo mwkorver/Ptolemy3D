@@ -43,6 +43,7 @@ import org.ptolemy3d.util.ByteReader;
 import org.ptolemy3d.util.IntBuffer;
 import org.ptolemy3d.util.TextureLoaderGL;
 import org.ptolemy3d.view.Camera;
+import org.ptolemy3d.view.LatLonAlt;
 
 public class DenshiBashiPlugin implements Plugin
 {
@@ -547,10 +548,11 @@ public class DenshiBashiPlugin implements Plugin
     {
     	final Ptolemy3DUnit unit = ptolemy.unit;
     	final Camera camera = ptolemy.camera;
+    	final LatLonAlt latLonAlt = camera.getLatAltLon();
 
     	int tx, ty;
-    	tx = (int) camera.getLongitudeDD();
-    	ty = (int) camera.getLatitudeDD();
+    	tx = (int) latLonAlt.getLongitudeDD();
+    	ty = (int) latLonAlt.getLatitudeDD();
 
     	float area_minx, area_maxz, area_maxx, area_minz;
     	area_minx = (tx - (QueryWidth / 8));
@@ -939,13 +941,14 @@ public class DenshiBashiPlugin implements Plugin
     public final void prepareFeatures(boolean force)
     {
     	final Camera camera = ptolemy.camera;
+    	final LatLonAlt latLonAlt = camera.getLatAltLon();
 
-    	if ((camera.getLongitudeDD() == feature_center_x) && (camera.getLatitudeDD() == feature_center_z) && (!force)) {
+    	if ((latLonAlt.getLongitudeDD() == feature_center_x) && (latLonAlt.getLatitudeDD() == feature_center_z) && (!force)) {
     		return;
     	}
 
-    	feature_center_x = camera.getLongitudeDD();
-    	feature_center_z = camera.getLatitudeDD();
+    	feature_center_x = latLonAlt.getLongitudeDD();
+    	feature_center_z = latLonAlt.getLatitudeDD();
 
     	if (FeatureBuffer != null)
     	{

@@ -112,7 +112,7 @@ public class Ptolemy3D
 	public void init(Element docElements)
 	{
 		this.scene = new Scene(this);
-		this.camera = new Camera(this);
+		this.camera = new Camera();
 		this.view = new View(this);
 		this.cameraController = new CameraMovement(this);
 

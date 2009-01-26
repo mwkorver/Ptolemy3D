@@ -37,6 +37,7 @@ import org.ptolemy3d.scene.Plugin;
 import org.ptolemy3d.util.ByteReader;
 import org.ptolemy3d.util.TextureLoaderGL;
 import org.ptolemy3d.view.Camera;
+import org.ptolemy3d.view.LatLonAlt;
 
 public class XVRMLPlugin implements Plugin
 {
@@ -331,10 +332,11 @@ public class XVRMLPlugin implements Plugin
 	{
 		final Ptolemy3DUnit unit = ptolemy.unit;
 		final Camera camera = ptolemy.camera;
+		final LatLonAlt latLonAlt = camera.getLatAltLon();
 
 		int tx, ty;
-		tx = (int) camera.getLongitudeDD();
-		ty = (int) camera.getLatitudeDD();
+		tx = (int) latLonAlt.getLongitudeDD();
+		ty = (int) latLonAlt.getLatitudeDD();
 
 		int dispr = (DisplayRadius / 2);
 		double[] tmp = new double[3];
@@ -408,6 +410,7 @@ public class XVRMLPlugin implements Plugin
 		}
 
 		final Camera camera = ptolemy.camera;
+		final LatLonAlt latLonAlt = camera.getLatAltLon();
 
 		int i;
 		int b_id = -1;
@@ -422,9 +425,9 @@ public class XVRMLPlugin implements Plugin
 				if (xvrml_display.get(id_str) == null)
 				{
 
-					dist = Math3D.distance3D(camera.getLongitudeDD(), obj_x[i],
+					dist = Math3D.distance3D(latLonAlt.getLongitudeDD(), obj_x[i],
 							0, 0,
-							camera.getLatitudeDD(), obj_z[i]);
+							latLonAlt.getLatitudeDD(), obj_z[i]);
 					if (dist < closest)
 					{
 						closest = dist;

@@ -397,7 +397,7 @@ public class Landscape
 			if (leftmosttile != maxLongitude) {
 				leftmosttile -= tileWidth;
 			}
-			minlon = ((int) (camera.getLongitudeDD() / tileWidth) * tileWidth) - (tileWidth * 4);
+			minlon = ((int) (camera.getLatAltLon().getLongitudeDD() / tileWidth) * tileWidth) - (tileWidth * 4);
 			if (minlon < leftmosttile) {
 				minlon += ((maxLongitude * 2) / tileWidth) * tileWidth;
 			}
@@ -413,7 +413,7 @@ public class Landscape
 				minlat = toptile;
 			}
 			else {
-				minlat = ((int) (camera.getLatitudeDD() / tileWidth) * tileWidth) + (tileWidth * 4);
+				minlat = ((int) (camera.getLatAltLon().getLatitudeDD() / tileWidth) * tileWidth) + (tileWidth * 4);
 				if (minlat > toptile) {
 					minlat = toptile - (((minlat - maxLatitude) / tileWidth) * tileWidth);
 					if (minlon > 0) {
@@ -589,7 +589,7 @@ public class Landscape
 	protected void destroyGL(GL gl)
 	{
 		try {
-//			textureManager.destroyTrashTextures(gl);
+			textureManager.destroyTrashTextures(gl);
 			textureManager.emptyRecyler(gl);
 		} catch(Exception e) {
 			IO.printStackRenderer(e);

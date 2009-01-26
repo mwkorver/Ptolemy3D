@@ -36,6 +36,7 @@ import org.ptolemy3d.util.TextureLoaderGL;
 import org.ptolemy3d.plugin.util.ClipPoly;
 import org.ptolemy3d.plugin.util.VectorNode;
 import org.ptolemy3d.view.Camera;
+import org.ptolemy3d.view.LatLonAlt;
 
 public class BuildingPlugin implements Plugin
 {
@@ -234,6 +235,7 @@ public class BuildingPlugin implements Plugin
 		}
 
 		final Camera camera = ptolemy.camera;
+		final LatLonAlt latLonAlt = camera.getLatAltLon();
 
 		int i;
 		int fix_id = -1;
@@ -245,7 +247,7 @@ public class BuildingPlugin implements Plugin
 		{
 			if (!isFixed[i])
 			{
-				dist = Math3D.distance3D(camera.getLongitudeDD(), ctds[i][0], camera.getAltitudeDD(), bu_z[i], camera.getLatitudeDD(), ctds[i][1]);
+				dist = Math3D.distance3D(latLonAlt.getLongitudeDD(), ctds[i][0], latLonAlt.getAltitudeDD(), bu_z[i], latLonAlt.getLatitudeDD(), ctds[i][1]);
 				if (dist < closest)
 				{
 					closest = dist;
@@ -332,6 +334,7 @@ public class BuildingPlugin implements Plugin
 	{
 		final Landscape landscape = ptolemy.scene.landscape;
 		final Camera camera = ptolemy.camera;
+		final LatLonAlt latLonAlt = camera.getLatAltLon();
 		final Ptolemy3DUnit unit = ptolemy.unit;
 
 		if ((camera.getVerticalAltitudeMeters() >= DISP_MAXZ) || (camera.getVerticalAltitudeMeters() < DISP_MINZ) || (!STATUS)) {
@@ -361,7 +364,7 @@ public class BuildingPlugin implements Plugin
 			if (((Math3D.dot(
 					(ctds[i][0] - camera.cameraPos[0]), (0 - camera.cameraPos[1]), (ctds[i][1] - camera.cameraPos[2]),
 					-camera.cameraMat.m[0][2], -camera.cameraMat.m[1][2], -camera.cameraMat.m[2][2]) >= 0) || true) &&
-					(Math3D.distance3D(camera.getLongitudeDD(), ctds[i][0], camera.getAltitudeDD(), bu_z[i], camera.getLatitudeDD(), ctds[i][1]) < drcheck))
+					(Math3D.distance3D(latLonAlt.getLongitudeDD(), ctds[i][0], latLonAlt.getAltitudeDD(), bu_z[i], latLonAlt.getLatitudeDD(), ctds[i][1]) < drcheck))
 			{
 				for (j = 0; j < bu_shape[i].length; j++)
 				{
@@ -538,12 +541,13 @@ public class BuildingPlugin implements Plugin
 	private final void loadData(boolean force, Communicator JC) throws IOException
 	{
 		final Camera camera = ptolemy.camera;
+		final LatLonAlt latLonAlt = camera.getLatAltLon();
 		final Ptolemy3DUnit unit = ptolemy.unit;
 
 		int tx, ty;
 
-		tx = (int) camera.getLongitudeDD();
-		ty = (int) camera.getLatitudeDD();
+		tx = (int) latLonAlt.getLongitudeDD();
+		ty = (int) latLonAlt.getLatitudeDD();
 
 		int dispr = (DisplayRadius / 2);
 

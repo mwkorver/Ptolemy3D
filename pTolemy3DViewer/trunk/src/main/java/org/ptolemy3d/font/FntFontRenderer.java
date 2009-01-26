@@ -25,6 +25,7 @@ import java.nio.ByteBuffer;
 import javax.media.opengl.GL;
 
 import org.ptolemy3d.Ptolemy3D;
+import org.ptolemy3d.util.TextureLoaderGL;
 
 /**
  * FNT Font Renderer<BR>
@@ -67,7 +68,7 @@ public class FntFontRenderer
 	public void destroyGL(GL gl)
 	{
 		if(texID != null) {
-			gl.glDeleteTextures(texID.length, texID, 0);
+			TextureLoaderGL.deleteTextures(gl, texID, texID.length);
 			texID = null;
 		}
 	}

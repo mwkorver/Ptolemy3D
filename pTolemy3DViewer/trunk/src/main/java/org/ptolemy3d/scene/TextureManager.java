@@ -26,6 +26,7 @@ import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.debug.IO;
 import org.ptolemy3d.tile.Jp2Tile;
 import org.ptolemy3d.util.IntBuffer;
+import org.ptolemy3d.util.TextureLoaderGL;
 
 class TextureManager
 {
@@ -84,7 +85,7 @@ class TextureManager
 			}
 			else {
 				IO.printlnRenderer("Deleting texture: " + i);
-				gl.glDeleteTextures(trashBin[i].length, trashBin[i], 0);
+				TextureLoaderGL.deleteTextures(gl, trashBin[i], trashBin[i].length);
 			}
 		}
 	}
@@ -108,7 +109,7 @@ class TextureManager
 
 		int[] dbuff = ib.getBuffer();
 		if(dbuff != null && dbuff.length > 0) {
-			gl.glDeleteTextures(dbuff.length, dbuff, 0);
+			TextureLoaderGL.deleteTextures(gl, dbuff, dbuff.length);
 		}
 	}
 }

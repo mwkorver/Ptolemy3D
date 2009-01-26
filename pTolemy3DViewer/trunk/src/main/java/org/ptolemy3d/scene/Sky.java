@@ -145,11 +145,11 @@ public class Sky
 		this.gl = gl;
 
 		if (skyTexId != null) {
-			gl.glDeleteTextures(skyTexId.length, skyTexId, 0);
+			TextureLoaderGL.deleteTextures(gl, skyTexId, skyTexId.length);
 			skyTexId = null;
 		}
 		if (skyCallList != -1) {
-			gl.glDeleteLists(skyCallList, 1);
+			TextureLoaderGL.deleteTextures(gl, new int[]{ skyCallList }, 1);
 			skyCallList = -1;
 		}
 
@@ -165,7 +165,7 @@ public class Sky
 		final Camera camera = ptolemy.camera;
 
 		int radius = 10000;
-		if ((camera.getVerticalAltitudeMeters() > horizonAlt) || (camera.getAltitudeDD() > (radius - 1)))
+		if ((camera.getVerticalAltitudeMeters() > horizonAlt) || (camera.getLatAltLon().getAltitudeDD() > (radius - 1)))
 		{
 			this.gl = gl;
 
@@ -187,7 +187,7 @@ public class Sky
 		gl.glPushMatrix();
 		{
 			gl.glLoadIdentity();
-			gl.glTranslated(0, -(EARTH_RADIUS / 500), -camera.getAltitudeDD());
+			gl.glTranslated(0, -(EARTH_RADIUS / 500), -camera.getLatAltLon().getAltitudeDD());
 			gl.glRotatef((float) (90 + ptolemy.camera.getPitchDegrees()), 1.0f, 0.0f, 0.0f);
 		}
 
@@ -214,7 +214,7 @@ public class Sky
 
 		int i;
 		double r = EARTH_RADIUS;
-		double cz = -camera.getAltitudeDD() - (Math.cos(camera.getPitchRadians()) * r);
+		double cz = -camera.getLatAltLon().getAltitudeDD() - (Math.cos(camera.getPitchRadians()) * r);
 		double cy = (Math.sin(camera.getPitchRadians()) * r);
 
 		// find tangent lines

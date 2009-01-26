@@ -33,6 +33,7 @@ import org.ptolemy3d.scene.Plugins;
 import org.ptolemy3d.scene.Sky;
 import org.ptolemy3d.tile.Level;
 import org.ptolemy3d.view.CameraMovement;
+import org.ptolemy3d.view.LatLonAlt;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -318,11 +319,13 @@ public class Ptolemy3DConfiguration {
 		if (initialPosition != null) {
 			StringTokenizer pstok = new StringTokenizer(initialPosition, ",");
 			if (pstok.countTokens() >= 5) {
-				cameraController.setOrientation(Double.parseDouble(pstok
-						.nextToken()), Double.parseDouble(pstok.nextToken()),
-						Double.parseDouble(pstok.nextToken()), Double
-								.parseDouble(pstok.nextToken()), Double
-								.parseDouble(pstok.nextToken()));
+				double lon = Double.parseDouble(pstok.nextToken());
+				double lat = Double.parseDouble(pstok.nextToken());
+				double alt = Double.parseDouble(pstok.nextToken());
+				double dir = Double.parseDouble(pstok.nextToken());
+				double pitch = Double.parseDouble(pstok.nextToken());
+				
+				cameraController.setOrientation(LatLonAlt.fromDD(lat, lon, alt), dir, pitch);
 			}
 		}
 

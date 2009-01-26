@@ -38,6 +38,7 @@ import org.ptolemy3d.tile.jp2.Jp2Head;
 import org.ptolemy3d.util.IntBuffer;
 import org.ptolemy3d.util.PngDecoder;
 import org.ptolemy3d.view.Camera;
+import org.ptolemy3d.view.LatLonAlt;
 
 public class Jp2TileLoader implements Runnable
 {
@@ -766,11 +767,12 @@ loop:		for (int p = 0; p < levels.length; p++)
 	{
 		final Level level = ptolemy.scene.landscape.levels[lvl];
 		final Camera camera = ptolemy.camera;
+		final LatLonAlt latLonAlt = camera.getLatAltLon();
 
 		int MAXANGLE = 50;
 		{
 			//above ?
-			if ((camera.getLongitudeDD() >= jp2Tiles[lvl][j].lon) && (camera.getLongitudeDD() <= jp2Tiles[lvl][j].lon + level.tileSize) && (camera.getLatitudeDD() <= jp2Tiles[lvl][j].lat) && (camera.getLatitudeDD() >= jp2Tiles[lvl][j].lat - level.tileSize))
+			if ((latLonAlt.getLongitudeDD() >= jp2Tiles[lvl][j].lon) && (latLonAlt.getLongitudeDD() <= jp2Tiles[lvl][j].lon + level.tileSize) && (latLonAlt.getLatitudeDD() <= jp2Tiles[lvl][j].lat) && (latLonAlt.getLatitudeDD() >= jp2Tiles[lvl][j].lat - level.tileSize))
 			{
 				return true;
 			}
@@ -778,13 +780,13 @@ loop:		for (int p = 0; p < levels.length; p++)
 			double posy, posz, cy, cz;
 			posy = -Math.sin(camera.getPitchRadians());
 			posz = -Math.cos(camera.getPitchRadians());
-			cy = Math.sin(camera.getPitchRadians()) * camera.getAltitudeDD();
-			cz = Math.cos(camera.getPitchRadians()) * camera.getAltitudeDD();
+			cy = Math.sin(camera.getPitchRadians()) * latLonAlt.getAltitudeDD();
+			cz = Math.cos(camera.getPitchRadians()) * latLonAlt.getAltitudeDD();
 			double[] coord = new double[3];
 
 			Math3D.setSphericalCoord(
-					((camera.getLongitudeDD() < jp2Tiles[lvl][j].lon) ? jp2Tiles[lvl][j].lon : (camera.getLongitudeDD() > (jp2Tiles[lvl][j].lon + level.tileSize)) ? (jp2Tiles[lvl][j].lon + level.tileSize) : camera.getLongitudeDD()),
-					((camera.getLatitudeDD() > jp2Tiles[lvl][j].lat) ? jp2Tiles[lvl][j].lat : (camera.getLatitudeDD() < (jp2Tiles[lvl][j].lat - level.tileSize)) ? (jp2Tiles[lvl][j].lat - level.tileSize) : camera.getLatitudeDD()),
+					((latLonAlt.getLongitudeDD() < jp2Tiles[lvl][j].lon) ? jp2Tiles[lvl][j].lon : (latLonAlt.getLongitudeDD() > (jp2Tiles[lvl][j].lon + level.tileSize)) ? (jp2Tiles[lvl][j].lon + level.tileSize) : latLonAlt.getLongitudeDD()),
+					((latLonAlt.getLatitudeDD() > jp2Tiles[lvl][j].lat) ? jp2Tiles[lvl][j].lat : (latLonAlt.getLatitudeDD() < (jp2Tiles[lvl][j].lat - level.tileSize)) ? (jp2Tiles[lvl][j].lat - level.tileSize) : latLonAlt.getLatitudeDD()),
 					coord);
 
 			utilMatrix.transform(coord);

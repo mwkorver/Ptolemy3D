@@ -33,6 +33,7 @@ import netscape.javascript.JSObject;
 
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.Ptolemy3DJavascript;
+import org.ptolemy3d.Ptolemy3DUnit;
 import org.ptolemy3d.debug.IO;
 import org.ptolemy3d.scene.Landscape;
 import org.ptolemy3d.scene.Sky;
@@ -43,121 +44,117 @@ import org.ptolemy3d.view.LatLonAlt;
 /**
  * Ptolemy3D in an Applet
  */
-public class Ptolemy3DApplet extends Applet implements Ptolemy3DJavascript, MouseListener
-{
+public class Ptolemy3DApplet extends Applet implements Ptolemy3DJavascript,
+		MouseListener {
 	private static final long serialVersionUID = 1L;
 
 	protected Ptolemy3D ptolemy;
 	protected Ptolemy3DCanvas canvas;
-
-	/** Allows communication between applet and javascript */
 	private JSObject jsObject;
+	private Hashtable<String, Cursor> curVec = null;
 
-	public Ptolemy3DApplet() {}
+	public Ptolemy3DApplet() {
+	}
 
 	@Override
-	public void init()
-	{
-		if(jsObject == null) {
-			JSObject obj;
+	public void init() {
+
+		if (jsObject == null) {
 			try {
-				obj = JSObject.getWindow(this);
-			} catch(RuntimeException e) {
+				this.jsObject = JSObject.getWindow(this);
+			} catch (Exception e) {
 				e.printStackTrace();
-				obj = null;
 			}
-			this.jsObject = obj;
 		}
 
-		if(ptolemy == null) {
+		if (ptolemy == null) {
 			ptolemy = new Ptolemy3D();
 			ptolemy.javascript = this;
 			ptolemy.init(null);
 
-			this.canvas = new Ptolemy3DCanvas(ptolemy.events);
-			this.canvas.setSize(getSize());
+			canvas = new Ptolemy3DCanvas(ptolemy.events);
+			canvas.setSize(getSize());
 
-			this.setLayout(new BorderLayout());
-			this.add(this.canvas, BorderLayout.CENTER);
+			setLayout(new BorderLayout());
+			add(canvas, BorderLayout.CENTER);
+
+			ptolemy.callJavascript("ptolemyInit", null, null, null);
 		}
 	}
 
 	@Override
-	public void start()
-	{
-		if(ptolemy == null) {
+	public void start() {
+
+		if (ptolemy == null) {
 			init();
 		}
-		ptolemy.callJavascript("sc_start", null, null, null);
 
 		requestFocus();
+
+		ptolemy.callJavascript("ptolemyStart", null, null, null);
 	}
 
 	@Override
-	public void stop()
-	{
-		getInputContext().removeNotify(canvas);
+	public void stop() {
 
-		//Destroy Ptolemy3D engine
+		ptolemy.callJavascript("ptolemyStop", null, null, null);
+
+		// Destroy Ptolemy3D engine
 		ptolemy.destroy();
 		ptolemy = null;
 
-		//Remove 3D component
+		// Remove 3D component
 		removeAll();
 		canvas = null;
-	}
-
-	@Override
-	public void destroy()
-	{
-
 	}
 
 	public void mouseEntered(MouseEvent e) {
 		this.requestFocus();
 	}
-	public void mouseClicked(MouseEvent e){}
-	public void mouseExited(MouseEvent e){}
-	public void mousePressed(MouseEvent e){}
-	public void mouseReleased(MouseEvent e){}
+
+	public void mouseClicked(MouseEvent e) {
+	}
+
+	public void mouseExited(MouseEvent e) {
+	}
+
+	public void mousePressed(MouseEvent e) {
+	}
+
+	public void mouseReleased(MouseEvent e) {
+	}
 
 	/* Implementations of Ptolemy3DJavascript */
 
-	private Hashtable<String, Cursor> curVec = null;
-
-	public Applet getApplet()
-	{
+	public Applet getApplet() {
 		return this;
 	}
 
-	public JSObject getJSObject()
-	{
+	public JSObject getJSObject() {
 		return jsObject;
 	}
 
 	/** @return the instance of Ptolemy3D */
-	public Ptolemy3D getPtolemy3D()
-	{
+	public Ptolemy3D getPtolemy3D() {
 		return ptolemy;
 	}
 
 	/**
 	 * Do a screenshot of next frame in the system clipboard.
+	 * 
 	 * @see SceneClipboard#clipboardImage
 	 */
-	public void copyScene()
-	{
+	public void copyScene() {
 		ptolemy.scene.screenshot = true;
 	}
 
 	/** @return the camera X position. */
-	public double getCameraPositionX()
-	{
+	public double getCameraPositionX() {
 		return ptolemy.camera.cameraX;
 	}
+
 	/** @return the camera Y position. */
-	public double getCameraPositionY()
-	{
+	public double getCameraPositionY() {
 		return ptolemy.camera.cameraY;
 	}
 

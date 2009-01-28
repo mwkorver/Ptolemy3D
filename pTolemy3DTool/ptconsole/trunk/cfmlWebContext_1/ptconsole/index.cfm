@@ -47,7 +47,9 @@ which equates to a jp2 tile width of 65.53600DD <br>  Use the MAP tab to restric
 2. Create <strong>JOBS</strong> as a function of BBOX and Tile Layer. <br>
 3. <strong>RUN</strong> jobs placed in queue to create jp2 tile pyramids<br>
 4. Use pTolemy3D Viewer demo app to see output<br>
-
+&nbsp;<br>
+<strong>Note about WMS servers:</strong> Ptolemy3D tiles go outside of the global geographic bounding box of [-180,-90,180,90]
+for tiles at the "edge of the world". That is because p3D levels are calculated from small to big and end up overlapping the world at the edge.  Some WMS servers will work with this giving back null data for outside of [-180,-90,180,90], but some will either give you an error or worse, strange data, beware.
 
 
 </div>

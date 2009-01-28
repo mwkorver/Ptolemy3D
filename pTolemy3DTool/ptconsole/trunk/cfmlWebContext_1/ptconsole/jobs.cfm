@@ -17,7 +17,7 @@
 
 <cfprocessingdirective suppresswhitespace="Yes">
 <cfset MaxMessages = "50" />
-<cfset MaxQueue = "500" />
+<cfset MaxQueue = "2000" />
 
 <CFINCLUDE template="head.cfm">
 
@@ -177,10 +177,10 @@ for (var i=0; i < document.sqsForm.radiobutton.length; i++)
 	</cfquery>
 </cfif>
 		<cfcatch tpe="" type="Database">
-			Database connecton error, go to 
-			http://127.0.0.1:8080/bluedragon/administrator/
+			<font color="#FF0000">Database connecton error, go to 
+			<a href="http://localhost:8080/bluedragon/administrator/">http://localhost:8080/bluedragon/administrator/</a>
 			go to the Datasources menu item on left.
-			Follow directions at <a href="http://trac.ptolemy3d.org/wiki/PtolemyToolPtconsole">this wiki page </a>.
+			Follow directions at <a href="http://trac.ptolemy3d.org/wiki/PtolemyToolPtconsole">this wiki</font> page </a>.
 			<cfabort>
 		</cfcatch> 
 </cftry>

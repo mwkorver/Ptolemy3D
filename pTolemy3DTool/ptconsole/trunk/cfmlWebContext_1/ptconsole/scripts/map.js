@@ -81,7 +81,8 @@ function updateMap() {
 	WMSstr = WMSstr + '?SRS=' + document.wmsForm.SRS.value;
 	if (document.wmsForm.MAP.value !="") {			
 	WMSstr = WMSstr + '&MAP=' + document.wmsForm.MAP.value;}
-	WMSstr = WMSstr + '&LAYERS=' + document.wmsForm.LAYERS.value;
+	if (document.wmsForm.LAYERS.value !="") {	
+	WMSstr = WMSstr + '&LAYERS=' + document.wmsForm.LAYERS.value;}
 	WMSstr = WMSstr + '&STYLES=' + document.wmsForm.STYLES.value;
 	WMSstr = WMSstr + '&WIDTH=' + document.wmsForm.WIDTH.value;
 	WMSstr = WMSstr + '&HEIGHT=' + document.wmsForm.WIDTH.value;  //always square
@@ -99,7 +100,7 @@ function updateMap() {
 	      }
 	   }
 	
-// this is place here because the 24 bit png value has special character in it,doesn't work in above code 
+// this is placed here because the 24 bit png value has special character in it,doesn't work in above code 
 	var MapSrc = "http://" + WMSstr + "&FORMAT=" + format_val;
 	
 	// update session variable holding wms string without the BBOX cuz that changes per request 
@@ -107,17 +108,21 @@ function updateMap() {
 	wms_str: MapSrc,
 	server: document.wmsForm.SERVER.value,
 	map: document.wmsForm.MAP.value,
+	srs: document.wmsForm.SRS.value,
+	styles: document.wmsForm.STYLES.value,
+	version: document.wmsForm.VERSION.value,
 	bbox: document.wmsForm.SBBOX.value,
 	layers: document.wmsForm.LAYERS.value,
-	format: format_val
+	width: document.wmsForm.WIDTH.value,
+	format: format_val	
 	 } );
+	 
 
-	  
-	MapSrc = MapSrc + '&BBOX=' + BBOX;;
+	MapSrc = MapSrc + '&BBOX=' + BBOX;;  
 	
 	//alert(MapSrc);
 	if(document.wmsForm.showWMSrequest.checked) {
-		logAppend(MapSrc);
+		logAppend('<a href="' + MapSrc + '" target="_blank" alt>' + MapSrc + '</a>');
 	}
 
 	//alert(MapSrc);
@@ -171,8 +176,9 @@ function getBBOX() {
 	document.location="jobs.cfm?bbox=" + BBOX;
 }
 
-function wmsRadio(wms_str,layer) {
+function wmsRadio(wms_str,map,layer) {
 	document.wmsForm.SERVER.value = wms_str;
+	document.wmsForm.MAP.value = map;
 	document.wmsForm.LAYERS.value = layer;
 }
 

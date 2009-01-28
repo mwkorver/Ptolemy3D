@@ -71,7 +71,7 @@ writes --->
 <cfset encoder_args = " -i #working_in_dir##slash##fname#.#fname_ext# -o #working_out_dir##slash##fname#.jp2" />
 <cfset encoder_args = encoder_args & " " & image_args>
 
-<cfset bin_dir = "#ExpandPath(".")##slash#bin">
+<cfset bin_dir = "#ExpandPath(".")##slash#lib#slash#openbd">
 <cfset arguments = "-classpath #bin_dir##slash#jj2000-5.1-mod.jar JJ2KEncoder#encoder_args#">
 
 	<!--- Having written the file to disk, we use encoder to convert it --->
@@ -83,13 +83,15 @@ writes --->
 	</cfexecute>
 	
 	<!-- this need to be optimized using java -->
-	<cffile action="APPEND" file="#working_dir##slash#error.log" 
+	
+	<cfif #errorout# NEQ "">
+		<cffile action="APPEND" file="#working_dir##slash#error.log" 
 					output="Error output: #errorout#" addnewline="Yes">
-
+	</cfif>
 	
 	<cffile action="READBINARY" file="#working_out_dir##slash##fname#.jp2" variable="jp2image"> 
 
-	<cffile action="delete" file="#working_in_dir##slash##fname#.#fname_ext#">
+<!---     <cffile action="delete" file="#working_in_dir##slash##fname#.#fname_ext#">  --->
 	<cffile action="delete" file="#working_out_dir##slash##fname#.jp2">	
 			 
 	<cfreturn jp2image>

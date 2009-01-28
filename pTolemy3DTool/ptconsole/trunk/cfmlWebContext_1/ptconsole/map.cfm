@@ -22,7 +22,7 @@
 <cfparam name="session.map" default="/var/www/maps/mwk_test6.819200.map">
 <cfparam name="session.srs" default="EPSG:4326">
 <cfparam name="session.styles" default="">
-<cfparam name="session.bbox" default="-90,-90,90,90">
+<cfparam name="session.bbox" default="-180,-90,180,90">
 <cfparam name="session.layers" default="tm_250m_lev3">
 <cfparam name="session.width" default="1024">
 <cfparam name="session.version" default="1.1.1">
@@ -32,7 +32,7 @@
 <script type="text/javascript" src="./scripts/map.js"></script>
 
 <script language="JavaScript">
-var origLLLON=-90.00; var origLLLAT=-90.00; var origURLON=90.00; var origURLAT=90.00;
+var origLLLON=-180.00; var origLLLAT=-90.00; var origURLON=180.00; var origURLAT=90.00;
 var WMSstr="";
 var BBOX="<cfoutput>#session.bbox#</cfoutput>";
 var debugMode="false";
@@ -60,8 +60,11 @@ var debugMode="false";
 Use your own or try one of the sample WMS sources. Please use these servers sparingly!<br> 
 Your IP could (will) get restricted if you overuse them<br>
 
-<a href="http://onearth.jpl.nasa.gov" target="_blank">Spatialcloud BlueMarble </a>&nbsp;<input type="radio" id=wms_radio name=wms_radio checked onclick="wmsRadio('mapserv.spatialcloud.com/cgi-bin/mapserv','tm_250m_lev3','/var/www/maps/mwk_test6.819200.map')"/>&nbsp;
-<a href="http://onearth.jpl.nasa.gov" target="_blank">JPL WMS Global Mosaic, pansharpened pseudo color</a>&nbsp;<input type="radio" id=wms_radio name=wms_radio  onclick="wmsRadio('wms.jpl.nasa.gov/wms.cgi','global_mosaic','')"/>
+<input type="radio" id=wms_radio name=wms_radio checked onclick="wmsRadio('mapserv.spatialcloud.com/cgi-bin/mapserv','/var/www/maps/mwk_test6.819200.map','tm_250m_lev3')"/>&nbsp;
+<a href="http://spatialcloud.com" target="_blank">SpatialCloud BlueMarble </a>&nbsp;
+
+<input type="radio" id=wms_radio name=wms_radio  onclick="wmsRadio('wms.jpl.nasa.gov/wms.cgi','','global_mosaic','')"/>&nbsp;
+<a href="http://onearth.jpl.nasa.gov" target="_blank">JPL WMS Global Mosaic, pseudo color</a>
 
 <table border='0' cellspacing='5' cellpadding='1'>
 <tr>
@@ -91,7 +94,7 @@ Your IP could (will) get restricted if you overuse them<br>
 	<td colspan=3>
 		<input type="radio" name="FORMAT" value="image/png" <cfif session.format EQ "image/png">checked</cfif> >png
 		<input type="radio" name="FORMAT" value="image/png; mode=24bit" <cfif session.format EQ "image/png; mode=24bit">checked</cfif> >24bit png (best)
-		<input type="radio" name="FORMAT" value="image/jpeg" <cfif session.format EQ "image/jpeg">checked</cfif> >jpeg</td>
+-  has to be png to work
 </tr>
 <tr>
 	<td>LAYERS</td>
@@ -124,18 +127,18 @@ Your IP could (will) get restricted if you overuse them<br>
 	</td>
 </tr>
 <tr>
-	<td>DD WIDTH</td>
+	<td>DD TILE WIDTH</td>
 	<td colspan=3>
       <select id="DDWIDTH" name="DDWIDTH" onChange="updateBBOX(this.options[this.selectedIndex].value);">
 	  <option value="select" > Select Layer 
-      <option value="52428800" > Level 52.4288
-      <option value="6553600" > Level 06.5536
-      <option value="819200" > Level 00.8192
-      <option value="102400" > Level 00.1024
-      <option value="12800" > Level 00.0128
-      <option value="1600" > Level 00.0016
+      <option value="52428800" > Level 52.4288 (4.6km pixel)
+      <option value="6553600" > Level 06.5536 (580m pixel)
+      <option value="819200" > Level 00.8192 (73m pixel)
+      <option value="102400" > Level 00.1024 (9m pixel)
+      <option value="12800" > Level 00.0128 (1m pixel)
+      <option value="1600" > Level 00.0016 (0.14m pixel)
       </select>
-	  &nbsp; pTolemy3D tile sizes
+	  &nbsp; Ptolemy3D tile sizes
 	</td>
 </tr>
 <tr>
@@ -149,7 +152,7 @@ Your IP could (will) get restricted if you overuse them<br>
       <option value="4" > Zoom out 4 times
       </select>&nbsp;
       
-	  &nbsp;&nbsp;	  Show WMS <input type="checkbox" name="showWMSrequest"><br>
+	  &nbsp;&nbsp;<input type="checkbox" name="showWMSrequest"> Show WMS string<br>
 	 
 	</td>
 </tr>

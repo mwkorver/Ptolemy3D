@@ -2,7 +2,8 @@
 * Ptolemy3D - a Java-based 3D Viewer for GeoWeb applications.
 * Copyright (C) 2008 Mark W. Korver
 *
-* This program is free software: you can redistribute it and/or modify * it under the terms of the GNU General Public License as published by
+* This program is free software: you can redistribute it and/or modify 
+* it under the terms of the GNU  General Public License as published by
 * the Free Software Foundation, either version 3 of the License, or
 * (at your option) any later version.
 *
@@ -119,10 +120,10 @@
 		<cfif NumberLeft GT 0>
 	
 		<!--- get just one of those remainging JOB_ --->
+		<!--- it would be nice to be able to randomize this somehow, or better start at middle of bbox and expand? --->
 			<cfquery datasource="jobqueue" username="test" password="test" name="getOneJob" maxrows="1">
 				SELECT * FROM #url.tableName# where PROCESSED='FALSE'
-			</cfquery>
-			
+			</cfquery>			
 		
 			<cfset job = getOneJob.FILENAME />	
 			<cfset jobID = getOneJob.ID />	
@@ -173,6 +174,7 @@
 				<cfoutput>WMS Retries: [#cfhttpcntr#]<BR>
 				WMS Server response code: [#cfhttp.statuscode#]<BR></cfoutput>
 				
+				<!--- if you get 200 in return code break out of loop --->
 				<cfif Find("200",cfhttp.statuscode) NEQ 0>
 					<cfbreak>
 				</cfif>
@@ -211,11 +213,7 @@
 				 conv_args = arraytolist(cmd, " ");
 			 </cfscript>		
 			
-		<!--- 	<cfset conv_args="-tiles 1024 1024 -rate 0.5 -Wlev 3 -Aptype res -Alayers st -pph_tile on -debug" />
-		 --->
-			
-			<!--- <cfset conv_args="-tiles 1024 1024 -pph_tile on -rate 0.8 -Alayers 0.9 +1 -Qtype reversible -Wlev 3" /> --->
-			
+			<!--- the extension is either jpeg or png --->
 			<cfif session.format EQ "image/jpeg">
 				<cfset fname_ext="jpg">
 			<cfelse>
@@ -224,8 +222,14 @@
 			
 			<cfset timeOut="10"/>
 			
-			<cfset jp2_image = ImageToJp2(cfhttp.filecontent,fname,fname_ext,conv_args,timeOut)/> 
+			<!--- hands off cfhttp image to UDF - convert.cfm  --->
+			<cfset jp2_image = ImageToJp2(cfhttp.filecontent,fname,fname_ext,conv_args,timeOut)/>
 			
+			<cfoutput> 
+			Current Image: (actual size is larger)<br>			
+			<img src="http://127.0.0.1:8080/ptconsole/show_current.cfm?image=#fname#" alt="#fname#.png" name="currentImage" id="currentImage" width="256" height="256" border="0"><br>
+		    </cfoutput>
+			<cfflush>
 		
 			<!-- write file here -->	
 			<cfset outputpath = "#ExpandPath(".")##slash#working#slash#jp2"/>	
@@ -239,7 +243,7 @@
 			<cfoutput>Wrote to #outputpath##slash##fname#.jp2<br></cfoutput> 
  
 			<!--- calculates world file information --->
-			<cfset jpwstring = makeWorldfileString("#fpath#/#fname#.jp2","1024")/>			  		
+			<cfset jpwstring = makeWorldfileString("#fpath#/#fname#.jp2","#session.width#")/>			  		
 	
 			<cffile addnewline="false" action="write" output="#jpwstring#" file="#outputpath##slash##fname#.j2w" nameconflict="OVERWRITE" />
 			
@@ -255,7 +259,7 @@
 					<cfoutput>Completed Job deleted from Queue<br></cfoutput>
 					
 				</cfif>
-		
+				
 			<cfoutput>
 				<input type="button" value="STOP Execution" onClick="document.location.href='http://#CGI.SERVER_NAME#:#CGI.SERVER_PORT##CGI.SCRIPT_NAME#?action=stop&tableName=#url.tablename#'"/> 
 			</cfoutput>			
@@ -286,7 +290,7 @@
 </cfswitch>
 
 <cfelse>
-This application uses session variables to you store information needed to query a WMS server and create jp2 files.<br>
+This application uses session variables to store information needed to query a WMS server and create jp2 files.<br>
 You have either not used the MAP tab to define your WMS server and area of interest, or your session has expired and you<br>
 need to start over from the MAP tab.
 </cfif>

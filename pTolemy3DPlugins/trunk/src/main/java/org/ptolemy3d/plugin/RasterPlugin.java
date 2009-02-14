@@ -31,7 +31,7 @@ import org.ptolemy3d.io.Communicator;
 import org.ptolemy3d.math.Math3D;
 import org.ptolemy3d.scene.Landscape;
 import org.ptolemy3d.scene.Plugin;
-import org.ptolemy3d.util.TextureLoaderGL;
+import org.ptolemy3d.util.Texture;
 import org.ptolemy3d.view.Camera;
 import org.ptolemy3d.view.LatLonAlt;
 
@@ -52,7 +52,7 @@ public class RasterPlugin implements Plugin
 	float[] rasterPms = new float[4]; // rasterPms[0] , rasterPms[1]
 	int[] tran_color = { 0, 0, 0 };
 	private Communicator JC;
-	int[] tex_id = { -1 };
+	int tex_id = -1;
 	String MapserverUrl = "";
 	int PixelWidth;
 	float half_pxw;
@@ -214,10 +214,10 @@ public class RasterPlugin implements Plugin
 
 		gl.glEnable(GL.GL_BLEND);
 		gl.glTexEnvf(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_MODULATE);
-		if (tex_id[0] != -1)
+		if (tex_id != -1)
 		{
 			gl.glColor3f(1.0f, 1.0f, 1.0f);
-			gl.glBindTexture(GL.GL_TEXTURE_2D, tex_id[0]);
+			gl.glBindTexture(GL.GL_TEXTURE_2D, tex_id);
 
 			{
 				double rx = (center_x / unit.DD) - (Scale / 2);
@@ -263,10 +263,9 @@ public class RasterPlugin implements Plugin
 
 	public void destroyGL(GL gl)
 	{
-		if (tex_id[0] != -1)
-		{
-			gl.glDeleteTextures(1, tex_id, 0);
-			tex_id[0] = -1;
+		if (tex_id != -1) {
+			ptolemy.textureManager.unload(gl, tex_id);
+			tex_id = -1;
 		}
 	}
 
@@ -294,7 +293,14 @@ public class RasterPlugin implements Plugin
 		int t = JC.getHeaderReturnCode();
 		if ((t == 200) || (t == 206))
 		{
-			TextureLoaderGL.loadRaster(gl, rasterPms, tex_id, JC.getData(), img, transparency, tran_color);
+			if (tex_id != -1) {
+				ptolemy.textureManager.unload(gl, tex_id);
+				tex_id = -1;
+			}
+			final Texture tex = Texture.loadRaster(rasterPms, JC.getData(), img, transparency, tran_color);
+			if(tex != null) {
+				tex_id = ptolemy.textureManager.load(gl, tex.data, tex.width, tex.height, tex.format, false, -1);
+			}
 		}
 		forceReload = false;
 	}
@@ -316,7 +322,7 @@ public class RasterPlugin implements Plugin
 		final Landscape landscape = ptolemy.scene.landscape;
 		final Ptolemy3DUnit unit = ptolemy.unit;
 
-		if ((tex_id[0] == -1) || (!landscape.terrainEnabled && (demRes != 0))) {
+		if ((tex_id == -1) || (!landscape.terrainEnabled && (demRes != 0))) {
 			return;
 		}
 

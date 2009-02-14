@@ -30,6 +30,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.StringTokenizer;
+import java.util.Vector;
+
 import javax.media.opengl.GL;
 
 import org.ptolemy3d.Ptolemy3D;
@@ -40,8 +42,6 @@ import org.ptolemy3d.math.Vector3d;
 import org.ptolemy3d.scene.Landscape;
 import org.ptolemy3d.scene.Plugin;
 import org.ptolemy3d.util.ByteReader;
-import org.ptolemy3d.util.IntBuffer;
-import org.ptolemy3d.util.TextureLoaderGL;
 import org.ptolemy3d.view.Camera;
 import org.ptolemy3d.view.LatLonAlt;
 
@@ -77,7 +77,7 @@ public class DenshiBashiPlugin implements Plugin
     private int feature_minx = Integer.MAX_VALUE,  feature_minz = Integer.MAX_VALUE,  feature_maxx = Integer.MIN_VALUE,  feature_maxz = Integer.MIN_VALUE;
     private int[] feature_Id;
     private String[] feature_name;
-    private IntBuffer[] feature_boxarray;
+    private Vector<Integer>[] feature_boxarray;
     private int[] numDensen;
     private int[][] denchu_to;
     private int[][] kairo_id;
@@ -90,7 +90,7 @@ public class DenshiBashiPlugin implements Plugin
     private double ticker = 0;
     private int kairo_highlight_id = -1;
     private int NumBashi = 0;
-    private int[] features_id;
+    private int features_id = -1;
     private boolean forceFeatureLoad;
     int BOX_ARRAY_MAX = 10;
 
@@ -98,9 +98,6 @@ public class DenshiBashiPlugin implements Plugin
     public void init(Ptolemy3D ptolemy)
     {
     	this.ptolemy = ptolemy;
-
-    	features_id = new int[1];
-    	features_id[0] = -1;
     }
 
     public void setPluginIndex(int index)
@@ -280,11 +277,11 @@ public class DenshiBashiPlugin implements Plugin
 
     private void drawBashiName(int i)
     {
-    	if ((feature_text_ix[i] == -1) || (features_id[0] == -1))
+    	if ((feature_text_ix[i] == -1) || (features_id == -1))
     	{
     		return;
     	}
-    	gl.glBindTexture(GL.GL_TEXTURE_2D, features_id[0]);
+    	gl.glBindTexture(GL.GL_TEXTURE_2D, features_id);
 
     	float pixw = (stringWidths[feature_text_ix[i]] + 5) / 16f;  // add 16 for bitmap, 4 for padding, and 1 for border.
     	if (pixw > 32)
@@ -577,7 +574,7 @@ public class DenshiBashiPlugin implements Plugin
     		};
     		int NumBashi = ByteReader.readInt(data, cur);
     		int[] feature_Id = new int[NumBashi];
-    		IntBuffer[] boxarray = new IntBuffer[NumBashi];
+    		Vector<Integer>[] boxarray = new Vector[NumBashi];
     		int[] denchu_type = new int[NumBashi];
     		int[] numDensen = new int[NumBashi];
     		int[][] denchu_to = new int[NumBashi][];
@@ -620,11 +617,11 @@ public class DenshiBashiPlugin implements Plugin
     			llen = ByteReader.readInt(data, cur);
     			if (llen > 0)
     			{
-    				boxarray[i] = new IntBuffer(4, 4);
+    				boxarray[i] = new Vector<Integer>(4);
     				stok = new StringTokenizer(new String(data, cur[0], llen), ",");// comma delim list of box numbers  ie.  1,3,4
     				while (stok.hasMoreTokens())
     				{
-    					boxarray[i].append(Integer.parseInt(stok.nextToken()));
+    					boxarray[i].add(Integer.parseInt(stok.nextToken()));
     				}
     				stok = null;
     				cur[0] += llen;
@@ -1042,14 +1039,13 @@ public class DenshiBashiPlugin implements Plugin
 
     private final void setFeatureTex()
     {
-    	if (features_id[0] != -1)
+    	if (features_id != -1)
     	{
-    		gl.glBindTexture(GL.GL_TEXTURE_2D, features_id[0]);
-    		gl.glTexSubImage2D(GL.GL_TEXTURE_2D, 0, 0, 0, 512, 512, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, ByteBuffer.wrap(featuresByteDat));
+    		ptolemy.textureManager.update(gl, features_id, featuresByteDat, 512, 512, GL.GL_RGBA);
     	}
     	else
     	{
-    		TextureLoaderGL.setGLTexture(gl, features_id, 4, 512, 512, featuresByteDat, true);
+    		features_id = ptolemy.textureManager.load(gl, featuresByteDat, 512, 512, GL.GL_RGBA, true, -1);
     	}
     }
 

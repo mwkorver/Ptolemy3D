@@ -22,6 +22,10 @@ import static org.ptolemy3d.debug.Config.DEBUG;
 
 import java.awt.Image;
 import java.awt.Toolkit;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import javax.media.opengl.GL;
@@ -46,7 +50,7 @@ import org.ptolemy3d.view.View;
  * Among other thing, it contains the 3D rendering loop.<BR>
  * <BR>
  */
-public class Scene implements _Drawable {
+public class Scene implements _Drawable, Transferable {
 	/** Ptolemy3D Instance */
 	private final Ptolemy3D ptolemy;
 
@@ -110,6 +114,8 @@ public class Scene implements _Drawable {
 			ptolemy.fontNumericRenderer.destroyGL(gl);
 			ptolemy.fontNumericRenderer = null;
 		}
+		
+		ptolemy.textureManager.destroyGL(gl);
 	}
 
 	/** Draw the scene with OpenGL. */
@@ -193,10 +199,29 @@ public class Scene implements _Drawable {
 			clipboardImage = Toolkit.getDefaultToolkit().createImage(
 					new SceneProducer(pixels, GL_WIDTH, GL_HEIGHT));
 			Toolkit.getDefaultToolkit().getSystemClipboard().setContents(
-					ptolemy.events, null);
+					this, null);
 		} catch (Exception e) {
 			ptolemy
 					.sendErrorMessage("Security Exception : Unable to access clipboard.");
 		}
+	}
+
+	/* Transferable */
+
+	public DataFlavor[] getTransferDataFlavors() {
+		return new DataFlavor[] { DataFlavor.imageFlavor };
+	}
+
+	public boolean isDataFlavorSupported(DataFlavor flavor) {
+		return DataFlavor.imageFlavor.equals(flavor);
+	}
+
+	public Object getTransferData(DataFlavor flavor)
+			throws UnsupportedFlavorException, IOException {
+		if (!DataFlavor.imageFlavor.equals(flavor)) {
+			throw new UnsupportedFlavorException(flavor);
+		}
+		// Returns image
+		return ptolemy.scene.clipboardImage;
 	}
 }

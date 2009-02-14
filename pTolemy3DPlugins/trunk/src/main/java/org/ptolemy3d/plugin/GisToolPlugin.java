@@ -31,7 +31,7 @@ import org.ptolemy3d.Ptolemy3DUnit;
 import org.ptolemy3d.io.Communicator;
 import org.ptolemy3d.math.Math3D;
 import org.ptolemy3d.scene.Plugin;
-import org.ptolemy3d.util.TextureLoaderGL;
+import org.ptolemy3d.util.Texture;
 import org.ptolemy3d.plugin.util.VectorNode;
 
 public class GisToolPlugin implements Plugin
@@ -46,7 +46,7 @@ public class GisToolPlugin implements Plugin
 	private float[] pcolor = {0.9f, 0.9f, 0.9f};
 	private float PSIZE = 4.0f;
 	private float LWIDTH = 2.0f;
-	private int[] tex_id = new int[1];
+	private int tex_id = -1;
 	byte[] data = null;
 	private byte[] img = null;
 	private float[] rasterPms = new float[4];
@@ -104,8 +104,15 @@ public class GisToolPlugin implements Plugin
 
 		if ((mode == 2) && (setRaster))
 		{
+			if (tex_id != -1) {
+				ptolemy.textureManager.unload(gl, tex_id);
+			}
+			
 			img = null;
-			TextureLoaderGL.loadRaster(gl, rasterPms, tex_id, data, img, transparency, tran_color);
+			final Texture tex = Texture.loadRaster(rasterPms, data, img, transparency, tran_color);
+			if(tex != null) {
+				tex_id = ptolemy.textureManager.load(gl, tex.data, tex.width, tex.height, tex.format, false, -1);
+			}
 			raster_px = rasterPms[2];
 			raster_py = rasterPms[3];
 			setRaster = false;
@@ -121,7 +128,7 @@ public class GisToolPlugin implements Plugin
 			}
 		}
 
-		if ((mode == 2) && (tex_id[0] > 0))
+		if ((mode == 2) && (tex_id > 0))
 		{
 
 			gl.glEnable(GL.GL_TEXTURE_2D);
@@ -129,7 +136,7 @@ public class GisToolPlugin implements Plugin
 			gl.glDisable(GL.GL_DEPTH_TEST);
 			gl.glTexEnvf(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_MODULATE);
 			gl.glColor3f(1.0f, 1.0f, 1.0f);
-			gl.glBindTexture(GL.GL_TEXTURE_2D, tex_id[0]);
+			gl.glBindTexture(GL.GL_TEXTURE_2D, tex_id);
 			{
 				double theta1 = (raster_tx + 180) * Math3D.degToRad;  // startx
 				double phi1 = (raster_ty) * Math3D.degToRad; //starty
@@ -232,10 +239,9 @@ public class GisToolPlugin implements Plugin
 
 	public void destroyGL(GL gl)
 	{
-		if (tex_id[0] != -1)
-		{
-			gl.glDeleteTextures(1, tex_id, 0);
-			tex_id[0] = -1;
+		if (tex_id != -1) {
+			ptolemy.textureManager.unload(gl, tex_id);
+			tex_id = -1;
 		}
 	}
 
@@ -244,7 +250,7 @@ public class GisToolPlugin implements Plugin
 		pointStore = new Vector<VectorNode>(5, 5);
 		setRaster = false;
 		r_dem = null;
-		tex_id[0] = -1;
+		tex_id = -1;	//FIXME unbind ?
 		clickEnabled = true;
 		try
 		{
@@ -309,8 +315,7 @@ public class GisToolPlugin implements Plugin
 
 	private final void setRasterDEM(String pms)
 	{
-		double rx, ry, cellw, cellh;
-		if (tex_id[0] <= 0) {
+		if (tex_id <= 0) {
 			return;
 		}
 		int numrows = Integer.parseInt(pms);
@@ -318,12 +323,10 @@ public class GisToolPlugin implements Plugin
 
 		final Ptolemy3DUnit unit = ptolemy.unit;
 
-		{
-			cellw = ((raster_sx * raster_px) / (numrows - 1)) * unit.DD;
-			cellh = ((raster_sy * raster_py) / (numrows - 1)) * unit.DD;
-			rx = (int) (raster_tx * unit.DD);
-			ry = (int) (raster_ty * unit.DD);
-		}
+		double cellw = ((raster_sx * raster_px) / (numrows - 1)) * unit.DD;
+		double cellh = ((raster_sy * raster_py) / (numrows - 1)) * unit.DD;
+		double rx = (int) (raster_tx * unit.DD);
+		double ry = (int) (raster_ty * unit.DD);
 		for (int i = 0; i < numrows; i++)
 		{
 			for (int j = 0; j < numrows; j++)

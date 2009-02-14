@@ -202,7 +202,7 @@ public class Level
 								final int width = tile.getWidth();
 								final int height = tile.getHeight();
 
-								textureId = landscape.bindImage(datas, width, height, curRes);
+								textureId = landscape.load(datas, width, height, curRes);
 								tile.setCurTextureId(textureId);
 							}
 						}

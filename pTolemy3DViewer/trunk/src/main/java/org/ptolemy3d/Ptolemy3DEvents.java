@@ -18,12 +18,8 @@
 
 package org.ptolemy3d;
 
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.Transferable;
-import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 
 import javax.media.opengl.GL;
 import javax.media.opengl.GLAutoDrawable;
@@ -40,7 +36,7 @@ import com.sun.opengl.util.Animator;
  * Events related to the initialization, rendering and destruction of 3D/OpenGL
  * related code.
  */
-public class Ptolemy3DEvents implements GLEventListener, Transferable {
+public class Ptolemy3DEvents implements GLEventListener {
 	/** Ptolemy3D Instance */
 	private final Ptolemy3D ptolemy;
 
@@ -50,8 +46,7 @@ public class Ptolemy3DEvents implements GLEventListener, Transferable {
 	protected GL gl = null;
 	private GLAutoDrawable glAutoDrawable = null;
 
-	protected boolean isOffscreenRender = false; // Not implemented yet with
-	// JOGL ...
+	protected boolean isOffscreenRender = false; // Not implemented yet with JOGL ...
 
 	/** Width on the screen */
 	public int screenWidth = 0;
@@ -130,7 +125,6 @@ public class Ptolemy3DEvents implements GLEventListener, Transferable {
 		if (!isInit) {
 			// Init flight movement
 			ptolemy.cameraController.init();
-			// ptolemy.flight.realisticFlightOn("0"); //CHANGE 2 feb 06
 
 			// Init Scene landscane, sky, hud, plugins ...
 			Scene scene = ptolemy.scene;
@@ -161,8 +155,7 @@ public class Ptolemy3DEvents implements GLEventListener, Transferable {
 		if (height == 0)
 			height = 1;
 
-		// if (isOffscreenRender && (width > 512) || (height > 512)) //FIXME Not
-		// implement with JOGL
+		// if (isOffscreenRender && (width > 512) || (height > 512)) //FIXME Not implement with JOGL
 		// {
 		// // put a 512 pix cap on height and width
 		// if (Math.max(height, width) == height){
@@ -240,8 +233,7 @@ public class Ptolemy3DEvents implements GLEventListener, Transferable {
 			}
 		}
 	}
-	public void displayChanged(GLAutoDrawable drawable, boolean modeChanged,
-			boolean deviceChanged) {
+	public void displayChanged(GLAutoDrawable drawable, boolean modeChanged, boolean deviceChanged) {
 	}
 
 	/* Listeners */
@@ -258,9 +250,6 @@ public class Ptolemy3DEvents implements GLEventListener, Transferable {
 		}
 		glAutoDrawable.removeMouseListener(inputs);
 		glAutoDrawable.removeMouseMotionListener(inputs);
-		// if (componentEnabled) {
-		// removeComponentListener(inputs);
-		// }
 	}
 
 	protected void addListeners() {
@@ -276,27 +265,5 @@ public class Ptolemy3DEvents implements GLEventListener, Transferable {
 		glAutoDrawable.addMouseListener(inputs);
 		glAutoDrawable.addMouseMotionListener(inputs);
 		glAutoDrawable.addMouseWheelListener(inputs);
-		// if (componentEnabled) {
-		// addComponentListener(inputs);
-		// }
-	}
-
-	/* Transferable */
-
-	public DataFlavor[] getTransferDataFlavors() {
-		return new DataFlavor[] { DataFlavor.imageFlavor };
-	}
-
-	public boolean isDataFlavorSupported(DataFlavor flavor) {
-		return DataFlavor.imageFlavor.equals(flavor);
-	}
-
-	public Object getTransferData(DataFlavor flavor)
-			throws UnsupportedFlavorException, IOException {
-		if (!DataFlavor.imageFlavor.equals(flavor)) {
-			throw new UnsupportedFlavorException(flavor);
-		}
-		// Returns image
-		return ptolemy.scene.clipboardImage;
 	}
 }

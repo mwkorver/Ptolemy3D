@@ -46,7 +46,6 @@ import org.ptolemy3d.scene.Plugin;
 import org.ptolemy3d.scene.Sky;
 import org.ptolemy3d.util.ByteReader;
 import org.ptolemy3d.util.PngDecoder;
-import org.ptolemy3d.util.TextureLoaderGL;
 import org.ptolemy3d.view.Camera;
 import org.ptolemy3d.view.LatLonAlt;
 
@@ -81,8 +80,8 @@ public class POILabelPlugin implements Plugin
 	private boolean STATUS = true;
 	private boolean pinpoint = false;
 	private boolean jspquery = true;
-	int[] features_id;
-	private int[][] icon_tex_id;
+	int features_id;
+	private int[] icon_tex_id;
 	private float[] icon_ratio;
 	private int IconQueryWidth = 10000;
 	private String IconGetUrl = "/";
@@ -137,8 +136,7 @@ public class POILabelPlugin implements Plugin
     {
     	this.ptolemy = ptolemy;
 
-    	features_id = new int[1];
-    	features_id[0] = -1;
+    	features_id = -1;
     	featuresByteDat = new byte[512 * 512 * 4];
     	hl_list = new Hashtable<String,String>(5, 5);
     	loadGraphicRequestId = -1;
@@ -384,12 +382,9 @@ public class POILabelPlugin implements Plugin
     		}
     	}
 
-    	icon_tex_id = new int[NumIcons][1];
+    	icon_tex_id = new int[NumIcons];
     	icon_ratio = new float[NumIcons];
-    	for (int q = 0; q < NumIcons; q++)
-    	{
-    		icon_tex_id[q][0] = -1;
-    	}
+    	Arrays.fill(icon_tex_id, -1);
     }
 
     private final Color setColor(String col)
@@ -456,7 +451,7 @@ public class POILabelPlugin implements Plugin
     		resetFeatureText = false;
     	}
 
-    	if ((numShowableFeatures > 0) && (features_id[0] != -1))
+    	if ((numShowableFeatures > 0) && (features_id != -1))
     	{
     		double cp_X = 0, cp_Z = 0, cp_Y = 0;
     		final int raise = 50;
@@ -534,7 +529,7 @@ public class POILabelPlugin implements Plugin
     					gl.glTexEnvf(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_MODULATE);
     					//label background box
     					//I approximate the box width as 0.9*length of the label string
-    					gl.glBindTexture(GL.GL_TEXTURE_2D,labelBgTex[0]);
+    					gl.glBindTexture(GL.GL_TEXTURE_2D,labelBgTex);
     					gl.glBegin(GL.GL_QUADS);
     						gl.glTexCoord2f(0, 0  );
     						gl.glVertex3d(xoffset , yoffset + 2 , 0);
@@ -574,7 +569,7 @@ public class POILabelPlugin implements Plugin
     					gl.glEnable(GL.GL_TEXTURE_2D);
     				}
     				else{
-        				gl.glBindTexture(GL.GL_TEXTURE_2D, features_id[0]);
+        				gl.glBindTexture(GL.GL_TEXTURE_2D, features_id);
         				gl.glBegin(GL.GL_TRIANGLE_STRIP);
         				gl.glTexCoord2f(0, ((float) (feature_text_ix[i] + 1) / 16));
         				gl.glVertex3d(xoffset, yoffset, 0);
@@ -593,14 +588,14 @@ public class POILabelPlugin implements Plugin
     				{
     					fid = 0;
     				}
-    				if (icon_tex_id[fid][0] == -1)
+    				if (icon_tex_id[fid] == -1)
     				{
     					loadGraphicRequestId = fid;
     				}
     				setGraphic(gl);
-    				if (icon_tex_id[fid][0] != -1)
+    				if (icon_tex_id[fid] != -1)
     				{
-    					gl.glBindTexture(GL.GL_TEXTURE_2D, icon_tex_id[fid][0]);
+    					gl.glBindTexture(GL.GL_TEXTURE_2D, icon_tex_id[fid]);
     					gl.glBegin(GL.GL_TRIANGLE_STRIP);
     					gl.glTexCoord2f(0, icon_ratio[fid]);
     					gl.glVertex3d(0, 0, 0);
@@ -914,10 +909,10 @@ public class POILabelPlugin implements Plugin
 		int factor = ptolemy.unit.DD;
 
 		float area_minx,area_maxz,area_maxx,area_minz;
-		area_minx = (int)(tx -( IconQueryWidth/8));
-		area_maxz = (int)(ty +( IconQueryWidth/8));
-		area_maxx = (int)(tx +( IconQueryWidth/8));
-		area_minz = (int)(ty -( IconQueryWidth/8));
+		area_minx = tx - (IconQueryWidth/8);
+		area_maxz = ty + (IconQueryWidth/8);
+		area_maxx = tx + (IconQueryWidth/8);
+		area_minz = ty - (IconQueryWidth/8);
 
 		if(((area_minx <  feature_minx) || (area_maxx > feature_maxx) || (area_maxz > feature_maxz) || (area_minz < feature_minz)) || (force)){
 			feature_minx = tx - (IconQueryWidth/2);
@@ -1060,81 +1055,83 @@ public class POILabelPlugin implements Plugin
     		JC.requestData(request);
 
     		byte[] data = JC.getData();
-    		IO.printlnConnection(new String(data));
+    		if(data != null) {
+        		IO.printlnConnection(new String(data));
 
-    		int[] cur = { 0 };
+        		int[] cur = { 0 };
 
-    		int numFeatures = ByteReader.readInt(data, cur);
+        		int numFeatures = ByteReader.readInt(data, cur);
 
-    		double[][] feature_real_coord = new double[numFeatures][3]; // x,y,stack level
-    		String[] feature_label = new String[numFeatures];
-    		int[] feature_Id = new int[numFeatures];
-    		int[] feature_ObjectId = new int[numFeatures];
-    		int[] feature_text_ix = new int[numFeatures];
-    		int[] stringWidths = new int[numFeatures];
-    		byte[] highlight = new byte[numFeatures];
-    		byte[] distToSel = new byte[numFeatures];
+        		double[][] feature_real_coord = new double[numFeatures][3]; // x,y,stack level
+        		String[] feature_label = new String[numFeatures];
+        		int[] feature_Id = new int[numFeatures];
+        		int[] feature_ObjectId = new int[numFeatures];
+        		int[] feature_text_ix = new int[numFeatures];
+        		int[] stringWidths = new int[numFeatures];
+        		byte[] highlight = new byte[numFeatures];
+        		byte[] distToSel = new byte[numFeatures];
 
-    		double[][] obj_end = new double[numFeatures][3];
+        		double[][] obj_end = new double[numFeatures][3];
 
-    		Arrays.fill(stringWidths, -1);
-    		int llen;
-    		for (int i = 0; i < numFeatures; i++)
-    		{
-    			distToSel[i] = (byte) 0;
-    			feature_text_ix[i] = -1;
-    			feature_ObjectId[i] = ByteReader.readInt(data, cur);
-    			// icon id
-    			feature_Id[i] = ByteReader.readInt(data, cur);
-    			if (feature_Id[i] < 1)
-    			{
-    				feature_Id[i] = 1;
-    				// label
-    			}
-    			llen = ByteReader.readInt(data, cur);
-    			if (llen > 0)
-    			{
-    				feature_label[i] = new String(data, cur[0], llen, FEATURE_ENCODING);
-    				cur[0] += llen;
-    			}
-    			else
-    			{
-    				feature_label[i] = null;
-    			}
+        		Arrays.fill(stringWidths, -1);
+        		int llen;
+        		for (int i = 0; i < numFeatures; i++)
+        		{
+        			distToSel[i] = (byte) 0;
+        			feature_text_ix[i] = -1;
+        			feature_ObjectId[i] = ByteReader.readInt(data, cur);
+        			// icon id
+        			feature_Id[i] = ByteReader.readInt(data, cur);
+        			if (feature_Id[i] < 1)
+        			{
+        				feature_Id[i] = 1;
+        				// label
+        			}
+        			llen = ByteReader.readInt(data, cur);
+        			if (llen > 0)
+        			{
+        				feature_label[i] = new String(data, cur[0], llen, FEATURE_ENCODING);
+        				cur[0] += llen;
+        			}
+        			else
+        			{
+        				feature_label[i] = null;
+        			}
 
-    			feature_real_coord[i][0] = ByteReader.readInt(data, cur);
-    			feature_real_coord[i][1] = ByteReader.readInt(data, cur);
-    			feature_real_coord[i][2] = 0;
-    			/* if coords are too close to each other stack */
-    			if (i > 0)
-    			{
-    				double idist;
-    				double tooclose = 200;
-    				for (int uu = i - 1; uu >= 0; uu--)
-    				{
-    					idist = Math3D.distance2D(feature_real_coord[uu][0], feature_real_coord[i][0], feature_real_coord[uu][1], feature_real_coord[i][1]);
-    					if (idist < tooclose)
-    					{
-    						feature_real_coord[i][2]++;
-    					}
-    				}
-    			}
+        			feature_real_coord[i][0] = ByteReader.readInt(data, cur);
+        			feature_real_coord[i][1] = ByteReader.readInt(data, cur);
+        			feature_real_coord[i][2] = 0;
+        			/* if coords are too close to each other stack */
+        			if (i > 0)
+        			{
+        				double idist;
+        				double tooclose = 200;
+        				for (int uu = i - 1; uu >= 0; uu--)
+        				{
+        					idist = Math3D.distance2D(feature_real_coord[uu][0], feature_real_coord[i][0], feature_real_coord[uu][1], feature_real_coord[i][1]);
+        					if (idist < tooclose)
+        					{
+        						feature_real_coord[i][2]++;
+        					}
+        				}
+        			}
 
-    			Math3D.setSphericalCoord(feature_real_coord[i][0], feature_real_coord[i][1], obj_end[i]);
+        			Math3D.setSphericalCoord(feature_real_coord[i][0], feature_real_coord[i][1], obj_end[i]);
+        		}
+
+        		this.numFeatures = numFeatures;
+        		this.feature_real_coord = feature_real_coord;
+        		this.feature_label = feature_label;
+        		this.feature_Id = feature_Id;
+        		this.feature_ObjectId = feature_ObjectId;
+        		this.feature_text_ix = feature_text_ix;
+        		this.stringWidths = stringWidths;
+        		this.highlight = highlight;
+        		this.obj_end = obj_end;
+        		this.distToSel = distToSel;
+
+        		setHlIcons();
     		}
-
-    		this.numFeatures = numFeatures;
-    		this.feature_real_coord = feature_real_coord;
-    		this.feature_label = feature_label;
-    		this.feature_Id = feature_Id;
-    		this.feature_ObjectId = feature_ObjectId;
-    		this.feature_text_ix = feature_text_ix;
-    		this.stringWidths = stringWidths;
-    		this.highlight = highlight;
-    		this.obj_end = obj_end;
-    		this.distToSel = distToSel;
-
-    		setHlIcons();
     	}
     }
 
@@ -1170,18 +1167,16 @@ public class POILabelPlugin implements Plugin
 		Arrays.fill(min_dist,0);
 
 		IconPrefix = xsltOutput.getIconPrefix();
-		icon_tex_id = new int[NumIcons][1];
+		icon_tex_id = new int[NumIcons];
 		icon_ratio = new float[NumIcons];
-		for(int q=0;q<NumIcons;q++){
-			icon_tex_id[q][0] = -1;
-		}
+		Arrays.fill(icon_tex_id, -1);
 	}
 	
     private void setGraphic(GL gl)
     {
     	if ((setGraphicRequestId != -1) && (imgdat != null))
     	{
-    		TextureLoaderGL.setGLTexture(gl, icon_tex_id[setGraphicRequestId], 4, r_size, r_size, imgdat, false);
+    		icon_tex_id[setGraphicRequestId] = ptolemy.textureManager.load(gl, imgdat, r_size, r_size, GL.GL_RGBA, false, -1);
     		setGraphicRequestId = -1;
     	}
     }
@@ -1387,7 +1382,7 @@ public class POILabelPlugin implements Plugin
     	}
     }
 
-	int[] labelBgTex = new int[1];
+	int labelBgTex = -1;
 	private final void setLabelTex(GL gl)
 	{
 		FntFont font;
@@ -1408,37 +1403,38 @@ public class POILabelPlugin implements Plugin
 		data[1] = (byte)bg_color.getGreen();
 		data[2] = (byte)bg_color.getBlue();
 		data[3] = (byte)bg_color.getAlpha();
-		TextureLoaderGL.setGLTexture(gl, labelBgTex, 2, 1, 1, data, false);
+		labelBgTex = ptolemy.textureManager.load(gl, data, 1, 1, GL.GL_RGBA, false, -1);
 	}
 	
     private final void setFeatureTex(GL gl)
     {
-    	if (features_id[0] != -1)
+    	if (features_id != -1)
     	{
-    		gl.glBindTexture(GL.GL_TEXTURE_2D, features_id[0]);
-    		// TODO - Solve this in JOGL
+    		gl.glBindTexture(GL.GL_TEXTURE_2D, features_id);
     		gl.glTexSubImage2D(GL.GL_TEXTURE_2D, 0, 0, 0, 512, 512, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, ByteBuffer.wrap(featuresByteDat));
     	}
     	else
     	{
-    		TextureLoaderGL.setGLTexture(gl, features_id, 4, 512, 512, featuresByteDat, true);
+    		features_id = ptolemy.textureManager.load(gl, featuresByteDat, 512, 512, GL.GL_RGBA, true, -1);
     	}
     }
 
     public void destroyGL(GL gl)
     {
-    	if (features_id[0] != -1) {
-    		gl.glDeleteTextures(1, features_id, 0);
-    		features_id[0] = -1;
+    	if (features_id != -1) {
+			ptolemy.textureManager.unload(gl, features_id);
+    		features_id = -1;
     	}
     	for (int h = 0; h < icon_tex_id.length; h++) {
-    		if (icon_tex_id[h][0] != -1) {
-    			gl.glDeleteTextures(1, icon_tex_id[h], 0);
-    			icon_tex_id[h][0] = -1;
+    		if (icon_tex_id[h] != -1) {
+    			ptolemy.textureManager.unload(gl, icon_tex_id[h]);
+    			icon_tex_id[h] = -1;
     		}
     	}
-    	label_font.destroyGL(gl);
-		gl.glDeleteTextures(1, labelBgTex, 0);
+    	if(label_font != null) {
+        	label_font.destroyGL(gl);
+    	}
+    	ptolemy.textureManager.unload(gl, labelBgTex);
 
     	if (FeatureBuffer != null) {
     		FeatureBuffer.flush();

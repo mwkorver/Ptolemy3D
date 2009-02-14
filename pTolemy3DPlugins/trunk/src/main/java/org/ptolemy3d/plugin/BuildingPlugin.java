@@ -18,6 +18,7 @@
 package org.ptolemy3d.plugin;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.StringTokenizer;
 import java.util.Vector;
 import javax.media.opengl.GL;
@@ -32,7 +33,7 @@ import org.ptolemy3d.tile.Jp2Tile;
 import org.ptolemy3d.tile.Level;
 import org.ptolemy3d.util.ByteReader;
 import org.ptolemy3d.util.PngDecoder;
-import org.ptolemy3d.util.TextureLoaderGL;
+import org.ptolemy3d.util.Texture;
 import org.ptolemy3d.plugin.util.ClipPoly;
 import org.ptolemy3d.plugin.util.VectorNode;
 import org.ptolemy3d.view.Camera;
@@ -70,7 +71,7 @@ public class BuildingPlugin implements Plugin
 	private static String wallPrefix = "";
 	private boolean ALL_FIXED = false;
 	private boolean forceDataLoad;
-	private static int[][] tex_id = new int[0][0];
+	private static int[] tex_id = new int[0];
 	float[] norm = new float[3];
 	private int loadWallId = -1;
 	double[] outpoints = new double[2];
@@ -189,11 +190,8 @@ public class BuildingPlugin implements Plugin
 		}
 		if ((numWalls > 0) && (wallPrefix.length() > 0))
 		{
-			tex_id = new int[numWalls][1];
-			for (int i = 0; i < numWalls; i++)
-			{
-				tex_id[i][0] = -1;
-			}
+			tex_id = new int[numWalls];
+			Arrays.fill(tex_id, -1);
 			if (numWalls > 0)
 			{
 				Walls = new byte[numWalls][];
@@ -360,7 +358,7 @@ public class BuildingPlugin implements Plugin
 
 		for (i = 0; i < numBldgs; i++)
 		{
-			//FIXME || true !
+			//FIXME || true !!!
 			if (((Math3D.dot(
 					(ctds[i][0] - camera.cameraPos[0]), (0 - camera.cameraPos[1]), (ctds[i][1] - camera.cameraPos[2]),
 					-camera.cameraMat.m[0][2], -camera.cameraMat.m[1][2], -camera.cameraMat.m[2][2]) >= 0) || true) &&
@@ -376,12 +374,13 @@ public class BuildingPlugin implements Plugin
 						// draw the walls
 
 						if ((numWalls > 0) && (bu_dwid[i] > 0)) {
-							if (tex_id[bu_dwid[i] - 1][0] != -1) {
-								gl.glBindTexture(GL.GL_TEXTURE_2D, tex_id[bu_dwid[i] - 1][0]);
+							if (tex_id[bu_dwid[i] - 1] != -1) {
+								gl.glBindTexture(GL.GL_TEXTURE_2D, tex_id[bu_dwid[i] - 1]);
 								hastex = true;
 							}
 							else if (Walls[bu_dwid[i] - 1] != null) {
-								TextureLoaderGL.setGLTexture(gl, tex_id[bu_dwid[i] - 1], WallMeta[bu_dwid[i] - 1][3], WallMeta[bu_dwid[i] - 1][0], WallMeta[bu_dwid[i] - 1][1], Walls[bu_dwid[i] - 1], false);
+								int format = Texture.colorTypeToFormat(WallMeta[bu_dwid[i] - 1][3]);
+								tex_id[bu_dwid[i] - 1] = ptolemy.textureManager.load(gl, Walls[bu_dwid[i] - 1], WallMeta[bu_dwid[i] - 1][0], WallMeta[bu_dwid[i] - 1][1], format, false, -1);
 							}
 							else {
 								loadWallId = bu_dwid[i] - 1;
@@ -513,10 +512,10 @@ public class BuildingPlugin implements Plugin
 	{
 		for (int h = 0; h < tex_id.length; h++)
 		{
-			if (tex_id[h][0] != -1)
+			if (tex_id[h] != -1)
 			{
-				gl.glDeleteTextures(1, tex_id[h], 0);
-				tex_id[h][0] = -1;
+				ptolemy.textureManager.unload(gl, tex_id[h]);
+				tex_id[h] = -1;
 			}
 		}
 	}

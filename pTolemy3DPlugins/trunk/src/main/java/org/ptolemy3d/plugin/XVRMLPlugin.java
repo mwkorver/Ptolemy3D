@@ -35,7 +35,7 @@ import org.ptolemy3d.scene.Landscape;
 import org.ptolemy3d.scene.Light;
 import org.ptolemy3d.scene.Plugin;
 import org.ptolemy3d.util.ByteReader;
-import org.ptolemy3d.util.TextureLoaderGL;
+import org.ptolemy3d.util.Texture;
 import org.ptolemy3d.view.Camera;
 import org.ptolemy3d.view.LatLonAlt;
 
@@ -308,8 +308,6 @@ public class XVRMLPlugin implements Plugin
 
 	private void removeVrmlObj(GL gl, int keyid)
 	{
-		float[] tex_meta;
-		int[] tex_id = new int[1];
 		XvrmlObj xobj = xvrml_display.get(String.valueOf(keyid));
 		int len = (keyid != current_object) ? xobj.lists.length : current_shape;
 		for (int j = 0; j < len; j++)
@@ -318,11 +316,10 @@ public class XVRMLPlugin implements Plugin
 		}
 
 		Enumeration<float[]> imgs = xobj.images.elements();
-		while (imgs.hasMoreElements())
-		{
-			tex_meta = imgs.nextElement();
-			tex_id[0] = (int) tex_meta[0];
-			gl.glDeleteTextures(1, tex_id, 0);
+		while (imgs.hasMoreElements()) {
+			float[] tex_meta = imgs.nextElement();
+			int tex_id = (int)tex_meta[0];
+			ptolemy.textureManager.unload(gl, tex_id);
 		}
 		xvrml_display.remove(String.valueOf(keyid));
 		xobj = null;
@@ -353,53 +350,53 @@ public class XVRMLPlugin implements Plugin
 			feature_maxx = tx + (QueryWidth / 2);
 			feature_maxz = ty + (QueryWidth / 2);
 			JC.requestData(GetUrl + "&LAYER=" + ENC_LAYER + "&FACTOR=" + (unit.DD) + "&BBOX=" + feature_minx + "," + feature_minz + "," + feature_maxx + "," + feature_maxz);
-			byte[] pdata = JC.getData();
-			int[] cur =
-			{
-					0
-			};
+			byte[] data = JC.getData();
+			
+			if(data != null) {
+				int[] cur = {0};
 
-			int numVObjs = ByteReader.readInt(pdata, cur);
-			int[] obj_id = new int[numVObjs];
-			int[] obj_x = new int[numVObjs];
-			int[] obj_z = new int[numVObjs];
-			float[][] obj_tf = new float[numVObjs][];
-			int[] obj_vrmlid = new int[numVObjs];
-			double[][] obj_axis = new double[numVObjs][3];
-			double[] obj_angle = new double[numVObjs];
+				int numVObjs = ByteReader.readInt(data, cur);
+				int[] obj_id = new int[numVObjs];
+				int[] obj_x = new int[numVObjs];
+				int[] obj_z = new int[numVObjs];
+				float[][] obj_tf = new float[numVObjs][];
+				int[] obj_vrmlid = new int[numVObjs];
+				double[][] obj_axis = new double[numVObjs][3];
+				double[] obj_angle = new double[numVObjs];
 
-			for (int i = 0; i < numVObjs; i++)
-			{
-				obj_id[i] = ByteReader.readInt(pdata, cur);
-				obj_x[i] = ByteReader.readInt(pdata, cur);
-				obj_z[i] = ByteReader.readInt(pdata, cur);
+				for (int i = 0; i < numVObjs; i++)
 				{
-					Math3D.setSphericalCoord(obj_x[i], obj_z[i], tmp);
-					obj_angle[i] = Math3D.angle3dvec(a[0], a[1], a[2], tmp[0], tmp[1], tmp[2], true);
-					Vector3d.cross(obj_axis[i], a, tmp);
-				}
-				obj_vrmlid[i] = ByteReader.readInt(pdata, cur);
-				if (pdata[cur[0]++] == 1)
-				{
-					obj_tf[i] = new float[16];
-					Arrays.fill(obj_tf[i], 0.f);
-					for (int m = 0; m < 12; m++)
+					obj_id[i] = ByteReader.readInt(data, cur);
+					obj_x[i] = ByteReader.readInt(data, cur);
+					obj_z[i] = ByteReader.readInt(data, cur);
 					{
-						obj_tf[i][m] = ByteReader.readFloat(pdata, cur);
+						Math3D.setSphericalCoord(obj_x[i], obj_z[i], tmp);
+						obj_angle[i] = Math3D.angle3dvec(a[0], a[1], a[2], tmp[0], tmp[1], tmp[2], true);
+						Vector3d.cross(obj_axis[i], a, tmp);
 					}
-					obj_tf[i][15] = 1;
+					obj_vrmlid[i] = ByteReader.readInt(data, cur);
+					if (data[cur[0]++] == 1)
+					{
+						obj_tf[i] = new float[16];
+						Arrays.fill(obj_tf[i], 0.f);
+						for (int m = 0; m < 12; m++)
+						{
+							obj_tf[i][m] = ByteReader.readFloat(data, cur);
+						}
+						obj_tf[i][15] = 1;
+					}
 				}
+
+				this.numVObjs = numVObjs;
+				this.obj_x = obj_x;
+				this.obj_z = obj_z;
+				this.obj_tf = obj_tf;
+				this.obj_vrmlid = obj_vrmlid;
+				this.obj_axis = obj_axis;
+				this.obj_angle = obj_angle;
+
+				data = null;
 			}
-
-			this.numVObjs = numVObjs;
-			this.obj_x = obj_x;
-			this.obj_z = obj_z;
-			this.obj_tf = obj_tf;
-			this.obj_vrmlid = obj_vrmlid;
-			this.obj_axis = obj_axis;
-			this.obj_angle = obj_angle;
-
-			pdata = null;
 		}
 	}
 
@@ -579,15 +576,17 @@ public class XVRMLPlugin implements Plugin
 
 			if (tex_meta == null)
 			{
-
 				tex_meta = new float[4];
-				int[] tex_id = new int[1];
 				float[] meta = new float[5];
-				TextureLoaderGL.setWebImage(gl, image_url, tex_id, meta, transparency, null);
-				tex_meta[0] = tex_id[0];
+				final Texture tex = Texture.setWebImage(image_url, meta, transparency, null);
+				int tex_id = -1;
+				if(tex != null) {
+					tex_id = ptolemy.textureManager.load(gl, tex.data, tex.width, tex.height, tex.format, false, -1);
+				}
+				tex_meta[0] = tex_id;
 				tex_meta[1] = meta[0];
 				tex_meta[2] = meta[1];
-				current_texture = tex_id[0];
+				current_texture = tex_id;
 
 				xobj.images.put(image_url, tex_meta);
 			}

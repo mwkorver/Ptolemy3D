@@ -70,22 +70,17 @@ class QuadBufferPool
 
 	public void release()
 	{
-		if (pool != null)
-		{
-			for (int i = 0; i < pool.length; i++)
-			{
-				for (int j = 0; j < pool[i].length; j++)
-				{
+		if(pool != null) {
+			for(int i = 0; i < pool.length; i++) {
+				for(int j = 0; j < pool[i].length; j++) {
 					pool[i][j] = null;
 				}
 				pool[i] = null;
 			}
 		}
 		pool = null;
-		if (filled != null)
-		{
-			for (int i = 0; i < filled.length; i++)
-			{
+		if(filled != null) {
+			for(int i = 0; i < filled.length; i++) {
 				filled[i] = null;
 			}
 		}

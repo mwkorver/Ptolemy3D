@@ -17,45 +17,39 @@
  */
 package org.ptolemy3d.plugin.util;
 
+import java.util.Arrays;
 import java.util.StringTokenizer;
-
-import org.ptolemy3d.util.IntBuffer;
+import java.util.Vector;
 
 public class VectorClass
 {
+	public float lineW = 1;
+	public float[] color;
+	public String regex;
+	public Vector<Integer> shapes;
 
-    public float lineW = 1;
-    public float[] color;
-    public String regex;
-    public IntBuffer shapes;
+	public VectorClass(String lw, String c, String r)
+	{
+		shapes = new Vector<Integer>(10);
+		color = new float[4];
+		Arrays.fill(color, 0);
 
-    public VectorClass(String lw, String c, String r)
-    {
-        shapes = new IntBuffer(10, 10);
-        color = new float[4];
-        java.util.Arrays.fill(color, 0);
-
-        try
-        {
-            lineW = Float.parseFloat(lw);
-            StringTokenizer colstok = new StringTokenizer(c, ":");
-
-            color[0] = (float) Integer.parseInt(colstok.nextToken()) / 255;
-            color[1] = (float) Integer.parseInt(colstok.nextToken()) / 255;
-            color[2] = (float) Integer.parseInt(colstok.nextToken()) / 255;
-            if (colstok.hasMoreTokens())
-            {
-                color[3] = (float) Integer.parseInt(colstok.nextToken()) / 255;
-            }
-            else
-            {
-                color[3] = 1;
-            }
-        }
-        catch (Exception e)
-        {
-        }
-        this.regex = r;
-    }
+		try {
+			lineW = Float.parseFloat(lw);
+			
+			StringTokenizer st = new StringTokenizer(c, ":");
+			color[0] = (float)Integer.parseInt(st.nextToken()) / 255;
+			color[1] = (float)Integer.parseInt(st.nextToken()) / 255;
+			color[2] = (float)Integer.parseInt(st.nextToken()) / 255;
+			if(st.hasMoreTokens()) {
+				color[3] = (float)Integer.parseInt(st.nextToken()) / 255;
+			}
+			else {
+				color[3] = 1;
+			}
+		} catch (Exception e){}
+		
+		this.regex = r;
+	}
 }
 

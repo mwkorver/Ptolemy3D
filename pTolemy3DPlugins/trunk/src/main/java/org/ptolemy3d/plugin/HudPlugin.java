@@ -36,7 +36,6 @@ import org.ptolemy3d.math.Math3D;
 import org.ptolemy3d.scene.Plugin;
 import org.ptolemy3d.scene.Sky;
 import org.ptolemy3d.tile.Jp2TileLoader;
-import org.ptolemy3d.util.TextureLoaderGL;
 import org.ptolemy3d.view.Camera;
 import org.ptolemy3d.view.LatLonAlt;
 
@@ -50,7 +49,7 @@ public class HudPlugin implements Plugin
 	/** HUD Enabled */
 	public boolean drawHud = true;
 	/** HUD Background Texture IDs */
-	private int[] backgroundTexID = null;
+	private int backgroundTexID = -1;
 
 	/* Prefix / Suffix */
 	public String hudPrefix1 = "Center:";
@@ -79,15 +78,13 @@ public class HudPlugin implements Plugin
 	 */
 	public void initGL(GL gl)
 	{
-		backgroundTexID = new int[1];
-
 		byte[] data = new byte[4];
 		Ptolemy3DConfiguration settings = ptolemy.configuration;
 		data[0] = (byte) settings.hudBackgroundColor.getRed();
 		data[1] = (byte) settings.hudBackgroundColor.getGreen();
 		data[2] = (byte) settings.hudBackgroundColor.getBlue();
 		data[3] = (byte) settings.hudBackgroundColor.getAlpha();
-		TextureLoaderGL.setGLTexture(gl, backgroundTexID, 4, 1, 1, data, false);
+		backgroundTexID = ptolemy.textureManager.load(gl, data, 1, 1, GL.GL_RGBA, false, -1);
 
 		if(ptolemy.fontTextRenderer == null) {
 			FntFont font;
@@ -123,9 +120,9 @@ public class HudPlugin implements Plugin
 
 	public void destroyGL(GL gl)
 	{
-		if (backgroundTexID != null) {
-			gl.glDeleteTextures(1, backgroundTexID, 0);
-			backgroundTexID = null;
+		if (backgroundTexID != -1) {
+			ptolemy.textureManager.unload(gl, backgroundTexID);
+			backgroundTexID = -1;
 		}
 	}
 
@@ -184,7 +181,7 @@ public class HudPlugin implements Plugin
 		gl.glColor3f(1.0f, 1.0f, 1.0f);
 
 		// bg box
-		gl.glBindTexture(GL.GL_TEXTURE_2D, backgroundTexID[0]);
+		gl.glBindTexture(GL.GL_TEXTURE_2D, backgroundTexID);
 		gl.glBegin(GL.GL_QUADS);
 		gl.glTexCoord2f(0, 0);
 		gl.glVertex3d(ulx, uly + (1.157 * scalerY), 0);

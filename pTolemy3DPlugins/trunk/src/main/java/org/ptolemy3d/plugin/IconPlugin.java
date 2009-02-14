@@ -142,7 +142,7 @@ public class IconPlugin implements Plugin
                         iconLoaded = true;
                     }
                 }
-            });
+            }, "IconPluginThread");
 
             newThread.start();
         }

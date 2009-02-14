@@ -20,6 +20,7 @@ package org.ptolemy3d.plugin;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.StringTokenizer;
 import javax.media.opengl.GL;
 
@@ -29,7 +30,6 @@ import org.ptolemy3d.font.FntFontRenderer;
 import org.ptolemy3d.io.Communicator;
 import org.ptolemy3d.math.Math3D;
 import org.ptolemy3d.scene.Plugin;
-import org.ptolemy3d.util.TextureLoaderGL;
 import org.ptolemy3d.plugin.util.VectorNode;
 import org.ptolemy3d.view.Camera;
 
@@ -54,28 +54,17 @@ public class GendenPlugin implements Plugin
 	private float gridLineWidth;
 	private float[] gridcolor = new float[3];
 	private VectorNode gridnodes[][] = null;
-	private int[][] gtex_id = new int[3][1];
+	private int[] gtex_id = new int[3];
 	private boolean colorsSet = false;
 	byte[][] colortextures = new byte[3][4];
 	private boolean turnOffGrid = false;
 
-	public GendenPlugin()
-	{
-		for (int i = 0; i < gtex_id.length; i++)
-		{
-			gtex_id[i][0] = -1;
-		}
-		gridcolor[0] = gridcolor[1] = gridcolor[2] = 0.9f;
-		gridLineWidth = 2;
-	}
+	public GendenPlugin() {}
 	public void init(Ptolemy3D ptolemy)
 	{
 		this.ptolemy = ptolemy;
 
-		for (int i = 0; i < gtex_id.length; i++)
-		{
-			gtex_id[i][0] = -1;
-		}
+		Arrays.fill(gtex_id, -1);
 		gridcolor[0] = gridcolor[1] = gridcolor[2] = 0.9f;
 		gridLineWidth = 2;
 	}
@@ -200,19 +189,18 @@ public class GendenPlugin implements Plugin
 			gl.glColor3f(1.0f, 1.0f, 1.0f);
 			if (!colorsSet)
 			{
-				if (gtex_id[0][0] == -1)
+				if (gtex_id[0] == -1)
 				{
 					for (i = 0; i < 3; i++)
 					{
-						TextureLoaderGL.setGLTexture(gl, gtex_id[i], 4, 1, 1, colortextures[i], true);
+						gtex_id[i] = ptolemy.textureManager.load(gl, colortextures[i], 1, 1, GL.GL_RGBA, true, -1);
 					}
 				}
 				else
 				{
 					for (i = 0; i < 3; i++)
 					{
-						gl.glBindTexture(GL.GL_TEXTURE_2D, gtex_id[i][0]);
-						// TODO - Solve this in JOGL
+						gl.glBindTexture(GL.GL_TEXTURE_2D, gtex_id[i]);
 						gl.glTexSubImage2D(GL.GL_TEXTURE_2D, 0, 0, 0, 1, 1, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, ByteBuffer.wrap(colortextures[i]));
 					}
 				}
@@ -220,7 +208,7 @@ public class GendenPlugin implements Plugin
 			}
 			gl.glEnable(GL.GL_TEXTURE_2D);
 			// draw first cirlce
-			gl.glBindTexture(GL.GL_TEXTURE_2D, gtex_id[0][0]);
+			gl.glBindTexture(GL.GL_TEXTURE_2D, gtex_id[0]);
 
 			gl.glBegin(GL.GL_POLYGON);
 			for (i = GRIDBREAKS - 1; i >= 0; i--)
@@ -235,7 +223,7 @@ public class GendenPlugin implements Plugin
 
 			if ((evac > circ) && (evac > 0))
 			{
-				gl.glBindTexture(GL.GL_TEXTURE_2D, gtex_id[1][0]);
+				gl.glBindTexture(GL.GL_TEXTURE_2D, gtex_id[1]);
 				gl.glBegin(GL.GL_TRIANGLE_STRIP);
 				i = ((windDir * 2) - 3);
 				if (i < 0)
@@ -261,7 +249,7 @@ public class GendenPlugin implements Plugin
 
 				if (indoor > evac)
 				{
-					gl.glBindTexture(GL.GL_TEXTURE_2D, gtex_id[2][0]);
+					gl.glBindTexture(GL.GL_TEXTURE_2D, gtex_id[2]);
 					gl.glBegin(GL.GL_TRIANGLE_STRIP);
 					i = ((windDir * 2) - 3);
 					if (i < 0)
@@ -340,10 +328,10 @@ public class GendenPlugin implements Plugin
 	{
 		for (int i = 0; i < gtex_id.length; i++)
 		{
-			if (gtex_id[i][0] != -1)
+			if (gtex_id[i] != -1)
 			{
-				gl.glDeleteTextures(1, gtex_id[i], 0);
-				gtex_id[i][0] = -1;
+				ptolemy.textureManager.unload(gl, gtex_id[i]);
+				gtex_id[i] = -1;
 			}
 		}
 	}

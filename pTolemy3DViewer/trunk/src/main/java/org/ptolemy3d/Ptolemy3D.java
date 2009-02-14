@@ -23,6 +23,7 @@ import netscape.javascript.JSObject;
 import org.ptolemy3d.debug.IO;
 import org.ptolemy3d.font.FntFontRenderer;
 import org.ptolemy3d.scene.Scene;
+import org.ptolemy3d.scene.TextureManager;
 import org.ptolemy3d.tile.Jp2TileLoader;
 import org.ptolemy3d.view.Camera;
 import org.ptolemy3d.view.View;
@@ -75,7 +76,7 @@ import org.w3c.dom.Element;
 public class Ptolemy3D
 {
 	/** MUST BE REMOVED */
-	public static Ptolemy3D ptolemy = null;	/* FIXME: This block make Ptolemy3D non multiple-instanciable */
+	public static Ptolemy3D ptolemy = null;	/* FIXME This block make Ptolemy3D non multiple-instanciable */
 	public Ptolemy3D() { ptolemy = this; }
 	/** MUST BE REMOVED */
 
@@ -95,6 +96,8 @@ public class Ptolemy3D
 	public Camera camera;
 	/** View: Perspective and Modelview */
 	public View view;
+	/** Texture Manager */
+	public TextureManager textureManager;
 	/** Tile Loader: download tile datas (image, geometry) */
 	public Jp2TileLoader tileLoader;
 	/** Tile Loader Thread: Thread in which tile loader is running */
@@ -109,8 +112,9 @@ public class Ptolemy3D
 
 	/**
 	 * @param docElements
+	 * @throw Ptolemy3DException when requiered option was not found
 	 */
-	public void init(Element docElements)
+	public void init(Element docElements) throws Ptolemy3DException
 	{
 		this.scene = new Scene(this);
 		this.camera = new Camera();
@@ -119,6 +123,8 @@ public class Ptolemy3D
 
 		this.configuration = new Ptolemy3DConfiguration(this);
 		this.configuration.loadSettings(docElements);
+		
+		this.textureManager = new TextureManager(this);
 
 		this.events = new Ptolemy3DEvents(this);
 	}
@@ -130,7 +136,7 @@ public class Ptolemy3D
 			tileLoader = new Jp2TileLoader(this);
 		}
 		if (tileLoaderThread == null) {
-			tileLoaderThread = new Thread(tileLoader, "DownloadThread");
+			tileLoaderThread = new Thread(tileLoader, "TileLoaderThread");
 		}
 		tileLoaderThread.start();
 	}
@@ -139,28 +145,22 @@ public class Ptolemy3D
 	{
 		if (tileLoaderThread != null) {
 			tileLoader.on = false;
-			tileLoaderThread.interrupt();
+			try {
+				tileLoaderThread.interrupt();
+			} catch(Exception e) {
+				IO.printStack(e);
+			}
 		}
 	}
 
 	public void destroy()
 	{
 		//Stop the tile loading first
-		if(events != null) {
-			try {
-				ptolemy.stopTileLoaderThread();
-			} catch(Exception e) {
-				IO.printStackRenderer(e);
-			}
-		}
+		stopTileLoaderThread();
 
 		//Stop and destroy all the 3D
 		if(events != null) {
-			try {
-				events.destroyGL();
-			} catch(RuntimeException e) {
-				IO.printStackRenderer(e);
-			}
+			events.destroyGL();
 		}
 	}
 

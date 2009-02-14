@@ -28,7 +28,6 @@ import org.ptolemy3d.Ptolemy3DConfiguration;
 import org.ptolemy3d.io.Communicator;
 import org.ptolemy3d.math.Math3D;
 import org.ptolemy3d.scene.Plugin;
-import org.ptolemy3d.view.Camera;
 
 /**
  * Basic demonstration of plugin creating. Shows the cartesian axis used in
@@ -234,9 +233,9 @@ public class AxisPlugin implements Plugin
             }
             renderer.endRendering();
 
-            gl.glMatrixMode(GL.GL_MODELVIEW);
-            gl.glPopMatrix();
             gl.glMatrixMode(GL.GL_PROJECTION);
+            gl.glPopMatrix();
+            gl.glMatrixMode(GL.GL_MODELVIEW);
             gl.glPopMatrix();
         }
 

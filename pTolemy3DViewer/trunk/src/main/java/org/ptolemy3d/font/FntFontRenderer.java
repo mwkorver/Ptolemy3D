@@ -20,12 +20,10 @@ package org.ptolemy3d.font;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import java.nio.ByteBuffer;
 
 import javax.media.opengl.GL;
 
 import org.ptolemy3d.Ptolemy3D;
-import org.ptolemy3d.util.TextureLoaderGL;
 
 /**
  * FNT Font Renderer<BR>
@@ -40,46 +38,39 @@ public class FntFontRenderer
 	/** Font */
 	private final FntFont font;
 	/** Font */
-	private int[] texID;
+	private int texID;
 
 	public FntFontRenderer(Ptolemy3D ptolemy, FntFont font)
 	{
 		this.ptolemy = ptolemy;
 		this.font = font;
-		this.texID = null;
+		this.texID = -1;
 	}
 
 	public void initGL(GL gl)
 	{
-		if(texID != null) {
+		if(texID != -1) {
 			destroyGL(gl);
 		}
-		texID = new int[1];
-
-		gl.glGenTextures(1, texID, 0);
-		gl.glBindTexture(GL.GL_TEXTURE_2D, texID[0]);
-		gl.glTexImage2D(GL.GL_TEXTURE_2D, 0, GL.GL_LUMINANCE_ALPHA, font.width, font.height, 0, GL.GL_LUMINANCE_ALPHA, GL.GL_UNSIGNED_BYTE, ByteBuffer.wrap(font.fontDatas));
-		gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR);
-		gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR);
-		gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP);
-		gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GL.GL_CLAMP);
+		
+		texID = ptolemy.textureManager.load(gl, font.fontDatas, font.width, font.height, GL.GL_LUMINANCE_ALPHA, true, -1);
 	}
 
 	public void destroyGL(GL gl)
 	{
-		if(texID != null) {
-			TextureLoaderGL.deleteTextures(gl, texID, texID.length);
-			texID = null;
+		if(texID != -1) {
+			ptolemy.textureManager.unload(gl, texID);
+			texID = -1;
 		}
 	}
 
 	public void bindTexture(GL gl)
 	{
-		if (texID == null) {
+		if (texID == -1) {
 			initGL(gl);
 		}
-		if (texID != null) {
-			gl.glBindTexture(GL.GL_TEXTURE_2D, texID[0]);
+		if (texID != -1) {
+			gl.glBindTexture(GL.GL_TEXTURE_2D, texID);
 		}
 	}
 

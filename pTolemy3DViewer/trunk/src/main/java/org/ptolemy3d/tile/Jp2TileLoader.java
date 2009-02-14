@@ -22,12 +22,12 @@ import static org.ptolemy3d.tile.Level.LEVEL_NUMTILES;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Vector;
 
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.debug.IO;
 import org.ptolemy3d.io.BasicCommunicator;
 import org.ptolemy3d.io.Communicator;
-import org.ptolemy3d.io.SocketCommunicator;
 import org.ptolemy3d.math.Math3D;
 import org.ptolemy3d.math.Matrix9d;
 import org.ptolemy3d.scene.Landscape;
@@ -35,7 +35,6 @@ import org.ptolemy3d.tile.Jp2Tile.Jp2TileRes;
 import org.ptolemy3d.tile.jp2.Jp2Block;
 import org.ptolemy3d.tile.jp2.Jp2Decoder;
 import org.ptolemy3d.tile.jp2.Jp2Head;
-import org.ptolemy3d.util.IntBuffer;
 import org.ptolemy3d.util.PngDecoder;
 import org.ptolemy3d.view.Camera;
 import org.ptolemy3d.view.LatLonAlt;
@@ -65,7 +64,7 @@ public class Jp2TileLoader implements Runnable
 	private Communicator[] JC;
 	private Communicator JC_APP;
 	private short[][] targetData;
-	private IntBuffer[] texTrash;
+	private Vector<Integer>[] texTrash;
 	private int[] quadtiles;
 	private Thread thread;
 	private long idleFrom, lastIdle;
@@ -88,9 +87,9 @@ public class Jp2TileLoader implements Runnable
 		jp2Blocks = new Jp2Block[numLevels][Level.LEVEL_NUMTILES];
 		tileLock = new boolean[numLevels][Level.LEVEL_NUMTILES];
 
-		texTrash = new IntBuffer[Jp2Tile.NUM_RESOLUTION];
+		texTrash = new Vector[Jp2Tile.NUM_RESOLUTION];
 		for (int w = 0; w < Jp2Tile.NUM_RESOLUTION; w++) {
-			texTrash[w] = new IntBuffer(1, 15);
+			texTrash[w] = new Vector<Integer>(10);
 		}
 
 		quadBufferPool = new QuadBufferPool();
@@ -317,11 +316,20 @@ public class Jp2TileLoader implements Runnable
 			} catch (InterruptedException e) {}
 		}
 
+		// Free memory
 		clearTextureData();
 		quadBufferPool.release();
-		dropConnections();
-		ptolemy.tileLoader = null;
 		System.gc();
+		// Stop connections
+		dropConnections();
+		
+		// Wait while texture 
+		while(ptolemy.textureManager != null) {
+			try {
+				Thread.sleep(50);
+			} catch (InterruptedException e) {}
+		}
+		ptolemy.tileLoader = null;
 	}
 
 	protected final void clearTextureData()
@@ -968,40 +976,21 @@ loop:		for (int p = 0; p < levels.length; p++)
 
 	private final void addToTrash(int tid, int res)
 	{
-		texTrash[res].append(tid);
+		texTrash[res].add(tid);
 	}
 
-	public synchronized int[][] getTextureTrash()
+	public synchronized void getTextureTrash(Vector<Integer>[] copy)
 	{
-		int[][] t = new int[Jp2Tile.NUM_RESOLUTION][];
-		for (int i = 0; i < Jp2Tile.NUM_RESOLUTION; i++)
-		{
-			t[i] = texTrash[i].getBuffer();
-			texTrash[i].reset();
+		for (int i = 0; i < texTrash.length; i++) {
+			final Vector<Integer> src = texTrash[i];
+			final Vector<Integer> dst = copy[i];
+			dst.clear();
+			if(src.size() > 0) {
+				dst.addAll(src);
+			}
+			src.clear();
 		}
-		return t;
 	}
-
-//	public void loadAppData(String file, byte[] data)
-//	{
-//		try
-//		{
-//			JC_APP.requestData(file);
-//			int t = JC_APP.getHeaderReturnCode();
-//			if ((t == 200) || (t == 206))
-//			{
-//				data = JC_APP.getData();
-//			}
-//			else
-//			{
-//				data = null;
-//				JC_APP.flushNotFound();
-//			}
-//		}
-//		catch (Exception e)
-//		{
-//		}
-//	}
 
 	/** @return true if the level has at least one jp2 tile with valid image data. */
 	public synchronized final boolean levelHasImageData(int lvl)

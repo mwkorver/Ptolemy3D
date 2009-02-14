@@ -26,10 +26,8 @@ import javax.media.opengl.GL;
 
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.Ptolemy3DUnit;
-import org.ptolemy3d.debug.IO;
 import org.ptolemy3d.math.Math3D;
 import org.ptolemy3d.math.Matrix16d;
-import org.ptolemy3d.util.TextureLoaderGL;
 import org.ptolemy3d.view.Camera;
 
 /**
@@ -47,7 +45,7 @@ public class Sky
 	private int skyCallList = -1;
 
 	/** Sky Texture ID */
-	private int[] skyTexId = null;
+	private int skyTexId = -1;
 	/** Sky Rendering Enabled */
 	public boolean drawSky = true;
 	/** Fog Enabled */
@@ -114,8 +112,7 @@ public class Sky
 		int j, i, h, numLevels = 128;
 
 		byte[] atm_tex = new byte[numLevels * 2 * 4];
-		skyTexId = new int[1];
-
+		
 		int offset = 0;
 		// botColor is integer horizon color and topColor is the ratio...
 		for (h = 0; h < 3; h++)
@@ -134,22 +131,20 @@ public class Sky
 				atm_tex[offset++] = (byte) ((float) (numLevels - i) / (numLevels) * 255);
 			}
 		}
-
-		IO.println("Thread2: " + Thread.currentThread());
-
-		TextureLoaderGL.setGLTexture(gl, skyTexId, 4, 2, numLevels, atm_tex, false);
+		
+		skyTexId = ptolemy.textureManager.load(gl, atm_tex, 2, numLevels, GL.GL_RGBA, false, -1);
 	}
 
 	protected void destroyGL(GL gl)
 	{
 		this.gl = gl;
 
-		if (skyTexId != null) {
-			TextureLoaderGL.deleteTextures(gl, skyTexId, skyTexId.length);
-			skyTexId = null;
+		if (skyTexId != -1) {
+			ptolemy.textureManager.unload(gl, skyTexId);
+			skyTexId = -1;
 		}
 		if (skyCallList != -1) {
-			TextureLoaderGL.deleteTextures(gl, new int[]{ skyCallList }, 1);
+			gl.glDeleteLists(skyCallList, 1);
 			skyCallList = -1;
 		}
 
@@ -248,7 +243,7 @@ public class Sky
 
 		gl.glColor3f(0, 0, 0);
 		gl.glEnable(GL.GL_TEXTURE_2D);
-		gl.glBindTexture(GL.GL_TEXTURE_2D, skyTexId[0]);
+		gl.glBindTexture(GL.GL_TEXTURE_2D, skyTexId);
 
 		gl.glBegin(GL.GL_TRIANGLE_STRIP);
 		for (i = 0; i <= numSteps; i++)

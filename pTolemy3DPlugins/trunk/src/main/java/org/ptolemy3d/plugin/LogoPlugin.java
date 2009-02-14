@@ -19,6 +19,7 @@ package org.ptolemy3d.plugin;
 
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.StringTokenizer;
 import javax.media.opengl.GL;
 
@@ -32,7 +33,6 @@ import org.ptolemy3d.math.Math3D;
 import org.ptolemy3d.scene.Plugin;
 import org.ptolemy3d.scene.Sky;
 import org.ptolemy3d.util.PngDecoder;
-import org.ptolemy3d.util.TextureLoaderGL;
 import org.ptolemy3d.view.Camera;
 
 public class LogoPlugin implements Plugin
@@ -45,7 +45,7 @@ public class LogoPlugin implements Plugin
 	private int numLogos = 0;
 	private byte[][] logo;
 	private int[][] logoMeta;
-	private int[][] texId;
+	private int[] texId;
 	int[] orientation;    // orientation
 	private boolean isSet = false;
 	private boolean STATUS = true;
@@ -70,14 +70,15 @@ public class LogoPlugin implements Plugin
 
 		byte[] idata;
 		logoMeta = new int[numLogos][4];
-		texId = new int[numLogos][1];
+		texId = new int[numLogos];
 		orientation = new int[numLogos];
 
+		
 		try
 		{
+			Arrays.fill(texId, -1);
 			for (int i = 0; i < numLogos; i++)
 			{
-				texId[i][0] = -1;
 				JC.requestData(tokens.nextToken());
 				orientation[i] = Integer.parseInt(tokens.nextToken());
 				int t = JC.getHeaderReturnCode();
@@ -144,14 +145,13 @@ public class LogoPlugin implements Plugin
 		// can only set tex if open gl is init, so we need to set our textures in this loop.
 		if (!isSet) {
 			for (int i = 0; i < numLogos; i++) {
-				TextureLoaderGL.setGLTexture(gl, texId[i], logoMeta[i][3], 256, 32, logo[i], false);
+				texId[i] = ptolemy.textureManager.load(gl, logo[i], 256, 32, logoMeta[i][3], false, -1);
 			}
 			isSet = true;
 		}
 
 		gl.glDisable(GL.GL_DEPTH_TEST);
 		gl.glEnable(GL.GL_BLEND);
-		gl.glTexEnvf(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_MODULATE);
 		gl.glColor3f(1.0f, 1.0f, 1.0f);
 
 		gl.glPushMatrix();
@@ -172,7 +172,7 @@ public class LogoPlugin implements Plugin
 		float w, h;
 		for (int i = 0; i < numLogos; i++)
 		{
-			if (texId[i][0] == -1) {
+			if (texId[i] == -1) {
 				continue;
 			}
 
@@ -182,7 +182,7 @@ public class LogoPlugin implements Plugin
 			w = (float) logoMeta[i][0] / 90;
 			h = (float) logoMeta[i][1] / 90;
 
-			gl.glBindTexture(GL.GL_TEXTURE_2D, texId[i][0]);
+			gl.glBindTexture(GL.GL_TEXTURE_2D, texId[i]);
 
 			switch (orientation[i])
 			{
@@ -222,17 +222,16 @@ public class LogoPlugin implements Plugin
 		gl.glPopMatrix();
 		gl.glEnable(GL.GL_DEPTH_TEST);
 		gl.glDisable(GL.GL_BLEND);
-		gl.glTexEnvf(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_DECAL);
 	}
 
 	public void destroyGL(GL gl)
 	{
 		for (int h = 0; h < texId.length; h++)
 		{
-			if (texId[h][0] != -1)
+			if (texId[h] != -1)
 			{
-				gl.glDeleteTextures(1, texId[h], 0);
-				texId[h][0] = -1;
+				ptolemy.textureManager.unload(gl, texId[h]);
+				texId[h] = -1;
 			}
 		}
 	}

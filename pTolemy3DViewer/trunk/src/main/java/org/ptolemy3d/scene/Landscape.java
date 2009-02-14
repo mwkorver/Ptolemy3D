@@ -22,8 +22,6 @@ import static org.ptolemy3d.debug.Config.DEBUG;
 import static org.ptolemy3d.tile.Level.LEVEL_NUMTILE_LON;
 import static org.ptolemy3d.tile.Level.LEVEL_NUMTILE_LAT;
 
-import java.nio.ByteBuffer;
-
 import javax.media.opengl.GL;
 
 import org.ptolemy3d.Ptolemy3D;
@@ -32,7 +30,6 @@ import org.ptolemy3d.debug.IO;
 import org.ptolemy3d.debug.ProfilerInterface;
 import org.ptolemy3d.tile.Jp2TileLoader;
 import org.ptolemy3d.tile.Level;
-import org.ptolemy3d.util.TextureLoaderGL;
 import org.ptolemy3d.view.Camera;
 
 /**
@@ -162,8 +159,6 @@ public class Landscape
 
 	/** Draw landscape*/
 	public boolean drawLandscape = true;
-	/** Texture Manager */
-	private TextureManager textureManager;
 
 	/* Local variable for rendering */
 	private GL gl = null;
@@ -307,8 +302,6 @@ public class Landscape
 	{
 		final Ptolemy3DUnit unit = ptolemy.unit;
 
-		textureManager = new TextureManager(ptolemy);
-
 		maxLatitude = unit.DD * LANDSCAPE_MAXLATITUDE_ANGLE;
 		maxLongitude = unit.DD * LANDSCAPE_MAXLONGITUDE_ANGLE;
 
@@ -363,7 +356,7 @@ public class Landscape
 		this.gl = gl;
 
 		//Destroy unused textures
-		textureManager.destroyTrashTextures(gl);
+		ptolemy.textureManager.destroyTrashTextures(gl);
 
 		//Correct Tiles
 		if(DEBUG) {
@@ -524,19 +517,9 @@ public class Landscape
 
 		this.gl = null;
 	}
-	public final int bindImage(byte[] datas, int width, int height, int res)
+	public final int load(byte[] datas, int width, int height, int res)
 	{
-		if (!textureManager.hasTexture(res)) {
-			int[] texId = new int[1];
-			TextureLoaderGL.setGLTexture(gl, texId, 3, width, height, datas, true);
-			return texId[0];
-		}
-		else {
-			int textureId = textureManager.get(res);
-			gl.glBindTexture(GL.GL_TEXTURE_2D, textureId);
-			gl.glTexSubImage2D(GL.GL_TEXTURE_2D, 0, 0, 0, width, height, GL.GL_RGB, GL.GL_UNSIGNED_BYTE, ByteBuffer.wrap(datas));
-			return textureId;
-		}
+		return ptolemy.textureManager.load(gl, datas, width, height, GL.GL_RGB, true, res);
 	}
 
 	/** Landscape Picking: Pick tiles */
@@ -588,11 +571,6 @@ public class Landscape
 
 	protected void destroyGL(GL gl)
 	{
-		try {
-			textureManager.destroyTrashTextures(gl);
-			textureManager.emptyRecyler(gl);
-		} catch(Exception e) {
-			IO.printStackRenderer(e);
-		}
+		
 	}
 }

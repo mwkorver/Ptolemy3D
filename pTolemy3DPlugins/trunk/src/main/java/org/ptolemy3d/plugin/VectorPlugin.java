@@ -33,7 +33,6 @@ import org.ptolemy3d.math.Math3D;
 import org.ptolemy3d.scene.Landscape;
 import org.ptolemy3d.scene.Plugin;
 import org.ptolemy3d.util.ByteReader;
-import org.ptolemy3d.util.IntBuffer;
 import org.ptolemy3d.plugin.util.GMLDoc;
 import org.ptolemy3d.plugin.util.VectorClass;
 import org.ptolemy3d.plugin.util.VectorNode;
@@ -85,9 +84,9 @@ public class VectorPlugin implements Plugin
 	private boolean[][] isFixed;
 	private VectorNode[][][][] shape;
 	private double[][] ctds; // centroids
-	IntBuffer hatchedLists = null;
-	IntBuffer selectedShapes = null;
-	IntBuffer hatchedQue = null;
+	Vector<Integer> hatchedLists = null;
+	Vector<Integer> selectedShapes = null;
+	Vector<Integer> hatchedQue = null;
 	private float[] stroke = { 0, 0, 0 };
 	private float LineWidth = 1.0f;
 	private float interp_len;
@@ -466,7 +465,9 @@ public class VectorPlugin implements Plugin
 		int do_hatch = -1;
 		if (hatchedQue != null) {
 			if (hatchedQue.size() > 0) {
-				do_hatch = hatchedQue.popBuf();
+				final int pop = hatchedQue.size()-1;
+				do_hatch = hatchedQue.get(pop);
+				hatchedQue.remove(pop);
 			}
 		}
 
@@ -573,7 +574,7 @@ public class VectorPlugin implements Plugin
 		tx = (int)latLonAlt.getLongitudeDD();
 		ty = (int)latLonAlt.getLatitudeDD();
 		
-		int dispr = (int)(DisplayRadius/2);
+		int dispr = DisplayRadius/2;
 		int factor = ptolemy.unit.DD;
 		if((((tx - dispr) <  feature_minx) || ((tx + dispr) > feature_maxx) || ((ty + dispr) > feature_maxz) || ((ty - dispr) < feature_minz)) || (force)){
 			cleanListsData();
@@ -640,7 +641,7 @@ public class VectorPlugin implements Plugin
 			VectorClass tmpvc;
 			if(Classes != null){
 				clsz = Classes.size();
-				for(i=0;i<clsz;i++) Classes.elementAt(i).shapes.reset();
+				for(i=0;i<clsz;i++) Classes.elementAt(i).shapes.clear();
 			}
 			boolean addedToClass;
 			double len,tlen,cwx,cwz;
@@ -733,7 +734,7 @@ public class VectorPlugin implements Plugin
 				*/
 				if((!addedToClass) && (clsz > 0)) {
 					tmpvc = Classes.elementAt(0);
-					tmpvc.shapes.append(i);
+					tmpvc.shapes.add(i);
 				}
 			}
 			
@@ -815,7 +816,7 @@ public class VectorPlugin implements Plugin
 				clsz = Classes.size();
 				for (i = 0; i < clsz; i++)
 				{
-					(Classes.elementAt(i)).shapes.reset();
+					(Classes.elementAt(i)).shapes.clear();
 				}
 			}
 			boolean addedToClass;
@@ -908,7 +909,7 @@ public class VectorPlugin implements Plugin
 							tmpvc = (Classes.elementAt(clx));
 							if (cltext.indexOf(tmpvc.regex) != -1)
 							{
-								tmpvc.shapes.append(i);
+								tmpvc.shapes.add(i);
 								addedToClass = true;
 								break;
 							}
@@ -921,7 +922,7 @@ public class VectorPlugin implements Plugin
 				if ((!addedToClass) && (clsz > 0))
 				{
 					tmpvc = (Classes.elementAt(0));
-					tmpvc.shapes.append(i);
+					tmpvc.shapes.add(i);
 				}
 
 
@@ -997,7 +998,7 @@ public class VectorPlugin implements Plugin
 			{
 				if (hatchedQue == null)
 				{
-					hatchedQue = new IntBuffer(5, 5);
+					hatchedQue = new Vector<Integer>(5);
 				}
 
 				StringTokenizer stok = new StringTokenizer(command_params, ",");
@@ -1010,7 +1011,7 @@ public class VectorPlugin implements Plugin
 						{
 							if (vec_ids[i] == gid)
 							{
-								hatchedQue.append(i);
+								hatchedQue.add(i);
 							}
 						}
 					}
@@ -1077,17 +1078,17 @@ public class VectorPlugin implements Plugin
 							selected_id = i;
 							if (selectedShapes == null)
 							{
-								selectedShapes = new IntBuffer(5, 5);
+								selectedShapes = new Vector<Integer>(5);
 							}
-							if (selectedShapes.find(selected_id) == -1)
+							if (selectedShapes.indexOf(selected_id) == -1)
 							{
 								cleanListsData();
-								selectedShapes.append(selected_id);
+								selectedShapes.add(selected_id);
 								if (hatchedQue == null)
 								{
-									hatchedQue = new IntBuffer(5, 5);
+									hatchedQue = new Vector<Integer>(5);
 								}
-								hatchedQue.append(selected_id);
+								hatchedQue.add(selected_id);
 							}
 
 							ptolemy.callJavascript("actionById", String.valueOf(vec_ids[i]), String.valueOf(LAYER), null);
@@ -1247,11 +1248,11 @@ public class VectorPlugin implements Plugin
 		// create list
 
 		if (hatchedLists == null) {
-			hatchedLists = new IntBuffer(5, 5);
+			hatchedLists = new Vector<Integer>(5);
 		}
 
 		int listid = gl.glGenLists(1);
-		hatchedLists.append(listid);
+		hatchedLists.add(listid);
 		gl.glNewList(listid, GL.GL_COMPILE);
 		gl.glColor3f(vc.color[0], vc.color[1], vc.color[2]);
 		gl.glLineWidth(1.0f);
@@ -1284,7 +1285,7 @@ public class VectorPlugin implements Plugin
 			{
 				gl.glDeleteLists(hatchedLists.get(hlptr), 1);
 			}
-			hatchedLists.reset();
+			hatchedLists.clear();
 		}
 	}
 
@@ -1293,11 +1294,11 @@ public class VectorPlugin implements Plugin
 		setDeleteLists = true;
 		if (selectedShapes != null)
 		{
-			selectedShapes.reset();
+			selectedShapes.clear();
 		}
 		if (hatchedQue != null)
 		{
-			hatchedQue.reset();
+			hatchedQue.clear();
 		}
 	}
 }

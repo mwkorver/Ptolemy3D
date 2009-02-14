@@ -62,8 +62,24 @@
                 // Accordion
                 $('#accordion').accordion({
                     header: ".ui-accordion-header",
-                    clearStyle: true
+                    clearStyle: true,
+                    autoHeight: false
                 });
+
+                // Set help dialog
+                $("#help").dialog({
+                    autoOpen:false,
+                    bgiframe: true,
+                    draggable: false,
+                    resizable: false,
+                    modal: true,
+                    closeOnEscape: true,
+                    overlay: {
+                        backgroundColor: '#000',
+                        opacity: 0.5
+                    }
+                });
+
 
                 // Execute free code
                 $('#run_freecode').click(function(){
@@ -138,9 +154,7 @@
                 ptolemy.getTerrain().setAtmosphere(init_atmos);
                 ptolemy.getTerrain().setHorizonAlt(init_horizon);
 
-                var example = "// Use the 'ptolemy' object to interact with the viewer.\n\
-// Put your code here...\n\
-";
+                var example = "// Use the 'ptolemy' object to interact with the viewer.\n// Put your code here...\n";
 
                 $('#freecode').val(example);
             }
@@ -300,11 +314,38 @@
                                     </ul>
                                 </div>
                             </div>
-
                         </div>
+
+                        <div id="help" title="pTolemy3D Help">
+                            You can control pTolemy3D viewer using:
+                            <ul>
+                                <li>Keyboard:</li>
+                                <ul>
+                                    <li>a - zoom in</li>
+                                    <li>z - zoom out</li>
+                                    <li>s - zoom in</li>
+                                    <li>x - zoom out</li>
+                                    <li>d - rotate left</li>
+                                    <li>f - rotate right</li>
+                                    <li>r - tilt down</li>
+                                    <li>c - tilt up</li>
+                                    <li>left arrow - spin globe left</li>
+                                    <li>right arrow - spin globe right</li>
+                                    <li>up arrow - spin globe up</li>
+                                    <li>down arrow - spin globe down</li>
+                                </ul>
+                                <li>Mouse:</li>
+                                <ul>
+                                    <li>drag - moves camera</li>
+                                </ul>
+                            </ul>
+                            (Press ESC to close)
+                        </div>
+                        <p><img src="./images/help.png" onclick="$('#help').dialog('open');" width="24px" height="24px"/>Click to show viewer controls</p>
+
                     </td>
                     <td valign="top">
-                        <textarea id="freecode" cols="100" rows="14">// Use the 'ptolemy' object to interact with the viewer.&#13;// Put your code here...&#13;</textarea><br/>
+                        <textarea id="freecode" cols="110" rows="15">// Use the 'ptolemy' object to interact with the viewer.&#13;// Put your code here...&#13;</textarea><br/>
                         <button id="run_freecode">Run...</button><button id="reset_ptolemy" onclick="reset();">Reset...</button>
                     </td>
                 </tr>

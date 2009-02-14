@@ -79,6 +79,7 @@ public class Ptolemy3DEvents implements GLEventListener, Transferable {
 
 	public Ptolemy3DEvents(Ptolemy3D ptolemy) {
 		this.ptolemy = ptolemy;
+		this.isOffscreenRender = ptolemy.configuration.offscreenRender;
 	}
 
 	/** Start rendering loop. */

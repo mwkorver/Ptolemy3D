@@ -77,6 +77,7 @@ public class Ptolemy3D
 	/** MUST BE REMOVED */
 	public static Ptolemy3D ptolemy = null;	/* FIXME: This block make Ptolemy3D non multiple-instanciable */
 	public Ptolemy3D() { ptolemy = this; }
+	/** MUST BE REMOVED */
 
 	/** Rendering Events */
     public Ptolemy3DEvents events;
@@ -120,7 +121,6 @@ public class Ptolemy3D
 		this.configuration.loadSettings(docElements);
 
 		this.events = new Ptolemy3DEvents(this);
-		this.events.isOffscreenRender = configuration.offscreenRender;
 	}
 
 	/** Start tile download thread. */

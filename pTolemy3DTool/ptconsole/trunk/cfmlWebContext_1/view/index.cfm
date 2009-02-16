@@ -50,7 +50,7 @@ If you have an empty Globe here it's because you have not created data yet.<br>
                 align="center" width="100%" height="100%"
                 id="pTolemy3D" Name="pTolemy3D"
                 codebase="./applet/"
-                archive="./jogl.jar,./gluegen-rt.jar,./plugin.jar,./ptolemy3d.jar,./ptolemy3d-1.0-SNAPSHOT.jar,./ptolemy3dplugin-1.0-SNAPSHOT.jar" MAYSCRIPT>
+                archive="./jogl.jar,./gluegen-rt.jar,./plugin.jar,./ptolemy3d-1.0-SNAPSHOT.jar,./ptolemy3dplugin-1.0-SNAPSHOT.jar" MAYSCRIPT>
             <param name="subapplet.classname" VALUE="org.ptolemy3d.viewer.Ptolemy3DApplet">
             <param name="subapplet.displayname" VALUE="pTolemy3D Applet">
             <param name="progressbar" value="true">

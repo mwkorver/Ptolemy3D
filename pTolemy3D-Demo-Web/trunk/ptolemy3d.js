@@ -20,7 +20,7 @@
  * Spatialcloud object contains the main function to work with the viewer applet.
  * @elemId the identifier of the applet element in the HTML page.
  */
-function ptolemy(elemId){
+function ptolemy3d(elemId){
     
     // Stores the viewer applet HTML element id.
     this.elementId = elemId;
@@ -31,14 +31,14 @@ function ptolemy(elemId){
     /**
      * Returns a reference to the applet object given the 'elemId'.
      */    
-    ptolemy.prototype.getViewerApplet = function(){
+    ptolemy3d.prototype.getViewerApplet = function(){
         return document.getElementById(this.elementId).getSubApplet();
     }
     
     /**
      * Returns a reference of the viewer's Camera object.
      */
-    ptolemy.prototype.getCamera = function(){
+    ptolemy3d.prototype.getCamera = function(){
         var applet = this.getViewerApplet();
         
         if(applet != null){
@@ -51,7 +51,7 @@ function ptolemy(elemId){
     /**
      * Returns a reference of the viewer's Terrain object.
      */
-    ptolemy.prototype.getTerrain = function(){
+    ptolemy3d.prototype.getTerrain = function(){
         var applet = this.getViewerApplet();
         
         if(applet != null){
@@ -68,7 +68,7 @@ function ptolemy(elemId){
      * 1 - Move to the picked position on the terrain.
      * 2 - Move and zoom to the picked position on the terrain.
      */
-    ptolemy.prototype.setOnClickMode = function(mode){
+    ptolemy3d.prototype.setOnClickMode = function(mode){
         var applet = this.getViewerApplet();
         
         if(applet != null){

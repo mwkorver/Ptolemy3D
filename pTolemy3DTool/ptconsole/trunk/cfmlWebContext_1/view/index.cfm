@@ -46,18 +46,18 @@
 
 If you have an empty Globe here it's because you have not created data yet.<br>
 
-        <applet code="com.sun.opengl.util.JOGLAppletLauncher"
+		<applet code="com.sun.opengl.util.JOGLAppletLauncher"
                 align="center" width="100%" height="100%"
                 id="pTolemy3D" Name="pTolemy3D"
                 codebase="./applet/"
-                archive="./jogl.jar,./gluegen-rt.jar,./netscape.jar,./ptolemy3d.jar,./ptolemy3d-viewer.jar,./ptolemy3d-plugins.jar" MAYSCRIPT>
+                archive="./jogl.jar,./gluegen-rt.jar,./plugin.jar,./ptolemy3d.jar,./ptolemy3d-1.0-SNAPSHOT.jar,./ptolemy3dplugin-1.0-SNAPSHOT.jar" MAYSCRIPT>
             <param name="subapplet.classname" VALUE="org.ptolemy3d.viewer.Ptolemy3DApplet">
-            <param name="subapplet.displayname" VALUE="Ptolemy3D Applet">
+            <param name="subapplet.displayname" VALUE="pTolemy3D Applet">
             <param name="progressbar" value="true">
             <param name="noddraw.check" value="true">
             <param name="noddraw.check.silent" value="true">
-            <param name="cache_archive" VALUE="jogl.jar,gluegen-rt.jar,netscape.jar,ptolemy3d.jar,ptolemy3d-viewer.jar,ptolemy3d-plugins.jar">
-            <param name="cache_archive_ex" VALUE="jogl.jar;preload,gluegen-rt.jar;preload,netscape.jar;preload,ptolemy3d.jar;preload,ptolemy3d-viewer.jar;preload,ptolemy3d-plugins.jar;preload">
+            <param name="cache_archive" VALUE="jogl.jar,gluegen-rt.jar,plugin.jar,ptolemy3d-1.0-SNAPSHOT.jar,ptolemy3dplugin-1.0-SNAPSHOT.jar">
+            <param name="cache_archive_ex" VALUE="jogl.jar;preload,gluegen-rt.jar;preload,plugin.jar;preload,ptolemy3d-1.0-SNAPSHOT.jar;preload,ptolemy3dplugin-1.0-SNAPSHOT.jar;preload">
 
             <param name="Orientation" value="-85493900,30738580,126000000,10,0">
             <param name="CenterX" value="0">

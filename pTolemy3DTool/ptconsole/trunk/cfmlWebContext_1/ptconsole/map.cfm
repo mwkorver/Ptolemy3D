@@ -18,12 +18,12 @@
 <CFINCLUDE template="head.cfm">
 
 <!--- sets default session params on startup --->
-<cfparam name="session.server" default="mapserv.spatialcloud.com/cgi-bin/mapserv">
-<cfparam name="session.map" default="/var/www/maps/mwk_test6.819200.map">
+<cfparam name="session.server" default="wms.jpl.nasa.gov/wms.cgi">
+<cfparam name="session.map" default="">
 <cfparam name="session.srs" default="EPSG:4326">
 <cfparam name="session.styles" default="">
 <cfparam name="session.bbox" default="-180,-90,180,90">
-<cfparam name="session.layers" default="tm_250m_lev3">
+<cfparam name="session.layers" default="global_mosaic">
 <cfparam name="session.width" default="1024">
 <cfparam name="session.version" default="1.1.1">
 <cfparam name="session.format" default="image/png">
@@ -60,11 +60,14 @@ var debugMode="false";
 Use your own or try one of the sample WMS sources. Please use these servers sparingly!<br> 
 Your IP could (will) get restricted if you overuse them<br>
 
-<input type="radio" id=wms_radio name=wms_radio checked onclick="wmsRadio('mapserv.spatialcloud.com/cgi-bin/mapserv','/var/www/maps/mwk_test6.819200.map','tm_250m_lev3')"/>&nbsp;
-<a href="http://spatialcloud.com" target="_blank">SpatialCloud BlueMarble </a>&nbsp;
+<input type="radio" id=wms_radio name=wms_radio checked onclick="wmsRadio('wms.jpl.nasa.gov/wms.cgi','','global_mosaic','')"/>&nbsp;
+<a href="http://onearth.jpl.nasa.gov" target="_blank">JPL Global Mosaic, pseudo color</a>
 
-<input type="radio" id=wms_radio name=wms_radio  onclick="wmsRadio('wms.jpl.nasa.gov/wms.cgi','','global_mosaic','')"/>&nbsp;
-<a href="http://onearth.jpl.nasa.gov" target="_blank">JPL WMS Global Mosaic, pseudo color</a>
+
+<input type="radio" id=wms_radio name=wms_radio onclick="wmsRadio('wms.jpl.nasa.gov/wms.cgi','','BMNG')"/>&nbsp;
+<a href="http://onearth.jpl.nasa.gov" target="_blank">JPL BlueMarble NextGen</a>&nbsp;
+
+
 
 <table border='0' cellspacing='5' cellpadding='1'>
 <tr>
@@ -146,9 +149,11 @@ Your IP could (will) get restricted if you overuse them<br>
 	<td colspan=3>
       <select id="ZOOM" name="ZOOM" size="1">
       <option value=".25" > Zoom in 4 times
+	  <option value=".333" > Zoom in 3 times
       <option value=".5" > Zoom in 2 times
       <option value="1"  selected> Recenter Map
       <option value="2" > Zoom out 2 times
+	  <option value="3" > Zoom out 3 times
       <option value="4" > Zoom out 4 times
       </select>&nbsp;
       

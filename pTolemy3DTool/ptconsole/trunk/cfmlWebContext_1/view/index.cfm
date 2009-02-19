@@ -46,18 +46,18 @@
 
 If you have an empty Globe here it's because you have not created data yet.<br>
 
-		<applet code="com.sun.opengl.util.JOGLAppletLauncher"
+        <applet code="com.sun.opengl.util.JOGLAppletLauncher"
                 align="center" width="100%" height="100%"
                 id="pTolemy3D" Name="pTolemy3D"
                 codebase="./applet/"
-                archive="./jogl.jar,./gluegen-rt.jar,./plugin.jar,./ptolemy3d-1.0-SNAPSHOT.jar,./ptolemy3dplugin-1.0-SNAPSHOT.jar" MAYSCRIPT>
+                archive="./jogl.jar,./gluegen-rt.jar,./netscape.jar,./ptolemy3d.jar,./ptolemy3d-viewer.jar,./ptolemy3d-plugins.jar" MAYSCRIPT>
             <param name="subapplet.classname" VALUE="org.ptolemy3d.viewer.Ptolemy3DApplet">
-            <param name="subapplet.displayname" VALUE="pTolemy3D Applet">
+            <param name="subapplet.displayname" VALUE="Ptolemy3D Applet">
             <param name="progressbar" value="true">
             <param name="noddraw.check" value="true">
             <param name="noddraw.check.silent" value="true">
-            <param name="cache_archive" VALUE="jogl.jar,gluegen-rt.jar,plugin.jar,ptolemy3d-1.0-SNAPSHOT.jar,ptolemy3dplugin-1.0-SNAPSHOT.jar">
-            <param name="cache_archive_ex" VALUE="jogl.jar;preload,gluegen-rt.jar;preload,plugin.jar;preload,ptolemy3d-1.0-SNAPSHOT.jar;preload,ptolemy3dplugin-1.0-SNAPSHOT.jar;preload">
+            <param name="cache_archive" VALUE="jogl.jar,gluegen-rt.jar,netscape.jar,ptolemy3d.jar,ptolemy3d-viewer.jar,ptolemy3d-plugins.jar">
+            <param name="cache_archive_ex" VALUE="jogl.jar;preload,gluegen-rt.jar;preload,netscape.jar;preload,ptolemy3d.jar;preload,ptolemy3d-viewer.jar;preload,ptolemy3d-plugins.jar;preload">
 
             <param name="Orientation" value="-85493900,30738580,126000000,10,0">
             <param name="CenterX" value="0">
@@ -95,31 +95,32 @@ If you have an empty Globe here it's because you have not created data yet.<br>
             <param name="LayerDIVIDER_1" value="0">
 
             <param name="LayerWidth_2" value="6553600">
-            <param name="LayerDEM_2" value="9">
+            <param name="LayerDEM_2" value="8">
             <param name="LayerMIN_2" value="10000">
-            <param name="LayerMAX_2" value="5000000">
+            <param name="LayerMAX_2" value="1500000">
             <param name="LayerDIVIDER_2" value="0">
 
             <param name="LayerWidth_3" value="819200">
-            <param name="LayerDEM_3" value="9">
+            <param name="LayerDEM_3" value="7">
             <param name="LayerMIN_3" value="2000">
-            <param name="LayerMAX_3" value="500000">			
+     <!---        <param name="LayerMAX_3" value="500000">	 --->
+			            <param name="LayerMAX_3" value="900000">			
 		    <param name="LayerDIVIDER_3" value="0">
 			
             <param name="LayerWidth_4" value="102400">
-            <param name="LayerDEM_4" value="9">
+            <param name="LayerDEM_4" value="6">
             <param name="LayerMIN_4" value="0">
             <param name="LayerMAX_4" value="50000">
             <param name="LayerDIVIDER_4" value="0">
 
             <param name="LayerWidth_5" value="12800">
-            <param name="LayerDEM_5" value="9">
+            <param name="LayerDEM_5" value="5">
             <param name="LayerMIN_5" value="0">
             <param name="LayerMAX_5" value="10000">
             <param name="LayerDIVIDER_6" value="0">
 			
             <param name="LayerWidth_6" value="1600">
-            <param name="LayerDEM_6" value="9">
+            <param name="LayerDEM_6" value="4">
             <param name="LayerMIN_6" value="0">
             <param name="LayerMAX_6" value="2000">
             <param name="LayerDIVIDER_6" value="0">
@@ -138,17 +139,54 @@ If you have an empty Globe here it's because you have not created data yet.<br>
 	        <form name="flyForm">
 			<table border=0>		
 			<tr><td width="15px" rowspan="4"></td><td>Latitude (decimal degrees):</td>
-			<td><input type="text" id="lat" name="lat" value="1.1" size="6" /></td><td width="25" align="right">Quicklinks</td>
+			<td><input type="text" id="lat" name="lat" value="1.1" size="6" /></td><td width="25" align="right">&nbsp;&nbsp;Quicklinks</td>
 			<td align="right" valign="top" rowspan=4><input type="button" value="America" name="go" onclick="flyTo(30.73858,-85.49389,10000000);"/><br>
 	            <input type="button" value="Africa" name="go" onclick="flyTo(1.1,20.66,10000000);"/>  <br>
 				<input type="button" value="Europe" name="go" onclick="flyTo(48.28,0.79,4000000);"/></td>
+			<td rowspan=4>&nbsp;&nbsp;&nbsp;<BR>
+			</td>
+			<td rowspan="4" valign="top">
+			
+				<table cellspacing="0" cellpadding="1" border="0">
+				<tr>
+				    <td>Forward/back/Left/Right</td>
+				    <td>Arrow keys</td>
+				</tr>
+				<tr>
+				    <td>Up</td>
+				    <td>R</td>
+				</tr>
+				<tr>
+				    <td>Down</td>
+				    <td>C</td>
+				</tr>
+				<tr>
+				    <td>Clockwise</td>
+				    <td>F</td>
+				</tr>
+				<tr>
+				    <td>Clockwise</td>
+				    <td>D</td>
+				</tr>
+				<tr>
+				    <td>Counter-clockwise</td>
+				    <td>G</td>
+				</tr>
+				<tr>
+				    <td>Zoom In/Out</td>
+				    <td>S/X Scrollwheel</td>
+				</tr>
+				</table>
+				 
+			</td>
+			
 			</tr>
 			<tr><td>Longitude (decimal degrees):</td>
 			<td><input type="text" id="lon" name="lon" value="20.66" size="6" /></td></tr>
 			<tr><td>Altitude (meters):</td>
 			<td><input type="text" id="alt" name="alt" value="10000000" size="6" /></td></tr>
 			<tr><td align="right"colspan=2><input type="button" value="Go To Coordinates" name="go" onclick="flyTo(document.getElementById('lat').value,document.getElementById('lon').value,document.getElementById('alt').value);"/><br>   
-			</td><td>&nbsp;&nbsp;<br></td></tr>
+			</td><td>&nbsp;&nbsp;&nbsp;<br></td></tr>
 			</table>
 	        </form>
 	   </div>

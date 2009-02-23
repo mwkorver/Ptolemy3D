@@ -34,6 +34,7 @@ class TileDirectModeRenderer implements ITileRenderer
 	/* All of that are temporary datas that are used in drawSubsection.
 	 * They must be restore in each entering */
 	protected GL gl;
+	protected Tile tile;
 	protected Jp2Tile jtile;
 
 	//From the Tile
@@ -52,21 +53,22 @@ class TileDirectModeRenderer implements ITileRenderer
 	protected float[] colratios;
 	protected double terrainScaler;
 
-	protected void fillLocalVariables(Tile tile)
+	protected void fillLocalVariables(Tile tile_)
 	{
-		gl = tile.gl;
-		jtile = tile.jp2;
+		tile = tile_;
+		gl = tile_.gl;
+		jtile = tile_.jp2;
 
-		drawZlevel = tile.drawZlevel;
-		leftTile = tile.left;
-		aboveTile = tile.above;
-		rightTile = tile.right;
-		belowTile = tile.below;
-		ZLevel = tile.levelID;
-		upLeftX = tile.upLeftLon;
-		upLeftZ = tile.upLeftLat;
-		lowRightX = tile.lowRightLon;
-		lowRightZ = tile.lowRightLat;
+		drawZlevel = tile_.drawZlevel;
+		leftTile = tile_.left;
+		aboveTile = tile_.above;
+		rightTile = tile_.right;
+		belowTile = tile_.below;
+		ZLevel = tile_.levelID;
+		upLeftX = tile_.upLeftLon;
+		upLeftZ = tile_.upLeftLat;
+		lowRightX = tile_.lowRightLon;
+		lowRightZ = tile_.lowRightLat;
 
 		unit = Ptolemy3D.ptolemy.unit;
 		landscape = Ptolemy3D.ptolemy.scene.landscape;
@@ -880,12 +882,15 @@ class TileDirectModeRenderer implements ITileRenderer
 	protected final void setJP2ResolutionColor()
 	{
 		if(DEBUG) {
+			int tileID = tile.tileID;
+			float tclr = (tileID+tileID/8)%2==0 ? 1.0f : 0.9f;
+			
 			int tileRes = (jtile == null) ? -1 : jtile.curRes;
 			switch(tileRes) {
-				case 0:  gl.glColor3f(1.0f, 0.0f, 0.0f); break;
-				case 1:  gl.glColor3f(0.0f, 1.0f, 0.0f); break;
-				case 2:  gl.glColor3f(0.0f, 0.0f, 1.0f); break;
-				case 3:  gl.glColor3f(1.0f, 1.0f, 1.0f); break;
+				case 0:  gl.glColor3f(tclr, 0.0f, 0.0f); break;
+				case 1:  gl.glColor3f(0.0f, tclr, 0.0f); break;
+				case 2:  gl.glColor3f(0.0f, 0.0f, tclr); break;
+				case 3:  gl.glColor3f(tclr, tclr, tclr); break;
 				default: gl.glColor3f(0.5f, 0.5f, 0.5f); break;
 			}
 		}

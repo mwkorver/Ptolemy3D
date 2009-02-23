@@ -85,8 +85,11 @@ public class Level
 		status  = false;
 
 		tiles = new Tile[LEVEL_NUMTILES];
-		for (int i = 0; i < LEVEL_NUMTILES; i++) {
-			tiles[i] = new Tile();
+		for(int i = 0; i < LEVEL_NUMTILE_LAT; i++) {
+			for(int j = 0; j < LEVEL_NUMTILE_LON; j++) {
+				final int tileID = (i * LEVEL_NUMTILE_LON) + j;
+				tiles[tileID] = new Tile(tileID);
+			}
 		}
 	}
 

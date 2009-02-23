@@ -728,7 +728,11 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer implement
 		}
 		gl.glEnd();
 
-		if(DEBUG) ProfilerInterface.vertexCounter += 2*n*(n+1);
+		if(DEBUG) {
+			int numVertices = 2*n*(n+1);
+			ProfilerInterface.vertexCounter += numVertices;
+			ProfilerInterface.vertexMemoryUsage += numVertices * (3 * 8 + 2 * 4);
+		}
 	}
 	protected final void drawSubsection(int xStart, int zStart, int xEnd, int zEnd)
 	{
@@ -801,6 +805,10 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer implement
 		gl.glEnd();
 //		gl.glColor3f(1, 1, 1);	//This should be done somewhere
 
-		if(DEBUG) ProfilerInterface.vertexCounter += 2*n*(n+1);
+		if(DEBUG) {
+			int numVertices = 2*n*(n+1);
+			ProfilerInterface.vertexCounter += numVertices;
+			ProfilerInterface.vertexMemoryUsage += numVertices * (3 * 8);
+		}
 	}
 }

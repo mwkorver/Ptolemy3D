@@ -185,8 +185,20 @@ class TileDefaultRenderer implements ITileRenderer
 				gl.glVertex3d(tx, ty, tz);
 			}
 			setGLEnd();
-
-			if(DEBUG) ProfilerInterface.vertexCounter += jtile.tin.nSt[i].length;
+			
+			if(DEBUG) {
+				int numVertices = jtile.tin.nSt[i].length;
+				ProfilerInterface.vertexCounter += numVertices;
+				if (texture) {
+					ProfilerInterface.vertexMemoryUsage += numVertices * (2 * 4 + 3 * 8);
+				}
+				else if (landscape.displayMode == Landscape.DISPLAY_SHADEDDEM) {
+					ProfilerInterface.vertexMemoryUsage += numVertices * (3 * 4 + 3 * 8);
+				}
+				else {
+					ProfilerInterface.vertexMemoryUsage += numVertices * (3 * 8);
+				}
+			}
 		}
 	}
 	private final void drawSubsection_Dem(int x1, int z1, int x2, int z2) throws Exception
@@ -392,7 +404,19 @@ class TileDefaultRenderer implements ITileRenderer
 			setGLEnd();
 		}
 
-		if(DEBUG) ProfilerInterface.vertexCounter += 2 * (endx-startx) * (endz-startz);
+		if(DEBUG) {
+			int numVertices = 2 * (endx-startx) * (endz-startz);
+			ProfilerInterface.vertexCounter += numVertices;
+			if (texture) {
+				ProfilerInterface.vertexMemoryUsage += numVertices * (2 * 4 + 3 * 8);
+			}
+			else if (landscape.displayMode == Landscape.DISPLAY_SHADEDDEM) {
+				ProfilerInterface.vertexMemoryUsage += numVertices * (3 * 4 + 3 * 8);
+			}
+			else {
+				ProfilerInterface.vertexMemoryUsage += numVertices * (3 * 8);
+			}
+		}
 	}
 	private final void drawSubsection(int x1, int z1, int x2, int z2) throws Exception
 	{
@@ -467,7 +491,16 @@ class TileDefaultRenderer implements ITileRenderer
 			setGLEnd();
 		}
 
-		if(DEBUG) ProfilerInterface.vertexCounter += 2*n*n;
+		if(DEBUG) {
+			int numVertices = 2*n*n;
+			ProfilerInterface.vertexCounter += numVertices;
+			if (texture) {
+				ProfilerInterface.vertexMemoryUsage += numVertices * (2 * 4 + 3 * 8);
+			}
+			else {
+				ProfilerInterface.vertexMemoryUsage += numVertices * (3 * 8);
+			}
+		}
 	}
 
 	private final void setColor(float y)

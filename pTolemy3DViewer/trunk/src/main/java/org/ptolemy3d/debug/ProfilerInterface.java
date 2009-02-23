@@ -20,21 +20,15 @@ package org.ptolemy3d.debug;
 
 import static org.ptolemy3d.debug.Config.enableProfiler;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Toolkit;
+import java.awt.Font;
+import java.util.Vector;
 
 import javax.media.opengl.GL;
 
 import org.ptolemy3d.Ptolemy3D;
-import org.ptolemy3d.Ptolemy3DUnit;
 import org.ptolemy3d.debug.Profiler.ProfilerEvent;
-import org.ptolemy3d.font.FntFontRenderer;
-import org.ptolemy3d.math.Math3D;
+import org.ptolemy3d.font.FontRenderer;
 import org.ptolemy3d.scene.Landscape;
-import org.ptolemy3d.scene.Sky;
-import org.ptolemy3d.view.Camera;
-
 /**
  * By encapsulating any debug related code, the compiler will
  * <pre>
@@ -133,43 +127,56 @@ public class ProfilerInterface
 		}
 		return 0;
 	}
-	public static String generateReport(int line)
+	private static Vector<String> generateReport()
 	{
 		if (enablePrintProfiler) {
-			switch(line) {
-				case 0:
-					int fps = (int)getFPS();
-					ProfilerEventReport renderProf    = ProfilerInterface.getReport(ProfilerEventInterface.Frame);
-					ProfilerEventReport landscapeProf = ProfilerInterface.getReport(ProfilerEventInterface.Landscape);
-
-					if(renderProf != null && landscapeProf != null) {
-//						float landscapPercent = (landscapeProf.duration == 0) ? 0 : (float)renderProf.duration / landscapeProf.duration;
-						float landscapFPS     = (landscapeProf.duration == 0) ? 0 : (float)1000000             / landscapeProf.duration;
-
-						return String.format("Frame:%dFPS|Landscape:%.1fFPS",
-								fps, landscapFPS);
-					}
+			Vector<String> report = new Vector<String>(4);
+			int count = 0;
+			while (true) {
+				String line = null;
+				switch(count) {
+					case 0:
+						float fps = getFPS();
+						ProfilerEventReport renderProf    = ProfilerInterface.getReport(ProfilerEventInterface.Frame);
+						ProfilerEventReport landscapeProf = ProfilerInterface.getReport(ProfilerEventInterface.Landscape);
+	
+						if(renderProf != null && landscapeProf != null) {
+							//float landscapPercent = (landscapeProf.duration == 0) ? 0 : (float)renderProf.duration / landscapeProf.duration;
+							float landscapFPS     = (landscapeProf.duration == 0) ? 0 : (float)1000000             / landscapeProf.duration;
+	
+							line = String.format("Frame:%dFPS|Landscape:%dFPS", (int)fps, (int)landscapFPS);
+						}
+						break;
+					case 1:
+						float memUsage = vertexMemoryUsage / 1024.f;
+						line = String.format("Tile:%d|Section:%d|Vtx:%d|VtxUsage:%.2f ko",
+								tileCounter, tileSectionCounter, vertexCounter, memUsage);
+						break;
+					case 2:
+						line = String.format("CorrectFreeze:%s|VisibilityFreeze:%s",
+								freezeCorrectLevels, freezeVisibility);
+						break;
+					case 3:
+						String landscapeRenderMode;
+						switch(Ptolemy3D.ptolemy.scene.landscape.displayMode) {
+							case Landscape.DISPLAY_STANDARD:  landscapeRenderMode = "Standard"; break;
+							case Landscape.DISPLAY_MESH:      landscapeRenderMode = "Mesh"; break;
+							case Landscape.DISPLAY_SHADEDDEM: landscapeRenderMode = "Elevation"; break;
+							case Landscape.DISPLAY_JP2RES:    landscapeRenderMode = "JP2 resolution"; break;
+							case Landscape.DISPLAY_TILEID:    landscapeRenderMode = "Tile id"; break;
+							case Landscape.DISPLAY_LEVELID:   landscapeRenderMode = "Level id"; break;
+							default: return null;
+						}
+						line = "RenderMode: "+landscapeRenderMode;
+						break;
+				}
+				if (line == null) {
 					break;
-				case 1:
-					float memUsage = vertexMemoryUsage / 1024.f;
-					return String.format("Tile:%d|Section:%d|Vtx:%d|VtxUsage:%.2f ko",
-							tileCounter, tileSectionCounter, vertexCounter, memUsage);
-				case 2:
-					return String.format("CorrectFreeze:%s|VisibilityFreeze:%s",
-							freezeCorrectLevels, freezeVisibility);
-				case 3:
-					String landscapeRenderMode;
-					switch(Ptolemy3D.ptolemy.scene.landscape.displayMode) {
-						case Landscape.DISPLAY_STANDARD:  landscapeRenderMode = "Standard"; break;
-						case Landscape.DISPLAY_MESH:      landscapeRenderMode = "Mesh"; break;
-						case Landscape.DISPLAY_SHADEDDEM: landscapeRenderMode = "Elevation"; break;
-						case Landscape.DISPLAY_JP2RES:    landscapeRenderMode = "JP2 resolution"; break;
-						case Landscape.DISPLAY_TILEID:    landscapeRenderMode = "Tile id"; break;
-						case Landscape.DISPLAY_LEVELID:   landscapeRenderMode = "Level id"; break;
-						default: return null;
-					}
-					return "RenderMode: "+landscapeRenderMode;
+				}
+				report.add(line);
+				count++;
 			}
+			return report;
 		}
 		return null;
 	}
@@ -179,77 +186,76 @@ public class ProfilerInterface
 			if(ptolemy.fontTextRenderer == null) {
 				return;
 			}
-			FntFontRenderer fontText = ptolemy.fontTextRenderer;
-
-			final Sky sky = ptolemy.scene.sky;
-			final Camera camera = ptolemy.camera;
-			final Ptolemy3DUnit unit = ptolemy.unit;
-
-			int sclsize = 50;
-			double logoScaler = (camera.getVerticalAltitudeMeters() > sky.horizonAlt) ? ((sky.horizonAlt * unit.coordSystemRatio) / 2) : 5;
-			double aspect = ptolemy.events.drawAspectRatio;
-			double pixratiox = (((Math.tan(Math3D.degToRad * 60.0) * sclsize) * aspect) / ptolemy.events.drawWidth);
-
-			double indentx = pixratiox;
-
-			double ulx, uly, urx;
-
-			ulx = -((Math.tan((60.0 * Math3D.degToRad) / 2) * sclsize) * aspect) + indentx;
-			urx = (((Math.tan((60.0 * Math3D.degToRad) / 2) * sclsize) * aspect));
-			uly = -(Math.tan(Math3D.degToRad * 30.0) * sclsize) + 4;	//+ 4 to move up
-
-			/* Keep text at constant size, when window is resized */
-			float scalerX = 1, scalerY = 1;
-			Dimension scrnsize = Toolkit.getDefaultToolkit().getScreenSize();
-			scalerX = (float) scrnsize.width / (float)ptolemy.events.drawWidth;
-			scalerY = (float) scrnsize.height / (float)ptolemy.events.drawHeight;
-
-			gl.glDisable(GL.GL_DEPTH_TEST);
-			gl.glEnable(GL.GL_BLEND);
-			gl.glTexEnvf(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_MODULATE);
-
-			gl.glPushMatrix();
-			gl.glLoadIdentity();
-			gl.glTranslated(0, 0, -logoScaler);
-
-			logoScaler /= sclsize;
-
-			gl.glScaled(logoScaler, logoScaler, logoScaler);
-
-			// bg box
-			Color color = ptolemy.configuration.hudBackgroundColor;
-			gl.glColor4b((byte) color.getRed(), (byte) color.getGreen(), (byte) color.getBlue(), (byte) color.getAlpha());
-			gl.glBegin(GL.GL_QUADS);
-				gl.glTexCoord2f(0, 0);
-				gl.glVertex3d(ulx, uly + (1.157 * scalerY), 0);
-				gl.glTexCoord2f(0, 1);
-				gl.glVertex3d(ulx, uly, 0);
-				gl.glTexCoord2f(1, 1);
-				gl.glVertex3d(urx, uly, 0);
-				gl.glTexCoord2f(1, 0);
-				gl.glVertex3d(urx, uly + (1.157 * scalerY), 0);
-			gl.glEnd();
-			gl.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-
-			//Profiler report
-			float str_length = 0;
-
-			fontText.bindTexture(gl);
-			String profilerReport;
-			int line = 0;
-			while((profilerReport = ProfilerInterface.generateReport(line)) != null) {
-				str_length += fontText.drawLeftToRight(gl, profilerReport, ulx, uly+0.09);
-
-				uly += 1.157 * scalerY; line++;
-			}
-
-			gl.glPopMatrix();
-
-			gl.glEnable(GL.GL_DEPTH_TEST);
-			gl.glDisable(GL.GL_BLEND);
-			gl.glTexEnvf(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_DECAL);
+			
+			FontRenderer font = getFont(ptolemy);
+			font.start();
+			drawGUI(font);
+			drawDisplayModeLegend(font);
+			font.end();
 		}
 	}
+	private static void drawGUI(FontRenderer font)
+	{
+		Vector<String> profilerReport = ProfilerInterface.generateReport();
+		if(profilerReport != null) {
+			font.draw(profilerReport, 10, 34, 14);
+		}
+	}
+	private static void drawDisplayModeLegend(FontRenderer font)
+	{
+		Ptolemy3D ptolemy = Ptolemy3D.ptolemy;
+		
+		Vector<String> legend = new Vector<String>(11);
+		switch (ptolemy.scene.landscape.displayMode) {
+			case Landscape.DISPLAY_STANDARD:
+				legend.add("Aerial view of the earth :)");
+				break;
+			case Landscape.DISPLAY_MESH:
+				legend.add("Lines show the globe geometry.");
+				break;
+			case Landscape.DISPLAY_SHADEDDEM:
+				legend.add("Color is point elevation/altitude");
+				legend.add("Color is point elevation/altitude");
+				legend.add("Color is point elevation/altitude");
+				break;
+			case Landscape.DISPLAY_JP2RES:
+				legend.add("Red:   JP2 Wavalet 0");
+				legend.add("Green: JP2 Wavalet 1");
+				legend.add("Blue:  JP2 Wavalet 3");
+				legend.add("White: JP2 Wavalet 4");
+				legend.add("Square with constant color is a tile.");
+				break;
+			case Landscape.DISPLAY_TILEID:
+				legend.add("Square with constant color is a tile.");
+				break;
+			case Landscape.DISPLAY_LEVELID:
+				legend.add("Area with a constant color correspond to a layer id.");
+				legend.add("Full Red:    Layer 0");
+				legend.add("Full Green:  Layer 1");
+				legend.add("Full Blue:   Layer 2");
+				legend.add("Red:         Layer 3");
+				legend.add("Green:       Layer 4");
+				legend.add("Blue:        Layer 5");
+				legend.add("Light Red:   Layer 6");
+				legend.add("Light Green: Layer 7");
+				legend.add("Light Blue:  Layer 8");
+				legend.add("...");
+				break;
+		}
+		
+		//int width = ptolemy.events.drawWidth;
+		int height = ptolemy.events.drawHeight;
+		font.draw(legend, 10, height-20, -14);
+	}
+	private static FontRenderer font;
+	private static FontRenderer getFont(Ptolemy3D ptolemy) {
+		if (font == null) {
+			font = new FontRenderer(ptolemy, new Font("Courier New", Font.ITALIC, 14));
+			font.initGL();
+		}
+		return font;
+	}
+	
 	public static long getTimePassed()
 	{
 		if (enableProfiler) {

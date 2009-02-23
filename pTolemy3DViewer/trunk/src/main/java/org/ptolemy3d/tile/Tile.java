@@ -39,6 +39,7 @@ class Tile
 	}
 
 	/* Variable updated by setTile */
+	protected int tileID;
 	protected int levelID;
 	protected int upLeftLon, upLeftLat;
 	protected int lowRightLon, lowRightLat;
@@ -61,7 +62,10 @@ class Tile
 	protected boolean texture;
 	protected Tile left, above, right, below;
 
-	protected Tile() {}
+	protected Tile(int tileID)
+	{
+		this.tileID = tileID;
+	}
 
 	protected void setTile(Level level, int lon, int lat)
 	{

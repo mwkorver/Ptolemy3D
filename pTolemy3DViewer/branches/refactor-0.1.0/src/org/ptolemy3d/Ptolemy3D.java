@@ -25,111 +25,133 @@ import org.ptolemy3d.scene.TextureManager;
 import org.ptolemy3d.tile.Jp2TileLoader;
 import org.ptolemy3d.view.Camera;
 import org.ptolemy3d.view.CameraMovement;
-import org.ptolemy3d.view.View;
 import org.w3c.dom.Element;
 
 /**
- * <H1>Overview</H1>
+ * <H1>Overview</H1> <BR>
+ * Ptolemy3D is the core class object. It is accessed for initializing the
+ * download and rendering engines, and accessing specific datas.<BR>
  * <BR>
- * Ptolemy3D is the core class object. It is accessed for initializing the download and rendering engines, and accessing specific datas.<BR>
  * <BR>
+ * <H1>Initialization</H1> <BR>
+ * The initialization is explained in more details on the document: <a
+ * href="../../Ptolemy3D-Programming-HowToStart.htm"
+ * >Ptolemy3D-Programming-HowToStart.htm</a>.<BR>
  * <BR>
- * <H1>Initialization</H1>
- * <BR>
- * The initialization is explained in more details on the document: <a href="../../Ptolemy3D-Programming-HowToStart.htm">Ptolemy3D-Programming-HowToStart.htm</a>.<BR>
- * <BR>
- * A simple initialization will be very similar to:<pre>
+ * A simple initialization will be very similar to:
+ * 
+ * <pre>
  * Ptolemy3D ptolemy = new Ptolemy3D();
- * ptolemy.init(Ptolemy3DSettings.buildXMLDocument(xmlFile));	//null for using applet parameters
- *
+ * ptolemy.init(Ptolemy3DSettings.buildXMLDocument(xmlFile)); //null for using applet parameters
+ * 
  * //Adding Ptolemy3D inside a GLCanvas
  * GLCanvas canvas = new GLCanvas();
  * canvas.addGLEventListener(ptolemy.events);
  * canvas.setSize(new Dimension(width, height));
- *
+ * 
  * //Adding Ptolemy3D inside your application
- * application.add(canvas);  //application can be an applet, a frame, a panel or any other container</pre>
+ * application.add(canvas); //application can be an applet, a frame, a panel or any other container
+ * </pre>
+ * 
  * And that's it !<BR>
  * <BR>
  * <BR>
- * <H1>How Ptolemy3D works ? How to access data ?</H1>
- * <BR>
+ * <H1>How Ptolemy3D works ? How to access data ?</H1> <BR>
  * Ptolemy3D can be accessed to retrieve any data related to:<BR>
  * <ul>
- * <li><a href="Ptolemy3DConfiguration.html">Ptolemy3DConfiguration</a>: Configuration of Ptolemy3D.</li>
+ * <li><a href="Ptolemy3DConfiguration.html">Ptolemy3DConfiguration</a>:
+ * Configuration of Ptolemy3D.</li>
  * <li><a href="view/Camera.html">Camera</a>: View positioning.<BR>
- * Look at that documentation for a description of the view coordinates system, and to access the view position values. </li>
+ * Look at that documentation for a description of the view coordinates system,
+ * and to access the view position values.</li>
  * <li><a href="view/CameraMovement.html">CameraMovement</a>: View movement.<BR>
- * CameraMovement controls the view displacement from mouse/keyboard inputs or automatic movements.
- * Look at that documentation for a more specific description.</li>
+ * CameraMovement controls the view displacement from mouse/keyboard inputs or
+ * automatic movements. Look at that documentation for a more specific
+ * description.</li>
  * <li><a href="scene/Scene.html">Scene</a>: 3D scene manager.<BR>
  * This includes the documentation for landscape, plugins, sky ...</li>
  * </ul>
  * <BR>
+ * 
  * @see Ptolemy3DConfiguration
  * @see Camera
  * @see CameraMovement
  * @see Scene
  */
-public class Ptolemy3D
-{
+public class Ptolemy3D {
+	// TODO - To remove !!!
 	/** MUST BE REMOVED */
-	public static Ptolemy3D ptolemy = null;	/* FIXME This block make Ptolemy3D non multiple-instanciable */
-	public Ptolemy3D() { ptolemy = this; }
+	public static Ptolemy3D ptolemy = null; /*
+											 * FIXME This block make Ptolemy3D
+											 * non multiple-instanciable
+											 */
+
+	public Ptolemy3D() {
+		ptolemy = this;
+	}
+
 	/** MUST BE REMOVED */
 
-	/** Rendering Events */
-    public Ptolemy3DGLCanvas canvas;
-	/** Allows communication between applet and javascript.<BR>Can be null if not in an applet. */
-//	public Ptolemy3DJavascript javascript = null;
-	/** Configuration settings */
-    public Ptolemy3DConfiguration configuration;
-	/** Unit System */
+	// TODO - To remove to !!! Canvas must has a reference to ptolemy.
+//	public Ptolemy3DGLCanvas canvas;
+	// Allows communication between applet and javascript.<BR>Can be null if not
+	// in an applet.
+	// public Ptolemy3DJavascript javascript = null;
+	// Configuration settings
+	public Ptolemy3DConfiguration configuration;
+	// Unit System
 	public Ptolemy3DUnit unit;
-	/** Scene: LandScape, Sky, Plugins rendering */
-    public Scene scene;
-	/** Camera Controller: Control camera movements */
-    public CameraMovement cameraController;
-	/** Camera positioning */
-	public Camera camera;
-	/** View: Perspective and Modelview */
-	public View view;
-	/** Texture Manager */
-	public TextureManager textureManager;
-	/** Tile Loader: download tile datas (image, geometry) */
-	public Jp2TileLoader tileLoader;
-	/** Tile Loader Thread: Thread in which tile loader is running */
-	public Thread tileLoaderThread;
-	/** Default Font Text Renderer.<BR> Can be null if not used/initialized by any of the core or plugins components of Ptolemy3D. */
-	public FntFontRenderer fontTextRenderer;		//FIXME protect: don't let the plugins override that.
-	/** Default Font Numeric Renderer.<BR> In most cases, it will be the same as <code>fontTextRenderer</code>. */
-	public FntFontRenderer fontNumericRenderer;	//FIXME protect: don't let the plugins override that.
 
-	/** Plugins args */
+	// TODO - Must to be in the Camera class.
+	// Scene: LandScape, Sky, Plugins rendering
+//	public Scene scene;
+
+	// TODO - Must to be in the Camera class.
+	// Camera Controller: Control camera movements
+//	public CameraMovement cameraController;
+	// Camera
+	public Camera camera;
+
+	// Texture Manager
+	public TextureManager textureManager;
+	// Tile Loader: download tile datas (image, geometry)
+	public Jp2TileLoader tileLoader;
+	// Tile Loader Thread: Thread in which tile loader is running
+	public Thread tileLoaderThread;
+
+	// Default Font Text Renderer.<BR> Can be null if not used/initialized by
+	// any of the core or plugins components of Ptolemy3D.
+	// FIXME protect: don't let the plugins override that.
+	public FntFontRenderer fontTextRenderer;
+	// Default Font Numeric Renderer.<BR> In most cases, it will be the same as
+	// <code>fontTextRenderer</code>.
+	// FIXME protect: don't let the plugins override that.
+	public FntFontRenderer fontNumericRenderer;
+
+	// Plugins args
 	private String[] plugargs = new String[3];
 
 	/**
 	 * @param docElements
 	 * @throw Ptolemy3DException when requiered option was not found
 	 */
-	public void init(Element docElements) 
-	{
-		this.scene = new Scene(this);
-		this.camera = new Camera();
-		this.view = new View(this);
-		this.cameraController = new CameraMovement(this);
+	public void init(Element docElements) {
+//		this.scene = new Scene(this);
+		// TODO - Remove Camera reference from ptoelmy. It must be at
+		// ptolemyGLCanvas class.
+//		this.camera = new Camera(this);
+//		this.cameraController = new CameraMovement(this);
 
 		this.configuration = new Ptolemy3DConfiguration(this);
 		this.configuration.loadSettings(docElements);
-		
+
 		this.textureManager = new TextureManager(this);
 
-		this.canvas = new Ptolemy3DGLCanvas(this);
+//		this.canvas = new Ptolemy3DGLCanvas(this);
 	}
 
 	/** Start tile download thread. */
-	protected void startTileLoaderThread()
-	{
+	protected void startTileLoaderThread() {
 		if (tileLoader == null) {
 			tileLoader = new Jp2TileLoader(this);
 		}
@@ -138,56 +160,56 @@ public class Ptolemy3D
 		}
 		tileLoaderThread.start();
 	}
+
 	/** Stop tile download thread. */
-	protected void stopTileLoaderThread()
-	{
+	protected void stopTileLoaderThread() {
 		if (tileLoaderThread != null) {
 			tileLoader.on = false;
 			try {
 				tileLoaderThread.interrupt();
-			} catch(Exception e) {
+			} catch (Exception e) {
 				IO.printStack(e);
 			}
 		}
 	}
 
-	public void destroy()
-	{
-		//Stop the tile loading first
+	public void destroy() {
+		// Stop the tile loading first
 		stopTileLoaderThread();
 
-		//Stop and destroy all the 3D
-		if(canvas != null) {
-			canvas.destroyGL();
-		}
+//		// Stop and destroy all the 3D
+//		if (canvas != null) {
+//			canvas.destroyGL();
+//		}
 	}
 
-//	/**
-//	 * Call a javascript function
-//	 * @param javascripFunction
-//	 */
-//	public void callJavascript(String javascripFunction, String param0, String param1, String param2)
-//	{
-//		plugargs[0] = param0;
-//		plugargs[1] = param1;
-//		plugargs[2] = param2;
-//
-//		if (javascript != null) {
-//			JSObject jsObject = javascript.getJSObject();
-//			if (jsObject != null) {
-//				try {
-//					jsObject.call(javascripFunction, plugargs);
-//				} catch (Exception ne) {
-//					IO.printStackRenderer(ne);
-//				}
-//			}
-//		}
-//	}
-//	/**
-//	 * Send an error message to javascript.
-//	 */
-//	public final void sendErrorMessage(String msg)
-//	{
-//		callJavascript("alert", msg, null, null);
-//	}
+	// /**
+	// * Call a javascript function
+	// * @param javascripFunction
+	// */
+	// public void callJavascript(String javascripFunction, String param0,
+	// String param1, String param2)
+	// {
+	// plugargs[0] = param0;
+	// plugargs[1] = param1;
+	// plugargs[2] = param2;
+	//
+	// if (javascript != null) {
+	// JSObject jsObject = javascript.getJSObject();
+	// if (jsObject != null) {
+	// try {
+	// jsObject.call(javascripFunction, plugargs);
+	// } catch (Exception ne) {
+	// IO.printStackRenderer(ne);
+	// }
+	// }
+	// }
+	// }
+	// /**
+	// * Send an error message to javascript.
+	// */
+	// public final void sendErrorMessage(String msg)
+	// {
+	// callJavascript("alert", msg, null, null);
+	// }
 }

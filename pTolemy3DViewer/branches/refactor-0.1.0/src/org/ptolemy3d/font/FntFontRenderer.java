@@ -85,8 +85,8 @@ public class FntFontRenderer
 	public float drawLeftToRight(GL gl, String s, double x, double y, float h, float w)
 	{
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		float scalerX = (float) screenSize.width / (float)ptolemy.canvas.getDrawWidth();
-		float scalerY = (float) screenSize.height / (float)ptolemy.canvas.getDrawHeight();
+		float scalerX = (float) screenSize.width;; // TODO - Review / (float)ptolemy.canvas.getDrawWidth();
+		float scalerY = (float) screenSize.height; // TODO - Review / (float)ptolemy.canvas.getDrawHeight();
 		
 		h *= scalerY;
 		float wf_tot = 0.0f,wf=0.0f;
@@ -125,8 +125,8 @@ public class FntFontRenderer
 	public float drawRightToLeft(GL gl, String s, double x, double y)
 	{
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		float scalerX = (float) screenSize.width / (float)ptolemy.canvas.getDrawWidth();
-		float scalerY = (float) screenSize.height / (float)ptolemy.canvas.getDrawHeight();
+		float scalerX = (float) screenSize.width; // TODO - Review / (float)ptolemy.canvas.getDrawWidth();
+		float scalerY = (float) screenSize.height; // TODO - Review / (float)ptolemy.canvas.getDrawHeight();
 
 		float h = 1.25f * scalerY;
 		float wf_tot = 0.0f, wf = 0.0f;

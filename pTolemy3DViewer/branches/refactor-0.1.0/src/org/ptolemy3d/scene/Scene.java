@@ -31,9 +31,10 @@ import java.nio.ByteBuffer;
 import javax.media.opengl.GL;
 
 import org.ptolemy3d.Ptolemy3D;
+import org.ptolemy3d.Ptolemy3DGLCanvas;
 import org.ptolemy3d.debug.ProfilerInterface;
 import org.ptolemy3d.debug.ProfilerInterface.ProfilerEventInterface;
-import org.ptolemy3d.view.View;
+import org.ptolemy3d.view.Camera;
 
 /**
  * <H1>Overview</H1> <BR>
@@ -52,7 +53,8 @@ import org.ptolemy3d.view.View;
  */
 public class Scene implements _Drawable, Transferable {
 	/** Ptolemy3D Instance */
-	private final Ptolemy3D ptolemy;
+	private Ptolemy3DGLCanvas canvas = null;
+	private Ptolemy3D ptolemy = null;
 
 	/** Landscape */
 	public final Landscape landscape;
@@ -72,8 +74,9 @@ public class Scene implements _Drawable, Transferable {
 	/** Screenshot image */
 	public Image clipboardImage;
 
-	public Scene(Ptolemy3D ptolemy) {
-		this.ptolemy = ptolemy;
+	public Scene(Ptolemy3DGLCanvas canvas) {
+		this.canvas = canvas;
+		this.ptolemy = canvas.getPtolemy();
 
 		this.landscape = new Landscape(ptolemy);
 		this.sky = new Sky();
@@ -126,7 +129,7 @@ public class Scene implements _Drawable, Transferable {
 			return;
 		}
 
-		final View view = ptolemy.view;
+		Camera camera = ptolemy.camera;
 
 		if (DEBUG)
 			ProfilerInterface.start(ProfilerEventInterface.Frame);
@@ -134,7 +137,7 @@ public class Scene implements _Drawable, Transferable {
 			ProfilerInterface.start(ProfilerEventInterface.Prepare);
 
 		/* Camera */
-		view.update(gl);
+		camera.update(gl);
 
 		/* Prepare frame */
 		landscape.prepareFrame(gl);
@@ -150,10 +153,10 @@ public class Scene implements _Drawable, Transferable {
 
 		/* Perspective matrix */
 		gl.glMatrixMode(GL.GL_PROJECTION);
-		gl.glLoadMatrixd(view.perspective.m, 0);
+		gl.glLoadMatrixd(camera.perspective.m, 0);
 		/* Modelview matrix */
 		gl.glMatrixMode(GL.GL_MODELVIEW);
-		gl.glLoadMatrixd(view.modelview.m, 0);
+		gl.glLoadMatrixd(camera.modelview.m, 0);
 
 		/* Rendering */
 		if (DEBUG)
@@ -189,8 +192,8 @@ public class Scene implements _Drawable, Transferable {
 	}
 
 	protected void getSceneImage(GL gl) {
-		final int GL_WIDTH = ptolemy.canvas.getDrawWidth();
-		final int GL_HEIGHT = ptolemy.canvas.getDrawHeight();
+		final int GL_WIDTH = canvas.getDrawWidth();
+		final int GL_HEIGHT = canvas.getDrawHeight();
 
 		byte[] pixels = new byte[(GL_WIDTH + 1) * (GL_HEIGHT + 1) * 3];
 		gl.glReadPixels(0, 0, GL_WIDTH, GL_HEIGHT, GL.GL_RGB,
@@ -223,6 +226,6 @@ public class Scene implements _Drawable, Transferable {
 			throw new UnsupportedFlavorException(flavor);
 		}
 		// Returns image
-		return ptolemy.scene.clipboardImage;
+		return clipboardImage;
 	}
 }

@@ -20,6 +20,7 @@ package org.ptolemy3d.view;
 import javax.media.opengl.GL;
 
 import org.ptolemy3d.Ptolemy3D;
+import org.ptolemy3d.Ptolemy3DGLCanvas;
 import org.ptolemy3d.Ptolemy3DUnit;
 import org.ptolemy3d.debug.IO;
 import org.ptolemy3d.math.Math3D;
@@ -108,7 +109,8 @@ import org.ptolemy3d.scene.Sky;
 public class Camera {
 
 	// Ptolemy instance that camera renders.
-	private Ptolemy3D ptolemy;
+	private Ptolemy3DGLCanvas canvas = null;
+	private Ptolemy3D ptolemy = null;
 
 	// Camera position.
 	private Position position = Position.fromDD(0, 0, 5000);
@@ -143,12 +145,14 @@ public class Camera {
 	/**
 	 * Creates a new Camera instance.
 	 */
-	public Camera(Ptolemy3D ptolemy) {
-		this.ptolemy = ptolemy;
+	public Camera(Ptolemy3DGLCanvas canvas) {
+		this.canvas = canvas;
+		this.ptolemy = canvas.getPtolemy();
 	}
 
 	/**
 	 * Updates the camera view.
+	 * 
 	 * @param gl
 	 */
 	public void update(GL gl) {
@@ -168,21 +172,21 @@ public class Camera {
 
 	/**
 	 * Updates the camera perspective.
+	 * 
 	 * @param gl
 	 */
 	private final void updatePerspective(GL gl) {
 		final Ptolemy3DUnit unit = ptolemy.unit;
 		final CameraMovement cameraController = ptolemy.cameraController;
-		final Camera camera = ptolemy.camera;
 		final Landscape landscape = ptolemy.scene.landscape;
 		final Sky sky = ptolemy.scene.sky;
 		final int FAR_CLIP = landscape.getFarClip();
 		final int FOG_RADIUS = landscape.getFogRadius();
-		final double aspectRatio = ptolemy.canvas.getDrawAspectRatio();
+		final double aspectRatio = canvas.getDrawAspectRatio();
 
 		// maximize our precision
 		if (sky.fogStateOn) {
-			if (camera.getVerticalAltitudeMeters() > sky.horizonAlt) {
+			if (vertAlt > sky.horizonAlt) {
 				gl.glDisable(GL.GL_FOG);
 				perspective.setPerspectiveProjection(fov, aspectRatio,
 						((sky.horizonAlt * unit.getCoordSystemRatio()) / 2),
@@ -190,13 +194,13 @@ public class Camera {
 				sky.fogStateOn = false;
 			} else {
 				// minimize our back z clip for precision
-				double gamma = 0.5235987756 - camera.getPitchRadians();
+				double gamma = 0.5235987756 - tilt;
 				if (gamma > Math3D.HALF_PI_VALUE) {
 					perspective.setPerspectiveProjection(fov, aspectRatio, 1,
 							FOG_RADIUS + 10000);
 				} else {
 					double maxView = Math.tan(gamma)
-							* (camera.getPosition().getAltitudeDD() + cameraController.ground_ht)
+							* (position.getAltitudeDD() + cameraController.ground_ht)
 							* 2;
 					if (maxView >= FOG_RADIUS + 10000) {
 						perspective.setPerspectiveProjection(fov, aspectRatio,
@@ -208,7 +212,7 @@ public class Camera {
 				}
 			}
 		} else {
-			if (camera.getVerticalAltitudeMeters() > sky.horizonAlt) {
+			if (vertAlt > sky.horizonAlt) {
 				// On resize, force update aspectRatio
 				perspective.setPerspectiveProjection(fov, aspectRatio,
 						((sky.horizonAlt * unit.getCoordSystemRatio()) / 2),

@@ -241,13 +241,15 @@ public class Jp2TileLoader implements Runnable {
 		isSleeping = false;
 		lastIdle = System.currentTimeMillis();
 		while (on) {
-			if (!ptolemy.canvas.isRenderingThreadAlive()) {
+			
+			// TODO - Is necessari to know if render is active?
+//			if (!ptolemy.canvas.isRenderingThreadAlive()) {
 				try {
 					Thread.sleep(100);
 				} catch (InterruptedException e) {
 				}
-				continue;
-			}
+//				continue;
+//			}
 
 			isIdle = false;
 			setHeaders();

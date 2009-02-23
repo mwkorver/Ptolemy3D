@@ -21,6 +21,7 @@ import javax.swing.JFrame;
 
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.Ptolemy3DGLCanvas;
+import org.ptolemy3d.scene.Scene;
 
 /**
  * Ptolemy3D example
@@ -33,6 +34,8 @@ public class BasicFrame extends JFrame {
 		Ptolemy3D ptolemy3d = new Ptolemy3D();
 
 		Ptolemy3DGLCanvas canvas = new Ptolemy3DGLCanvas(ptolemy3d);
+		Scene scene = new Scene(canvas);
+		
 		this.getRootPane().add(canvas);
 		this.pack();
 

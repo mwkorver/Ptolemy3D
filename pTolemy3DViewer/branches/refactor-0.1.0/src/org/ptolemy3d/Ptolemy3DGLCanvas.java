@@ -30,13 +30,24 @@ import javax.media.opengl.GLEventListener;
 import org.ptolemy3d.debug.IO;
 import org.ptolemy3d.scene.Scene;
 import org.ptolemy3d.view.Camera;
+import org.ptolemy3d.view.CameraMovement;
 import org.ptolemy3d.view.InputListener;
 
 import com.sun.opengl.util.Animator;
 
 /**
- * Events related to the initialization, rendering and destruction of 3D/OpenGL
- * related code.
+ * <p>
+ * Ptolemy3DGLCanvas is the heavyweigh component responsible to render a
+ * Ptolemy3D instance.
+ * </p>
+ * <p>
+ * Ptolemy3DGLCanvas maintains a Camera and a CameraMovement object to control
+ * the view.
+ * </p>
+ * <p>
+ * </p>
+ * 
+ * @author Antonio Santiago <asantiagop(at)gmail(dot)com>
  */
 public class Ptolemy3DGLCanvas extends GLCanvas implements GLEventListener {
 
@@ -44,9 +55,11 @@ public class Ptolemy3DGLCanvas extends GLCanvas implements GLEventListener {
 
 	// Ptolemy3D Instance
 	private Ptolemy3D ptolemy = null;
-	
+
 	// Camera that renders ptolemy instance.
+	private Scene scene = null;
 	private Camera camera = null;
+	private CameraMovement cameraMovement = null;
 
 	// Rendering loop
 	private Animator animator = null;
@@ -75,13 +88,51 @@ public class Ptolemy3DGLCanvas extends GLCanvas implements GLEventListener {
 	private boolean renderingLoopOn = true;
 
 	/**
+	 * Creates a new instance.
 	 * 
 	 * @param ptolemy
 	 */
 	public Ptolemy3DGLCanvas(Ptolemy3D ptolemy) {
 		this.ptolemy = ptolemy;
-		this.camera=new Camera(ptolemy);
+		this.camera = new Camera(this);
+		this.cameraMovement = new CameraMovement(this);
+
 		this.addGLEventListener(this);
+	}
+
+	/**
+	 * Returns the ptolemy instance that this camera is responsible to render.
+	 * 
+	 * @return
+	 */
+	public Ptolemy3D getPtolemy() {
+		return ptolemy;
+	}
+
+	/**
+	 * Returns the Camera instance associated with this canvas object.
+	 * 
+	 * @return
+	 */
+	public Camera getCamera() {
+		return camera;
+	}
+
+	/**
+	 * Returns the Camera instance associated with this canvas object.
+	 * 
+	 * @return
+	 */
+	public CameraMovement getCameraMovement() {
+		return cameraMovement;
+	}
+
+	public Scene getScene() {
+		return scene;
+	}
+
+	public void setScene(Scene scene) {
+		this.scene = scene;
 	}
 
 	/** Start rendering loop. */
@@ -131,10 +182,9 @@ public class Ptolemy3DGLCanvas extends GLCanvas implements GLEventListener {
 
 		if (!isInit) {
 			// Init flight movement
-			ptolemy.cameraController.init();
+			cameraMovement.init();
 
 			// Init Scene landscane, sky, hud, plugins ...
-			Scene scene = ptolemy.scene;
 			scene.init(ptolemy);
 			scene.initGL(gl);
 
@@ -196,7 +246,6 @@ public class Ptolemy3DGLCanvas extends GLCanvas implements GLEventListener {
 
 		if (renderingLoopOn) {
 			if (isInit) {
-				Scene scene = ptolemy.scene;
 				scene.draw(gl);
 
 				// if (isOffscreenRender) { //FIXME Not implement with JOGL
@@ -218,7 +267,7 @@ public class Ptolemy3DGLCanvas extends GLCanvas implements GLEventListener {
 		// Destroy OpenGL Datas
 		runInContext(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				ptolemy.scene.destroyGL(gl);
+				scene.destroyGL(gl);
 			}
 		});
 
@@ -256,7 +305,7 @@ public class Ptolemy3DGLCanvas extends GLCanvas implements GLEventListener {
 			return;
 		}
 
-		InputListener inputs = ptolemy.cameraController.inputs;
+		InputListener inputs = cameraMovement.inputs;
 		if (inputs.keyboardEnabled) {
 			glAutoDrawable.removeKeyListener(inputs);
 		}
@@ -270,7 +319,7 @@ public class Ptolemy3DGLCanvas extends GLCanvas implements GLEventListener {
 			return;
 		}
 
-		InputListener inputs = ptolemy.cameraController.inputs;
+		InputListener inputs = cameraMovement.inputs;
 		if (inputs.keyboardEnabled) {
 			glAutoDrawable.addKeyListener(inputs);
 		}

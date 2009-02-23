@@ -18,7 +18,7 @@
 package org.ptolemy3d.view;
 
 import org.ptolemy3d.Ptolemy3D;
-import org.ptolemy3d.Ptolemy3DUnit;
+import org.ptolemy3d.Unit;
 
 /**
  * Position represented by lat/lon/altitude.
@@ -56,7 +56,7 @@ public class Position {
 
 	/** @return longitude in degrees. */
 	public final double getLongitudeDegrees() {
-		final Ptolemy3DUnit unit = Ptolemy3D.ptolemy.unit;
+		final Unit unit = Ptolemy3D.ptolemy.unit;
 		return lon / unit.getDD();
 	}
 
@@ -67,7 +67,7 @@ public class Position {
 
 	/** @return latitude in degrees. */
 	public final double getLatitudeDegrees() {
-		final Ptolemy3DUnit unit = Ptolemy3D.ptolemy.unit;
+		final Unit unit = Ptolemy3D.ptolemy.unit;
 		return lat / unit.getDD();
 	}
 
@@ -81,7 +81,7 @@ public class Position {
 	 *         zero is the altitude of the ground with no elevation.
 	 */
 	public final double getAltitude() {
-		final Ptolemy3DUnit unit = Ptolemy3D.ptolemy.unit;
+		final Unit unit = Ptolemy3D.ptolemy.unit;
 		return alt / unit.getCoordSystemRatio();
 	}
 
@@ -98,7 +98,7 @@ public class Position {
 	}
 
 	public static Position fromDegrees(double lat, double lon, double alt) {
-		final Ptolemy3DUnit unit = Ptolemy3D.ptolemy.unit;
+		final Unit unit = Ptolemy3D.ptolemy.unit;
 		return new Position(lat * unit.getDD(), lon * unit.getDD(), alt);
 	}
 

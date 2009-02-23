@@ -21,7 +21,7 @@ import javax.media.opengl.GL;
 
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.Ptolemy3DGLCanvas;
-import org.ptolemy3d.Ptolemy3DUnit;
+import org.ptolemy3d.Unit;
 import org.ptolemy3d.debug.IO;
 import org.ptolemy3d.math.Math3D;
 import org.ptolemy3d.math.Matrix16d;
@@ -160,7 +160,7 @@ public class Camera {
 		updatePerspective(gl);
 
 		/* Update modelview */
-		CameraMovement cameraController = ptolemy.cameraController;
+		CameraMovement cameraController = canvas.getCameraMovement();
 		try {
 			cameraController.setCamera(modelview);
 		} catch (Exception e) {
@@ -176,10 +176,10 @@ public class Camera {
 	 * @param gl
 	 */
 	private final void updatePerspective(GL gl) {
-		final Ptolemy3DUnit unit = ptolemy.unit;
-		final CameraMovement cameraController = ptolemy.cameraController;
-		final Landscape landscape = ptolemy.scene.landscape;
-		final Sky sky = ptolemy.scene.sky;
+		final Unit unit = canvas.getPtolemy().unit;
+		final CameraMovement cameraController = canvas.getCameraMovement();
+		final Landscape landscape = canvas.getScene().landscape;
+		final Sky sky = canvas.getScene().sky;
 		final int FAR_CLIP = landscape.getFarClip();
 		final int FOG_RADIUS = landscape.getFogRadius();
 		final double aspectRatio = canvas.getDrawAspectRatio();

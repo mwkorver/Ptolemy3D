@@ -17,13 +17,13 @@
  */
 package org.ptolemy3d.view;
 
-import static org.ptolemy3d.Ptolemy3DConfiguration.EARTH_RADIUS;
+import static org.ptolemy3d.Configuration.EARTH_RADIUS;
 
 import java.awt.event.MouseEvent;
 
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.Ptolemy3DGLCanvas;
-import org.ptolemy3d.Ptolemy3DUnit;
+import org.ptolemy3d.Unit;
 import org.ptolemy3d.math.Math3D;
 import org.ptolemy3d.math.Matrix16d;
 import org.ptolemy3d.math.Matrix9d;
@@ -70,7 +70,7 @@ public class CameraMovement {
 	private Ptolemy3DGLCanvas canvas = null;
 	private Ptolemy3D ptolemy = null;
 	// Inputs
-	public InputListener inputs = null;
+	public InputHandler inputs = null;
 
 	// Tells either or not the view is moving
 	public boolean isActive = false;
@@ -79,7 +79,7 @@ public class CameraMovement {
 
 	// Flight mode
 	protected short fmode = 1;
-	// Some variable modified by InputListener
+	// Some variable modified by InputHandler
 	protected double mouse_lr_rot_velocity = 0, mouse_ud_rot_velocity = 0;
 	protected double ud_rot_velocity = 0, lr_rot_velocity = 0;
 
@@ -122,17 +122,17 @@ public class CameraMovement {
 	private double desiredTilt;
 	private double desiredTiltIncrement;
 
-	public CameraMovement(Ptolemy3DGLCanvas canvas) {
+	public CameraMovement(Ptolemy3DGLCanvas canvas, InputHandler input) {
 		this.canvas = canvas;
 		this.ptolemy = canvas.getPtolemy();
-		this.inputs = new InputListener(ptolemy);
+		this.inputs = input;
 
 		this.desiredTilt = -1;
 		this.desiredTiltIncrement = 1;
 	}
 
 	public void init() {
-		final Landscape landscape = ptolemy.scene.landscape;
+		final Landscape landscape = canvas.getScene().landscape;
 
 		fmode = 0;// 1;
 		accel = (int) mmx;
@@ -146,9 +146,9 @@ public class CameraMovement {
 	}
 
 	protected final void setCamera(Matrix16d modelView) throws Exception {
-		final Landscape landscape = ptolemy.scene.landscape;
-		final Camera camera = ptolemy.camera;
-		final Ptolemy3DUnit unit = ptolemy.unit;
+		final Landscape landscape = canvas.getScene().landscape;
+		final Camera camera = canvas.getCamera();
+		final Unit unit = ptolemy.unit;
 
 		double vpPos_1_bak = camera.getPosition().alt, tilt_bak = camera
 				.getTilt();
@@ -187,36 +187,36 @@ public class CameraMovement {
 				vh_accel = 160;
 				vh_mmx = 8000;
 
-				if ((inputs.key_state & InputListener.ASC_S) == 0
-						&& (inputs.key_state & InputListener.ASC_X) == 0
-						&& (inputs.key_state & InputListener.ASC_A) == 0
-						&& (inputs.key_state & InputListener.ASC_Z) == 0
-						&& (inputs.key_state & InputListener.WHEEL_AWAY) == 0
-						&& (inputs.key_state & InputListener.WHEEL_TOWARD) == 0) {
+				if ((inputs.key_state & InputHandler.ASC_S) == 0
+						&& (inputs.key_state & InputHandler.ASC_X) == 0
+						&& (inputs.key_state & InputHandler.ASC_A) == 0
+						&& (inputs.key_state & InputHandler.ASC_Z) == 0
+						&& (inputs.key_state & InputHandler.WHEEL_AWAY) == 0
+						&& (inputs.key_state & InputHandler.WHEEL_TOWARD) == 0) {
 					if (velocity > 0) {
 						velocity -= accel;
 					} else if (velocity < 0) {
 						velocity += accel;
 					}
 				}
-				if ((inputs.key_state & InputListener.ASC_D) == 0
-						&& (inputs.key_state & InputListener.ASC_F) == 0) {
+				if ((inputs.key_state & InputHandler.ASC_D) == 0
+						&& (inputs.key_state & InputHandler.ASC_F) == 0) {
 					if (vert_velocity > 0) {
 						vert_velocity -= vh_accel;
 					} else if (vert_velocity < 0) {
 						vert_velocity += vh_accel;
 					}
 				}
-				if ((inputs.key_state & InputListener.ASC_R) == 0
-						&& (inputs.key_state & InputListener.ASC_C) == 0) {
+				if ((inputs.key_state & InputHandler.ASC_R) == 0
+						&& (inputs.key_state & InputHandler.ASC_C) == 0) {
 					if (horz_velocity > 0) {
 						horz_velocity -= vh_accel;
 					} else if (horz_velocity < 0) {
 						horz_velocity += vh_accel;
 					}
 				}
-				if ((inputs.key_state & InputListener.LEFT_ARROW) == 0
-						&& (inputs.key_state & InputListener.RIGHT_ARROW) == 0) {
+				if ((inputs.key_state & InputHandler.LEFT_ARROW) == 0
+						&& (inputs.key_state & InputHandler.RIGHT_ARROW) == 0) {
 					if (lr_rot_velocity > 0) {
 						lr_rot_velocity -= rot_accel;
 					} else if (lr_rot_velocity < 0) {
@@ -226,8 +226,8 @@ public class CameraMovement {
 						lr_rot_velocity = 0;
 					}
 				}
-				if ((inputs.key_state & InputListener.UP_ARROW) == 0
-						&& (inputs.key_state & InputListener.DOWN_ARROW) == 0) {
+				if ((inputs.key_state & InputHandler.UP_ARROW) == 0
+						&& (inputs.key_state & InputHandler.DOWN_ARROW) == 0) {
 					if (ud_rot_velocity > 0) {
 						ud_rot_velocity -= rot_accel;
 					} else if (ud_rot_velocity < 0) {
@@ -243,96 +243,96 @@ public class CameraMovement {
 			a_vec[0] = a_vec[1] = a_vec[2] = 0.0f;
 
 			/* Acceleration due to keys being down */
-			if ((inputs.key_state & (InputListener.ASC_S | InputListener.ASC_A)) != 0
-					&& (inputs.key_state & (InputListener.ASC_X | InputListener.ASC_Z)) == 0
+			if ((inputs.key_state & (InputHandler.ASC_S | InputHandler.ASC_A)) != 0
+					&& (inputs.key_state & (InputHandler.ASC_X | InputHandler.ASC_Z)) == 0
 					&& (-velocity < mmx)) {
 				velocity -= (velocity > 0) ? accel + accel : accel;
-				isPan = ((inputs.key_state & InputListener.ASC_S) != 0) ? false
+				isPan = ((inputs.key_state & InputHandler.ASC_S) != 0) ? false
 						: true;
-			} else if ((inputs.key_state & (InputListener.ASC_S | InputListener.ASC_A)) == 0
-					&& (inputs.key_state & (InputListener.ASC_X | InputListener.ASC_Z)) != 0
+			} else if ((inputs.key_state & (InputHandler.ASC_S | InputHandler.ASC_A)) == 0
+					&& (inputs.key_state & (InputHandler.ASC_X | InputHandler.ASC_Z)) != 0
 					&& (velocity < mmx)) {
 				velocity += (velocity < 0) ? accel + accel : accel;
-				isPan = ((inputs.key_state & InputListener.ASC_X) != 0) ? false
+				isPan = ((inputs.key_state & InputHandler.ASC_X) != 0) ? false
 						: true;
 			}
 			// Mouse wheel: FIXME framerate dependant !
-			if ((inputs.key_state & InputListener.WHEEL_TOWARD) != 0
-					&& (inputs.key_state & InputListener.WHEEL_AWAY) == 0
+			if ((inputs.key_state & InputHandler.WHEEL_TOWARD) != 0
+					&& (inputs.key_state & InputHandler.WHEEL_AWAY) == 0
 					&& (-velocity < mmx)) {
 				velocity -= (velocity > 0) ? accel + accel : accel;
 				isPan = false;
 
 				inputs.wheelCount--;
 				if (inputs.wheelCount < 0) {
-					inputs.key_state &= ~InputListener.WHEEL_TOWARD;
+					inputs.key_state &= ~InputHandler.WHEEL_TOWARD;
 					inputs.wheelCount = 0;
 				}
-			} else if ((inputs.key_state & InputListener.WHEEL_TOWARD) == 0
-					&& (inputs.key_state & InputListener.WHEEL_AWAY) != 0
+			} else if ((inputs.key_state & InputHandler.WHEEL_TOWARD) == 0
+					&& (inputs.key_state & InputHandler.WHEEL_AWAY) != 0
 					&& (velocity < mmx)) {
 				velocity += (velocity < 0) ? accel + accel : accel;
 				isPan = false;
 
 				inputs.wheelCount--;
 				if (inputs.wheelCount < 0) {
-					inputs.key_state &= ~InputListener.WHEEL_AWAY;
+					inputs.key_state &= ~InputHandler.WHEEL_AWAY;
 					inputs.wheelCount = 0;
 				}
 			}
 
-			if ((inputs.key_state & InputListener.ASC_D) != 0
-					&& (inputs.key_state & InputListener.ASC_F) == 0
+			if ((inputs.key_state & InputHandler.ASC_D) != 0
+					&& (inputs.key_state & InputHandler.ASC_F) == 0
 					&& (-vert_velocity < vh_mmx)) {
 				vert_velocity -= (vert_velocity > 0) ? (vh_accel + vh_accel)
 						: vh_accel;
-			} else if ((inputs.key_state & InputListener.ASC_D) == 0
-					&& (inputs.key_state & InputListener.ASC_F) != 0
+			} else if ((inputs.key_state & InputHandler.ASC_D) == 0
+					&& (inputs.key_state & InputHandler.ASC_F) != 0
 					&& (vert_velocity < vh_mmx)) {
 				vert_velocity += (vert_velocity < 0) ? vh_accel + vh_accel
 						: vh_accel;
 			}
-			if ((inputs.key_state & InputListener.ASC_C) != 0
-					&& (inputs.key_state & InputListener.ASC_R) == 0
+			if ((inputs.key_state & InputHandler.ASC_C) != 0
+					&& (inputs.key_state & InputHandler.ASC_R) == 0
 					&& (-horz_velocity < vh_mmx)) {
 				horz_velocity -= (horz_velocity > 0) ? vh_accel + vh_accel
 						: vh_accel;
-			} else if ((inputs.key_state & InputListener.ASC_C) == 0
-					&& (inputs.key_state & InputListener.ASC_R) != 0
+			} else if ((inputs.key_state & InputHandler.ASC_C) == 0
+					&& (inputs.key_state & InputHandler.ASC_R) != 0
 					&& (horz_velocity < vh_mmx)) {
 				horz_velocity += (horz_velocity < 0) ? vh_accel + vh_accel
 						: vh_accel;
 			}
 
-			if ((inputs.key_state & InputListener.ASC_C) != 0
-					|| (inputs.key_state & InputListener.ASC_R) != 0) {
+			if ((inputs.key_state & InputHandler.ASC_C) != 0
+					|| (inputs.key_state & InputHandler.ASC_R) != 0) {
 				desiredTilt = -1;// cancel setPitchDegrees order
 			}
 			a_vec[2] = velocity * scaler;
 			a_vec[0] = vert_velocity * scaler;
 
 			/* TURN LEFT AND RIGHT */
-			if ((inputs.key_state & InputListener.LEFT_ARROW) != 0
-					&& (inputs.key_state & InputListener.RIGHT_ARROW) == 0
+			if ((inputs.key_state & InputHandler.LEFT_ARROW) != 0
+					&& (inputs.key_state & InputHandler.RIGHT_ARROW) == 0
 					&& (-lr_rot_velocity < rotAng)) {
 				lr_rot_velocity -= (lr_rot_velocity > 0) ? rot_accel
 						+ rot_accel : rot_accel;// * ((JS.unit.UNITS == 1) ? -1
 												// : 1);
-			} else if ((inputs.key_state & InputListener.LEFT_ARROW) == 0
-					&& (inputs.key_state & InputListener.RIGHT_ARROW) != 0
+			} else if ((inputs.key_state & InputHandler.LEFT_ARROW) == 0
+					&& (inputs.key_state & InputHandler.RIGHT_ARROW) != 0
 					&& (lr_rot_velocity < rotAng)) {
 				lr_rot_velocity += (lr_rot_velocity < 0) ? rot_accel
 						+ rot_accel : rot_accel;// * ((JSUNITS == 1) ? -1 : 1);
 
 				/* YAW and PITCH */
 			}
-			if ((inputs.key_state & InputListener.DOWN_ARROW) != 0
-					&& (inputs.key_state & InputListener.UP_ARROW) == 0
+			if ((inputs.key_state & InputHandler.DOWN_ARROW) != 0
+					&& (inputs.key_state & InputHandler.UP_ARROW) == 0
 					&& (-ud_rot_velocity < rotAng)) {
 				ud_rot_velocity -= (ud_rot_velocity > 0) ? rot_accel
 						+ rot_accel : rot_accel;
-			} else if ((inputs.key_state & InputListener.DOWN_ARROW) == 0
-					&& (inputs.key_state & InputListener.UP_ARROW) != 0
+			} else if ((inputs.key_state & InputHandler.DOWN_ARROW) == 0
+					&& (inputs.key_state & InputHandler.UP_ARROW) != 0
 					&& (ud_rot_velocity < rotAng)) {
 				ud_rot_velocity += (ud_rot_velocity < 0) ? rot_accel
 						+ rot_accel : rot_accel;
@@ -557,8 +557,8 @@ public class CameraMovement {
 	}
 
 	private final void setCameraMatrix(boolean addGroundHeight) {
-		final Camera camera = ptolemy.camera;
-		final Ptolemy3DUnit unit = ptolemy.unit;
+		final Camera camera = canvas.getCamera();
+		final Unit unit = ptolemy.unit;
 
 		double groundH = addGroundHeight ? ground_ht : 0;
 
@@ -585,9 +585,9 @@ public class CameraMovement {
 	}
 
 	private final boolean checkAlt() {
-		final Landscape landscape = ptolemy.scene.landscape;
-		final Camera camera = ptolemy.camera;
-		final Ptolemy3DUnit unit = ptolemy.unit;
+		final Landscape landscape = canvas.getScene().landscape;
+		final Camera camera = canvas.getCamera();
+		final Unit unit = ptolemy.unit;
 
 		{
 			double mag = camera.getVertAltDD() + EARTH_RADIUS;
@@ -609,7 +609,7 @@ public class CameraMovement {
 	}
 
 	protected synchronized final void updatePosition(boolean force) {
-		final Camera camera = ptolemy.camera;
+		final Camera camera = canvas.getCamera();
 
 		if (inputs.key_state != 0) {
 			force = false; // if user is still moving around no need to force.
@@ -650,8 +650,8 @@ public class CameraMovement {
 	}
 
 	public final void setOrientation(Position latLonAlt, double dir, double pit) {
-		final Camera camera = ptolemy.camera;
-		final Ptolemy3DUnit unit = ptolemy.unit;
+		final Camera camera = canvas.getCamera();
+		final Unit unit = ptolemy.unit;
 
 		double lon = latLonAlt.lon;
 		double alt = latLonAlt.alt;
@@ -807,8 +807,8 @@ public class CameraMovement {
 	}
 
 	public final void setFollowDem(boolean v) {
-		final Landscape landscape = ptolemy.scene.landscape;
-		final Camera camera = ptolemy.camera;
+		final Landscape landscape = canvas.getScene().landscape;
+		final Camera camera = canvas.getCamera();
 
 		boolean prev = followDemOn;
 		followDemOn = v;
@@ -866,8 +866,8 @@ public class CameraMovement {
 	/* flyTo Implementation */
 	private final void flyToPositionDD(Position latLonAlt, double s_direction,
 			double s_tilt, double flight_arc, double cruise_tilt) {
-		final Camera camera = ptolemy.camera;
-		final Ptolemy3DUnit unit = ptolemy.unit;
+		final Camera camera = canvas.getCamera();
+		final Unit unit = ptolemy.unit;
 
 		double lon = latLonAlt.lon;
 		double alt = latLonAlt.alt;
@@ -975,7 +975,7 @@ public class CameraMovement {
 			return;
 		}
 
-		final Camera camera = ptolemy.camera;
+		final Camera camera = canvas.getCamera();
 		// this block controls spin of the earth to our coordinates
 		if (rot_lr_trav != angle) {
 			boolean stop = false;
@@ -1077,7 +1077,7 @@ public class CameraMovement {
 	 */
 	public final void flyTo(Position latLonAlt, int speed, int ld_angle,
 			int fly_angle, int type, int arc_angle) {
-		final Camera camera = ptolemy.camera;
+		final Camera camera = canvas.getCamera();
 
 		initAutopilot();
 
@@ -1092,8 +1092,8 @@ public class CameraMovement {
 	/* flyTo implementation */
 	private final void flyToDD(Position latLonAlt, int speed, int ld_angle,
 			int fly_angle, int type, int arc_angle) {
-		final Camera camera = ptolemy.camera;
-		final Ptolemy3DUnit unit = ptolemy.unit;
+		final Camera camera = canvas.getCamera();
+		final Unit unit = ptolemy.unit;
 
 		double lon = latLonAlt.lon;
 		double alt = latLonAlt.alt;
@@ -1179,7 +1179,7 @@ public class CameraMovement {
 	}
 
 	private final void setCrossVert() {
-		final Camera camera = ptolemy.camera;
+		final Camera camera = canvas.getCamera();
 
 		Matrix9d pointerMat = new Matrix9d();
 
@@ -1197,7 +1197,7 @@ public class CameraMovement {
 	/****************************** functions for panorama ************************************/
 	public void panorama(Position latLonAlt, int rtimes, double rspeed,
 			double rpitch) {
-		final Camera camera = ptolemy.camera;
+		final Camera camera = canvas.getCamera();
 		initAutopilot();
 
 		setang = rpitch;
@@ -1236,7 +1236,7 @@ public class CameraMovement {
 			return;
 		}
 
-		final Camera camera = ptolemy.camera;
+		final Camera camera = canvas.getCamera();
 		camera.setDirection(camera.getDirection() + current_lr_rot);
 
 		if (camera.getDirection() < 0) {
@@ -1269,9 +1269,9 @@ public class CameraMovement {
 
 	protected final synchronized void outputCoordinates(MouseEvent e) {
 		setRays(e);
-		if (!ptolemy.scene.plugins.pick(intersectPoint, pickray)) {
-			if (ptolemy.scene.landscape.pick(intersectPoint, pickray)) {
-				if (!ptolemy.scene.plugins.onPick(intersectPoint)) {
+		if (!canvas.getScene().plugins.pick(intersectPoint, pickray)) {
+			if (canvas.getScene().landscape.pick(intersectPoint, pickray)) {
+				if (!canvas.getScene().plugins.onPick(intersectPoint)) {
 					displayCoords();
 				}
 			}
@@ -1280,13 +1280,13 @@ public class CameraMovement {
 
 	protected final void zoomToSelected(MouseEvent e, boolean zoomin) {
 		setRays(e);
-		if (!ptolemy.scene.landscape.pick(intersectPoint, pickray)) {
+		if (!canvas.getScene().landscape.pick(intersectPoint, pickray)) {
 			return;
 		}
 
-		final Ptolemy3DUnit unit = ptolemy.unit;
-		final Landscape landscape = ptolemy.scene.landscape;
-		final Camera camera = ptolemy.camera;
+		final Unit unit = ptolemy.unit;
+		final Landscape landscape = canvas.getScene().landscape;
+		final Camera camera = canvas.getCamera();
 
 		if ((intersectPoint[0] != -999) || (intersectPoint[1] != -999)
 				|| (intersectPoint[2] != -999)) {
@@ -1325,7 +1325,7 @@ public class CameraMovement {
 	}
 
 	private final void setRays(MouseEvent e) {
-		final Camera camera = ptolemy.camera;
+		final Camera camera = canvas.getCamera();
 		final int screenWidth = canvas.getScreenWidth();
 		final int screenHeight = canvas.getScreenHeight();
 

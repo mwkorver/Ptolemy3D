@@ -23,6 +23,7 @@ import static org.ptolemy3d.debug.Config.DEBUG;
 import java.awt.event.KeyEvent;
 
 import org.ptolemy3d.Ptolemy3D;
+import org.ptolemy3d.Ptolemy3DGLCanvas;
 import org.ptolemy3d.scene.Landscape;
 import org.ptolemy3d.scene.Scene;
 import org.ptolemy3d.view.Camera;
@@ -194,10 +195,10 @@ public class IO
 	
 	/* Debug keyboard */
 
-	public final static void keyReleasedDebug(Ptolemy3D ptolemy, int keyCode)
+	public final static void keyReleasedDebug(Ptolemy3DGLCanvas canvas, int keyCode)
 	{
 		if (DEBUG) {
-			Scene scene = ptolemy.scene;
+			Scene scene = canvas.getScene();
 			Landscape landscape = scene.landscape;
 
 			ProfilerInterface.forceLevel = -1;
@@ -224,7 +225,7 @@ public class IO
 					}
 					break;
 				case KeyEvent.VK_F8:
-					Camera camera = Ptolemy3D.ptolemy.camera;
+					Camera camera = canvas.getCamera();
 					printlnRenderer(camera.toString());
 					break;
 				case KeyEvent.VK_F9:

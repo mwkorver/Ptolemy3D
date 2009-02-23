@@ -15,7 +15,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package org.ptolemy3d.scene;
 
 import static org.ptolemy3d.debug.Config.DEBUG;
@@ -51,181 +50,193 @@ import org.ptolemy3d.view.Camera;
  * Among other thing, it contains the 3D rendering loop.<BR>
  * <BR>
  */
-public class Scene implements _Drawable, Transferable {
-	/** Ptolemy3D Instance */
-	private Ptolemy3DGLCanvas canvas = null;
-	private Ptolemy3D ptolemy = null;
+public class Scene implements Transferable {
 
-	/** Landscape */
-	public final Landscape landscape;
-	/** Sky */
-	public final Sky sky;
-	/** Plugins */
-	public final Plugins plugins;
+    /** Ptolemy3D Instance */
+    private Ptolemy3DGLCanvas canvas = null;
+    private Ptolemy3D ptolemy = null;
+    /** Landscape */
+    public final Landscape landscape;
+    /** Sky */
+    public final Sky sky;
+    /** Plugins */
+    public final Plugins plugins;
+    /** Light */
+    public final Light light;
+    /**
+     * Do a screenshot of the next frame in <code>clipboardImage</code>. @see
+     * #clipboardImage
+     */
+    public boolean screenshot = false;
+    /** Screenshot image */
+    public Image clipboardImage;
 
-	/** Light */
-	public final Light light;
+    public Scene(Ptolemy3DGLCanvas canvas) {
+        this.canvas = canvas;
+        this.ptolemy = canvas.getPtolemy();
 
-	/**
-	 * Do a screenshot of the next frame in <code>clipboardImage</code>. @see
-	 * #clipboardImage
-	 */
-	public boolean screenshot = false;
-	/** Screenshot image */
-	public Image clipboardImage;
+        this.landscape = new Landscape(canvas);
+        this.sky = new Sky(canvas);
+        this.plugins = new Plugins(canvas);
 
-	public Scene(Ptolemy3DGLCanvas canvas) {
-		this.canvas = canvas;
-		this.ptolemy = canvas.getPtolemy();
+        this.light = new Light();
+    }
 
-		this.landscape = new Landscape(ptolemy);
-		this.sky = new Sky();
-		this.plugins = new Plugins(ptolemy);
+    /** Initialize non OpenGL data of the scene. */
+    public void init(Ptolemy3D ptolemy) {
+        landscape.init(ptolemy);
+        sky.init(ptolemy);
+        plugins.init(ptolemy);
+        light.init(ptolemy);
+    }
 
-		this.light = new Light();
-	}
+    /** Initialize OpenGL data of the scene. */
+    public void initGL(GL gl) {
+        landscape.initGL(gl);
+        sky.initGL(gl);
+        plugins.initGL(gl);
+        light.initGL(gl);
+    }
 
-	/** Initialize non OpenGL data of the scene. */
-	public void init(Ptolemy3D ptolemy) {
-		landscape.init(ptolemy);
-		sky.init(ptolemy);
-		plugins.init(ptolemy);
-		light.init(ptolemy);
-	}
+    /** Destroy OpenGL data of the scene. */
+    public void destroyGL(GL gl) {
+        landscape.destroyGL(gl);
+        sky.destroyGL(gl);
+        plugins.destroyGL(gl);
+        light.destroyGL(gl);
 
-	/** Initialize OpenGL data of the scene. */
-	public void initGL(GL gl) {
-		landscape.initGL(gl);
-		sky.initGL(gl);
-		plugins.initGL(gl);
-		light.initGL(gl);
-	}
+        // Destroy Ptolemy3D OpenGL datas
+        if (ptolemy.fontTextRenderer != null) {
+            ptolemy.fontTextRenderer.destroyGL(gl);
+            ptolemy.fontTextRenderer = null;
+        }
+        if (ptolemy.fontNumericRenderer != null) {
+            ptolemy.fontNumericRenderer.destroyGL(gl);
+            ptolemy.fontNumericRenderer = null;
+        }
 
-	/** Destroy OpenGL data of the scene. */
-	public void destroyGL(GL gl) {
-		landscape.destroyGL(gl);
-		sky.destroyGL(gl);
-		plugins.destroyGL(gl);
-		light.destroyGL(gl);
+        ptolemy.textureManager.destroyGL(gl);
+    }
 
-		// Destroy Ptolemy3D OpenGL datas
-		if (ptolemy.fontTextRenderer != null) {
-			ptolemy.fontTextRenderer.destroyGL(gl);
-			ptolemy.fontTextRenderer = null;
-		}
-		if (ptolemy.fontNumericRenderer != null) {
-			ptolemy.fontNumericRenderer.destroyGL(gl);
-			ptolemy.fontNumericRenderer = null;
-		}
+    /** Draw the scene with OpenGL. */
+    public void draw(GL gl) {
+        if (ptolemy.tileLoader == null) {
+            // Just clear out the screen
+            gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
+            return;
+        }
 
-		ptolemy.textureManager.destroyGL(gl);
-	}
+        Camera camera = canvas.getCamera();
 
-	/** Draw the scene with OpenGL. */
-	public void draw(GL gl) {
-		if (ptolemy.tileLoader == null) {
-			// Just clear out the screen
-			gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
-			return;
-		}
+        if (DEBUG) {
+            ProfilerInterface.start(ProfilerEventInterface.Frame);
+        }
+        if (DEBUG) {
+            ProfilerInterface.start(ProfilerEventInterface.Prepare);
+        }
 
-		Camera camera = ptolemy.camera;
+        /* Camera */
+        camera.update(gl);
 
-		if (DEBUG)
-			ProfilerInterface.start(ProfilerEventInterface.Frame);
-		if (DEBUG)
-			ProfilerInterface.start(ProfilerEventInterface.Prepare);
+        /* Prepare frame */
+        landscape.prepareFrame(gl);
+        plugins.prepareFrame(gl);
+        if (DEBUG) {
+            ProfilerInterface.stop(ProfilerEventInterface.Prepare);
+        }
 
-		/* Camera */
-		camera.update(gl);
+        /* Standard OpenGL Init: Clear frame buffer color and z */
+        gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 
-		/* Prepare frame */
-		landscape.prepareFrame(gl);
-		plugins.prepareFrame(gl);
-		if (DEBUG)
-			ProfilerInterface.stop(ProfilerEventInterface.Prepare);
+        /* Lighting */
+        light.draw(gl); // FIXME Strange here, must be after camera ?
 
-		/* Standard OpenGL Init: Clear frame buffer color and z */
-		gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
+        /* Perspective matrix */
+        gl.glMatrixMode(GL.GL_PROJECTION);
+        gl.glLoadMatrixd(camera.perspective.m, 0);
+        /* Modelview matrix */
+        gl.glMatrixMode(GL.GL_MODELVIEW);
+        gl.glLoadMatrixd(camera.modelview.m, 0);
 
-		/* Lighting */
-		light.draw(gl); // FIXME Strange here, must be after camera ?
+        /* Rendering */
+        if (DEBUG) {
+            ProfilerInterface.start(ProfilerEventInterface.Sky);
+        }
+        sky.draw(gl);
+        if (DEBUG) {
+            ProfilerInterface.stop(ProfilerEventInterface.Sky);
+        }
 
-		/* Perspective matrix */
-		gl.glMatrixMode(GL.GL_PROJECTION);
-		gl.glLoadMatrixd(camera.perspective.m, 0);
-		/* Modelview matrix */
-		gl.glMatrixMode(GL.GL_MODELVIEW);
-		gl.glLoadMatrixd(camera.modelview.m, 0);
+        if (DEBUG) {
+            ProfilerInterface.start(ProfilerEventInterface.Landscape);
+        }
+        landscape.draw(gl);
+        if (DEBUG) {
+            ProfilerInterface.stop(ProfilerEventInterface.Landscape);
+        }
 
-		/* Rendering */
-		if (DEBUG)
-			ProfilerInterface.start(ProfilerEventInterface.Sky);
-		sky.draw(gl);
-		if (DEBUG)
-			ProfilerInterface.stop(ProfilerEventInterface.Sky);
+        if (DEBUG) {
+            ProfilerInterface.start(ProfilerEventInterface.Plugins);
+        }
+        plugins.draw(gl);
+        if (DEBUG) {
+            ProfilerInterface.stop(ProfilerEventInterface.Plugins);
+        }
 
-		if (DEBUG)
-			ProfilerInterface.start(ProfilerEventInterface.Landscape);
-		landscape.draw(gl);
-		if (DEBUG)
-			ProfilerInterface.stop(ProfilerEventInterface.Landscape);
+        /* Screenshot */
+        if (DEBUG) {
+            ProfilerInterface.start(ProfilerEventInterface.Screenshot);
+        }
+        if (screenshot) {
+            getSceneImage(gl);
+        }
+        if (DEBUG) {
+            ProfilerInterface.stop(ProfilerEventInterface.Screenshot);
+        }
 
-		if (DEBUG)
-			ProfilerInterface.start(ProfilerEventInterface.Plugins);
-		plugins.draw(gl);
-		if (DEBUG)
-			ProfilerInterface.stop(ProfilerEventInterface.Plugins);
+        if (DEBUG) {
+            ProfilerInterface.stop(ProfilerEventInterface.Frame);
+        }
+        if (DEBUG) {
+            ProfilerInterface.drawProfiler(ptolemy, gl);
+        }
+    }
 
-		/* Screenshot */
-		if (DEBUG)
-			ProfilerInterface.start(ProfilerEventInterface.Screenshot);
-		if (screenshot)
-			getSceneImage(gl);
-		if (DEBUG)
-			ProfilerInterface.stop(ProfilerEventInterface.Screenshot);
+    protected void getSceneImage(GL gl) {
+        final int GL_WIDTH = canvas.getDrawWidth();
+        final int GL_HEIGHT = canvas.getDrawHeight();
 
-		if (DEBUG)
-			ProfilerInterface.stop(ProfilerEventInterface.Frame);
-		if (DEBUG)
-			ProfilerInterface.drawProfiler(ptolemy, gl);
-	}
+        byte[] pixels = new byte[(GL_WIDTH + 1) * (GL_HEIGHT + 1) * 3];
+        gl.glReadPixels(0, 0, GL_WIDTH, GL_HEIGHT, GL.GL_RGB,
+                        GL.GL_UNSIGNED_BYTE, ByteBuffer.wrap(pixels));
 
-	protected void getSceneImage(GL gl) {
-		final int GL_WIDTH = canvas.getDrawWidth();
-		final int GL_HEIGHT = canvas.getDrawHeight();
+        try {
+            clipboardImage = Toolkit.getDefaultToolkit().createImage(
+                    new SceneProducer(pixels, GL_WIDTH, GL_HEIGHT));
+            Toolkit.getDefaultToolkit().getSystemClipboard().setContents(this,
+                                                                         null);
+        }
+        catch (Exception e) {
+            // ptolemy
+            // .sendErrorMessage("Security Exception : Unable to access clipboard.");
+        }
+    }
 
-		byte[] pixels = new byte[(GL_WIDTH + 1) * (GL_HEIGHT + 1) * 3];
-		gl.glReadPixels(0, 0, GL_WIDTH, GL_HEIGHT, GL.GL_RGB,
-				GL.GL_UNSIGNED_BYTE, ByteBuffer.wrap(pixels));
+    /* Transferable */
+    public DataFlavor[] getTransferDataFlavors() {
+        return new DataFlavor[]{DataFlavor.imageFlavor};
+    }
 
-		try {
-			clipboardImage = Toolkit.getDefaultToolkit().createImage(
-					new SceneProducer(pixels, GL_WIDTH, GL_HEIGHT));
-			Toolkit.getDefaultToolkit().getSystemClipboard().setContents(this,
-					null);
-		} catch (Exception e) {
-			// ptolemy
-			// .sendErrorMessage("Security Exception : Unable to access clipboard.");
-		}
-	}
+    public boolean isDataFlavorSupported(DataFlavor flavor) {
+        return DataFlavor.imageFlavor.equals(flavor);
+    }
 
-	/* Transferable */
-
-	public DataFlavor[] getTransferDataFlavors() {
-		return new DataFlavor[] { DataFlavor.imageFlavor };
-	}
-
-	public boolean isDataFlavorSupported(DataFlavor flavor) {
-		return DataFlavor.imageFlavor.equals(flavor);
-	}
-
-	public Object getTransferData(DataFlavor flavor)
-			throws UnsupportedFlavorException, IOException {
-		if (!DataFlavor.imageFlavor.equals(flavor)) {
-			throw new UnsupportedFlavorException(flavor);
-		}
-		// Returns image
-		return clipboardImage;
-	}
+    public Object getTransferData(DataFlavor flavor)
+            throws UnsupportedFlavorException, IOException {
+        if (!DataFlavor.imageFlavor.equals(flavor)) {
+            throw new UnsupportedFlavorException(flavor);
+        }
+        // Returns image
+        return clipboardImage;
+    }
 }

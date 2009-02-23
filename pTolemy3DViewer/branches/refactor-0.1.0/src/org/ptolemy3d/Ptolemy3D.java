@@ -15,7 +15,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package org.ptolemy3d;
 
 import org.ptolemy3d.debug.IO;
@@ -79,137 +78,113 @@ import org.w3c.dom.Element;
  * @see Scene
  */
 public class Ptolemy3D {
-	// TODO - To remove !!!
-	/** MUST BE REMOVED */
-	public static Ptolemy3D ptolemy = null; /*
-											 * FIXME This block make Ptolemy3D
-											 * non multiple-instanciable
-											 */
 
-	public Ptolemy3D() {
-		ptolemy = this;
-	}
+    private static Ptolemy3D instance = null;
+    // Unit System
+    public Unit unit;
+    // Texture Manager
+    public TextureManager textureManager;
+    // Tile Loader: download tile datas (image, geometry)
+    public Jp2TileLoader tileLoader;
+    // Tile Loader Thread: Thread in which tile loader is running
+    public Thread tileLoaderThread;
 
-	/** MUST BE REMOVED */
+    // Default Font Text Renderer.<BR> Can be null if not used/initialized by
+    // any of the core or plugins components of Ptolemy3D.
+    // FIXME protect: don't let the plugins override that.
+    public FntFontRenderer fontTextRenderer;
 
-	// TODO - To remove to !!! Canvas must has a reference to ptolemy.
-//	public Ptolemy3DGLCanvas canvas;
-	// Allows communication between applet and javascript.<BR>Can be null if not
-	// in an applet.
-	// public Ptolemy3DJavascript javascript = null;
-	// Configuration settings
-	public Ptolemy3DConfiguration configuration;
-	// Unit System
-	public Ptolemy3DUnit unit;
+    // Default Font Numeric Renderer.<BR> In most cases, it will be the same as
+    // <code>fontTextRenderer</code>.
+    // FIXME protect: don't let the plugins override that.
+    public FntFontRenderer fontNumericRenderer;
 
-	// TODO - Must to be in the Camera class.
-	// Scene: LandScape, Sky, Plugins rendering
-//	public Scene scene;
+    // Plugins args
+    private String[] plugargs = new String[3];
 
-	// TODO - Must to be in the Camera class.
-	// Camera Controller: Control camera movements
-//	public CameraMovement cameraController;
-	// Camera
-	public Camera camera;
+    /** 
+     * Creates a new instance.
+     */
+    private Ptolemy3D() {
+        this.textureManager = new TextureManager(this);
+    }
 
-	// Texture Manager
-	public TextureManager textureManager;
-	// Tile Loader: download tile datas (image, geometry)
-	public Jp2TileLoader tileLoader;
-	// Tile Loader Thread: Thread in which tile loader is running
-	public Thread tileLoaderThread;
+    /**
+     * Returns the ptolemy instance.
+     * @return
+     */
+    public static Ptolemy3D getInstance() {
+        if (instance == null) {
+            instance = new Ptolemy3D();
+        }
+        return instance;
+    }
 
-	// Default Font Text Renderer.<BR> Can be null if not used/initialized by
-	// any of the core or plugins components of Ptolemy3D.
-	// FIXME protect: don't let the plugins override that.
-	public FntFontRenderer fontTextRenderer;
-	// Default Font Numeric Renderer.<BR> In most cases, it will be the same as
-	// <code>fontTextRenderer</code>.
-	// FIXME protect: don't let the plugins override that.
-	public FntFontRenderer fontNumericRenderer;
+    /** 
+     * Start tile download thread.
+     */
+    protected void startTileLoaderThread() {
+        if (tileLoader == null) {
+            tileLoader = new Jp2TileLoader(this);
+        }
+        if (tileLoaderThread == null) {
+            tileLoaderThread = new Thread(tileLoader, "TileLoaderThread");
+        }
+        tileLoaderThread.start();
+    }
 
-	// Plugins args
-	private String[] plugargs = new String[3];
+    /** 
+     * Stop tile download thread.
+     */
+    protected void stopTileLoaderThread() {
+        if (tileLoaderThread != null) {
+            tileLoader.on = false;
+            try {
+                tileLoaderThread.interrupt();
+            }
+            catch (Exception e) {
+                IO.printStack(e);
+            }
+        }
+    }
 
-	/**
-	 * @param docElements
-	 * @throw Ptolemy3DException when requiered option was not found
-	 */
-	public void init(Element docElements) {
-//		this.scene = new Scene(this);
-		// TODO - Remove Camera reference from ptoelmy. It must be at
-		// ptolemyGLCanvas class.
-//		this.camera = new Camera(this);
-//		this.cameraController = new CameraMovement(this);
-
-		this.configuration = new Ptolemy3DConfiguration(this);
-		this.configuration.loadSettings(docElements);
-
-		this.textureManager = new TextureManager(this);
-
-//		this.canvas = new Ptolemy3DGLCanvas(this);
-	}
-
-	/** Start tile download thread. */
-	protected void startTileLoaderThread() {
-		if (tileLoader == null) {
-			tileLoader = new Jp2TileLoader(this);
-		}
-		if (tileLoaderThread == null) {
-			tileLoaderThread = new Thread(tileLoader, "TileLoaderThread");
-		}
-		tileLoaderThread.start();
-	}
-
-	/** Stop tile download thread. */
-	protected void stopTileLoaderThread() {
-		if (tileLoaderThread != null) {
-			tileLoader.on = false;
-			try {
-				tileLoaderThread.interrupt();
-			} catch (Exception e) {
-				IO.printStack(e);
-			}
-		}
-	}
-
-	public void destroy() {
-		// Stop the tile loading first
-		stopTileLoaderThread();
+    public void destroy() {
+        // Stop the tile loading first
+        stopTileLoaderThread();
 
 //		// Stop and destroy all the 3D
 //		if (canvas != null) {
 //			canvas.destroyGL();
 //		}
-	}
+    }
 
-	// /**
-	// * Call a javascript function
-	// * @param javascripFunction
-	// */
-	// public void callJavascript(String javascripFunction, String param0,
-	// String param1, String param2)
-	// {
-	// plugargs[0] = param0;
-	// plugargs[1] = param1;
-	// plugargs[2] = param2;
-	//
-	// if (javascript != null) {
-	// JSObject jsObject = javascript.getJSObject();
-	// if (jsObject != null) {
-	// try {
-	// jsObject.call(javascripFunction, plugargs);
-	// } catch (Exception ne) {
-	// IO.printStackRenderer(ne);
-	// }
-	// }
-	// }
-	// }
-	// /**
-	// * Send an error message to javascript.
-	// */
-	// public final void sendErrorMessage(String msg)
-	// {
-	// callJavascript("alert", msg, null, null);
-	// }
+    // /**
+    // * Call a javascript function
+    // * @param javascripFunction
+    // */
+    // public void callJavascript(String javascripFunction, String param0,
+    // String param1, String param2)
+    // {
+    // plugargs[0] = param0;
+    // plugargs[1] = param1;
+    // plugargs[2] = param2;
+    //
+    // if (javascript != null) {
+    // JSObject jsObject = javascript.getJSObject();
+    // if (jsObject != null) {
+    // try {
+    // jsObject.call(javascripFunction, plugargs);
+    // } catch (Exception ne) {
+    // IO.printStackRenderer(ne);
+    // }
+    // }
+    // }
+    // }
+    // /**
+    // * Send an error message to javascript.
+    // */
+    // public final void sendErrorMessage(String msg)
+    // {
+    // callJavascript("alert", msg, null, null);
+    // }
 }

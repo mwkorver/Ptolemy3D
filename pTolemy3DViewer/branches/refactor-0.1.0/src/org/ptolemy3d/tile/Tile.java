@@ -17,13 +17,13 @@
  */
 package org.ptolemy3d.tile;
 
-import static org.ptolemy3d.Ptolemy3DConfiguration.EARTH_RADIUS;
+import static org.ptolemy3d.Configuration.EARTH_RADIUS;
 import static org.ptolemy3d.debug.Config.DEBUG;
 
 import javax.media.opengl.GL;
 
 import org.ptolemy3d.Ptolemy3D;
-import org.ptolemy3d.Ptolemy3DUnit;
+import org.ptolemy3d.Unit;
 import org.ptolemy3d.debug.ProfilerInterface;
 import org.ptolemy3d.math.Math3D;
 import org.ptolemy3d.scene.Landscape;
@@ -100,7 +100,7 @@ public class Tile {
 
 		final Landscape landscape = Ptolemy3D.ptolemy.scene.landscape;
 		final Level[] levels = landscape.getLevels();
-		final Ptolemy3DUnit unit = Ptolemy3D.ptolemy.unit;
+		final Unit unit = Ptolemy3D.ptolemy.unit;
 
 		this.gl = gl;
 		this.texture = texture;
@@ -255,7 +255,7 @@ public class Tile {
 		}
 
 		final Landscape landscape = Ptolemy3D.ptolemy.scene.landscape;
-		final Ptolemy3DUnit unit = Ptolemy3D.ptolemy.unit;
+		final Unit unit = Ptolemy3D.ptolemy.unit;
 		final double terrainScaler = landscape.getTerrainScaler();
 
 		intersectPoint[0] = intersectPoint[1] = intersectPoint[2] = -999;

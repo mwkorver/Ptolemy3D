@@ -30,7 +30,7 @@ import java.awt.event.WindowListener;
 import javax.swing.JFrame;
 
 import org.ptolemy3d.Ptolemy3D;
-import org.ptolemy3d.Ptolemy3DConfiguration;
+import org.ptolemy3d.Configuration;
 import org.ptolemy3d.Ptolemy3DGLCanvas;
 import org.w3c.dom.Element;
 
@@ -68,24 +68,24 @@ public class Ptolemy3DFrame extends JFrame implements KeyListener, WindowListene
 
 		//Build document from the XML configuration file
 		//If null is used, parameters will be search inside the applet tag.
-		Element docelem = Ptolemy3DConfiguration.buildXMLDocument(xmlFile);
+		Element docelem = Configuration.buildXMLDocument(xmlFile);
 		if (docelem == null) {
 			usage();	//xml file not found
 		}
 
-		//Ptolemy3D instanciation
-		Ptolemy3D ptolemy3d = new Ptolemy3D();
-
-		//Ptolemy3D initialization
-		ptolemy3d.init(docelem);
-
-		//Ptolemy3D rendering area
-		Ptolemy3DGLCanvas canvas = new Ptolemy3DGLCanvas(ptolemy3d);
-		canvas.setSize(new Dimension(width, height));
-
-		//Ptolemy3D Frame
-		Ptolemy3DFrame frame = new Ptolemy3DFrame(ptolemy3d, canvas);
-		frame.setVisible(true);
+//		//Ptolemy3D instanciation
+//		Ptolemy3D ptolemy3d = new Ptolemy3D();
+//
+//		//Ptolemy3D initialization
+//		ptolemy3d.init(docelem);
+//
+//		//Ptolemy3D rendering area
+//		Ptolemy3DGLCanvas canvas = new Ptolemy3DGLCanvas(ptolemy3d);
+//		canvas.setSize(new Dimension(width, height));
+//
+//		//Ptolemy3D Frame
+//		Ptolemy3DFrame frame = new Ptolemy3DFrame(ptolemy3d, canvas);
+//		frame.setVisible(true);
 	}
 
 	private final static void usage()

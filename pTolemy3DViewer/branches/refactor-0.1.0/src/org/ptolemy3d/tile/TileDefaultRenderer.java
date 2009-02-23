@@ -18,13 +18,13 @@
 
 package org.ptolemy3d.tile;
 
-import static org.ptolemy3d.Ptolemy3DConfiguration.EARTH_RADIUS;
+import static org.ptolemy3d.Configuration.EARTH_RADIUS;
 import static org.ptolemy3d.debug.Config.DEBUG;
 
 import javax.media.opengl.GL;
 
 import org.ptolemy3d.Ptolemy3D;
-import org.ptolemy3d.Ptolemy3DUnit;
+import org.ptolemy3d.Unit;
 import org.ptolemy3d.debug.ProfilerInterface;
 import org.ptolemy3d.math.Math3D;
 import org.ptolemy3d.scene.Landscape;
@@ -51,7 +51,7 @@ class TileDefaultRenderer implements TileRenderer
 	private int upLeftX ,  upLeftZ;
 	private int lowRightX, lowRightZ;
 
-	private Ptolemy3DUnit unit;
+	private Unit unit;
 	private Landscape landscape;
 	private float[] tileColor;
 	private float[] colratios;

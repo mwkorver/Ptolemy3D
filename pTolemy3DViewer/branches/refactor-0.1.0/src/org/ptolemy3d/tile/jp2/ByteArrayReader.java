@@ -20,7 +20,7 @@ package org.ptolemy3d.tile.jp2;
 import java.io.IOException;
 
 import org.ptolemy3d.Ptolemy3D;
-import org.ptolemy3d.Ptolemy3DConfiguration;
+import org.ptolemy3d.Configuration;
 import org.ptolemy3d.io.BasicCommunicator;
 import org.ptolemy3d.io.Communicator;
 
@@ -119,7 +119,7 @@ class ByteArrayReader
 	 */
 	 private void getMoreHeaderData(String fileBase)
 	 {
-		 final Ptolemy3DConfiguration settings = Ptolemy3D.ptolemy.configuration;
+		 final Configuration settings = Ptolemy3D.ptolemy.configuration;
 
 		 Communicator myJC = new BasicCommunicator(null);	//Server set in the loop
 		 for (int i = 0; i < settings.dataServers.length; i++)

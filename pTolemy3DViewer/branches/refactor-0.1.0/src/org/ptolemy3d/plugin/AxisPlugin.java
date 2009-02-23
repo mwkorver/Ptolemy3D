@@ -24,7 +24,7 @@ import java.io.IOException;
 import javax.media.opengl.GL;
 import javax.media.opengl.glu.GLU;
 import org.ptolemy3d.Ptolemy3D;
-import org.ptolemy3d.Ptolemy3DConfiguration;
+import org.ptolemy3d.Configuration;
 import org.ptolemy3d.io.Communicator;
 import org.ptolemy3d.math.Math3D;
 import org.ptolemy3d.scene.Plugin;
@@ -154,7 +154,7 @@ public class AxisPlugin implements Plugin
 
         this.gl = gl;
 
-        double rad = Ptolemy3DConfiguration.EARTH_RADIUS * 1.1;
+        double rad = Configuration.EARTH_RADIUS * 1.1;
         double x_axis[] =
         {
             rad, 0, 0

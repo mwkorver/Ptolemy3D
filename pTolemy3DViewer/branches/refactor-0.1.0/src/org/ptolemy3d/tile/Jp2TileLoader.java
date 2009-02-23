@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.util.Vector;
 
 import org.ptolemy3d.Ptolemy3D;
-import org.ptolemy3d.Ptolemy3DConfiguration;
+import org.ptolemy3d.Configuration;
 import org.ptolemy3d.debug.IO;
 import org.ptolemy3d.io.BasicCommunicator;
 import org.ptolemy3d.io.Communicator;
@@ -792,11 +792,11 @@ public class Jp2TileLoader implements Runnable {
 
 			utilMatrix.transform(coord);
 			for (k = 0; k < 3; k++) {
-				coord[k] = (coord[k] * Ptolemy3DConfiguration.EARTH_RADIUS);
+				coord[k] = (coord[k] * Configuration.EARTH_RADIUS);
 			}
 			if ((coord[2] > 0)
 					&& (Math3D.angle3dvec(0, posy, posz, coord[0], coord[1]
-							- cy, coord[2] - (Ptolemy3DConfiguration.EARTH_RADIUS + cz), true) <= MAXANGLE)) {
+							- cy, coord[2] - (Configuration.EARTH_RADIUS + cz), true) <= MAXANGLE)) {
 				return true;
 			}
 			return false;

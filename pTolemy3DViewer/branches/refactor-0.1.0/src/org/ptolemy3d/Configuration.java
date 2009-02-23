@@ -18,7 +18,6 @@
 
 package org.ptolemy3d;
 
-import java.applet.Applet;
 import java.awt.Color;
 import java.io.File;
 import java.util.StringTokenizer;
@@ -53,7 +52,7 @@ import org.xml.sax.SAXException;
  * @author Jerome Jouvie
  * @author Antonio Santiago
  */
-public class Ptolemy3DConfiguration {
+public class Configuration {
 
 	// ////////////////////////////////////////////////
 	// Required params
@@ -111,12 +110,12 @@ public class Ptolemy3DConfiguration {
 
 	// Logger instance.
 	private static final Logger logger = Logger
-			.getLogger(Ptolemy3DConfiguration.class.getName());
+			.getLogger(Configuration.class.getName());
 	// Globe radius
 	public final static int EARTH_RADIUS = 500000; // 6378136;
 
 	// Ptolemy3D Instance
-	private final Ptolemy3D ptolemy;
+	private final Ptolemy3DGLCanvas canvas;
 
 	// Clearing color (back ground color)
 	public float[] backgroundColor = { 0.541176470588f, 0.540176470588f,
@@ -143,8 +142,8 @@ public class Ptolemy3DConfiguration {
 	 * 
 	 * @param ptolemy
 	 */
-	public Ptolemy3DConfiguration(Ptolemy3D ptolemy) {
-		this.ptolemy = ptolemy;
+	public Configuration(Ptolemy3DGLCanvas canvas) {
+		this.canvas=canvas;
 	}
 
 	/**
@@ -185,10 +184,10 @@ public class Ptolemy3DConfiguration {
 	 */
 	public void loadSettings(Element docelem) throws Ptolemy3DException {
 
-		final CameraMovement cameraController = ptolemy.cameraController;
-		final Landscape landScape = ptolemy.scene.landscape;
-		final Sky sky = ptolemy.scene.sky;
-		final Plugins plugins = ptolemy.scene.plugins;
+		final CameraMovement cameraController = canvas.getCameraMovement();
+		final Landscape landScape = canvas.getScene().landscape;
+		final Sky sky = canvas.getScene().sky;
+		final Plugins plugins = canvas.getScene().plugins;
 
 		// Load settings. If any configuration exception occurs then stop the
 		// loading process and throws a general exception.
@@ -200,9 +199,9 @@ public class Ptolemy3DConfiguration {
 			float coordSysRatio = (float) EARTH_RADIUS / 6378136;
 			int dd = getOptionalParameterInt(DD, docelem);
 			if (dd == -1) {
-				ptolemy.unit = new Ptolemy3DUnit(meterX, meterZ, coordSysRatio);
+				canvas.getPtolemy().unit = new Unit(meterX, meterZ, coordSysRatio);
 			} else {
-				ptolemy.unit = new Ptolemy3DUnit(meterX, meterZ, coordSysRatio,
+				canvas.getPtolemy().unit = new Unit(meterX, meterZ, coordSysRatio,
 						dd);
 			}
 

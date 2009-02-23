@@ -17,7 +17,7 @@
  */
 package org.ptolemy3d.tile;
 
-import static org.ptolemy3d.Ptolemy3DConfiguration.EARTH_RADIUS;
+import static org.ptolemy3d.Configuration.EARTH_RADIUS;
 import static org.ptolemy3d.debug.Config.DEBUG;
 
 import java.nio.ByteBuffer;

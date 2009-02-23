@@ -24,7 +24,7 @@ package org.ptolemy3d;
  * @author Jerome Jouvie
  * @author Antonio Santiago <asantiagop(at)gmail(dot)com>
  */
-public final class Ptolemy3DUnit {
+public final class Unit {
 	/** 1 <=> DD */
 	public static final int DEFAULT_DD = 1000000;
 
@@ -43,7 +43,7 @@ public final class Ptolemy3DUnit {
 	 * @param meterZ
 	 * @param coordSystemRatio
 	 */
-	public Ptolemy3DUnit(int meterX, int meterZ, float coordSystemRatio) {
+	public Unit(int meterX, int meterZ, float coordSystemRatio) {
 		this.meterX = meterX;
 		this.meterZ = meterZ;
 		this.coordSystemRatio = coordSystemRatio;
@@ -57,7 +57,7 @@ public final class Ptolemy3DUnit {
 	 * @param coordSystemRatio
 	 * @param dd
 	 */
-	public Ptolemy3DUnit(int meterX, int meterZ, float coordSystemRatio, int dd) {
+	public Unit(int meterX, int meterZ, float coordSystemRatio, int dd) {
 		this.meterX = meterX;
 		this.meterZ = meterZ;
 		this.coordSystemRatio = coordSystemRatio;

@@ -187,7 +187,7 @@ class TileDirectModeRenderer implements TileRenderer
 			double theta2, phi2;
 			double oneOverDDToRad;
 
-			oneOverDDToRad = Math3D.DEGREE_TO_RADIAN_FACTOR / unit.getDD();
+			oneOverDDToRad = Math3D.DEGREE_TO_RADIAN_FACTOR / unit.getDDFactor();
 
 			theta1 = (x1 + landscape.getMaxLongitude()) * oneOverDDToRad;
 			theta2 = (x2 + landscape.getMaxLongitude()) * oneOverDDToRad;
@@ -417,7 +417,7 @@ class TileDirectModeRenderer implements TileRenderer
 			double theta2, phi2;
 			double oneOverDDToRad;
 
-			oneOverDDToRad = Math3D.DEGREE_TO_RADIAN_FACTOR / unit.getDD();
+			oneOverDDToRad = Math3D.DEGREE_TO_RADIAN_FACTOR / unit.getDDFactor();
 
 			theta1 = (x1 + landscape.getMaxLongitude()) * oneOverDDToRad;
 			theta2 = (x2 + landscape.getMaxLongitude()) * oneOverDDToRad;
@@ -599,7 +599,7 @@ class TileDirectModeRenderer implements TileRenderer
 			double theta2, phi2;
 			double oneOverDDToRad;
 
-			oneOverDDToRad = Math3D.DEGREE_TO_RADIAN_FACTOR / unit.getDD();
+			oneOverDDToRad = Math3D.DEGREE_TO_RADIAN_FACTOR / unit.getDDFactor();
 
 			theta1 = (x1 + landscape.getMaxLongitude()) * oneOverDDToRad;
 			theta2 = (x2 + landscape.getMaxLongitude()) * oneOverDDToRad;
@@ -693,7 +693,7 @@ class TileDirectModeRenderer implements TileRenderer
 			double theta2, phi2;
 			double oneOverDDToRad, oneOverN;
 
-			oneOverDDToRad = Math3D.DEGREE_TO_RADIAN_FACTOR / unit.getDD();
+			oneOverDDToRad = Math3D.DEGREE_TO_RADIAN_FACTOR / unit.getDDFactor();
 			oneOverN = 1.0 / n;
 
 			theta1 = (x1 + landscape.getMaxLongitude()) * oneOverDDToRad;  // startx
@@ -781,11 +781,11 @@ class TileDirectModeRenderer implements TileRenderer
 		{
 			double phi2, theta2;
 
-			theta1 = (x1 + landscape.getMaxLongitude()) * Math3D.DEGREE_TO_RADIAN_FACTOR / unit.getDD();  // startx
-			theta2 = (x2 + landscape.getMaxLongitude()) * Math3D.DEGREE_TO_RADIAN_FACTOR / unit.getDD(); // endx
+			theta1 = (x1 + landscape.getMaxLongitude()) * Math3D.DEGREE_TO_RADIAN_FACTOR / unit.getDDFactor();  // startx
+			theta2 = (x2 + landscape.getMaxLongitude()) * Math3D.DEGREE_TO_RADIAN_FACTOR / unit.getDDFactor(); // endx
 
-			phi1 = (z1) * Math3D.DEGREE_TO_RADIAN_FACTOR / unit.getDD(); //starty
-			phi2 = (z2) * Math3D.DEGREE_TO_RADIAN_FACTOR / unit.getDD();  //endy
+			phi1 = (z1) * Math3D.DEGREE_TO_RADIAN_FACTOR / unit.getDDFactor(); //starty
+			phi2 = (z2) * Math3D.DEGREE_TO_RADIAN_FACTOR / unit.getDDFactor();  //endy
 
 			double oneOverW = 1.0 / jtile.tin.w;
 			dThetaOverW = (theta2 - theta1) * oneOverW;

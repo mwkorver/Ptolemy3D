@@ -109,12 +109,12 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer
 	private final static int MAX_PRECOMPUTEDLEVEL = 5;
 
 	private void init(Landscape landscape) {
-		final double toRadiansOverDDBuffer = Math3D.DEGREE_TO_RADIAN_FACTOR / unit.getDD();
+		final double toRadiansOverDDBuffer = Math3D.DEGREE_TO_RADIAN_FACTOR / unit.getDDFactor();
 
 		//Angles in unit system
-		angle90  =  90 * unit.getDD();
-		angle180 = 180 * unit.getDD();
-		angle360 = 360 * unit.getDD();
+		angle90  =  90 * unit.getDDFactor();
+		angle180 = 180 * unit.getDDFactor();
+		angle360 = 360 * unit.getDDFactor();
 
 		//Calculate the number of entries in the cosinus table
 		int numEntry = angle90 / MAX_PRECISION;

@@ -108,296 +108,298 @@ import org.ptolemy3d.scene.Sky;
  */
 public class Camera {
 
-	// Ptolemy instance that camera renders.
-	private Ptolemy3DGLCanvas canvas = null;
-	private Ptolemy3D ptolemy = null;
+    // Ptolemy instance that camera renders.
+    private Ptolemy3DGLCanvas canvas = null;
+    private Ptolemy3D ptolemy = null;
 
-	// Camera position.
-	private Position position = Position.fromDD(0, 0, 5000);
-	// Direction, in radians, defined with a rotation around the vertical axis
-	// <i>(axis that goes from the earth center to the longitude/latitude
-	// position)</i>.
-	private double direction = 0;
-	// Tilt defined with a rotation around the side axis.
-	private double tilt = 0;
-	// Vertical altitude in meters. 0 is the ground reference (ground with no
-	// elevation).
-	private double vertAlt = 0;
-	private double vertAltDD = 0;
+    // Camera position.
+    private Position position = new Position(0, 0, 5000);
+    // Direction, in radians, defined with a rotation around the vertical axis
+    // <i>(axis that goes from the earth center to the longitude/latitude
+    // position)</i>.
+    private double direction = 0;
+    // Tilt defined with a rotation around the side axis.
+    private double tilt = 0;
+    // Vertical altitude in meters. 0 is the ground reference (ground with no
+    // elevation).
+    private double vertAlt = 0;
+    private double vertAltDD = 0;
+    private double cameraY = 0;
+    private double cameraX = 0;
 
-	private double cameraY = 0;
-	private double cameraX = 0;
+    // Cartesian position
+    public double[] cameraPos = new double[3];
+    public Matrix9d vpMat = new Matrix9d();
+    public Matrix9d cameraMat = new Matrix9d();
+    public Matrix16d cameraMatInv = Matrix16d.identity();
 
-	// Cartesian position
-	public double[] cameraPos = new double[3];
+    // 'Field Of View' in degrees
+    public final double fov = 60.0;
+    // Perspective matrix
+    public Matrix16d perspective = new Matrix16d();
+    // Modelview matrix
+    public Matrix16d modelview = new Matrix16d();
 
-	public Matrix9d vpMat = new Matrix9d();
-	public Matrix9d cameraMat = new Matrix9d();
-	public Matrix16d cameraMatInv = Matrix16d.identity();
+    /**
+     * Creates a new Camera instance.
+     */
+    public Camera(Ptolemy3DGLCanvas canvas) {
+        this.canvas = canvas;
+        this.ptolemy = canvas.getPtolemy();
+    }
 
-	// 'Field Of View' in degrees
-	public final double fov = 60.0;
-	// Perspective matrix
-	public Matrix16d perspective = new Matrix16d();
-	// Modelview matrix
-	public Matrix16d modelview = new Matrix16d();
+    /**
+     * Updates the camera view.
+     *
+     * @param gl
+     */
+    public void update(GL gl) {
+        /* update perspective */
+        updatePerspective(gl);
 
-	/**
-	 * Creates a new Camera instance.
-	 */
-	public Camera(Ptolemy3DGLCanvas canvas) {
-		this.canvas = canvas;
-		this.ptolemy = canvas.getPtolemy();
-	}
+        /* Update modelview */
+        CameraMovement cameraController = canvas.getCameraMovement();
+        try {
+            cameraController.setCamera(modelview);
+        }
+        catch (Exception e) {
+            IO.printError(e.getMessage());
+            cameraController.stopMovement();
+            modelview.identityMatrix();
+        }
+    }
 
-	/**
-	 * Updates the camera view.
-	 * 
-	 * @param gl
-	 */
-	public void update(GL gl) {
-		/* update perspective */
-		updatePerspective(gl);
+    /**
+     * Updates the camera perspective.
+     *
+     * @param gl
+     */
+    private final void updatePerspective(GL gl) {
+        final Unit unit = canvas.getPtolemy().unit;
+        final CameraMovement cameraController = canvas.getCameraMovement();
+        final Landscape landscape = canvas.getScene().landscape;
+        final Sky sky = canvas.getScene().sky;
+        final int FAR_CLIP = landscape.getFarClip();
+        final int FOG_RADIUS = landscape.getFogRadius();
+        final double aspectRatio = canvas.getDrawAspectRatio();
 
-		/* Update modelview */
-		CameraMovement cameraController = canvas.getCameraMovement();
-		try {
-			cameraController.setCamera(modelview);
-		} catch (Exception e) {
-			IO.printError(e.getMessage());
-			cameraController.stopMovement();
-			modelview.identityMatrix();
-		}
-	}
+        // maximize our precision
+        if (sky.fogStateOn) {
+            if (vertAlt > sky.horizonAlt) {
+                gl.glDisable(GL.GL_FOG);
+                perspective.setPerspectiveProjection(fov, aspectRatio,
+                                                     ((sky.horizonAlt * unit.getCoordSystemRatio()) / 2),
+                                                     FAR_CLIP);
+                sky.fogStateOn = false;
+            }
+            else {
+                // minimize our back z clip for precision
+                double gamma = 0.5235987756 - tilt;
+                if (gamma > Math3D.HALF_PI_VALUE) {
+                    perspective.setPerspectiveProjection(fov, aspectRatio, 1,
+                                                         FOG_RADIUS + 10000);
+                }
+                else {
+                    double maxView = Math.tan(gamma) * (position.getAltitudeDD() + cameraController.ground_ht) * 2;
+                    if (maxView >= FOG_RADIUS + 10000) {
+                        perspective.setPerspectiveProjection(fov, aspectRatio,
+                                                             1, FOG_RADIUS + 10000);
+                    }
+                    else {
+                        perspective.setPerspectiveProjection(fov, aspectRatio,
+                                                             1, maxView);
+                    }
+                }
+            }
+        }
+        else {
+            if (vertAlt > sky.horizonAlt) {
+                // On resize, force update aspectRatio
+                perspective.setPerspectiveProjection(fov, aspectRatio,
+                                                     ((sky.horizonAlt * unit.getCoordSystemRatio()) / 2),
+                                                     FAR_CLIP);
+            }
+            else {
+                gl.glEnable(GL.GL_FOG);
+                perspective.setPerspectiveProjection(fov, aspectRatio, 1,
+                                                     FOG_RADIUS + 10000);
+                sky.fogStateOn = true;
+            }
+        }
+    }
 
-	/**
-	 * Updates the camera perspective.
-	 * 
-	 * @param gl
-	 */
-	private final void updatePerspective(GL gl) {
-		final Unit unit = canvas.getPtolemy().unit;
-		final CameraMovement cameraController = canvas.getCameraMovement();
-		final Landscape landscape = canvas.getScene().landscape;
-		final Sky sky = canvas.getScene().sky;
-		final int FAR_CLIP = landscape.getFarClip();
-		final int FOG_RADIUS = landscape.getFogRadius();
-		final double aspectRatio = canvas.getDrawAspectRatio();
+    /**
+     * @return the altitude in world space (vertical altitude), zero is the
+     *         altitude of the ground with no elevation.
+     */
+    public final double getVerticalAltitudeMeters() {
+        return vertAlt;
+    }
 
-		// maximize our precision
-		if (sky.fogStateOn) {
-			if (vertAlt > sky.horizonAlt) {
-				gl.glDisable(GL.GL_FOG);
-				perspective.setPerspectiveProjection(fov, aspectRatio,
-						((sky.horizonAlt * unit.getCoordSystemRatio()) / 2),
-						FAR_CLIP);
-				sky.fogStateOn = false;
-			} else {
-				// minimize our back z clip for precision
-				double gamma = 0.5235987756 - tilt;
-				if (gamma > Math3D.HALF_PI_VALUE) {
-					perspective.setPerspectiveProjection(fov, aspectRatio, 1,
-							FOG_RADIUS + 10000);
-				} else {
-					double maxView = Math.tan(gamma)
-							* (position.getAltitudeDD() + cameraController.ground_ht)
-							* 2;
-					if (maxView >= FOG_RADIUS + 10000) {
-						perspective.setPerspectiveProjection(fov, aspectRatio,
-								1, FOG_RADIUS + 10000);
-					} else {
-						perspective.setPerspectiveProjection(fov, aspectRatio,
-								1, maxView);
-					}
-				}
-			}
-		} else {
-			if (vertAlt > sky.horizonAlt) {
-				// On resize, force update aspectRatio
-				perspective.setPerspectiveProjection(fov, aspectRatio,
-						((sky.horizonAlt * unit.getCoordSystemRatio()) / 2),
-						FAR_CLIP);
-			} else {
-				gl.glEnable(GL.GL_FOG);
-				perspective.setPerspectiveProjection(fov, aspectRatio, 1,
-						FOG_RADIUS + 10000);
-				sky.fogStateOn = true;
-			}
-		}
-	}
+    /** @return direction: unit is degrees. */
+    public final double getDirectionDegrees() {
+        return direction * Math3D.RADIAN_TO_DEGREE_FACTOR;
+    }
 
-	/**
-	 * @return the altitude in world space (vertical altitude), zero is the
-	 *         altitude of the ground with no elevation.
-	 */
-	public final double getVerticalAltitudeMeters() {
-		return vertAlt;
-	}
+    /** @return direction: unit is radians. */
+    public final double getDirectionRadians() {
+        return direction;
+    }
 
-	/** @return direction: unit is degrees. */
-	public final double getDirectionDegrees() {
-		return direction * Math3D.RADIAN_TO_DEGREE_FACTOR;
-	}
+    /** @return pitch (tilt): unit is degrees. */
+    public final double getPitchDegrees() {
+        return tilt * Math3D.RADIAN_TO_DEGREE_FACTOR;
+    }
 
-	/** @return direction: unit is radians. */
-	public final double getDirectionRadians() {
-		return direction;
-	}
+    /** @return pitch (tilt): unit is radians. */
+    public final double getPitchRadians() {
+        return tilt;
+    }
 
-	/** @return pitch (tilt): unit is degrees. */
-	public final double getPitchDegrees() {
-		return tilt * Math3D.RADIAN_TO_DEGREE_FACTOR;
-	}
+    /**
+     * @param position
+     *            destination array to write cartesian position in.
+     */
+    public final void getCartesianPosition(double[] position) {
+        position[0] = cameraPos[0];
+        position[1] = cameraPos[1];
+        position[2] = cameraPos[2];
+    }
 
-	/** @return pitch (tilt): unit is radians. */
-	public final double getPitchRadians() {
-		return tilt;
-	}
+    /**
+     * @param left
+     *            destination vector to store left vector
+     */
+    public void getLeft(double[] left) {
+        left[0] = -cameraMat.m[0][2];
+        left[1] = -cameraMat.m[1][2];
+        left[2] = -cameraMat.m[2][2];
+    }
 
-	/**
-	 * @param position
-	 *            destination array to write cartesian position in.
-	 */
-	public final void getCartesianPosition(double[] position) {
-		position[0] = cameraPos[0];
-		position[1] = cameraPos[1];
-		position[2] = cameraPos[2];
-	}
+    /**
+     * @param up
+     *            destination vector to store up vector
+     */
+    public void getUp(double[] up) {
+        up[0] = cameraMat.m[0][1];
+        up[1] = cameraMat.m[1][1];
+        up[2] = cameraMat.m[2][1];
+    }
 
-	/**
-	 * @param left
-	 *            destination vector to store left vector
-	 */
-	public void getLeft(double[] left) {
-		left[0] = -cameraMat.m[0][2];
-		left[1] = -cameraMat.m[1][2];
-		left[2] = -cameraMat.m[2][2];
-	}
+    /**
+     * @param forward
+     *            destination vector to store forward vector
+     */
+    public void getForward(double[] forward) {
+        forward[0] = -cameraMat.m[0][2];
+        forward[1] = -cameraMat.m[1][2];
+        forward[2] = -cameraMat.m[2][2];
+    }
 
-	/**
-	 * @param up
-	 *            destination vector to store up vector
-	 */
-	public void getUp(double[] up) {
-		up[0] = cameraMat.m[0][1];
-		up[1] = cameraMat.m[1][1];
-		up[2] = cameraMat.m[2][1];
-	}
+    /** @return the position in the view coordinate system */
+    public String toString() {
+        return String.format(
+                "lat:%f, lon:%f, alt:%f, dir:%f, tilt:%f, x:%f, y:%f, z:%f",
+                (float) position.getLatitudeDD(), (float) position.getLongitudeDD(),
+                (float) position.getAltitudeDD(), (float) getDirection(), tilt,
+                (float) cameraPos[0], (float) cameraPos[1],
+                (float) cameraPos[2]);
+    }
 
-	/**
-	 * @param forward
-	 *            destination vector to store forward vector
-	 */
-	public void getForward(double[] forward) {
-		forward[0] = -cameraMat.m[0][2];
-		forward[1] = -cameraMat.m[1][2];
-		forward[2] = -cameraMat.m[2][2];
-	}
+    /**
+     * @return the position
+     */
+    public Position getPosition() {
+        return position;
+    }
 
-	/** @return the position in the view coordinate system */
-	public String toString() {
-		return String.format(
-				"lon:%f, lat:%f, alt:%f, dir:%f, tilt:%f, x:%f, y:%f, z:%f",
-				(float) position.lon, (float) position.lat,
-				(float) position.alt, (float) getDirection(), tilt,
-				(float) cameraPos[0], (float) cameraPos[1],
-				(float) cameraPos[2]);
-	}
+    /**
+     * @param direction
+     *            the direction to set
+     */
+    public void setDirection(double direction) {
+        this.direction = direction;
+    }
 
-	/**
-	 * @return the position
-	 */
-	public Position getPosition() {
-		return position;
-	}
+    /**
+     * @return the direction
+     */
+    public double getDirection() {
+        return direction;
+    }
 
-	/**
-	 * @param direction
-	 *            the direction to set
-	 */
-	public void setDirection(double direction) {
-		this.direction = direction;
-	}
+    /**
+     * @param tilt
+     *            the tilt to set
+     */
+    public void setTilt(double tilt) {
+        this.tilt = tilt;
+    }
 
-	/**
-	 * @return the direction
-	 */
-	public double getDirection() {
-		return direction;
-	}
+    /**
+     * @return the tilt
+     */
+    public double getTilt() {
+        return tilt;
+    }
 
-	/**
-	 * @param tilt
-	 *            the tilt to set
-	 */
-	public void setTilt(double tilt) {
-		this.tilt = tilt;
-	}
+    /**
+     * @param vertAlt
+     *            the vertAlt to set
+     */
+    public void setVertAlt(double vertAlt) {
+        this.vertAlt = vertAlt;
+    }
 
-	/**
-	 * @return the tilt
-	 */
-	public double getTilt() {
-		return tilt;
-	}
+    /**
+     * @return the vertAlt
+     */
+    public double getVertAlt() {
+        return vertAlt;
+    }
 
-	/**
-	 * @param vertAlt
-	 *            the vertAlt to set
-	 */
-	public void setVertAlt(double vertAlt) {
-		this.vertAlt = vertAlt;
-	}
+    /**
+     * @param vertAltDD
+     *            the vertAltDD to set
+     */
+    public void setVertAltDD(double vertAltDD) {
+        this.vertAltDD = vertAltDD;
+    }
 
-	/**
-	 * @return the vertAlt
-	 */
-	public double getVertAlt() {
-		return vertAlt;
-	}
+    /**
+     * @return the vertAltDD
+     */
+    public double getVertAltDD() {
+        return vertAltDD;
+    }
 
-	/**
-	 * @param vertAltDD
-	 *            the vertAltDD to set
-	 */
-	public void setVertAltDD(double vertAltDD) {
-		this.vertAltDD = vertAltDD;
-	}
+    /**
+     * @param cameraX
+     *            the cameraX to set
+     */
+    public void setCameraX(double cameraX) {
+        this.cameraX = cameraX;
+    }
 
-	/**
-	 * @return the vertAltDD
-	 */
-	public double getVertAltDD() {
-		return vertAltDD;
-	}
+    /**
+     * @return the cameraX
+     */
+    public double getCameraX() {
+        return cameraX;
+    }
 
-	/**
-	 * @param cameraX
-	 *            the cameraX to set
-	 */
-	public void setCameraX(double cameraX) {
-		this.cameraX = cameraX;
-	}
+    /**
+     * @param cameraY
+     *            the cameraY to set
+     */
+    public void setCameraY(double cameraY) {
+        this.cameraY = cameraY;
+    }
 
-	/**
-	 * @return the cameraX
-	 */
-	public double getCameraX() {
-		return cameraX;
-	}
-
-	/**
-	 * @param cameraY
-	 *            the cameraY to set
-	 */
-	public void setCameraY(double cameraY) {
-		this.cameraY = cameraY;
-	}
-
-	/**
-	 * @return the cameraY
-	 */
-	public double getCameraY() {
-		return cameraY;
-	}
+    /**
+     * @return the cameraY
+     */
+    public double getCameraY() {
+        return cameraY;
+    }
 }

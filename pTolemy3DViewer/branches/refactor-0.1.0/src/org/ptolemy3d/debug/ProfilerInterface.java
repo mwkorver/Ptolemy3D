@@ -44,6 +44,8 @@ import org.ptolemy3d.view.Camera;
  */
 public class ProfilerInterface {
 
+    // TODO - Adapt profiler to the "new API".
+
     private static Profiler profiler = null;
     private static Timer counter = null;
     /** Enable Profiler Prints */
@@ -128,134 +130,134 @@ public class ProfilerInterface {
     }
 
     public static String generateReport(int line) {
-        if (enablePrintProfiler) {
-            switch (line) {
-                case 0:
-                    int fps = (int) getFPS();
-                    ProfilerEventReport renderProf = ProfilerInterface.getReport(ProfilerEventInterface.Frame);
-                    ProfilerEventReport landscapeProf = ProfilerInterface.getReport(ProfilerEventInterface.Landscape);
-
-                    if (renderProf != null && landscapeProf != null) {
-//						float landscapPercent = (landscapeProf.duration == 0) ? 0 : (float)renderProf.duration / landscapeProf.duration;
-                        float landscapFPS = (landscapeProf.duration == 0) ? 0 : (float) 1000000 / landscapeProf.duration;
-
-                        return String.format("Frame:%dFPS|Landscape:%.1fFPS",
-                                             fps, landscapFPS);
-                    }
-                    break;
-                case 1:
-                    float memUsage = vertexMemoryUsage / 1024.f;
-                    return String.format("Tile:%d|Section:%d|Vtx:%d|VtxUsage:%.2f ko",
-                                         tileCounter, tileSectionCounter, vertexCounter, memUsage);
-                case 2:
-                    return String.format("CorrectFreeze:%s|VisibilityFreeze:%s",
-                                         freezeCorrectLevels, freezeVisibility);
-                case 3:
-                    String landscapeRenderMode;
-                    switch (Ptolemy3D.ptolemy.scene.landscape.getDisplayMode()) {
-                        case Landscape.DISPLAY_STANDARD:
-                            landscapeRenderMode = "Standard";
-                            break;
-                        case Landscape.DISPLAY_MESH:
-                            landscapeRenderMode = "Mesh";
-                            break;
-                        case Landscape.DISPLAY_SHADEDDEM:
-                            landscapeRenderMode = "Elevation";
-                            break;
-                        case Landscape.DISPLAY_JP2RES:
-                            landscapeRenderMode = "JP2 resolution";
-                            break;
-                        case Landscape.DISPLAY_TILEID:
-                            landscapeRenderMode = "Tile id";
-                            break;
-                        case Landscape.DISPLAY_LEVELID:
-                            landscapeRenderMode = "Level id";
-                            break;
-                        default:
-                            return null;
-                    }
-                    return "RenderMode: " + landscapeRenderMode;
-            }
-        }
+//        if (enablePrintProfiler) {
+//            switch (line) {
+//                case 0:
+//                    int fps = (int) getFPS();
+//                    ProfilerEventReport renderProf = ProfilerInterface.getReport(ProfilerEventInterface.Frame);
+//                    ProfilerEventReport landscapeProf = ProfilerInterface.getReport(ProfilerEventInterface.Landscape);
+//
+//                    if (renderProf != null && landscapeProf != null) {
+////						float landscapPercent = (landscapeProf.duration == 0) ? 0 : (float)renderProf.duration / landscapeProf.duration;
+//                        float landscapFPS = (landscapeProf.duration == 0) ? 0 : (float) 1000000 / landscapeProf.duration;
+//
+//                        return String.format("Frame:%dFPS|Landscape:%.1fFPS",
+//                                             fps, landscapFPS);
+//                    }
+//                    break;
+//                case 1:
+//                    float memUsage = vertexMemoryUsage / 1024.f;
+//                    return String.format("Tile:%d|Section:%d|Vtx:%d|VtxUsage:%.2f ko",
+//                                         tileCounter, tileSectionCounter, vertexCounter, memUsage);
+//                case 2:
+//                    return String.format("CorrectFreeze:%s|VisibilityFreeze:%s",
+//                                         freezeCorrectLevels, freezeVisibility);
+//                case 3:
+//                    String landscapeRenderMode;
+//                    switch (Ptolemy3D.ptolemy.scene.landscape.getDisplayMode()) {
+//                        case Landscape.DISPLAY_STANDARD:
+//                            landscapeRenderMode = "Standard";
+//                            break;
+//                        case Landscape.DISPLAY_MESH:
+//                            landscapeRenderMode = "Mesh";
+//                            break;
+//                        case Landscape.DISPLAY_SHADEDDEM:
+//                            landscapeRenderMode = "Elevation";
+//                            break;
+//                        case Landscape.DISPLAY_JP2RES:
+//                            landscapeRenderMode = "JP2 resolution";
+//                            break;
+//                        case Landscape.DISPLAY_TILEID:
+//                            landscapeRenderMode = "Tile id";
+//                            break;
+//                        case Landscape.DISPLAY_LEVELID:
+//                            landscapeRenderMode = "Level id";
+//                            break;
+//                        default:
+//                            return null;
+//                    }
+//                    return "RenderMode: " + landscapeRenderMode;
+//            }
+//        }
         return null;
     }
 
     public static void drawProfiler(Ptolemy3D ptolemy, GL gl) {
-        if (enablePrintProfiler) {
-            if (ptolemy.fontTextRenderer == null) {
-                return;
-            }
-            FntFontRenderer fontText = ptolemy.fontTextRenderer;
-
-            final Sky sky = ptolemy.scene.sky;
-            final Camera camera = ptolemy.camera;
-            final Unit unit = ptolemy.unit;
-
-            int sclsize = 50;
-            double logoScaler = (camera.getVerticalAltitudeMeters() > sky.horizonAlt) ? ((sky.horizonAlt * unit.getCoordSystemRatio()) / 2) : 5;
-            double aspect = ptolemy.canvas.getDrawAspectRatio();
-            double pixratiox = (((Math.tan(Math3D.DEGREE_TO_RADIAN_FACTOR * 60.0) * sclsize) * aspect) / ptolemy.canvas.getDrawWidth());
-
-            double indentx = pixratiox;
-
-            double ulx, uly, urx;
-
-            ulx = -((Math.tan((60.0 * Math3D.DEGREE_TO_RADIAN_FACTOR) / 2) * sclsize) * aspect) + indentx;
-            urx = (((Math.tan((60.0 * Math3D.DEGREE_TO_RADIAN_FACTOR) / 2) * sclsize) * aspect));
-            uly = -(Math.tan(Math3D.DEGREE_TO_RADIAN_FACTOR * 30.0) * sclsize) + 4;	//+ 4 to move up
-
-            /* Keep text at constant size, when window is resized */
-            float scalerX = 1, scalerY = 1;
-            Dimension scrnsize = Toolkit.getDefaultToolkit().getScreenSize();
-            scalerX = (float) scrnsize.width / (float) ptolemy.canvas.getDrawWidth();
-            scalerY = (float) scrnsize.height / (float) ptolemy.canvas.getDrawHeight();
-
-            gl.glDisable(GL.GL_DEPTH_TEST);
-            gl.glEnable(GL.GL_BLEND);
-            gl.glTexEnvf(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_MODULATE);
-
-            gl.glPushMatrix();
-            gl.glLoadIdentity();
-            gl.glTranslated(0, 0, -logoScaler);
-
-            logoScaler /= sclsize;
-
-            gl.glScaled(logoScaler, logoScaler, logoScaler);
-
-            // bg box
-            Color color = ptolemy.configuration.hudBackgroundColor;
-            gl.glColor4b((byte) color.getRed(), (byte) color.getGreen(), (byte) color.getBlue(), (byte) color.getAlpha());
-            gl.glBegin(GL.GL_QUADS);
-            gl.glTexCoord2f(0, 0);
-            gl.glVertex3d(ulx, uly + (1.157 * scalerY), 0);
-            gl.glTexCoord2f(0, 1);
-            gl.glVertex3d(ulx, uly, 0);
-            gl.glTexCoord2f(1, 1);
-            gl.glVertex3d(urx, uly, 0);
-            gl.glTexCoord2f(1, 0);
-            gl.glVertex3d(urx, uly + (1.157 * scalerY), 0);
-            gl.glEnd();
-            gl.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-
-            //Profiler report
-            float str_length = 0;
-
-            fontText.bindTexture(gl);
-            String profilerReport;
-            int line = 0;
-            while ((profilerReport = ProfilerInterface.generateReport(line)) != null) {
-                str_length += fontText.drawLeftToRight(gl, profilerReport, ulx, uly + 0.09);
-
-                uly += 1.157 * scalerY;
-                line++;
-            }
-
-            gl.glPopMatrix();
-
-            gl.glEnable(GL.GL_DEPTH_TEST);
-            gl.glDisable(GL.GL_BLEND);
-            gl.glTexEnvf(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_DECAL);
-        }
+//        if (enablePrintProfiler) {
+//            if (ptolemy.fontTextRenderer == null) {
+//                return;
+//            }
+//            FntFontRenderer fontText = ptolemy.fontTextRenderer;
+//
+//            final Sky sky = ptolemy.scene.sky;
+//            final Camera camera = ptolemy.camera;
+//            final Unit unit = ptolemy.unit;
+//
+//            int sclsize = 50;
+//            double logoScaler = (camera.getVerticalAltitudeMeters() > sky.horizonAlt) ? ((sky.horizonAlt * unit.getCoordSystemRatio()) / 2) : 5;
+//            double aspect = ptolemy.canvas.getDrawAspectRatio();
+//            double pixratiox = (((Math.tan(Math3D.DEGREE_TO_RADIAN_FACTOR * 60.0) * sclsize) * aspect) / ptolemy.canvas.getDrawWidth());
+//
+//            double indentx = pixratiox;
+//
+//            double ulx, uly, urx;
+//
+//            ulx = -((Math.tan((60.0 * Math3D.DEGREE_TO_RADIAN_FACTOR) / 2) * sclsize) * aspect) + indentx;
+//            urx = (((Math.tan((60.0 * Math3D.DEGREE_TO_RADIAN_FACTOR) / 2) * sclsize) * aspect));
+//            uly = -(Math.tan(Math3D.DEGREE_TO_RADIAN_FACTOR * 30.0) * sclsize) + 4;	//+ 4 to move up
+//
+//            /* Keep text at constant size, when window is resized */
+//            float scalerX = 1, scalerY = 1;
+//            Dimension scrnsize = Toolkit.getDefaultToolkit().getScreenSize();
+//            scalerX = (float) scrnsize.width / (float) ptolemy.canvas.getDrawWidth();
+//            scalerY = (float) scrnsize.height / (float) ptolemy.canvas.getDrawHeight();
+//
+//            gl.glDisable(GL.GL_DEPTH_TEST);
+//            gl.glEnable(GL.GL_BLEND);
+//            gl.glTexEnvf(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_MODULATE);
+//
+//            gl.glPushMatrix();
+//            gl.glLoadIdentity();
+//            gl.glTranslated(0, 0, -logoScaler);
+//
+//            logoScaler /= sclsize;
+//
+//            gl.glScaled(logoScaler, logoScaler, logoScaler);
+//
+//            // bg box
+//            Color color = ptolemy.configuration.hudBackgroundColor;
+//            gl.glColor4b((byte) color.getRed(), (byte) color.getGreen(), (byte) color.getBlue(), (byte) color.getAlpha());
+//            gl.glBegin(GL.GL_QUADS);
+//            gl.glTexCoord2f(0, 0);
+//            gl.glVertex3d(ulx, uly + (1.157 * scalerY), 0);
+//            gl.glTexCoord2f(0, 1);
+//            gl.glVertex3d(ulx, uly, 0);
+//            gl.glTexCoord2f(1, 1);
+//            gl.glVertex3d(urx, uly, 0);
+//            gl.glTexCoord2f(1, 0);
+//            gl.glVertex3d(urx, uly + (1.157 * scalerY), 0);
+//            gl.glEnd();
+//            gl.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+//
+//            //Profiler report
+//            float str_length = 0;
+//
+//            fontText.bindTexture(gl);
+//            String profilerReport;
+//            int line = 0;
+//            while ((profilerReport = ProfilerInterface.generateReport(line)) != null) {
+//                str_length += fontText.drawLeftToRight(gl, profilerReport, ulx, uly + 0.09);
+//
+//                uly += 1.157 * scalerY;
+//                line++;
+//            }
+//
+//            gl.glPopMatrix();
+//
+//            gl.glEnable(GL.GL_DEPTH_TEST);
+//            gl.glDisable(GL.GL_BLEND);
+//            gl.glTexEnvf(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_DECAL);
+//        }
     }
 
     public static long getTimePassed() {

@@ -278,7 +278,7 @@ public class Tile {
 			double theta2, phi2;
 			double oneOverDDToRad;
 
-			oneOverDDToRad = Math3D.DEGREE_TO_RADIAN_FACTOR / unit.getDD();
+			oneOverDDToRad = Math3D.DEGREE_TO_RADIAN_FACTOR / unit.getDDFactor();
 
 			theta1 = (x1 + landscape.getMaxLongitude()) * oneOverDDToRad;
 			theta2 = (x2 + landscape.getMaxLongitude()) * oneOverDDToRad;

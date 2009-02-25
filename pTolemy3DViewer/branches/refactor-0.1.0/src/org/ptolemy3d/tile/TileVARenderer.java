@@ -110,7 +110,7 @@ class TileVARenderer extends TileDirectModeRenderer
 			double theta2, phi2;
 			double oneOverDDToRad;
 
-			oneOverDDToRad = Math3D.DEGREE_TO_RADIAN_FACTOR / unit.getDD();
+			oneOverDDToRad = Math3D.DEGREE_TO_RADIAN_FACTOR / unit.getDDFactor();
 
 			theta1 = (x1 + landscape.getMaxLongitude()) * oneOverDDToRad;
 			theta2 = (x2 + landscape.getMaxLongitude()) * oneOverDDToRad;
@@ -320,7 +320,7 @@ class TileVARenderer extends TileDirectModeRenderer
 			double theta2, phi2;
 			double oneOverDDToRad, oneOverN;
 
-			oneOverDDToRad = Math3D.DEGREE_TO_RADIAN_FACTOR / unit.getDD();
+			oneOverDDToRad = Math3D.DEGREE_TO_RADIAN_FACTOR / unit.getDDFactor();
 			oneOverN = 1.0 / n;
 
 			theta1 = (x1 + landscape.getMaxLongitude()) * oneOverDDToRad;
@@ -432,7 +432,7 @@ class TileVARenderer extends TileDirectModeRenderer
 			double theta2, phi2;
 			double oneOverDDToRad, oneOverN;
 
-			oneOverDDToRad = Math3D.DEGREE_TO_RADIAN_FACTOR / unit.getDD();
+			oneOverDDToRad = Math3D.DEGREE_TO_RADIAN_FACTOR / unit.getDDFactor();
 			oneOverN = 1.0 / n;
 
 			theta1 = (x1 + landscape.getMaxLongitude()) * oneOverDDToRad;  // startx

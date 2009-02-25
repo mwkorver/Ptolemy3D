@@ -17,89 +17,69 @@
  */
 package org.ptolemy3d.view;
 
-import org.ptolemy3d.Ptolemy3D;
-import org.ptolemy3d.Unit;
-
 /**
  * Position represented by lat/lon/altitude.
  * 
  * @author Jerome Jouvie
- * @author Antonio Santiago
+ * @author Antonio Santiago <asantiagop(at)gmail(dot)com>
  */
 public class Position {
-	/** Latitude of the view point. */
-	protected double lat;
-	/** Longitude of the view point. */
-	protected double lon;
-	/**
-	 * Distance from the view point. May not be vertical (distance not
-	 * altitude).
-	 */
-	protected double alt;
 
-	/**
-	 * @param lat
-	 *            unit is DD
-	 * @param lon
-	 *            unit is DD
-	 * @param alt
-	 */
-	private Position(double lat, double lon, double alt) {
-		this.lon = lon;
-		this.alt = alt;
-		this.lat = lat;
-	}
+    // Latitude of the view point.
+    private double latitudeDD;
+    // Longitude of the view point.
+    private double longitudeDD;
+    // Distance from the view point. May not be vertical (distance not altitude).
+    private double altitude;
 
-	public Position clone() {
-		return new Position(lat, lon, alt);
-	}
+    /**
+     * @param lat
+     *            unit is DD
+     * @param lon
+     *            unit is DD
+     * @param alt
+     */
+    public Position(double lat, double lon, double alt) {
+        this.longitudeDD = lon;
+        this.altitude = alt;
+        this.latitudeDD = lat;
+    }
 
-	/** @return longitude in degrees. */
-	public final double getLongitudeDegrees() {
-		final Unit unit = Ptolemy3D.ptolemy.unit;
-		return lon / unit.getDD();
-	}
+    public Position copy() {
+        return new Position(latitudeDD, longitudeDD, altitude);
+    }
 
-	/** @return longitude in DD. */
-	public final double getLongitudeDD() {
-		return lon;
-	}
+    /**
+     * @return latitude in DD.
+     */
+    public double getLatitudeDD() {
+        return latitudeDD;
+    }
 
-	/** @return latitude in degrees. */
-	public final double getLatitudeDegrees() {
-		final Unit unit = Ptolemy3D.ptolemy.unit;
-		return lat / unit.getDD();
-	}
+    public void setLatitudeDD(double latDD) {
+        latitudeDD = latDD;
+    }
 
-	/** @return latitude in DD. */
-	public final double getLatitudeDD() {
-		return lat;
-	}
+    /**
+     * @return longitude in DD.
+     */
+    public double getLongitudeDD() {
+        return longitudeDD;
+    }
 
-	/**
-	 * @return the altitude in view space (altitude axis may not be vertical),
-	 *         zero is the altitude of the ground with no elevation.
-	 */
-	public final double getAltitude() {
-		final Unit unit = Ptolemy3D.ptolemy.unit;
-		return alt / unit.getCoordSystemRatio();
-	}
+    public void setLongitudeDD(double lonDD) {
+        longitudeDD = lonDD;
+    }
 
-	/**
-	 * @return the altitude in view space (altitude axis may not be vertical),
-	 *         zero is the altitude of the ground with no elevation.
-	 */
-	public final double getAltitudeDD() {
-		return alt;
-	}
+    /**
+     * @return the altitude in view space (altitude axis may not be vertical),
+     *         zero is the altitude of the ground with no elevation.
+     */
+    public double getAltitudeDD() {
+        return altitude;
+    }
 
-	public static Position fromDD(double lat, double lon, double alt) {
-		return new Position(lat, lon, alt);
-	}
-
-	public static Position fromDegrees(double lat, double lon, double alt) {
-		final Unit unit = Ptolemy3D.ptolemy.unit;
-		return new Position(lat * unit.getDD(), lon * unit.getDD(), alt);
-	}
-
+    public void setAltitudeDD(double altDD) {
+        altitude = altDD;
+    }
 }

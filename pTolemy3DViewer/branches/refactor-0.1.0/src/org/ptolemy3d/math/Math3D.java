@@ -17,8 +17,6 @@
  */
 package org.ptolemy3d.math;
 
-import static org.ptolemy3d.Configuration.EARTH_RADIUS;
-
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.Unit;
 import org.ptolemy3d.scene.Landscape;
@@ -51,9 +49,8 @@ public class Math3D {
      */
     public static final void setSphericalCoord(double lon, double lat, double[] dest) {
         final Landscape landscape = Ptolemy3D.ptolemy.scene.landscape;
-        final Unit unit = Ptolemy3D.getInstance().unit;
 
-        double toRadiansOverDDBuffer = Math3D.DEGREE_TO_RADIAN_FACTOR / unit.getDD();
+        double toRadiansOverDDBuffer = Math3D.DEGREE_TO_RADIAN_FACTOR / Unit.getDDFactor();
 
         double thx = (lon - landscape.getMaxLongitude()) * toRadiansOverDDBuffer; // +
         // or
@@ -341,7 +338,6 @@ public class Math3D {
     }
 
     public static final void setMapCoord(double[] in, double[] out) {
-        final Unit unit = Ptolemy3D.ptolemy.unit;
 
         double[] intvec = new double[3];
         Vector3d.copy(intvec, in);
@@ -354,7 +350,7 @@ public class Math3D {
         out[0] = Math.asin(intvec[1]) * RADIAN_TO_DEGREE_FACTOR;
         out[1] = o_lon;
 
-        double alt = (Math.sqrt(in[0] * in[0]) + (in[1] * in[1]) + (in[2] * in[2]) - EARTH_RADIUS) / unit.getCoordSystemRatio();
+        double alt = (Math.sqrt(in[0] * in[0]) + (in[1] * in[1]) + (in[2] * in[2]) - Unit.EARTH_RADIUS) / Unit.getCoordSystemRatio();
         if (alt < 0) {
             alt = 0;
         }
@@ -377,9 +373,9 @@ public class Math3D {
         {
             double[] coord = new double[3];
             setSphericalCoord(lon, lat, coord);
-            lon = coord[0] * (EARTH_RADIUS + alt);
-            alt = coord[1] * (EARTH_RADIUS + alt);
-            lat = coord[2] * (EARTH_RADIUS + alt);
+            lon = coord[0] * (Unit.EARTH_RADIUS + alt);
+            alt = coord[1] * (Unit.EARTH_RADIUS + alt);
+            lat = coord[2] * (Unit.EARTH_RADIUS + alt);
             angle = Math3D.angle3dvec(-camera.cameraMat.m[0][2],
                                       -camera.cameraMat.m[1][2], -camera.cameraMat.m[2][2],
                                       (camera.cameraPos[0] - lon), (camera.cameraPos[1] - alt),

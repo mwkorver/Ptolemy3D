@@ -24,7 +24,7 @@ import java.io.IOException;
 import javax.media.opengl.GL;
 import javax.media.opengl.glu.GLU;
 import org.ptolemy3d.Ptolemy3D;
-import org.ptolemy3d.Configuration;
+import org.ptolemy3d.Unit;
 import org.ptolemy3d.io.Communicator;
 import org.ptolemy3d.math.Math3D;
 import org.ptolemy3d.scene.Plugin;
@@ -35,8 +35,7 @@ import org.ptolemy3d.scene.Plugin;
  *
  * @author Antonio Santiago <asantiagop@gmail.com>
  */
-public class AxisPlugin implements Plugin
-{
+public class AxisPlugin implements Plugin {
 
     private static final String NAME = "AXIS_PLUGIN_";
     private int index = -1;
@@ -52,27 +51,23 @@ public class AxisPlugin implements Plugin
      * Initialize all non OpenGL datas. This is called just after the object instanciation.
      * OpenGL Context is NOT current here, initialize all OpenGL related datas in <code>initGL</code>.
      */
-    public void init(Ptolemy3D ptolemy)
-    {
+    public void init(Ptolemy3D ptolemy) {
         this.ptolemy = ptolemy;
     }
 
     /**
      * Notify the index of the plugin.
      */
-    public void setPluginIndex(int index)
-    {
+    public void setPluginIndex(int index) {
         this.index = index;
     }
 
     /**
      * Called a single time at initialisation.
      */
-    public void setPluginParameters(String params)
-    {
+    public void setPluginParameters(String params) {
         String p[] = params.split(",");
-        if (p.length > 0)
-        {
+        if (p.length > 0) {
             showLabels = true;
         }
     }
@@ -80,15 +75,13 @@ public class AxisPlugin implements Plugin
     /**
      * Called when camera motion is stopped.
      */
-    public void motionStop(GL gl)
-    {
+    public void motionStop(GL gl) {
     }
 
     /**
      * Ray trace to find an intersection with the plugin geometry.
      */
-    public boolean pick(double[] intersectPoint, double[][] ray)
-    {
+    public boolean pick(double[] intersectPoint, double[][] ray) {
         return false;
     }
 
@@ -96,16 +89,14 @@ public class AxisPlugin implements Plugin
      * Called when the landscape has been picked.
      * @param intersectPoint picking intersection point.
      */
-    public boolean onPick(double[] intersectPoint)
-    {
+    public boolean onPick(double[] intersectPoint) {
         return false;
     }
 
     /**
      * Call by the tile loader to let the plugin request data.
      */
-    public void tileLoaderAction(Communicator com) throws IOException
-    {
+    public void tileLoaderAction(Communicator com) throws IOException {
     }
 
     /**
@@ -115,14 +106,11 @@ public class AxisPlugin implements Plugin
      * @param commandParams command parameters
      * @return if any value is returned, return it in a Stirng.
      */
-    public String pluginAction(String commandname, String command_params)
-    {
-        if (commandname.equalsIgnoreCase("status"))
-        {
+    public String pluginAction(String commandname, String command_params) {
+        if (commandname.equalsIgnoreCase("status")) {
             status = (Integer.parseInt(command_params) == 1) ? true : false;
         }
-        else if (commandname.equalsIgnoreCase("getLayerName"))
-        {
+        else if (commandname.equalsIgnoreCase("getLayerName")) {
             return NAME + index;
         }
         return null;
@@ -131,40 +119,33 @@ public class AxisPlugin implements Plugin
     /**
      * Called when landscape status has been changed. Plugin must reload some data due to this change.
      */
-    public void reloadData()
-    {
+    public void reloadData() {
     }
 
     /**
      * Initialize all OpenGL datas. OpenGL Context is current.
      */
-    public void initGL(GL gl)
-    {
+    public void initGL(GL gl) {
     }
 
     /**
      * Render OpenGL geometry.
      */
-    public void draw(GL gl)
-    {
-        if (!status)
-        {
+    public void draw(GL gl) {
+        if (!status) {
             return;
         }
 
         this.gl = gl;
 
-        double rad = Configuration.EARTH_RADIUS * 1.1;
-        double x_axis[] =
-        {
+        double rad = Unit.EARTH_RADIUS * 1.1;
+        double x_axis[] = {
             rad, 0, 0
         };
-        double y_axis[] =
-        {
+        double y_axis[] = {
             0, rad, 0
         };
-        double z_axis[] =
-        {
+        double z_axis[] = {
             0, 0, rad
         };
 
@@ -195,8 +176,7 @@ public class AxisPlugin implements Plugin
         double z_scr[] = worldToScreen(z_axis);
 
         // Render axis labels
-        if (showLabels)
-        {
+        if (showLabels) {
             // Check what points are visible before changing the matrices.
             boolean x_visible = isCartesianPointInView(x_axis);
             boolean y_visible = isCartesianPointInView(y_axis);
@@ -216,18 +196,15 @@ public class AxisPlugin implements Plugin
 
             // Draw text
             renderer.beginRendering(viewport[2], viewport[3]);
-            if (x_visible)
-            {
+            if (x_visible) {
                 renderer.setColor(Color.RED);
                 renderer.draw("AXIS X", (int) x_scr[0], (int) x_scr[1]);
             }
-            if (y_visible)
-            {
+            if (y_visible) {
                 renderer.setColor(Color.GREEN);
                 renderer.draw("AXIS Y", (int) y_scr[0], (int) y_scr[1]);
             }
-            if (z_visible)
-            {
+            if (z_visible) {
                 renderer.setColor(Color.BLUE);
                 renderer.draw("AXIS Z", (int) z_scr[0], (int) z_scr[1]);
             }
@@ -248,9 +225,8 @@ public class AxisPlugin implements Plugin
      * @param point
      * @return
      */
-    public boolean isCartesianPointInView(final double point[])
-    {
-    	return Math3D.isPointInView(point);
+    public boolean isCartesianPointInView(final double point[]) {
+        return Math3D.isPointInView(point);
     }
 
     /**
@@ -258,8 +234,7 @@ public class AxisPlugin implements Plugin
      * position in OpenGL coordinate space, that is, (0,0) at bottom-lect.
      * @param cartesian
      */
-    private double[] worldToScreen(double[] cartesian)
-    {
+    private double[] worldToScreen(double[] cartesian) {
         GLU glu = new GLU();
         double model[] = new double[16];
         double proj[] = new double[16];
@@ -278,7 +253,6 @@ public class AxisPlugin implements Plugin
     /**
      * Destroy all OpenGL Related Datas. OpenGL Context is current.
      */
-    public void destroyGL(GL gl)
-    {
+    public void destroyGL(GL gl) {
     }
 }

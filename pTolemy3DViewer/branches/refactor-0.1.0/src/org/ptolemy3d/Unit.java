@@ -15,104 +15,71 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package org.ptolemy3d;
 
 /**
  * System unit used in Ptolemy3D.
- * 
- * @author Jerome Jouvie
+ *
  * @author Antonio Santiago <asantiagop(at)gmail(dot)com>
+ * @author Jerome Jouvie
  */
 public final class Unit {
-	/** 1 <=> DD */
-	public static final int DEFAULT_DD = 1000000;
 
-	private int dd = DEFAULT_DD;
-	/** */
-	private int meterX;
-	/** */
-	private int meterZ;
-	/** */
-	private float coordSystemRatio;
+    // Globe radius
+    public static final int EARTH_RADIUS = 500000; // 6378136;
+    public static final int DEFAULT_DD_FACTOR = 1000000;
+    private static int ddFactor = DEFAULT_DD_FACTOR;
+    private static int meterX = 0;
+    private static int meterZ = 0;
+    private static float coordSystemRatio = (float) EARTH_RADIUS / 6378136;
 
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param meterX
-	 * @param meterZ
-	 * @param coordSystemRatio
-	 */
-	public Unit(int meterX, int meterZ, float coordSystemRatio) {
-		this.meterX = meterX;
-		this.meterZ = meterZ;
-		this.coordSystemRatio = coordSystemRatio;
-	}
+    /**
+     * Convert degrees to DD.
+     *
+     * @param degrees angle in degree to convert
+     * @return the angle mesured in DD unit
+     * @see #ddToDegrees
+     */
+    public static int degreesToDD(double degrees) {
+        return (int) (degrees * ddFactor);
+    }
 
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param meterX
-	 * @param meterZ
-	 * @param coordSystemRatio
-	 * @param dd
-	 */
-	public Unit(int meterX, int meterZ, float coordSystemRatio, int dd) {
-		this.meterX = meterX;
-		this.meterZ = meterZ;
-		this.coordSystemRatio = coordSystemRatio;
-		this.dd = dd;
-	}
+    /**
+     * Convert DD to degrees.
+     *
+     * @param dd angle in DD to convert
+     * @return the angle mesured in degrees unit
+     * @see #degreesToDD
+     */
+    public static double ddToDegrees(int ddUnit) {
+        return (double) ddUnit / ddFactor;
+    }
 
-	/**
-	 * Convert degrees to DD.
-	 * 
-	 * @param degrees
-	 *            angle in degree to convert
-	 * @return the angle mesured in DD unit
-	 * @see #ddToDegrees
-	 */
-	public final int degreesToDD(double degrees) {
-		return (int) (degrees * this.dd);
-	}
+    public static int getMeterX() {
+        return meterX;
+    }
 
-	/**
-	 * Convert DD to degrees.
-	 * 
-	 * @param dd
-	 *            angle in DD to convert
-	 * @return the angle mesured in degrees unit
-	 * @see #degreesToDD
-	 */
-	public final double ddToDegrees(int dd) {
-		return (double) dd / this.dd;
-	}
+    public static void setMeterX(int mx) {
+        meterX = mx;
+    }
 
-	/**
-	 * @return the meterX
-	 */
-	public int getMeterX() {
-		return meterX;
-	}
+    public static int getMeterZ() {
+        return meterZ;
+    }
 
-	/**
-	 * @return the meterZ
-	 */
-	public int getMeterZ() {
-		return meterZ;
-	}
+    public static void setMeterZ(int mz) {
+        meterZ = mz;
+    }
 
-	/**
-	 * @return the coordSystemRatio
-	 */
-	public float getCoordSystemRatio() {
-		return coordSystemRatio;
-	}
+    public static float getCoordSystemRatio() {
+        return coordSystemRatio;
+    }
 
-	/**
-	 * @return the dD
-	 */
-	public int getDD() {
-		return this.dd;
-	}
+    public static int getDDFactor() {
+        return ddFactor;
+    }
+
+    public static void setDDFactor(int ddf) {
+        ddFactor = ddf;
+    }
 }

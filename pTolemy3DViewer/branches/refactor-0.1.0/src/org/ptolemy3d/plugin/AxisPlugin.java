@@ -27,8 +27,8 @@ import org.ptolemy3d.DrawContext;
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.Unit;
 import org.ptolemy3d.io.Communicator;
-import org.ptolemy3d.math.Math3D;
 import org.ptolemy3d.scene.Plugin;
+import org.ptolemy3d.view.Camera;
 
 /**
  * Basic demonstration of plugin creating. Shows the cartesian axis used in
@@ -131,8 +131,7 @@ public class AxisPlugin implements Plugin {
      * Render OpenGL geometry.
      */
     public void draw(DrawContext drawContext) {
-        GL gl = drawContext.getGl();
-        this.gl = gl;
+        this.gl = drawContext.getGl();
 
         if (!status) {
             return;
@@ -177,10 +176,12 @@ public class AxisPlugin implements Plugin {
 
         // Render axis labels
         if (showLabels) {
+            Camera camera = drawContext.getCanvas().getCamera();
+
             // Check what points are visible before changing the matrices.
-            boolean x_visible = isCartesianPointInView(x_axis);
-            boolean y_visible = isCartesianPointInView(y_axis);
-            boolean z_visible = isCartesianPointInView(z_axis);
+            boolean x_visible = camera.isCartesianPointInView(x_axis);
+            boolean y_visible = camera.isCartesianPointInView(y_axis);
+            boolean z_visible = camera.isCartesianPointInView(z_axis);
 
             // Store previous matrices and set orthographic perspective
             int viewport[] = new int[4];
@@ -218,15 +219,6 @@ public class AxisPlugin implements Plugin {
 
         // Restore attributes and matrices.
         gl.glPopAttrib();
-    }
-
-    /**
-     * Checks if a point is the visible side of the globe.
-     * @param point
-     * @return
-     */
-    public boolean isCartesianPointInView(final double point[]) {
-        return Math3D.isPointInView(point);
     }
 
     /**

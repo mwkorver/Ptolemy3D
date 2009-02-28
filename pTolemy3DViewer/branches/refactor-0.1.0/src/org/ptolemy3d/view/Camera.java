@@ -35,7 +35,7 @@ import org.ptolemy3d.scene.Sky;
  * altitude, direction, tilt).<BR>
  * <BR>
  * The longitude and latitude components are angles in the ranges respectively
- * [-180�;180�] and [-90�;90�]. Those two angles define every position on the
+ * [-180;180] and [-90;90]. Those two angles define every position on the
  * globe.<BR>
  * <BR>
  * <div align="center"><img
@@ -390,5 +390,95 @@ public class Camera {
      */
     public double getCameraY() {
         return cameraY;
+    }
+
+    /**
+     * Checks if a point is the visible side of the globe.
+     * @param point
+     * @return
+     */
+    public boolean isCartesianPointInView(final double point[]) {
+        return isPointInView(point);
+    }
+
+    /**
+     * @param lon
+     *            longitude in DD
+     * @param lat
+     *            latitude in DD
+     * @return true if the (lon, lat) point is on the visible side of the globe
+     */
+    public boolean isPointInView(double lon, double lat) {
+        // Normal direction of the point( lon, lat) on the globe
+        double[] point = new double[3];
+        Math3D.setSphericalCoord(lon, lat, point);
+
+        return isPointInView(point);
+    }
+
+    /**
+     * @param point
+     *            cartesian coordinate of the point on the globe
+     * @return true if the point is on the visible side of the globe
+     */
+    public boolean isPointInView(double[] point) {
+
+        // View forward vector
+        double[] forward = new double[3];
+        getForward(forward);
+
+        // Dot product between the vectors (front/back face test)
+        double dot = (forward[0] * point[0]) + (forward[1] * point[1]) + (forward[2] * point[2]);
+        if (dot <= 0) {
+            // Visible if the forward vector is pointing in the other direction
+            // than the globe normal
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    public boolean realPointInView(double lon, double alt, double lat, int MAXANGLE) {
+
+        double angle;
+        {
+            double[] coord = new double[3];
+            Math3D.setSphericalCoord(lon, lat, coord);
+            lon = coord[0] * (Unit.EARTH_RADIUS + alt);
+            alt = coord[1] * (Unit.EARTH_RADIUS + alt);
+            lat = coord[2] * (Unit.EARTH_RADIUS + alt);
+            angle = Math3D.angle3dvec(-cameraMat.m[0][2],
+                                      -cameraMat.m[1][2],
+                                      -cameraMat.m[2][2],
+                                      (cameraPos[0] - lon),
+                                      (cameraPos[1] - alt),
+                                      (cameraPos[2] - lat), true);
+        }
+
+        if (angle <= MAXANGLE) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    public double getScreenScaler(double tx, double ty, double tz, int fms) {
+
+        double dx, dy, dz;
+        dx = cameraPos[0] - tx;
+        dy = cameraPos[1] - ty;
+        dz = cameraPos[2] - tz;
+
+        double kyori = Math.sqrt((dx * dx) + (dy * dy) + (dz * dz));
+        // adjust distance according to angle
+        {
+            double d = 1.0 / kyori;
+            dx *= d;
+            dy *= d;
+            dz *= d;
+        }
+        return (kyori * Math.cos(Math3D.angle3dvec(cameraMat.m[0][2], cameraMat.m[1][2], cameraMat.m[2][2], dx, dy, dz, false))) / fms;
     }
 }

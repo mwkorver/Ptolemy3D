@@ -20,7 +20,6 @@ package org.ptolemy3d.math;
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.Unit;
 import org.ptolemy3d.scene.Landscape;
-import org.ptolemy3d.view.Camera;
 
 /**
  * Math 3D utilities.
@@ -70,45 +69,6 @@ public class Math3D {
         dest[0] = cosY * sinX;
         dest[1] = sinY;
         dest[2] = cosY * cosX;
-    }
-
-    /**
-     * @param lon
-     *            longitude in DD
-     * @param lat
-     *            latitude in DD
-     * @return true if the (lon, lat) point is on the visible side of the globe
-     */
-    public static boolean isPointInView(double lon, double lat) {
-        // Normal direction of the point( lon, lat) on the globe
-        double[] point = new double[3];
-        setSphericalCoord(lon, lat, point);
-
-        return isPointInView(point);
-    }
-
-    /**
-     * @param point
-     *            cartesian coordinate of the point on the globe
-     * @return true if the point is on the visible side of the globe
-     */
-    public static boolean isPointInView(double[] point) {
-        final Camera camera = Ptolemy3D.ptolemy.camera;
-
-        // View forward vector
-        double[] forward = new double[3];
-        camera.getForward(forward);
-
-        // Dot product between the vectors (front/back face test)
-        double dot = (forward[0] * point[0]) + (forward[1] * point[1]) + (forward[2] * point[2]);
-        if (dot <= 0) {
-            // Visible if the forward vector is pointing in the other direction
-            // than the globe normal
-            return true;
-        }
-        else {
-            return false;
-        }
     }
 
     // ====================================================================================
@@ -365,49 +325,5 @@ public class Math3D {
             ct++;
         }
         return (int) Math.pow(2, ct);
-    }
-
-    public static boolean realPointInView(double lon, double alt, double lat, int MAXANGLE) {
-        final Camera camera = Ptolemy3D.ptolemy.camera;
-        double angle;
-        {
-            double[] coord = new double[3];
-            setSphericalCoord(lon, lat, coord);
-            lon = coord[0] * (Unit.EARTH_RADIUS + alt);
-            alt = coord[1] * (Unit.EARTH_RADIUS + alt);
-            lat = coord[2] * (Unit.EARTH_RADIUS + alt);
-            angle = Math3D.angle3dvec(-camera.cameraMat.m[0][2],
-                                      -camera.cameraMat.m[1][2], -camera.cameraMat.m[2][2],
-                                      (camera.cameraPos[0] - lon), (camera.cameraPos[1] - alt),
-                                      (camera.cameraPos[2] - lat), true);
-        }
-
-        if (angle <= MAXANGLE) {
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
-
-    public static double getScreenScaler(double tx, double ty, double tz, int fms) {
-        final Camera camera = Ptolemy3D.ptolemy.camera;
-
-        double dx, dy, dz;
-        dx = camera.cameraPos[0] - tx;
-        dy = camera.cameraPos[1] - ty;
-        dz = camera.cameraPos[2] - tz;
-
-        double kyori = Math.sqrt((dx * dx) + (dy * dy) + (dz * dz));
-        // adjust distance according to angle
-        {
-            double d = 1.0 / kyori;
-            dx *= d;
-            dy *= d;
-            dz *= d;
-        }
-        return (kyori * Math.cos(Math3D.angle3dvec(camera.cameraMat.m[0][2],
-                                                   camera.cameraMat.m[1][2], camera.cameraMat.m[2][2], dx, dy, dz,
-                                                   false))) / fms;
     }
 }

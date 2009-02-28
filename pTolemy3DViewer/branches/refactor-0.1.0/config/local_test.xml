@@ -1,0 +1,38 @@
+
+<root>
+    <Orientation>138473040,34764185,1500000,313.312501475566,-58.4989908828571</Orientation>
+
+    <CenterX>0</CenterX>
+    <CenterY>0</CenterY>
+    <DisplayRatio>1</DisplayRatio>
+
+    <Server>demo.spatialcloud.com</Server>
+    <NumMapDataServers>1</NumMapDataServers>
+    <MapDataSvr1>demo.spatialcloud.com</MapDataSvr1>
+    <MServerKey1></MServerKey1>
+    <MapJp2Store1>/mnt/jp2base/</MapJp2Store1>
+    <MapDemStore1>/mnt/japandem/</MapDemStore1>
+    
+
+    <TILECOLOR>47,47,86</TILECOLOR>
+    <Area>00</Area>
+    <HORIZON>10000</HORIZON>
+    <FlightFrameDelay>200</FlightFrameDelay>
+    <TIN>1</TIN>
+    <HUD>1</HUD>
+    <FollowDEM>0</FollowDEM>
+    <Units>DD</Units>
+    <BackgroundColor>0,0,0</BackgroundColor>
+    <SubTextures>1</SubTextures>
+
+
+    <NumLayers>1</NumLayers>
+
+    <LayerWidth_1>52428800</LayerWidth_1>
+    <LayerDEM_1>9</LayerDEM_1>
+    <LayerMin_1>50000</LayerMin_1>
+    <LayerMax_1>10000000</LayerMax_1>
+    <LayerDivider_1>0</LayerDivider_1>
+
+</root>
+

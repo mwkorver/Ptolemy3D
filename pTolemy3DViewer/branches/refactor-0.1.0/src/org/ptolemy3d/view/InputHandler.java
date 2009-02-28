@@ -36,7 +36,7 @@ import org.ptolemy3d.debug.IO;
  * Key and mouse inputs.
  */
 public class InputHandler implements KeyListener, MouseListener,
-                                      MouseMotionListener, MouseWheelListener {
+                                     MouseMotionListener, MouseWheelListener {
 
     protected final static int ASC_A = (1 << 0);
     protected final static int ASC_Z = (1 << 1);
@@ -57,9 +57,8 @@ public class InputHandler implements KeyListener, MouseListener,
     public final static int OUTPUT_COORDINATES = 0;
     public final static int CENTER_IN = 1;
     public final static int ZOOM_IN = 2;
-    // Ptolemy3D Instance
+    // Canvas Instance
     private Ptolemy3DGLCanvas canvas = null;
-    private Ptolemy3D ptolemy = null;
     // Keyboard enabled ???
     public boolean keyboardEnabled = true;
     // Key Pressed
@@ -79,13 +78,12 @@ public class InputHandler implements KeyListener, MouseListener,
      */
     public InputHandler(Ptolemy3DGLCanvas canvas) {
         this.canvas = canvas;
-        this.ptolemy = canvas.getPtolemy();
     }
 
     public final void asciiKeyPress(int dec) {
         canvas.getCameraMovement().inAutoPilot = 0;
-        if (ptolemy.tileLoader.isSleeping) {
-            ptolemy.tileLoaderThread.interrupt();
+        if (Ptolemy3D.getTileLoader().isSleeping) {
+            Ptolemy3D.getTileLoaderThread().interrupt();
         }
         switch (dec) {
             case 65:
@@ -172,8 +170,8 @@ public class InputHandler implements KeyListener, MouseListener,
     /*  KeyListener */
     public void keyPressed(KeyEvent e) {
         canvas.getCameraMovement().inAutoPilot = 0;
-        if (ptolemy.tileLoader.isSleeping) {
-            ptolemy.tileLoaderThread.interrupt();
+        if (Ptolemy3D.getTileLoader().isSleeping) {
+            Ptolemy3D.getTileLoaderThread().interrupt();
         }
 
         switch (e.getKeyCode()) {
@@ -310,8 +308,8 @@ public class InputHandler implements KeyListener, MouseListener,
 
     public void mouseDragged(MouseEvent e) {
         if (mouseMoveFlag == true) {
-            if (ptolemy.tileLoader.isSleeping) {
-                ptolemy.tileLoaderThread.interrupt();
+            if (Ptolemy3D.getTileLoader().isSleeping) {
+                Ptolemy3D.getTileLoaderThread().interrupt();
             }
 
             Point oldMousePoint = mousePoint;

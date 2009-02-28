@@ -31,125 +31,107 @@ import org.ptolemy3d.io.Communicator;
  * Note : we could have used DataInputStream Wrapped around ByteArrayInputStream,
  * but this implementation is lighter...
  */
-class ByteArrayReader
-{
-	private final Jp2Head jp2Head;
+class ByteArrayReader {
 
-	private byte[] ba;
-	private int pos = 0;
+    private final Jp2Head jp2Head;
+    private byte[] ba;
+    private int pos = 0;
 
-	public ByteArrayReader(Jp2Head jp2Head)
-	{
-		this.jp2Head = jp2Head;
-	}
+    public ByteArrayReader(Jp2Head jp2Head) {
+        this.jp2Head = jp2Head;
+    }
 
-	public final void setByteArray(byte[] ba)
-	{
-		this.pos = 0;
-		this.ba = ba;
-	}
+    public final void setByteArray(byte[] ba) {
+        this.pos = 0;
+        this.ba = ba;
+    }
 
-	public final int readUnsignedShort()
-	{
-		return read() << 8 | read();
-	}
+    public final int readUnsignedShort() {
+        return read() << 8 | read();
+    }
 
-	public final int readInt()
-	{
-		return read() << 24 | read() << 16 | read() << 8 | read();
-	}
+    public final int readInt() {
+        return read() << 24 | read() << 16 | read() << 8 | read();
+    }
 
-	public final int read()
-	{
-		int b = 0;
-		try {
-			b = (ba[pos] & 0xff);
-			pos++;
-		}
-		catch (ArrayIndexOutOfBoundsException e) {
-			getMoreHeaderData(jp2Head.jp2Header.fileBase);	//Fixme
-			b = (ba[pos] & 0xff);
-			pos++;
-		}
-		return b;
-	}
+    public final int read() {
+        int b = 0;
+        try {
+            b = (ba[pos] & 0xff);
+            pos++;
+        }
+        catch (ArrayIndexOutOfBoundsException e) {
+            getMoreHeaderData(jp2Head.jp2Header.fileBase);	//Fixme
+            b = (ba[pos] & 0xff);
+            pos++;
+        }
+        return b;
+    }
 
-	public final short readShort()
-	{
-		return (short) (read() << 8 | read());
-	}
+    public final short readShort() {
+        return (short) (read() << 8 | read());
+    }
 
-	public final int readUnsignedByte()
-	{
-		return read();
-	}
+    public final int readUnsignedByte() {
+        return read();
+    }
 
-	public final void readFully(byte[] b, int offset, int length)
-	{
-		for (int i = offset; i < length + offset; i++) {
-			int c = read();
-			b[i] = (byte) c;
-		}
-	}
+    public final void readFully(byte[] b, int offset, int length) {
+        for (int i = offset; i < length + offset; i++) {
+            int c = read();
+            b[i] = (byte) c;
+        }
+    }
 
-	public final int skipBytes(int len)
-	{
-		pos += len;
-		return len;
-	}
+    public final int skipBytes(int len) {
+        pos += len;
+        return len;
+    }
 
-	public final boolean notValidStream()
-	{
-		if (ba == null) {
-			return true;
-		}
-		else {
-			return false;
-		}
-	}
+    public final boolean notValidStream() {
+        if (ba == null) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
 
-	public int getPos()
-	{
-		return pos;
-	}
+    public int getPos() {
+        return pos;
+    }
 
-	/*
-	 *  this function is called in the case that there is not enought data to cover the header.
-	 *
-	 */
-	 private void getMoreHeaderData(String fileBase)
-	 {
-		 final Configuration settings = Ptolemy3D.ptolemy.configuration;
+    /*
+     *  this function is called in the case that there is not enought data to cover the header.
+     *
+     */
+    private void getMoreHeaderData(String fileBase) {
+        final Configuration settings = Ptolemy3D.getConfiguration();
 
-		 Communicator myJC = new BasicCommunicator(null);	//Server set in the loop
-		 for (int i = 0; i < settings.dataServers.length; i++)
-		 {
-			 for (int j = 0; j < settings.locations[i].length; j++)
-			 {
-				 myJC.setServer(settings.dataServers[i]);
-				 // grab data from the end position
-				 try
-				 {
-					 myJC.verify();
-					 myJC.requestMapData(settings.locations[i][j] + fileBase + ".jp2", pos, pos + 1000);
-					 byte[] data = myJC.getData(1001);
-					 if (data != null)
-					 {
-						 // add this data to ba array
-						 byte[] newba = new byte[pos + 1001];
-						 System.arraycopy(ba, 0, newba, 0, pos);
-						 System.arraycopy(data, 0, newba, pos, 1001);
-						 this.ba = newba;
-						 myJC.endSocket();
-						 myJC = null;
-						 return;
-					 }
-				 }
-				 catch (IOException e)
-				 {
-				 }
-			 }
-		 }
-		 myJC = null;
-	 }
+        Communicator myJC = new BasicCommunicator(null);	//Server set in the loop
+        for (int i = 0; i < settings.dataServers.length; i++) {
+            for (int j = 0; j < settings.locations[i].length; j++) {
+                myJC.setServer(settings.dataServers[i]);
+                // grab data from the end position
+                try {
+                    myJC.verify();
+                    myJC.requestMapData(settings.locations[i][j] + fileBase + ".jp2", pos, pos + 1000);
+                    byte[] data = myJC.getData(1001);
+                    if (data != null) {
+                        // add this data to ba array
+                        byte[] newba = new byte[pos + 1001];
+                        System.arraycopy(ba, 0, newba, 0, pos);
+                        System.arraycopy(data, 0, newba, pos, 1001);
+                        this.ba = newba;
+                        myJC.endSocket();
+                        myJC = null;
+                        return;
+                    }
+                }
+                catch (IOException e) {
+                }
+            }
+        }
+        myJC = null;
+    }
 }

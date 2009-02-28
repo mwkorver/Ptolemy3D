@@ -48,7 +48,7 @@ public class Math3D {
      * @see Unit#DD
      */
     public static final void setSphericalCoord(double lon, double lat, double[] dest) {
-        final Landscape landscape = Ptolemy3D.ptolemy.scene.landscape;
+        final Landscape landscape = Ptolemy3D.getScene().landscape;
 
         double toRadiansOverDDBuffer = Math3D.DEGREE_TO_RADIAN_FACTOR / Unit.getDDFactor();
 

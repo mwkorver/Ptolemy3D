@@ -18,12 +18,13 @@
 package org.ptolemy3d;
 
 /**
- * System unit used in Ptolemy3D.
+ * Unit class constains a set of static methods to work with the unit system
+ * used in Ptolemy3D.
  *
  * @author Antonio Santiago <asantiagop(at)gmail(dot)com>
  * @author Jerome Jouvie
  */
-public final class Unit {
+public class Unit {
 
     // Globe radius
     public static final int EARTH_RADIUS = 500000; // 6378136;

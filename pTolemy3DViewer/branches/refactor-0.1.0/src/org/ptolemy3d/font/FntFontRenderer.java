@@ -53,13 +53,13 @@ public class FntFontRenderer
 			destroyGL(gl);
 		}
 		
-		texID = ptolemy.textureManager.load(gl, font.fontDatas, font.width, font.height, GL.GL_LUMINANCE_ALPHA, true, -1);
+		texID = ptolemy.getTextureManager().load(gl, font.fontDatas, font.width, font.height, GL.GL_LUMINANCE_ALPHA, true, -1);
 	}
 
 	public void destroyGL(GL gl)
 	{
 		if(texID != -1) {
-			ptolemy.textureManager.unload(gl, texID);
+			ptolemy.getTextureManager().unload(gl, texID);
 			texID = -1;
 		}
 	}

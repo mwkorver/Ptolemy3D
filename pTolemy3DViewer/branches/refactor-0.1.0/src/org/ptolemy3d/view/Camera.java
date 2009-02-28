@@ -108,9 +108,7 @@ import org.ptolemy3d.scene.Sky;
  */
 public class Camera {
 
-    // Ptolemy instance that camera renders.
     private Ptolemy3DGLCanvas canvas = null;
-    private Ptolemy3D ptolemy = null;
 
     // Camera position.
     private Position position = new Position(0, 0, 5000);
@@ -145,7 +143,6 @@ public class Camera {
      */
     public Camera(Ptolemy3DGLCanvas canvas) {
         this.canvas = canvas;
-        this.ptolemy = canvas.getPtolemy();
     }
 
     /**
@@ -175,10 +172,9 @@ public class Camera {
      * @param gl
      */
     private final void updatePerspective(GL gl) {
-        final Unit unit = canvas.getPtolemy().unit;
         final CameraMovement cameraController = canvas.getCameraMovement();
-        final Landscape landscape = canvas.getScene().landscape;
-        final Sky sky = canvas.getScene().sky;
+        final Landscape landscape = Ptolemy3D.getScene().landscape;
+        final Sky sky = Ptolemy3D.getScene().sky;
         final int FAR_CLIP = landscape.getFarClip();
         final int FOG_RADIUS = landscape.getFogRadius();
         final double aspectRatio = canvas.getDrawAspectRatio();
@@ -187,27 +183,22 @@ public class Camera {
         if (sky.fogStateOn) {
             if (vertAlt > sky.horizonAlt) {
                 gl.glDisable(GL.GL_FOG);
-                perspective.setPerspectiveProjection(fov, aspectRatio,
-                                                     ((sky.horizonAlt * unit.getCoordSystemRatio()) / 2),
-                                                     FAR_CLIP);
+                perspective.setPerspectiveProjection(fov, aspectRatio, ((sky.horizonAlt * Unit.getCoordSystemRatio()) / 2), FAR_CLIP);
                 sky.fogStateOn = false;
             }
             else {
                 // minimize our back z clip for precision
                 double gamma = 0.5235987756 - tilt;
                 if (gamma > Math3D.HALF_PI_VALUE) {
-                    perspective.setPerspectiveProjection(fov, aspectRatio, 1,
-                                                         FOG_RADIUS + 10000);
+                    perspective.setPerspectiveProjection(fov, aspectRatio, 1, FOG_RADIUS + 10000);
                 }
                 else {
                     double maxView = Math.tan(gamma) * (position.getAltitudeDD() + cameraController.ground_ht) * 2;
                     if (maxView >= FOG_RADIUS + 10000) {
-                        perspective.setPerspectiveProjection(fov, aspectRatio,
-                                                             1, FOG_RADIUS + 10000);
+                        perspective.setPerspectiveProjection(fov, aspectRatio, 1, FOG_RADIUS + 10000);
                     }
                     else {
-                        perspective.setPerspectiveProjection(fov, aspectRatio,
-                                                             1, maxView);
+                        perspective.setPerspectiveProjection(fov, aspectRatio, 1, maxView);
                     }
                 }
             }
@@ -216,13 +207,11 @@ public class Camera {
             if (vertAlt > sky.horizonAlt) {
                 // On resize, force update aspectRatio
                 perspective.setPerspectiveProjection(fov, aspectRatio,
-                                                     ((sky.horizonAlt * unit.getCoordSystemRatio()) / 2),
-                                                     FAR_CLIP);
+                                                     ((sky.horizonAlt * Unit.getCoordSystemRatio()) / 2), FAR_CLIP);
             }
             else {
                 gl.glEnable(GL.GL_FOG);
-                perspective.setPerspectiveProjection(fov, aspectRatio, 1,
-                                                     FOG_RADIUS + 10000);
+                perspective.setPerspectiveProjection(fov, aspectRatio, 1, FOG_RADIUS + 10000);
                 sky.fogStateOn = true;
             }
         }

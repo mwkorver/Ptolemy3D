@@ -23,6 +23,7 @@ import java.awt.Font;
 import java.io.IOException;
 import javax.media.opengl.GL;
 import javax.media.opengl.glu.GLU;
+import org.ptolemy3d.DrawContext;
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.Unit;
 import org.ptolemy3d.io.Communicator;
@@ -40,19 +41,17 @@ public class AxisPlugin implements Plugin {
     private static final String NAME = "AXIS_PLUGIN_";
     private int index = -1;
     private boolean status = true;
-    //
-    private Ptolemy3D ptolemy = null;
-    private GL gl = null;
     private TextRenderer renderer = new TextRenderer(new Font("SansSerif", Font.BOLD, 14));
     //
     private boolean showLabels = false;
+    //
+    private GL gl = null;
 
     /**
      * Initialize all non OpenGL datas. This is called just after the object instanciation.
      * OpenGL Context is NOT current here, initialize all OpenGL related datas in <code>initGL</code>.
      */
     public void init(Ptolemy3D ptolemy) {
-        this.ptolemy = ptolemy;
     }
 
     /**
@@ -125,18 +124,19 @@ public class AxisPlugin implements Plugin {
     /**
      * Initialize all OpenGL datas. OpenGL Context is current.
      */
-    public void initGL(GL gl) {
+    public void initGL(DrawContext drawContext) {
     }
 
     /**
      * Render OpenGL geometry.
      */
-    public void draw(GL gl) {
+    public void draw(DrawContext drawContext) {
+        GL gl = drawContext.getGl();
+        this.gl = gl;
+
         if (!status) {
             return;
         }
-
-        this.gl = gl;
 
         double rad = Unit.EARTH_RADIUS * 1.1;
         double x_axis[] = {
@@ -253,6 +253,7 @@ public class AxisPlugin implements Plugin {
     /**
      * Destroy all OpenGL Related Datas. OpenGL Context is current.
      */
-    public void destroyGL(GL gl) {
+    public void destroyGL(DrawContext drawContext) {
+        GL gl = drawContext.getGl();
     }
 }

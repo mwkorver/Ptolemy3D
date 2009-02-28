@@ -21,7 +21,7 @@ import java.util.Vector;
 
 import javax.media.opengl.GL;
 
-import org.ptolemy3d.Ptolemy3D;
+import org.ptolemy3d.DrawContext;
 import org.ptolemy3d.Ptolemy3DGLCanvas;
 import org.ptolemy3d.debug.IO;
 import org.ptolemy3d.io.Communicator;
@@ -39,18 +39,13 @@ import org.ptolemy3d.io.Communicator;
  */
 public class Plugins {
 
-    /** Ptolemy3D Instance */
-    private Ptolemy3DGLCanvas canvas = null;
-    private Ptolemy3D ptolemy;
     /** Plugin list */
     protected Vector<Plugin> plugins;
     private int pluginCue = 0;		//TODO Don't know its uses ...
     private int tl_rotation = 0;
     private boolean running = false;
 
-    protected Plugins(Ptolemy3DGLCanvas canvas) {
-        this.canvas = canvas;
-        this.ptolemy = canvas.getPtolemy();
+    protected Plugins() {
         this.plugins = new Vector<Plugin>();
     }
 
@@ -81,7 +76,8 @@ public class Plugins {
             int index = plugins.size();
 
             try {
-                plugin.init(ptolemy);
+                // TODO - Take into account plugin initialization. Is this NEEDED ?????
+//                plugin.init(ptolemy);
                 plugin.setPluginIndex(index);
                 plugin.setPluginParameters(pluginParams);
             }
@@ -93,8 +89,9 @@ public class Plugins {
         }
     }
 
-    protected final void init(Ptolemy3D ptolemy) {
-        //Plugins initialized in addPlugin
+    // TODO - Really is needed???
+//    protected final void init(Ptolemy3D ptolemy) {
+    //Plugins initialized in addPlugin
 //		if (plugins != null) {
 //			for(Ptolemy3DPlugin plugin : plugins) {
 //				if (plugin != null) {
@@ -102,14 +99,14 @@ public class Plugins {
 //				}
 //			}
 //		}
-    }
+//    }
+    protected final void initGL(DrawContext drawContext) {
 
-    protected final void initGL(GL gl) {
         if (plugins != null) {
             for (Plugin plugin : plugins) {
                 if (plugin != null) {
                     try {
-                        plugin.initGL(gl);
+                        plugin.initGL(drawContext);
                     }
                     catch (Exception e) {
                         IO.printStackPlugin(e);
@@ -119,7 +116,10 @@ public class Plugins {
         }
     }
 
-    protected void prepareFrame(GL gl) {
+    protected void prepareFrame(DrawContext drawContext) {
+        GL gl = drawContext.getGl();
+        Ptolemy3DGLCanvas canvas = drawContext.getCanvas();
+
         running = true;
 
         boolean hasPlugins = plugins.size() > 0;
@@ -137,11 +137,11 @@ public class Plugins {
         }
     }
 
-    protected final void draw(GL gl) {
+    protected final void draw(DrawContext drawContext) {
         int numPlugins = plugins.size();
         for (int i = numPlugins - 1; i >= 0; i--) {
             try {
-                plugins.get(i).draw(gl);
+                plugins.get(i).draw(drawContext);
             }
             catch (Exception e) {
                 IO.printStackRenderer(e);
@@ -155,10 +155,11 @@ public class Plugins {
 //		}
     }
 
-    protected final void destroyGL(GL gl) {
+    protected final void destroyGL(DrawContext drawContext) {
+
         for (int h = 0; h < plugins.size(); h++) {
             try {
-                plugins.get(h).destroyGL(gl);
+                plugins.get(h).destroyGL(drawContext);
             }
             catch (Exception e) {
                 IO.printStackPlugin(e);

@@ -19,6 +19,7 @@ package org.ptolemy3d.tile;
 
 import javax.media.opengl.GL;
 
+import org.ptolemy3d.DrawContext;
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.Unit;
 import org.ptolemy3d.debug.IO;
@@ -99,7 +100,7 @@ public class Level {
     /** Used internally */
     public void correctTiles(int toptile, int minlat, int maxlat, int minlon,
                              int maxlon, int lon_move, int ysgn, boolean wraps) {
-        final Landscape landscape = Ptolemy3D.ptolemy.scene.landscape;
+        final Landscape landscape = Ptolemy3D.getScene().landscape;
 
         upLeftLon = minlon;
         upLeftLat = -minlat;
@@ -180,12 +181,14 @@ public class Level {
     /**
      * Draw Level geometry
      */
-    public void draw(GL gl) {
+    public void draw(DrawContext drawContext) {
+        GL gl = drawContext.getGl();
+
         if (!visible) {
             return;
         }
 
-        final Landscape landscape = Ptolemy3D.ptolemy.scene.landscape;
+        final Landscape landscape = Ptolemy3D.getScene().landscape;
 
         // Render layer tiles
         for (int i = 0; i < LEVEL_NUMTILE_LAT; i++) {
@@ -205,8 +208,8 @@ public class Level {
                                 final int width = tile.getWidth();
                                 final int height = tile.getHeight();
 
-                                textureId = landscape.load(datas, width,
-                                                           height, curRes);
+                                textureId = Ptolemy3D.getTextureManager().load(gl, datas, width, height, GL.GL_RGB, true, curRes);
+
                                 tile.setCurTextureId(textureId);
                             }
                         }
@@ -253,8 +256,7 @@ public class Level {
             return null;
         }
 
-        final Unit unit = Ptolemy3D.ptolemy.unit;
-        final Jp2TileLoader tileLoader = Ptolemy3D.ptolemy.tileLoader;
+        final Jp2TileLoader tileLoader = Ptolemy3D.getTileLoader();
 
         Jp2Tile head = tileLoader.getHeader(lon, lat, levelID);
         if (head == null) {
@@ -323,7 +325,7 @@ public class Level {
                 }
             }
 
-            pickArr[1] *= unit.getCoordSystemRatio();
+            pickArr[1] *= Unit.getCoordSystemRatio();
             return pickArr; // FIXME Must be just over ?
         }
         else if (head.tin != null) {
@@ -342,7 +344,7 @@ public class Level {
                     Math3D.setTriVert(2, head.lon + (head.tin.p[head.tin.nSt[k][j]][0]),
                                       head.tin.p[head.tin.nSt[k][j]][1], head.lat - (head.tin.p[head.tin.nSt[k][j]][2]));
                     if (Math3D.rayIntersectTri(pickArr, ray) == 1) {
-                        pickArr[1] *= unit.getCoordSystemRatio();
+                        pickArr[1] *= Unit.getCoordSystemRatio();
                         return pickArr;
                     }
                 }

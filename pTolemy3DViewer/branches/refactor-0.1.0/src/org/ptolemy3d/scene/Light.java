@@ -15,53 +15,47 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package org.ptolemy3d.scene;
 
 import javax.media.opengl.GL;
-
-import org.ptolemy3d.Ptolemy3D;
+import org.ptolemy3d.DrawContext;
 
 /**
  * Light settings
  */
-public class Light
-{
-	//Ambient light
-	protected float[] lightAmbient = {1.0f, 1.0f, 1.0f, 1.0f};
+public class Light {
 
-	//Diffuse light
-	protected float[] light0Diffuse = {1.0f, 1.0f, 1.0f, 1.0f};
-	protected float[] light1Diffuse = {0.1f, 0.1f, 0.1f, 1.0f};
+    //Ambient light
+    protected float[] lightAmbient = {1.0f, 1.0f, 1.0f, 1.0f};
 
-	//Light position
-	public float[] light0Position = {0.5f, 0.8f, 0.5f, 0.0f};
-	public float[] light1Position = {-0.5f, 0.8f, -0.5f, 0.0f};
+    //Diffuse light
+    protected float[] light0Diffuse = {1.0f, 1.0f, 1.0f, 1.0f};
+    protected float[] light1Diffuse = {0.1f, 0.1f, 0.1f, 1.0f};
 
-	protected Light(){}
+    //Light position
+    public float[] light0Position = {0.5f, 0.8f, 0.5f, 0.0f};
+    public float[] light1Position = {-0.5f, 0.8f, -0.5f, 0.0f};
 
-	protected final void init(Ptolemy3D ptolemy){}
+    public Light() {
+    }
 
-	protected final void initGL(GL gl)
-	{
-		setLights(gl);
-	}
-	public final void setLights(GL gl)
-	{
-		gl.glLightfv(GL.GL_LIGHT0, GL.GL_AMBIENT, lightAmbient, 0);
-		gl.glLightfv(GL.GL_LIGHT0, GL.GL_DIFFUSE, light0Diffuse, 0);
+    public void initGL(DrawContext drawContext) {
+        GL gl = drawContext.getGl();
 
-		gl.glLightfv(GL.GL_LIGHT1, GL.GL_AMBIENT, lightAmbient, 0);
-		gl.glLightfv(GL.GL_LIGHT1, GL.GL_DIFFUSE, light1Diffuse, 0);
-	}
+        gl.glLightfv(GL.GL_LIGHT0, GL.GL_AMBIENT, lightAmbient, 0);
+        gl.glLightfv(GL.GL_LIGHT0, GL.GL_DIFFUSE, light0Diffuse, 0);
 
-	protected final void draw(GL gl)
-	{
-		gl.glLightfv(GL.GL_LIGHT0, GL.GL_POSITION, light0Position, 0);
-		gl.glLightfv(GL.GL_LIGHT1, GL.GL_POSITION, light1Position, 0);
-	}
+        gl.glLightfv(GL.GL_LIGHT1, GL.GL_AMBIENT, lightAmbient, 0);
+        gl.glLightfv(GL.GL_LIGHT1, GL.GL_DIFFUSE, light1Diffuse, 0);
+    }
 
-	protected final void destroyGL(GL gl)
-	{
-	}
+    public void draw(DrawContext drawContext) {
+        GL gl = drawContext.getGl();
+
+        gl.glLightfv(GL.GL_LIGHT0, GL.GL_POSITION, light0Position, 0);
+        gl.glLightfv(GL.GL_LIGHT1, GL.GL_POSITION, light1Position, 0);
+    }
+
+    public void destroyGL(DrawContext drawContext) {
+    }
 }

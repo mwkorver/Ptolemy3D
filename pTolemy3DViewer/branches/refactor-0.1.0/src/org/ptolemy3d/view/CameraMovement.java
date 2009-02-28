@@ -67,7 +67,6 @@ public class CameraMovement {
 
     // Ptolemy3D Instance
     private Ptolemy3DGLCanvas canvas = null;
-    private Ptolemy3D ptolemy = null;
     // Inputs
     public InputHandler inputs = null;
 
@@ -118,7 +117,6 @@ public class CameraMovement {
 
     public CameraMovement(Ptolemy3DGLCanvas canvas, InputHandler input) {
         this.canvas = canvas;
-        this.ptolemy = canvas.getPtolemy();
         this.inputs = input;
 
         this.desiredTilt = -1;
@@ -126,7 +124,7 @@ public class CameraMovement {
     }
 
     public void init() {
-        final Landscape landscape = canvas.getScene().landscape;
+        final Landscape landscape = Ptolemy3D.getScene().landscape;
 
         fmode = 0;// 1;
         accel = (int) mmx;
@@ -140,7 +138,7 @@ public class CameraMovement {
     }
 
     protected final void setCamera(Matrix16d modelView) throws Exception {
-        final Landscape landscape = canvas.getScene().landscape;
+        final Landscape landscape = Ptolemy3D.getScene().landscape;
         final Camera camera = canvas.getCamera();
 
         double vpPos_1_bak = camera.getPosition().getAltitudeDD(), tilt_bak = camera.getTilt();
@@ -500,7 +498,6 @@ public class CameraMovement {
 
     private final void setCameraMatrix(boolean addGroundHeight) {
         final Camera camera = canvas.getCamera();
-        final Unit unit = ptolemy.unit;
 
         double groundH = addGroundHeight ? ground_ht : 0;
 
@@ -513,21 +510,20 @@ public class CameraMovement {
         camera.cameraPos[2] = (camera.vpMat.m[2][2] * (Unit.EARTH_RADIUS + groundH)) + (camera.cameraMat.m[2][2] * camera.getPosition().getAltitudeDD());
 
         camera.setVertAltDD(Math.sqrt((camera.cameraPos[0] * camera.cameraPos[0]) + (camera.cameraPos[1] * camera.cameraPos[1]) + (camera.cameraPos[2] * camera.cameraPos[2])) - Unit.EARTH_RADIUS);
-        camera.setVertAlt(camera.getVertAltDD() / unit.getCoordSystemRatio());
+        camera.setVertAlt(camera.getVertAltDD() / Unit.getCoordSystemRatio());
 
         camera.cameraMatInv.copyFrom(camera.cameraMat);
         camera.cameraMatInv.invert3x3();
     }
 
     private final boolean checkAlt() {
-        final Landscape landscape = canvas.getScene().landscape;
+        final Landscape landscape = Ptolemy3D.getScene().landscape;
         final Camera camera = canvas.getCamera();
-        final Unit unit = ptolemy.unit;
 
         {
             double mag = camera.getVertAltDD() + Unit.EARTH_RADIUS;
-            camera.setCameraY(Math.asin(camera.cameraPos[1] / mag) * Math3D.RADIAN_TO_DEGREE_FACTOR * unit.getDDFactor());
-            camera.setCameraX(Math3D.angle2dvec(-1, 0, camera.cameraPos[2] / mag, camera.cameraPos[0] / mag, true) * unit.getDDFactor());
+            camera.setCameraY(Math.asin(camera.cameraPos[1] / mag) * Math3D.RADIAN_TO_DEGREE_FACTOR * Unit.getDDFactor());
+            camera.setCameraX(Math3D.angle2dvec(-1, 0, camera.cameraPos[2] / mag, camera.cameraPos[0] / mag, true) * Unit.getDDFactor());
             if ((camera.cameraPos[0] / mag) >= 0) {
                 camera.setCameraX(camera.getCameraX() * (-1));
             }
@@ -616,9 +612,9 @@ public class CameraMovement {
 
         updatecounter = UPDATE_INC + 1;
 
-        if (ptolemy.tileLoader != null) {
-            if (ptolemy.tileLoader.isSleeping) {
-                ptolemy.tileLoaderThread.interrupt();
+        if (Ptolemy3D.getTileLoader() != null) {
+            if (Ptolemy3D.getTileLoader().isSleeping) {
+                Ptolemy3D.getTileLoaderThread().interrupt();
             }
         }
     }
@@ -722,8 +718,8 @@ public class CameraMovement {
     private double start_y,  stopangle;
 
     private final void initAutopilot() {
-        if (ptolemy.tileLoader.isSleeping) {
-            ptolemy.tileLoaderThread.interrupt();
+        if (Ptolemy3D.getTileLoader().isSleeping) {
+            Ptolemy3D.getTileLoaderThread().interrupt();
         }
         setFollowDem(false);
         current_speed = dist_trav = brake_dist = current_lr_rot = rot_lr_trav = rot_lr_brake = current_ud_rot = rot_ud_trav = rot_ud_brake = 0.0;
@@ -735,7 +731,7 @@ public class CameraMovement {
     }
 
     public final void setFollowDem(boolean v) {
-        final Landscape landscape = canvas.getScene().landscape;
+        final Landscape landscape = Ptolemy3D.getScene().landscape;
         final Camera camera = canvas.getCamera();
 
         boolean prev = followDemOn;
@@ -1183,9 +1179,9 @@ public class CameraMovement {
     /*****************************************************************************************/
     protected final synchronized void outputCoordinates(MouseEvent e) {
         setRays(e);
-        if (!canvas.getScene().plugins.pick(intersectPoint, pickray)) {
-            if (canvas.getScene().landscape.pick(intersectPoint, pickray)) {
-                if (!canvas.getScene().plugins.onPick(intersectPoint)) {
+        if (!Ptolemy3D.getScene().plugins.pick(intersectPoint, pickray)) {
+            if (Ptolemy3D.getScene().landscape.pick(intersectPoint, pickray)) {
+                if (!Ptolemy3D.getScene().plugins.onPick(intersectPoint)) {
                     displayCoords();
                 }
             }
@@ -1194,11 +1190,11 @@ public class CameraMovement {
 
     protected final void zoomToSelected(MouseEvent e, boolean zoomin) {
         setRays(e);
-        if (!canvas.getScene().landscape.pick(intersectPoint, pickray)) {
+        if (!Ptolemy3D.getScene().landscape.pick(intersectPoint, pickray)) {
             return;
         }
 
-        final Landscape landscape = canvas.getScene().landscape;
+        final Landscape landscape = Ptolemy3D.getScene().landscape;
         final Camera camera = canvas.getCamera();
 
         if ((intersectPoint[0] != -999) || (intersectPoint[1] != -999) || (intersectPoint[2] != -999)) {

@@ -24,8 +24,8 @@ import static org.ptolemy3d.tile.Level.LEVEL_NUMTILE_LAT;
 
 import javax.media.opengl.GL;
 
+import org.ptolemy3d.DrawContext;
 import org.ptolemy3d.Ptolemy3D;
-import org.ptolemy3d.Ptolemy3DGLCanvas;
 import org.ptolemy3d.Unit;
 import org.ptolemy3d.debug.IO;
 import org.ptolemy3d.debug.ProfilerInterface;
@@ -194,16 +194,9 @@ public class Landscape {
     private float[] topColor = {0.47843137f, 0.34509804f, 0.117647f};
     private float[] tileColor = {0.2196078f, 0.4627450980f, 0.235294f};
     private float[] colorRatios;
-    /** Instance of Ptolemy3D */
-    private Ptolemy3DGLCanvas canvas = null;
-    private Ptolemy3D ptolemy = null;
 
     // Draw landscape
     public boolean drawLandscape = true;
-
-    /* Local variable for rendering */
-    private GL gl = null;
-
     // Max longitude in DD
     private int maxLongitude;
     // Max latitude in DD
@@ -234,12 +227,12 @@ public class Landscape {
      *
      * @param ptolemy
      */
-    public Landscape(Ptolemy3DGLCanvas canvas) {
-        this.canvas = canvas;
-        this.ptolemy = canvas.getPtolemy();
+    public Landscape() {
 
         this.displayMode = DISPLAY_STANDARD;
         this.terrainEnabled = true;
+
+        initialize();
     }
 
     // private final void setLevel(int lvl)
@@ -344,11 +337,9 @@ public class Landscape {
     // level.lowRightLat = level.upLeftLat + (LEVEL_NUMTILE_LAT * tileWidth);
     // }
     /** Landscape Initialization */
-    protected void init(Ptolemy3D ptolemy) {
-        final Unit unit = ptolemy.unit;
-
-        maxLatitude = unit.degreesToDD(LANDSCAPE_MAXLATITUDE_ANGLE);
-        maxLongitude = unit.degreesToDD(LANDSCAPE_MAXLONGITUDE_ANGLE);
+    private void initialize() {
+        maxLatitude = Unit.degreesToDD(LANDSCAPE_MAXLATITUDE_ANGLE);
+        maxLongitude = Unit.degreesToDD(LANDSCAPE_MAXLONGITUDE_ANGLE);
 
         fogRadius = 20000; // this is the max
         fogColor[0] = 164.f / 255;
@@ -366,8 +357,9 @@ public class Landscape {
     /**
      * Init landscape OpenGL States.
      */
-    protected void initGL(GL gl) {
-        this.gl = gl;
+    protected void initGL(DrawContext drawContext) {
+
+        GL gl = drawContext.getGl();
 
         gl.glEnable(GL.GL_TEXTURE_2D);
         gl.glEnable(GL.GL_DEPTH_TEST);
@@ -395,31 +387,31 @@ public class Landscape {
     }
 
     /** Landscape Prepare */
-    public void prepareFrame(GL gl) {
-        this.gl = gl;
+    public void prepareFrame(DrawContext drawContext) {
+
+        GL gl = drawContext.getGl();
 
         // Destroy unused textures
-        ptolemy.textureManager.destroyTrashTextures(gl);
+        Ptolemy3D.getTextureManager().destroyTrashTextures(gl);
 
         // Correct Tiles
         if (DEBUG) {
             if (!ProfilerInterface.freezeCorrectLevels) {
-                correctLevels();
+                correctLevels(drawContext);
             }
         }
         else {
-            correctLevels();
+            correctLevels(drawContext);
         }
 
-        processVisibility();
-
-        this.gl = null;
+        processVisibility(drawContext);
     }
 
     // TODO - Document what this method does.
     // vpPos turns to lon , zoom , lat
-    private final void correctLevels() {
-        final Camera camera = canvas.getCamera();
+    private final void correctLevels(DrawContext drawContext) {
+        GL gl = drawContext.getGl();
+        final Camera camera = drawContext.getCanvas().getCamera();
 
         for (int p = 0; p < levels.length; p++) {
             final Level level = levels[p];
@@ -473,15 +465,16 @@ public class Landscape {
         }
     }
 
-    private void processVisibility() {
-        if (!drawLandscape || ptolemy.tileLoader == null) {
+    private void processVisibility(DrawContext drawContext) {
+        GL gl = drawContext.getGl();
+        if (!drawLandscape || Ptolemy3D.getTileLoader() == null) {
             return;
         }
         if (DEBUG && ProfilerInterface.freezeVisibility) {
             return;
         }
 
-        final Camera camera = canvas.getCamera();
+        final Camera camera = drawContext.getCanvas().getCamera();
         boolean hasVisLayer = false;
 
         int numStatus = 0; // Track the number of levels
@@ -511,7 +504,7 @@ public class Landscape {
             }
 
             // Image datas available ?
-            final Jp2TileLoader tileLoader = ptolemy.tileLoader;
+            final Jp2TileLoader tileLoader = Ptolemy3D.getTileLoader();
             if (!tileLoader.levelHasImageData(p)) {
                 level.setVisible(false);
                 continue;
@@ -527,12 +520,12 @@ public class Landscape {
     }
 
     /** Landscape Rendering */
-    protected void draw(GL gl) {
+    protected void draw(DrawContext drawContext) {
+        GL gl = drawContext.getGl();
+
         if (!drawLandscape) {
             return;
         }
-
-        this.gl = gl;
 
         if (displayMode == DISPLAY_MESH) {
             gl.glColor3f(meshColor, meshColor, meshColor);
@@ -550,7 +543,7 @@ public class Landscape {
 
         for (int p = levels.length - 1; p >= 0; p--) {
             final Level level = levels[p];
-            level.draw(gl);
+            level.draw(drawContext);
         }
 
         if (displayMode == DISPLAY_MESH) {
@@ -561,14 +554,13 @@ public class Landscape {
         }
         gl.glColor3f(1, 1, 1);
         gl.glEnable(GL.GL_TEXTURE_2D);
-
-        this.gl = null;
     }
 
-    public final int load(byte[] datas, int width, int height, int res) {
-        return ptolemy.textureManager.load(gl, datas, width, height, GL.GL_RGB,
-                                           true, res);
-    }
+    // TODO - Remove, the return line was moved into the Level.draw method
+//    public final int load(byte[] datas, int width, int height, int res) {
+//        return Ptolemy3D.getTextureManager().load(gl, datas, width, height, GL.GL_RGB,
+//                                                true, res);
+//    }
 
     /** Landscape Picking: Pick tiles */
     public final synchronized boolean pick(double[] intersectPoint,
@@ -618,7 +610,7 @@ public class Landscape {
     }
 
     /** Landscape Destruction */
-    protected void destroyGL(GL gl) {
+    protected void destroyGL(DrawContext drawContext) {
     }
 
     /**

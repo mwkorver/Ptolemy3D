@@ -24,7 +24,6 @@ import org.ptolemy3d.scene.TextureManager;
 import org.ptolemy3d.tile.Jp2TileLoader;
 import org.ptolemy3d.view.Camera;
 import org.ptolemy3d.view.CameraMovement;
-import org.w3c.dom.Element;
 
 /**
  * <H1>Overview</H1> <BR>
@@ -79,53 +78,111 @@ import org.w3c.dom.Element;
  */
 public class Ptolemy3D {
 
-    private static Ptolemy3D instance = null;
-    // Unit System
-    public Unit unit;
-    // Texture Manager
-    public TextureManager textureManager;
-    // Tile Loader: download tile datas (image, geometry)
-    public Jp2TileLoader tileLoader;
-    // Tile Loader Thread: Thread in which tile loader is running
-    public Thread tileLoaderThread;
+    private static Configuration configuration = null;
+    private static Scene scene = null;
+    private static TextureManager textureManager = null;
+    private static Jp2TileLoader tileLoader = null;
+    private static Thread tileLoaderThread = null;
+    private static FntFontRenderer fontTextRenderer = null;    // TODO - Needed? Why dont use JOGL?
+    private static FntFontRenderer fontNumericRenderer = null; // TODO - Needed? Why dont use JOGL?
 
-    // Default Font Text Renderer.<BR> Can be null if not used/initialized by
-    // any of the core or plugins components of Ptolemy3D.
-    // FIXME protect: don't let the plugins override that.
-    public FntFontRenderer fontTextRenderer;
-
-    // Default Font Numeric Renderer.<BR> In most cases, it will be the same as
-    // <code>fontTextRenderer</code>.
-    // FIXME protect: don't let the plugins override that.
-    public FntFontRenderer fontNumericRenderer;
-
-    // Plugins args
-    private String[] plugargs = new String[3];
-
-    /** 
-     * Creates a new instance.
+    //    // Plugins args
+//    private static String[] plugargs = new String[3];
+    /**
+     * Initialized pTolemy3D system with the specified settings.
+     *
+     * @param config
      */
-    private Ptolemy3D() {
-        this.textureManager = new TextureManager(this);
+    public static void initialize(Configuration config) {
+        configuration = config;
+        textureManager = new TextureManager();
+        scene = new Scene();
     }
 
     /**
-     * Returns the ptolemy instance.
+     * Returns the scene.
      * @return
      */
-    public static Ptolemy3D getInstance() {
-        if (instance == null) {
-            instance = new Ptolemy3D();
-        }
-        return instance;
+    public static Scene getScene() {
+        return scene;
     }
 
-    /** 
+    /**
+     * @return the configuration
+     */
+    public static Configuration getConfiguration() {
+        return configuration;
+    }
+
+    /**
+     * @return the textureManager
+     */
+    public static TextureManager getTextureManager() {
+        return textureManager;
+    }
+
+    /**
+     * @param aTextureManager the textureManager to set
+     */
+    public static void setTextureManager(TextureManager aTextureManager) {
+        textureManager = aTextureManager;
+    }
+
+    /**
+     * @return the tileLoader
+     */
+    public static Jp2TileLoader getTileLoader() {
+        return tileLoader;
+    }
+
+    /**
+     * @param aTileLoader the tileLoader to set
+     */
+    public static void setTileLoader(Jp2TileLoader aTileLoader) {
+        tileLoader = aTileLoader;
+    }
+
+    /**
+     * @return the tileLoaderThread
+     */
+    public static Thread getTileLoaderThread() {
+        return tileLoaderThread;
+    }
+
+    /**
+     * @return the fontTextRenderer
+     */
+    public static FntFontRenderer getFontTextRenderer() {
+        return fontTextRenderer;
+    }
+
+    /**
+     * @param aFontTextRenderer the fontTextRenderer to set
+     */
+    public static void setFontTextRenderer(FntFontRenderer aFontTextRenderer) {
+        fontTextRenderer = aFontTextRenderer;
+    }
+
+    /**
+     * @return the fontNumericRenderer
+     */
+    public static FntFontRenderer getFontNumericRenderer() {
+        return fontNumericRenderer;
+    }
+
+    /**
+     * @param aFontNumericRenderer the fontNumericRenderer to set
+     */
+    public static void setFontNumericRenderer(FntFontRenderer aFontNumericRenderer) {
+        fontNumericRenderer = aFontNumericRenderer;
+    }
+
+    /**
      * Start tile download thread.
      */
-    protected void startTileLoaderThread() {
+    public static void startTileLoaderThread() {
         if (tileLoader == null) {
-            tileLoader = new Jp2TileLoader(this);
+            tileLoader = new Jp2TileLoader();
         }
         if (tileLoaderThread == null) {
             tileLoaderThread = new Thread(tileLoader, "TileLoaderThread");
@@ -136,7 +193,7 @@ public class Ptolemy3D {
     /** 
      * Stop tile download thread.
      */
-    protected void stopTileLoaderThread() {
+    public static void stopTileLoaderThread() {
         if (tileLoaderThread != null) {
             tileLoader.on = false;
             try {
@@ -148,7 +205,7 @@ public class Ptolemy3D {
         }
     }
 
-    public void destroy() {
+    public static void destroy() {
         // Stop the tile loading first
         stopTileLoaderThread();
 
@@ -157,7 +214,6 @@ public class Ptolemy3D {
 //			canvas.destroyGL();
 //		}
     }
-
     // /**
     // * Call a javascript function
     // * @param javascripFunction

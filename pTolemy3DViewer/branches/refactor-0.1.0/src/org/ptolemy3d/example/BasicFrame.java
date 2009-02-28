@@ -19,44 +19,45 @@ package org.ptolemy3d.example;
 
 import javax.swing.JFrame;
 
+import org.ptolemy3d.Configuration;
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.Ptolemy3DGLCanvas;
 
 /**
- * Ptolemy3D example
+ * Ptolemy3D example.
  * 
  * @author Antonio Santiago <asantiagop(at)gmail(dot)com>
  */
 public class BasicFrame extends JFrame {
-	public BasicFrame() {
 
-		Ptolemy3D ptolemy = Ptolemy3D.getInstance();
+    public BasicFrame() {
 
-		Ptolemy3DGLCanvas canvas = new Ptolemy3DGLCanvas(ptolemy);
-				
-		this.getRootPane().add(canvas);
-		this.pack();
+        Ptolemy3DGLCanvas canvas = new Ptolemy3DGLCanvas();
+        Configuration config = new Configuration(canvas, "some_xml_file");
+        Ptolemy3D.initialize(config);
 
-		// TODO - Look if is necessary the destroy call.
-		// frame.addWindowListener(new WindowAdapter( ){
-		// public void windowClosing(WindowEvent e) {
-		// frame.getInputContext().removeNotify(component3d);
-		//
-		// //Ptolemy3D destruction
-		// ptolemy3d.destroy();
-		//
-		// frame.remove(component3d);
-		// frame.dispose();
-		// }
-		// });
-	}
+        this.getRootPane().add(canvas);
+        this.pack();
 
-	public static void main(String[] args) {
-		BasicFrame frame = new BasicFrame();
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    // TODO - Look if is necessary the destroy call.
+    // frame.addWindowListener(new WindowAdapter( ){
+    // public void windowClosing(WindowEvent e) {
+    // frame.getInputContext().removeNotify(component3d);
+    //
+    // //Ptolemy3D destruction
+    // ptolemy3d.destroy();
+    //
+    // frame.remove(component3d);
+    // frame.dispose();
+    // }
+    // });
+    }
 
-		frame.setSize(600, 500);
-		frame.setVisible(true);
-	}
+    public static void main(String[] args) {
+        BasicFrame frame = new BasicFrame();
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+        frame.setSize(600, 500);
+        frame.setVisible(true);
+    }
 }

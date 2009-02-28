@@ -29,6 +29,7 @@ import java.nio.ByteBuffer;
 
 import javax.media.opengl.GL;
 
+import org.ptolemy3d.DrawContext;
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.Ptolemy3DGLCanvas;
 import org.ptolemy3d.debug.ProfilerInterface;
@@ -52,9 +53,6 @@ import org.ptolemy3d.view.Camera;
  */
 public class Scene implements Transferable {
 
-    /** Ptolemy3D Instance */
-    private Ptolemy3DGLCanvas canvas = null;
-    private Ptolemy3D ptolemy = null;
     /** Landscape */
     public final Landscape landscape;
     /** Sky */
@@ -71,62 +69,56 @@ public class Scene implements Transferable {
     /** Screenshot image */
     public Image clipboardImage;
 
-    public Scene(Ptolemy3DGLCanvas canvas) {
-        this.canvas = canvas;
-        this.ptolemy = canvas.getPtolemy();
-
-        this.landscape = new Landscape(canvas);
-        this.sky = new Sky(canvas);
-        this.plugins = new Plugins(canvas);
-
+    /**
+     * Creates a new Scene instance.
+     */
+    public Scene() {
+        this.landscape = new Landscape();
+        this.sky = new Sky();
+        this.plugins = new Plugins();
         this.light = new Light();
     }
 
-    /** Initialize non OpenGL data of the scene. */
-    public void init(Ptolemy3D ptolemy) {
-        landscape.init(ptolemy);
-        sky.init(ptolemy);
-        plugins.init(ptolemy);
-        light.init(ptolemy);
-    }
-
     /** Initialize OpenGL data of the scene. */
-    public void initGL(GL gl) {
-        landscape.initGL(gl);
-        sky.initGL(gl);
-        plugins.initGL(gl);
-        light.initGL(gl);
+    public void initGL(DrawContext drawContext) {
+        landscape.initGL(drawContext);
+        sky.initGL(drawContext);
+        plugins.initGL(drawContext);
+        light.initGL(drawContext);
     }
 
     /** Destroy OpenGL data of the scene. */
-    public void destroyGL(GL gl) {
-        landscape.destroyGL(gl);
-        sky.destroyGL(gl);
-        plugins.destroyGL(gl);
-        light.destroyGL(gl);
+    public void destroyGL(DrawContext drawContext) {
+        landscape.destroyGL(drawContext);
+        sky.destroyGL(drawContext);
+        plugins.destroyGL(drawContext);
+        light.destroyGL(drawContext);
 
         // Destroy Ptolemy3D OpenGL datas
-        if (ptolemy.fontTextRenderer != null) {
-            ptolemy.fontTextRenderer.destroyGL(gl);
-            ptolemy.fontTextRenderer = null;
+        if (Ptolemy3D.getFontTextRenderer() != null) {
+            Ptolemy3D.getFontTextRenderer().destroyGL(drawContext.getGl());
+            Ptolemy3D.setFontTextRenderer(null);
         }
-        if (ptolemy.fontNumericRenderer != null) {
-            ptolemy.fontNumericRenderer.destroyGL(gl);
-            ptolemy.fontNumericRenderer = null;
+        if (Ptolemy3D.getFontNumericRenderer() != null) {
+            Ptolemy3D.getFontNumericRenderer().destroyGL(drawContext.getGl());
+            Ptolemy3D.setFontNumericRenderer(null);
         }
 
-        ptolemy.textureManager.destroyGL(gl);
+        Ptolemy3D.getTextureManager().destroyGL(drawContext.getGl());
     }
 
     /** Draw the scene with OpenGL. */
-    public void draw(GL gl) {
-        if (ptolemy.tileLoader == null) {
+    public void draw(DrawContext drawContext) {
+
+        GL gl = drawContext.getGl();
+
+        if (Ptolemy3D.getTileLoader() == null) {
             // Just clear out the screen
             gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
             return;
         }
 
-        Camera camera = canvas.getCamera();
+        Camera camera = drawContext.getCanvas().getCamera();
 
         if (DEBUG) {
             ProfilerInterface.start(ProfilerEventInterface.Frame);
@@ -139,8 +131,8 @@ public class Scene implements Transferable {
         camera.update(gl);
 
         /* Prepare frame */
-        landscape.prepareFrame(gl);
-        plugins.prepareFrame(gl);
+        landscape.prepareFrame(drawContext);
+        plugins.prepareFrame(drawContext);
         if (DEBUG) {
             ProfilerInterface.stop(ProfilerEventInterface.Prepare);
         }
@@ -149,7 +141,7 @@ public class Scene implements Transferable {
         gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 
         /* Lighting */
-        light.draw(gl); // FIXME Strange here, must be after camera ?
+        light.draw(drawContext); // FIXME Strange here, must be after camera ?
 
         /* Perspective matrix */
         gl.glMatrixMode(GL.GL_PROJECTION);
@@ -162,7 +154,7 @@ public class Scene implements Transferable {
         if (DEBUG) {
             ProfilerInterface.start(ProfilerEventInterface.Sky);
         }
-        sky.draw(gl);
+        sky.draw(drawContext);
         if (DEBUG) {
             ProfilerInterface.stop(ProfilerEventInterface.Sky);
         }
@@ -170,7 +162,7 @@ public class Scene implements Transferable {
         if (DEBUG) {
             ProfilerInterface.start(ProfilerEventInterface.Landscape);
         }
-        landscape.draw(gl);
+        landscape.draw(drawContext);
         if (DEBUG) {
             ProfilerInterface.stop(ProfilerEventInterface.Landscape);
         }
@@ -178,7 +170,7 @@ public class Scene implements Transferable {
         if (DEBUG) {
             ProfilerInterface.start(ProfilerEventInterface.Plugins);
         }
-        plugins.draw(gl);
+        plugins.draw(drawContext);
         if (DEBUG) {
             ProfilerInterface.stop(ProfilerEventInterface.Plugins);
         }
@@ -188,7 +180,7 @@ public class Scene implements Transferable {
             ProfilerInterface.start(ProfilerEventInterface.Screenshot);
         }
         if (screenshot) {
-            getSceneImage(gl);
+            getSceneImage(drawContext);
         }
         if (DEBUG) {
             ProfilerInterface.stop(ProfilerEventInterface.Screenshot);
@@ -198,11 +190,14 @@ public class Scene implements Transferable {
             ProfilerInterface.stop(ProfilerEventInterface.Frame);
         }
         if (DEBUG) {
-            ProfilerInterface.drawProfiler(ptolemy, gl);
+            ProfilerInterface.drawProfiler(drawContext);
         }
     }
 
-    protected void getSceneImage(GL gl) {
+    protected void getSceneImage(DrawContext drawContext) {
+        GL gl = drawContext.getGl();
+        Ptolemy3DGLCanvas canvas = drawContext.getCanvas();
+
         final int GL_WIDTH = canvas.getDrawWidth();
         final int GL_HEIGHT = canvas.getDrawHeight();
 

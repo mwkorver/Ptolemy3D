@@ -15,34 +15,33 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package org.ptolemy3d.scene;
 
-import javax.media.opengl.GL;
 
+import org.ptolemy3d.DrawContext;
 import org.ptolemy3d.Ptolemy3D;
 
 /**
  *
  */
-interface _Drawable
-{
-	/** Initialize all non OpenGL datas.<BR>
-	 * This is called just after the object instanciation.<BR>
-	 * <BR>
-	 * <B>OpenGL Context is NOT current here, initialize all OpenGL related datas in <code>initGL</code>
-	 * @see #initGL(GL) */
-	public void init(Ptolemy3D ptolemy);
+interface _Drawable {
 
-	/** Initialize all OpenGL datas.<BR>
-	 * <I>OpenGL Context is current.</I>
-	 * @see #init(Ptolemy3D) */
-	public void initGL(GL gl);
+    /** Initialize all non OpenGL datas.<BR>
+     * This is called just after the object instanciation.<BR>
+     * <BR>
+     * <B>OpenGL Context is NOT current here, initialize all OpenGL related datas in <code>initGL</code>
+     * @see #initGL(GL) */
+    public void init(Ptolemy3D ptolemy);
 
-	/** Render OpenGL geometry. */
-	public void draw(GL gl);
+    /** Initialize all OpenGL datas.<BR>
+     * <I>OpenGL Context is current.</I>
+     * @see #init(Ptolemy3D) */
+    public void initGL(DrawContext drawContext);
 
-	/** Destroy all OpenGL Related Datas.<BR>
-	 * <I>OpenGL Context is current.</I> */
-	public void destroyGL(GL gl);
+    /** Render OpenGL geometry. */
+    public void draw(DrawContext drawContext);
+
+    /** Destroy all OpenGL Related Datas.<BR>
+     * <I>OpenGL Context is current.</I> */
+    public void destroyGL(DrawContext drawContext);
 }

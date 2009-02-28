@@ -66,12 +66,12 @@ public class Ptolemy3DFrame extends JFrame implements KeyListener, WindowListene
 			usage();
 		}
 
-		//Build document from the XML configuration file
-		//If null is used, parameters will be search inside the applet tag.
-		Element docelem = Configuration.buildXMLDocument(xmlFile);
-		if (docelem == null) {
-			usage();	//xml file not found
-		}
+//		//Build document from the XML configuration file
+//		//If null is used, parameters will be search inside the applet tag.
+//		Element docelem = Configuration.buildXMLDocument(xmlFile);
+//		if (docelem == null) {
+//			usage();	//xml file not found
+//		}
 
 //		//Ptolemy3D instanciation
 //		Ptolemy3D ptolemy3d = new Ptolemy3D();

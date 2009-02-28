@@ -30,6 +30,7 @@ import org.ptolemy3d.exceptions.Ptolemy3DConfigurationException;
 import org.ptolemy3d.exceptions.Ptolemy3DException;
 import org.ptolemy3d.scene.Landscape;
 import org.ptolemy3d.scene.Plugins;
+import org.ptolemy3d.scene.Scene;
 import org.ptolemy3d.scene.Sky;
 import org.ptolemy3d.tile.Level;
 import org.ptolemy3d.view.CameraMovement;
@@ -129,18 +130,30 @@ public class Configuration {
     public String backgroundImageUrl = null;
 
     /**
-     * Creates a new configuration instance.
-     *
-     * @param ptolemy
+     * Creates a new configuration instance that configures the specified canvas
+     * and the Ptolemy3D scene.
+     * 
+     * @param canvas
      */
     public Configuration(Ptolemy3DGLCanvas canvas) {
         this.canvas = canvas;
     }
 
     /**
+     * Creates a new configuration instance.
+     *
+     * @param canvas
+     * @param xmlFile
+     */
+    public Configuration(Ptolemy3DGLCanvas canvas, String xmlFile) {
+        this.canvas = canvas;
+        loadSettings(xmlFile);
+    }
+
+    /**
      * Parse an XML file and construct the document elements for Ptolemy3D.
      */
-    public final static Element buildXMLDocument(String xmlFile) {
+    private Element buildXMLDocument(String xmlFile) {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 
         Document document = null;
@@ -176,12 +189,15 @@ public class Configuration {
      *
      * @param docelem
      */
-    public void loadSettings(Element docelem) throws Ptolemy3DException {
+    public void loadSettings(String xmlFile) throws Ptolemy3DException {
+
+        Element docelem = buildXMLDocument(xmlFile);
 
         final CameraMovement cameraController = canvas.getCameraMovement();
-        final Landscape landScape = canvas.getScene().landscape;
-        final Sky sky = canvas.getScene().sky;
-        final Plugins plugins = canvas.getScene().plugins;
+        final Scene scene = Ptolemy3D.getScene();
+        final Landscape landScape = scene.landscape;
+        final Sky sky = scene.sky;
+        final Plugins plugins = scene.plugins;
 
         // Load settings. If any configuration exception occurs then stop the
         // loading process and throws a general exception.

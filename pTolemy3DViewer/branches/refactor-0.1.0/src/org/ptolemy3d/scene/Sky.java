@@ -21,6 +21,7 @@ import java.util.Random;
 
 import javax.media.opengl.GL;
 
+import org.ptolemy3d.DrawContext;
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.Ptolemy3DGLCanvas;
 import org.ptolemy3d.Unit;
@@ -36,9 +37,6 @@ import org.ptolemy3d.view.Camera;
 public class Sky {
 
     private static float[] horizonColor = {(float) 164 / 255, (float) 193 / 255, (float) 232 / 255};
-    /** Instance of Ptolemy3D*/
-    private Ptolemy3DGLCanvas canvas;
-    private Ptolemy3D ptolemy;
     /** Sky OpenGL Display List*/
     private int skyCallList = -1;
     /** Sky Texture ID */
@@ -49,38 +47,25 @@ public class Sky {
     public boolean fogStateOn = true;
     /** Horizon altitude */
     public int horizonAlt = 10000;
-
-    /* Local variable for rendering */
-    private GL gl = null;
     private float[] botColor = new float[3];
     private float[] topColor = new float[3];
     private float[] zenithColor = {(float) 43 / 255, (float) 86 / 255, (float) 207 / 255};
 
-    public Sky(Ptolemy3DGLCanvas canvas) {
-        this.canvas = canvas;
-        this.ptolemy = canvas.getPtolemy();
+    public Sky() {
     }
 
-    protected void init(Ptolemy3D ptolemy) {
-        this.ptolemy = ptolemy;
+    public void initGL(DrawContext drawContext) {
+        GL gl = drawContext.getGl();
+
+        initSkyTexture(drawContext);
+        createSkyDisplayList(drawContext);
     }
 
-    protected void initGL(GL gl) {
-        this.gl = gl;
-
-        initSkyTexture();
-
-        createSkyDisplayList();
-
-        this.gl = null;
-    }
-
-    private final void createSkyDisplayList() {
+    private final void createSkyDisplayList(DrawContext drawContext) {
+        GL gl = drawContext.getGl();
         final int NUM_STARS = 200;
 
-        final Unit unit = ptolemy.unit;
-
-        float star_exp = (float) ((((horizonAlt * unit.getCoordSystemRatio()) / 2) * 1.5) / Math.cos(30.0 * Math3D.DEGREE_TO_RADIAN_FACTOR));
+        float star_exp = (float) ((((horizonAlt * Unit.getCoordSystemRatio()) / 2) * 1.5) / Math.cos(30.0 * Math3D.DEGREE_TO_RADIAN_FACTOR));
 
         Random generator = new Random();
         skyCallList = gl.glGenLists(1);
@@ -102,7 +87,8 @@ public class Sky {
         gl.glEndList();
     }
 
-    private final void initSkyTexture() {
+    private final void initSkyTexture(DrawContext drawContext) {
+        GL gl = drawContext.getGl();
         int j, i, h, numLevels = 128;
 
         byte[] atm_tex = new byte[numLevels * 2 * 4];
@@ -122,25 +108,26 @@ public class Sky {
             }
         }
 
-        skyTexId = ptolemy.textureManager.load(gl, atm_tex, 2, numLevels, GL.GL_RGBA, false, -1);
+        skyTexId = Ptolemy3D.getTextureManager().load(gl, atm_tex, 2, numLevels, GL.GL_RGBA, false, -1);
     }
 
-    protected void destroyGL(GL gl) {
-        this.gl = gl;
+    protected void destroyGL(DrawContext drawContext) {
+        GL gl = drawContext.getGl();
 
         if (skyTexId != -1) {
-            ptolemy.textureManager.unload(gl, skyTexId);
+            Ptolemy3D.getTextureManager().unload(gl, skyTexId);
             skyTexId = -1;
         }
         if (skyCallList != -1) {
             gl.glDeleteLists(skyCallList, 1);
             skyCallList = -1;
         }
-
-        this.gl = null;
     }
 
-    protected void draw(GL gl) {
+    protected void draw(DrawContext drawContext) {
+        GL gl = drawContext.getGl();
+        Ptolemy3DGLCanvas canvas = drawContext.getCanvas();
+
         if (!drawSky) {
             return;
         }
@@ -149,16 +136,13 @@ public class Sky {
 
         int radius = 10000;
         if ((camera.getVerticalAltitudeMeters() > horizonAlt) || (camera.getPosition().getAltitudeDD() > (radius - 1))) {
-            this.gl = gl;
 
             if (horizonAlt != 0) {
-                spaceAtmosphere();
+                spaceAtmosphere(drawContext);
             }
-            this.gl = null;
             return;
         }
 
-        this.gl = gl;
 
         gl.glDisable(GL.GL_FOG);
         gl.glDisable(GL.GL_TEXTURE_2D);
@@ -186,11 +170,11 @@ public class Sky {
             gl.glEnable(GL.GL_FOG);
         }
 
-        this.gl = null;
     }
 
-    private final void spaceAtmosphere() {
-        final Camera camera = canvas.getCamera();
+    private final void spaceAtmosphere(DrawContext drawContext) {
+        GL gl = drawContext.getGl();
+        final Camera camera = drawContext.getCanvas().getCamera();
 
         int i;
         double r = Unit.EARTH_RADIUS;

@@ -105,7 +105,7 @@ public class Texture
 	public final static Texture setWebImage(String image_url, float[] meta, int transparency, String svr)
 	{
 		if (svr == null) {
-			svr = Ptolemy3D.ptolemy.configuration.server;
+			svr = Ptolemy3D.getConfiguration().server;
 		}
 		if ((meta == null) || (meta.length < 4)) {
 			meta = new float[4];

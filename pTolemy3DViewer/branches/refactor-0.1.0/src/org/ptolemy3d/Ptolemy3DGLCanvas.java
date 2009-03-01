@@ -17,16 +17,12 @@
  */
 package org.ptolemy3d;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
 import javax.media.opengl.GL;
 import javax.media.opengl.GLAutoDrawable;
 import javax.media.opengl.GLCanvas;
 import javax.media.opengl.GLContext;
 import javax.media.opengl.GLEventListener;
 
-import org.ptolemy3d.debug.IO;
 import org.ptolemy3d.view.Camera;
 import org.ptolemy3d.view.CameraMovement;
 import org.ptolemy3d.view.InputHandler;
@@ -167,9 +163,7 @@ public class Ptolemy3DGLCanvas extends GLCanvas implements GLEventListener {
         Ptolemy3D.getScene().initGL(drawContext);
 
         // Add listeners
-        if (this.input.keyboardEnabled) {
-            this.addKeyListener(this.input);
-        }
+        this.addKeyListener(this.input);
         this.addMouseListener(this.input);
         this.addMouseMotionListener(this.input);
         this.addMouseWheelListener(this.input);

@@ -89,7 +89,6 @@ public class Configuration {
     // Misc
     public final static String FOLLOW_DEM = "FollowDEM";
     public final static String HTSCALE = "HTSCALE";
-    public final static String KEYBOARD = "KEYBOARD";
     public final static String TIN = "TIN";
     public final static String BACKGROUND_IMAGE_URL = "BackgroundImageUrl";
     public final static String SUBTEXTURES = "SubTextures";
@@ -102,9 +101,6 @@ public class Configuration {
 
     // Logger instance.
     private static final Logger logger = Logger.getLogger(Configuration.class.getName());
-    // Ptolemy3D Instance
-    private final Ptolemy3DGLCanvas canvas;
-
     // Clearing color (back ground color)
     public float[] backgroundColor = {0.541176470588f, 0.540176470588f, 0.540176470588f};
     public String server = "";
@@ -120,25 +116,18 @@ public class Configuration {
     public boolean useTIN = false;
     public Color hudBackgroundColor = new Color(20, 20, 20, 128);
     public String backgroundImageUrl = null;
+    public Position initialCameraPosition = new Position(0, 0, 0);
+    public double initialCameraDirection = 0;
+    public double initialCameraPitch = 0;
+    public boolean follorDEM = true;
 
     /**
-     * Creates a new configuration instance that configures the specified canvas
-     * and the Ptolemy3D scene.
-     * 
-     * @param canvas
-     */
-    public Configuration(Ptolemy3DGLCanvas canvas) {
-        this.canvas = canvas;
-    }
-
-    /**
-     * Creates a new configuration instance.
+     * Creates a new configuration instance given the specified file.
      *
      * @param canvas
      * @param xmlFile
      */
-    public Configuration(Ptolemy3DGLCanvas canvas, String xmlFile) {
-        this.canvas = canvas;
+    public Configuration(String xmlFile) {
         loadSettings(xmlFile);
     }
 
@@ -188,7 +177,6 @@ public class Configuration {
 
         Element docelem = buildXMLDocument(xmlFile);
 
-        final CameraMovement cameraController = canvas.getCameraMovement();
         final Scene scene = Ptolemy3D.getScene();
         final Landscape landScape = scene.landscape;
         final Sky sky = scene.sky;
@@ -254,7 +242,9 @@ public class Configuration {
                         double alt = Double.parseDouble(values[2]);
                         double dir = Double.parseDouble(values[3]);
                         double pitch = Double.parseDouble(values[4]);
-                        cameraController.setOrientation(new Position(lat, lon, alt), dir, pitch);
+                        initialCameraPosition = new Position(lat, lon, alt);
+                        initialCameraDirection = dir;
+                        initialCameraPitch = pitch;
                     }
                     catch (NumberFormatException e) {
                         String message = "Some of the values in the " + ORIENTARION + " property are invalids.\nThe property will be ignored";
@@ -289,11 +279,8 @@ public class Configuration {
             if ((s = getOptionalParameter(HUD_BG_RGBA, docelem)) != null) {
                 hudBackgroundColor = getAwtColor(s);
             }
-            if ((s = getOptionalParameter(FOLLOW_DEM, docelem)) != null) {
-                cameraController.setFollowDem(s.equals("1") ? true : false);
-            }
-            s = getOptionalParameter(KEYBOARD, docelem);
-            cameraController.inputs.keyboardEnabled = ((s != null) && (s.equals("0"))) ? false : true;
+
+            follorDEM = getOptionalParameterBoolean(FOLLOW_DEM, docelem);
 
             if ((s = getOptionalParameter(HTSCALE, docelem)) != null) {
                 landScape.setMaxColorHeight(Short.parseShort(s));

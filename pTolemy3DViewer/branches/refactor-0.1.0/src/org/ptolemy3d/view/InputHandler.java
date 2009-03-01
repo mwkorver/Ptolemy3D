@@ -59,8 +59,6 @@ public class InputHandler implements KeyListener, MouseListener,
     public final static int ZOOM_IN = 2;
     // Canvas Instance
     private Ptolemy3DGLCanvas canvas = null;
-    // Keyboard enabled ???
-    public boolean keyboardEnabled = true;
     // Key Pressed
     public int key_state = 0;
     // Current mouse position

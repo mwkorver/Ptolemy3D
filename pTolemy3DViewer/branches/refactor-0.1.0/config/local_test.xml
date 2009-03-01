@@ -20,7 +20,7 @@
     <FlightFrameDelay>200</FlightFrameDelay>
     <TIN>1</TIN>
     <HUD>1</HUD>
-    <FollowDEM>0</FollowDEM>
+    <FollowDEM>1</FollowDEM>
     <Units>DD</Units>
     <BackgroundColor>0,0,0</BackgroundColor>
     <SubTextures>1</SubTextures>

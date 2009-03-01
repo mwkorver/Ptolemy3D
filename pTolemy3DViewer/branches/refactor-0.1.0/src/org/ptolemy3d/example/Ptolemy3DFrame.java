@@ -118,7 +118,7 @@ public class Ptolemy3DFrame extends JFrame implements KeyListener, WindowListene
 		getInputContext().removeNotify(component3d);
 
 		if(ptolemy3d != null) {
-			ptolemy3d.destroy();
+			ptolemy3d.shutDown();
 			ptolemy3d = null;
 		}
 

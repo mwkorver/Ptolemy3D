@@ -18,6 +18,8 @@
 package org.ptolemy3d.example;
 
 import java.awt.BorderLayout;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import javax.swing.JFrame;
 
 import org.ptolemy3d.Configuration;
@@ -35,32 +37,30 @@ public class BasicFrame extends JFrame {
 
         String configFile = "../config/local_test.xml";
 
-        // Create the canvas
-        Ptolemy3DGLCanvas canvas = new Ptolemy3DGLCanvas();
-
         // Load the configuration file.
-        Configuration config = new Configuration(canvas, configFile);
+        Configuration config = new Configuration(configFile);
 
-        // Initialize ptolemy system with the canvas and config file.
-        Ptolemy3D.initialize(canvas, config);
+        // Initialize ptolemy system with the config file.
+        Ptolemy3D.initialize(config);
 
+        // Create the canvas and register it into Ptolemy3D system.
+        Ptolemy3DGLCanvas canvas = new Ptolemy3DGLCanvas();
+        Ptolemy3D.registerCanvas(canvas);
+
+        Ptolemy3D.start();
 
         this.getRootPane().setLayout(new BorderLayout());
         this.getRootPane().add(canvas, BorderLayout.CENTER);
         this.pack();
 
-    // TODO - Look if is necessary the destroy call.
-    // frame.addWindowListener(new WindowAdapter( ){
-    // public void windowClosing(WindowEvent e) {
-    // frame.getInputContext().removeNotify(component3d);
-    //
-    // //Ptolemy3D destruction
-    // ptolemy3d.destroy();
-    //
-    // frame.remove(component3d);
-    // frame.dispose();
-    // }
-    // });
+        this.addWindowListener(new WindowAdapter() {
+
+            @Override
+            public void windowClosing(WindowEvent e) {
+                System.out.println("Clossing ptolemy...");
+                Ptolemy3D.shutDown();
+            }
+        });
     }
 
     public static void main(String[] args) {

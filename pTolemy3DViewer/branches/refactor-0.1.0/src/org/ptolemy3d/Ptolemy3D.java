@@ -100,12 +100,29 @@ public class Ptolemy3D {
      *
      * @param config
      */
-    public static void initialize(Ptolemy3DGLCanvas cnv, Configuration config) {
-        canvas = cnv;
+    public static void initialize(Configuration config) {
         configuration = config;
         textureManager = new TextureManager();
+    }
 
-        startTileLoaderThread();
+    /**
+     * Registers the canvas to be used by ptolemy.
+     *
+     * TODO - This method must be temporal. This not allows to have various canvas
+     * render the same scene.
+     *
+     * @param cnv
+     */
+    public static void registerCanvas(Ptolemy3DGLCanvas cnv) {
+        canvas = cnv;
+
+        // If there is a configuration the apply them to the cameraMovement.
+        if (configuration != null) {
+            canvas.getCameraMovement().setOrientation(configuration.initialCameraPosition,
+                                                      configuration.initialCameraDirection,
+                                                      configuration.initialCameraPitch);
+            canvas.getCameraMovement().setFollowDem(configuration.follorDEM);
+        }
     }
 
     /**
@@ -221,11 +238,21 @@ public class Ptolemy3D {
         }
     }
 
-    public static void destroy() {
+    /**
+     * Start required threads.
+     */
+    public static void start() {
+        startTileLoaderThread();
+    }
+
+    /**
+     * Stop the pTolemy system: request data thread and other resources.
+     */
+    public static void shutDown() {
         // Stop the tile loading first
         stopTileLoaderThread();
 
-//		// Stop and destroy all the 3D
+//		// Stop and shutDown all the 3D
 //		if (canvas != null) {
 //			canvas.destroyGL();
 //		}

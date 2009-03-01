@@ -76,8 +76,6 @@ public class Plugins {
             int index = plugins.size();
 
             try {
-                // TODO - Take into account plugin initialization. Is this NEEDED ?????
-//                plugin.init(ptolemy);
                 plugin.setPluginIndex(index);
                 plugin.setPluginParameters(pluginParams);
             }
@@ -89,17 +87,6 @@ public class Plugins {
         }
     }
 
-    // TODO - Really is needed???
-//    protected final void init(Ptolemy3D ptolemy) {
-    //Plugins initialized in addPlugin
-//		if (plugins != null) {
-//			for(Ptolemy3DPlugin plugin : plugins) {
-//				if (plugin != null) {
-//					plugin.init(ptolemy);
-//				}
-//			}
-//		}
-//    }
     protected final void initGL(DrawContext drawContext) {
 
         if (plugins != null) {

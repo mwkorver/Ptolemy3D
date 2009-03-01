@@ -50,23 +50,23 @@ import org.ptolemy3d.view.Camera;
  * <BR>
  * Among other thing, it contains the 3D rendering loop.<BR>
  * <BR>
+ *
+ * @author Antonio Santiago <asantiagop(at)gmail(dot)com>
+ * @author Jerome Jouvie
  */
 public class Scene implements Transferable {
 
-    /** Landscape */
+    // Landscape
     public final Landscape landscape;
-    /** Sky */
+    // Sky
     public final Sky sky;
-    /** Plugins */
+    // Plugins
     public final Plugins plugins;
-    /** Light */
+    // Light
     public final Light light;
-    /**
-     * Do a screenshot of the next frame in <code>clipboardImage</code>. @see
-     * #clipboardImage
-     */
+    // Do a screenshot of the next frame in <code>clipboardImage</code>.
     public boolean screenshot = false;
-    /** Screenshot image */
+    // Screenshot image
     public Image clipboardImage;
 
     /**
@@ -79,7 +79,10 @@ public class Scene implements Transferable {
         this.light = new Light();
     }
 
-    /** Initialize OpenGL data of the scene. */
+    /**
+     * Initialize OpenGL data of the scene
+     * @param drawContext
+     */
     public void initGL(DrawContext drawContext) {
         landscape.initGL(drawContext);
         sky.initGL(drawContext);
@@ -87,7 +90,10 @@ public class Scene implements Transferable {
         light.initGL(drawContext);
     }
 
-    /** Destroy OpenGL data of the scene. */
+    /**
+     * Destroy OpenGL data of the scene.
+     * @param drawContext
+     */
     public void destroyGL(DrawContext drawContext) {
         landscape.destroyGL(drawContext);
         sky.destroyGL(drawContext);
@@ -107,7 +113,11 @@ public class Scene implements Transferable {
         Ptolemy3D.getTextureManager().destroyGL(drawContext.getGl());
     }
 
-    /** Draw the scene with OpenGL. */
+    /**
+     * Draws the scene.
+     *
+     * @param drawContext
+     */
     public void draw(DrawContext drawContext) {
 
         GL gl = drawContext.getGl();
@@ -137,12 +147,16 @@ public class Scene implements Transferable {
             ProfilerInterface.stop(ProfilerEventInterface.Prepare);
         }
 
-        /* Standard OpenGL Init: Clear frame buffer color and z */
+        // Standard OpenGL Init: Clear frame buffer color and Z
+        float[] backColor = Ptolemy3D.getConfiguration().backgroundColor;
+        gl.glClearColor(backColor[0], backColor[1], backColor[2], 0.1f);
         gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 
-        /* Lighting */
+        // Light
+        // TODO - Really necessary
         light.draw(drawContext); // FIXME Strange here, must be after camera ?
 
+        // TODO - why don't to put in the Camera.update ???
         /* Perspective matrix */
         gl.glMatrixMode(GL.GL_PROJECTION);
         gl.glLoadMatrixd(camera.perspective.m, 0);
@@ -150,7 +164,7 @@ public class Scene implements Transferable {
         gl.glMatrixMode(GL.GL_MODELVIEW);
         gl.glLoadMatrixd(camera.modelview.m, 0);
 
-        /* Rendering */
+        // Rendering
         if (DEBUG) {
             ProfilerInterface.start(ProfilerEventInterface.Sky);
         }
@@ -175,7 +189,7 @@ public class Scene implements Transferable {
             ProfilerInterface.stop(ProfilerEventInterface.Plugins);
         }
 
-        /* Screenshot */
+        // Screenshot
         if (DEBUG) {
             ProfilerInterface.start(ProfilerEventInterface.Screenshot);
         }

@@ -75,6 +75,9 @@ import org.ptolemy3d.view.CameraMovement;
  * @see Camera
  * @see CameraMovement
  * @see Scene
+ *
+ * @author Antonio Santiago <asantiagop(at)gmail(dot)com>
+ * @author Jerome Jouvie
  */
 public class Ptolemy3D {
 
@@ -101,6 +104,8 @@ public class Ptolemy3D {
         canvas = cnv;
         configuration = config;
         textureManager = new TextureManager();
+
+        startTileLoaderThread();
     }
 
     /**
@@ -191,7 +196,7 @@ public class Ptolemy3D {
     /**
      * Start tile download thread.
      */
-    public static void startTileLoaderThread() {
+    private static void startTileLoaderThread() {
         if (tileLoader == null) {
             tileLoader = new Jp2TileLoader();
         }
@@ -204,7 +209,7 @@ public class Ptolemy3D {
     /** 
      * Stop tile download thread.
      */
-    public static void stopTileLoaderThread() {
+    private static void stopTileLoaderThread() {
         if (tileLoaderThread != null) {
             tileLoader.on = false;
             try {

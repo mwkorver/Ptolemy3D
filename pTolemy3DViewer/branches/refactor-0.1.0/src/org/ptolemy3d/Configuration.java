@@ -41,22 +41,18 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
- * <H1>Configuration</H1> <BR>
- * Set of Ptolemy3D configuration parameters.<BR>
- * This is used for example to specify the map server, globe geometry settings
- * (number of levels)), the initial view position, ...<BR>
- * <BR>
- * List of parameters description can be found at: <a
- * href="http://ptolemy3d.org/wiki/PtolemyViewerConfig">Ptolemy3D wiki</a>.<BR>
+ * Configuration class loads and stores a set of Ptolemy3D configuration parameters.
+ * This is used for example to specify the map server date, globe geometry settings
+ * (number of levels)), the initial view position, etc.
  * 
  * @author Jerome Jouvie
- * @author Antonio Santiago
+ * @author Antonio Santiago <asantiagop(at)gmail(dot)com>
  */
 public class Configuration {
 
     // ////////////////////////////////////////////////
     // Required params
-	/* Server */
+    // Server
     public final static String SERVER = "Server";
     public final static String NUM_MAP_DATA_SERVER = "NumMapDataServers";
     public final static String MAP_DATA_SERVER = "MapDataSvr";
@@ -65,10 +61,10 @@ public class Configuration {
     public final static String LOCATION_ROOT = "LocationRoot";
     public final static String AREA = "Area";
     public final static String DEM = "DEM";
-    /* Unit */
+    // Unit
     public final static String CENTER_X = "CenterX";
     public final static String CENTER_Y = "CenterY";
-    /* Layers */
+    // Layers
     public final static String NUM_LAYERS = "NumLayers";
     public final static String LAYER_WIDTH = "LayerWidth_";
     public final static String LAYER_MIN = "LayerMin_";
@@ -76,24 +72,21 @@ public class Configuration {
 
     // ////////////////////////////////////////////////
     // Optional params
-	/* Server */
+    // Server
     public final static String MURL_APPEND = "MUrlAppend";
     public final static String MHEADER_KEY = "MHeaderKey";
-    // public final static String MDATA_SERVER = "MDataServer";
     public final static String IS_KEEP_ALIVE = "isKeepAlive";
-    /* Unit */
+    // Unit
     public final static String DD = "DDBuffer"; // Jerome: I think nothing
-    // will work if
-    // different to 1E6
-	/* Initial position */
+    // Initial position
     public final static String ORIENTARION = "Orientation";
-    /* Layer */
+    // Layer
     public final static String LAYER_DIVIDER = "LayerDivider_";
-    /* Plugin */
+    // Plugin
     public final static String NUM_PLUGINS = "NumPlugins";
     public final static String PLUGIN_TYPE = "PluginType_";
     public final static String PLUGIN_PARAM = "PluginParam_";
-    /* Misc */
+    // Misc
     public final static String FOLLOW_DEM = "FollowDEM";
     public final static String HTSCALE = "HTSCALE";
     public final static String KEYBOARD = "KEYBOARD";
@@ -181,9 +174,6 @@ public class Configuration {
         if (document == null) {
             return null;
         }
-
-        System.out.println("Doc: " + document);
-        System.out.println("Elm: " + document.getDocumentElement());
 
         return document.getDocumentElement();
     }

@@ -39,8 +39,8 @@ import com.sun.opengl.util.Animator;
  * Ptolemy3D instance.
  * </p>
  * <p>
- * Ptolemy3DGLCanvas maintains a Camera and a CameraMovement object to control
- * the view.
+ * Ptolemy3DGLCanvas maintains a Camera, CameraMovement and InputHandler object
+ * to control the view.
  * </p>
  * 
  * @author Antonio Santiago <asantiagop(at)gmail(dot)com>
@@ -54,8 +54,6 @@ public class Ptolemy3DGLCanvas extends GLCanvas implements GLEventListener {
     private DrawContext drawContext = new DrawContext();
     // Rendering loop
     private Animator animator = null;
-    private GL gl = null;
-    private GLAutoDrawable glAutoDrawable = null;
 
     // Width on the screen
     private int screenWidth = 0;
@@ -71,11 +69,6 @@ public class Ptolemy3DGLCanvas extends GLCanvas implements GLEventListener {
     private int drawHeight = 0;
     // Aspect ration of the frame buffer.
     private float drawAspectRatio = 1;
-
-    // Flag to know when the init has been done.
-    private boolean isInit = false;
-    // Flag to end rendering loop.
-    private boolean renderingLoopOn = true;
 
     /**
      * Creates a new instance.
@@ -120,7 +113,6 @@ public class Ptolemy3DGLCanvas extends GLCanvas implements GLEventListener {
     /** Start rendering loop. */
     public void startRenderingLoop() {
         if (animator != null && !animator.isAnimating()) {
-            renderingLoopOn = true;
             animator.start();
         }
     }
@@ -135,7 +127,6 @@ public class Ptolemy3DGLCanvas extends GLCanvas implements GLEventListener {
      */
     public void stopRenderingLoop() {
         if (animator != null && animator.isAnimating()) {
-            renderingLoopOn = false;
             animator.stop();
         }
     }
@@ -164,56 +155,38 @@ public class Ptolemy3DGLCanvas extends GLCanvas implements GLEventListener {
 
         initializeDrawContext(glDrawable);
 
-        glAutoDrawable = glDrawable;
-        gl = glDrawable.getGL();
+        GL gl = glDrawable.getGL();
 
         // Enable V-Sync
         gl.setSwapInterval(1);
 
-        if (!isInit) {
-            // Init flight movement
-            cameraMovement.init();
+        // Init flight movement
+        cameraMovement.init();
 
-            // Init Scene landscane, sky, hud, plugins ...
-            Ptolemy3D.getScene().initGL(drawContext);
+        // Init Scene landscane, sky, hud, plugins ...
+        Ptolemy3D.getScene().initGL(drawContext);
 
-            // Add listeners
-            addListeners();
-
-            isInit = true;
-
-            Ptolemy3D.startTileLoaderThread();
-        // ptolemy.callJavascript("sc_init", null, null, null);
+        // Add listeners
+        if (this.input.keyboardEnabled) {
+            this.addKeyListener(this.input);
         }
+        this.addMouseListener(this.input);
+        this.addMouseMotionListener(this.input);
+        this.addMouseWheelListener(this.input);
     }
 
     public void display(GLAutoDrawable glDrawable) {
 
         initializeDrawContext(glDrawable);
 
-        glAutoDrawable = glDrawable;
-        gl = glDrawable.getGL();
-
-        if (renderingLoopOn) {
-            if (isInit) {
-                Ptolemy3D.getScene().draw(drawContext);
-
-            // if (isOffscreenRender) { //FIXME Not implement with JOGL
-            // repaint();
-            // }
-            }
-        }
-        else {
-            destroyGL();
-        }
+        Ptolemy3D.getScene().draw(drawContext);
     }
 
     public void reshape(GLAutoDrawable glDrawable, int x, int y, int width, int height) {
 
         initializeDrawContext(glDrawable);
 
-        glAutoDrawable = glDrawable;
-        gl = glDrawable.getGL();
+        GL gl = glDrawable.getGL();
 
         gl.glViewport(x, y, width, height);
 
@@ -245,80 +218,9 @@ public class Ptolemy3DGLCanvas extends GLCanvas implements GLEventListener {
         screenWidth = width;
         screenHeight = height;
         setScreenAspectRatio((float) width / height);
-
-        this.gl = null; /* Don't let someone else use it from now */
     }
 
     public void displayChanged(GLAutoDrawable drawable, boolean modeChanged, boolean deviceChanged) {
-    }
-
-    // TODO - Must be called to free Canvas resources.
-    public void destroyGL() {
-        // Stop rendering loop
-//        stopRenderingLoop();
-        removeListeners();
-
-        // Destroy OpenGL Datas
-        runInContext(new ActionListener() {
-
-            public void actionPerformed(ActionEvent e) {
-                Ptolemy3D.getScene().destroyGL(drawContext);
-            }
-        });
-
-        renderingLoopOn = false;
-        isInit = false;
-    }
-
-    private void runInContext(ActionListener action) {
-        final GLContext glContext = glAutoDrawable.getContext();
-        int result = glContext.makeCurrent();
-        if (result != GLContext.CONTEXT_NOT_CURRENT) {
-            try {
-                action.actionPerformed(null);
-            }
-            catch (Exception e) {
-            }
-            catch (Error e) {
-            }
-
-            glContext.release();
-
-            if (result == GLContext.CONTEXT_CURRENT_NEW) {
-                glContext.destroy();
-            }
-        }
-    }
-
-
-    /* Listeners */
-    protected void removeListeners() {
-        if (glAutoDrawable == null) {
-            IO.print("Ptolemy3DGLCanvas not yet initialized.");
-            return;
-        }
-
-        InputHandler inputs = cameraMovement.inputs;
-        if (inputs.keyboardEnabled) {
-            glAutoDrawable.removeKeyListener(inputs);
-        }
-        glAutoDrawable.removeMouseListener(inputs);
-        glAutoDrawable.removeMouseMotionListener(inputs);
-    }
-
-    protected void addListeners() {
-        if (glAutoDrawable == null) {
-            IO.print("Ptolemy3DGLCanvas not yet initialized.");
-            return;
-        }
-
-        InputHandler inputs = cameraMovement.inputs;
-        if (inputs.keyboardEnabled) {
-            glAutoDrawable.addKeyListener(inputs);
-        }
-        glAutoDrawable.addMouseListener(inputs);
-        glAutoDrawable.addMouseMotionListener(inputs);
-        glAutoDrawable.addMouseWheelListener(inputs);
     }
 
     /**

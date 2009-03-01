@@ -38,11 +38,13 @@ public class BasicFrame extends JFrame {
         // Create the canvas
         Ptolemy3DGLCanvas canvas = new Ptolemy3DGLCanvas();
 
-        // Initialize the canvas and Ptolemy3D with the configuration file.
+        // Load the configuration file.
         Configuration config = new Configuration(canvas, configFile);
+
+        // Initialize ptolemy system with the canvas and config file.
         Ptolemy3D.initialize(canvas, config);
-        
-        
+
+
         this.getRootPane().setLayout(new BorderLayout());
         this.getRootPane().add(canvas, BorderLayout.CENTER);
         this.pack();

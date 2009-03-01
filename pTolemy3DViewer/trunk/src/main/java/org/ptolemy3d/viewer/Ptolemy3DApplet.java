@@ -33,7 +33,6 @@ import netscape.javascript.JSObject;
 
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.Ptolemy3DJavascript;
-import org.ptolemy3d.Ptolemy3DUnit;
 import org.ptolemy3d.debug.IO;
 import org.ptolemy3d.scene.Landscape;
 import org.ptolemy3d.scene.Sky;
@@ -563,7 +562,7 @@ public class Ptolemy3DApplet extends Applet implements Ptolemy3DJavascript,
 	public final void clearKeyPress()
 	{
 		try {
-			ptolemy.cameraController.inputs.key_state = 0;
+			ptolemy.cameraController.inputs.inputState.reset();
 		} catch (Exception e) { IO.printStackJavascript(e); }
 	}
 

@@ -37,22 +37,175 @@ import org.ptolemy3d.debug.IO;
  */
 public class InputListener implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener
 {
-	protected final static int ASC_A       = (1 << 0);
-	protected final static int ASC_Z       = (1 << 1);
-	protected final static int LEFT_ARROW  = (1 << 2);
-	protected final static int RIGHT_ARROW = (1 << 3);
-	protected final static int UP_ARROW    = (1 << 6);
-	protected final static int DOWN_ARROW  = (1 << 7);
-	protected final static int WHEEL_TOWARD= (1 << 8);
-	protected final static int WHEEL_AWAY  = (1 << 9);
-	protected final static int ASC_S       = (1 << 16);		//Idem ASC_A
-	protected final static int ASC_X       = (1 << 18);		//Idem ASC_Z
-	protected final static int ASC_D       = (1 << 15);
-	protected final static int ASC_F       = (1 << 17);
-	protected final static int ASC_R       = (1 << 11);
-	protected final static int ASC_C       = (1 << 12);
-	//protected final static int ASC_H     = (1 << 19);
-	//protected final static int ASC_Q     = (1 << 13);
+	/** Associate action and keyboard/mouse*/
+	public static class InputConfig {
+		public static class Input {
+			/** KeyEvent.VK_*** */
+			public int key = -1;
+			/** MouseEvent.BUTTON* */
+			public int button = 0;
+			/** + */
+			public int wheel = 0;
+			public Input(int keyCode, int button, int wheelDir) {
+				this.button = button;
+				this.key = keyCode;
+				this.wheel = wheelDir;
+			}
+		}
+		public Input straightForward         = new Input(KeyEvent.VK_A, 0, -10);
+		public Input straightForwardConstAlt = new Input(KeyEvent.VK_S, 0, 0);
+		public Input straightBack            = new Input(KeyEvent.VK_Z, 0, 10);
+		public Input straightBackConstAlt    = new Input(KeyEvent.VK_X, 0, 0);
+		public Input strafeLeft              = new Input(KeyEvent.VK_D, 0, 0);
+		public Input strafeRight             = new Input(KeyEvent.VK_F, 0, 0);
+		public Input increaseAltitude        = new Input(KeyEvent.VK_R, 0, 0);
+		public Input decreaseAltitude        = new Input(KeyEvent.VK_C, 0, 0);
+		public Input turnLeft                = new Input(KeyEvent.VK_LEFT, 0, 0);
+		public Input turnRight               = new Input(KeyEvent.VK_RIGHT, 0, 0);
+		public Input tiltUp                  = new Input(KeyEvent.VK_UP, 0, 0);
+		public Input tiltDown                = new Input(KeyEvent.VK_DOWN, 0, 0);
+	}
+	/** Action state */
+	public static class InputState {
+		public int straightForward;
+		public int straightForwardConstAlt;
+		public int straightBack;
+		public int straightBackConstAlt;
+		public int strafeLeft;
+		public int strafeRight;
+		public int increaseAltitude;
+		public int decreaseAltitude;
+		public int turnLeft;
+		public int turnRight;
+		public int tiltUp;
+		public int tiltDown;
+		
+		private InputState() {
+			reset();
+		}
+		public void reset() {
+			straightForward         = 0;
+			straightForwardConstAlt = 0;
+			straightBack            = 0;
+			straightBackConstAlt    = 0;
+			strafeLeft              = 0;
+			strafeRight             = 0;
+			increaseAltitude        = 0;
+			decreaseAltitude        = 0;
+			turnLeft                = 0;
+			turnRight               = 0;
+			tiltUp                  = 0;
+			tiltDown                = 0;
+		}
+		public boolean hasInput() {
+			return 0 != 
+				straightForward *
+				straightForwardConstAlt *
+				straightBack *
+				straightBackConstAlt *
+				strafeLeft *
+				strafeRight *
+				increaseAltitude *
+				decreaseAltitude *
+				turnLeft *
+				turnRight *
+				tiltUp *
+				tiltDown;
+		}
+		
+		private void keyPressed(InputConfig inputConfig, int keyCode) {
+			if(keyCode == inputConfig.straightForward.key) {
+				straightForward = 1;
+			}
+			else if(keyCode == inputConfig.straightForwardConstAlt.key) {
+				straightForwardConstAlt = 1;
+			}
+			else if(keyCode == inputConfig.straightBack.key) {
+				straightBack = 1;
+			}
+			else if(keyCode == inputConfig.straightBackConstAlt.key) {
+				straightBackConstAlt = 1;
+			}
+			else if(keyCode == inputConfig.turnLeft.key) {
+				turnLeft = 1;
+			}
+			else if(keyCode == inputConfig.turnRight.key) {
+				turnRight = 1;
+			}
+			else if(keyCode == inputConfig.tiltUp.key) {
+				tiltUp = 1;
+			}
+			else if(keyCode == inputConfig.tiltDown.key) {
+				tiltDown = 1;
+			}
+			else if(keyCode == inputConfig.strafeLeft.key) {
+				strafeLeft = 1;
+			}
+			else if(keyCode == inputConfig.strafeRight.key) {
+				strafeRight = 1;
+			}
+			else if(keyCode == inputConfig.increaseAltitude.key) {
+				increaseAltitude = 1;
+			}
+			else if(keyCode == inputConfig.decreaseAltitude.key) {
+				decreaseAltitude = 1;
+			}
+		}
+		private void keyReleased(InputConfig inputConfig, int keyCode) {
+			if(keyCode == inputConfig.straightForward.key) {
+				straightForward = 0;
+			}
+			else if(keyCode == inputConfig.straightForwardConstAlt.key) {
+				straightForwardConstAlt = 0;
+			}
+			else if(keyCode == inputConfig.straightBack.key) {
+				straightBack = 0;
+			}
+			else if(keyCode == inputConfig.straightBackConstAlt.key) {
+				straightBackConstAlt = 0;
+			}
+			else if(keyCode == inputConfig.turnLeft.key) {
+				turnLeft = 0;
+			}
+			else if(keyCode == inputConfig.turnRight.key) {
+				turnRight = 0;
+			}
+			else if(keyCode == inputConfig.tiltUp.key) {
+				tiltUp = 0;
+			}
+			else if(keyCode == inputConfig.tiltDown.key) {
+				tiltDown = 0;
+			}
+			else if(keyCode == inputConfig.strafeLeft.key) {
+				strafeLeft = 0;
+			}
+			else if(keyCode == inputConfig.strafeRight.key) {
+				strafeRight = 0;
+			}
+			else if(keyCode == inputConfig.increaseAltitude.key) {
+				increaseAltitude = 0;
+			}
+			else if(keyCode == inputConfig.decreaseAltitude.key) {
+				decreaseAltitude = 0;
+			}
+		}
+		public void wheel(InputConfig inputConfig, int wheelCount) {
+			if(inputConfig.straightForward.wheel != 0) {
+				int w = wheelCount * inputConfig.straightForward.wheel;
+				if(w >= 0) {
+					straightForward = w;
+					straightBack = 0;
+				}
+			}
+			if(inputConfig.straightBack.wheel != 0) {
+				int w = wheelCount * inputConfig.straightBack.wheel;
+				if(w >= 0) {
+					straightBack = w;
+					straightForward = 0;
+				}
+			}
+		}
+	}
 
 	public final static int OUTPUT_COORDINATES = 0;
 	public final static int CENTER_IN = 1;
@@ -62,12 +215,12 @@ public class InputListener implements KeyListener, MouseListener, MouseMotionLis
 	private final Ptolemy3D ptolemy;
 	/** Keyboard enabled ? */
 	public boolean keyboardEnabled = true;
-	/** Key Pressed */
-	public int key_state = 0;
+	/** Key/Mouse configuration */
+	public final InputConfig inputConfig = new InputConfig();
+	/** Key/Mouse states */
+	public final InputState inputState = new InputState();
 	/** Current mouse position */
 	private Point mousePoint = null;
-	/** Mouse wheel count */
-	public int wheelCount = 0;
 	/** Mouse moving flag, used to know when mousePressed event have been triggered. */
 	private boolean mouseMoveFlag = false;
 	/** */
@@ -78,95 +231,15 @@ public class InputListener implements KeyListener, MouseListener, MouseMotionLis
 		this.ptolemy = ptolemy;
 	}
 
-	public final void asciiKeyPress(int dec)
+	@SuppressWarnings("deprecation")
+	public final void asciiKeyPress(int keyCode)
 	{
-		ptolemy.cameraController.inAutoPilot = 0;
-		if (ptolemy.tileLoader.isSleeping) {
-			ptolemy.tileLoaderThread.interrupt();
-		}
-		switch (dec)
-		{
-			case 65:
-				key_state |= ASC_A;
-				break;
-			case 90:
-				key_state |= ASC_Z;
-				break;
-			case 37:
-				key_state |= LEFT_ARROW;
-				break;
-			case 39:
-				key_state |= RIGHT_ARROW;
-				break;
-			case 38:
-				key_state |= UP_ARROW;
-				break;
-			case 40:
-				key_state |= DOWN_ARROW;
-				break;
-			case 68:
-				key_state |= ASC_D;
-				break;
-			case 70:
-				key_state |= ASC_F;
-				break;
-			case 83:
-				key_state |= ASC_S;
-				break;
-			case 88:
-				key_state |= ASC_X;
-				break;
-			case 82:
-				key_state |= ASC_R;
-				break;
-			case 67:
-				key_state |= ASC_C;
-				break;
-		}
+		keyPressed(new KeyEvent(null, 0, 0, 0, keyCode));
 	}
-
-	public final void asciiKeyRelease(int dec)
+	@SuppressWarnings("deprecation")
+	public final void asciiKeyRelease(int keyCode)
 	{
-		switch (dec)
-		{
-			case 65:
-				key_state &= ~ASC_A;
-				break;
-			case 90:
-				key_state &= ~ASC_Z;
-				break;
-			case 37:
-				key_state &= ~LEFT_ARROW;
-				break;
-			case 39:
-				key_state &= ~RIGHT_ARROW;
-				break;
-			case 38:
-				key_state &= ~UP_ARROW;
-				break;
-			case 40:
-				key_state &= ~DOWN_ARROW;
-				break;
-			case 68:
-				key_state &= ~ASC_D;
-				break;
-			case 70:
-				key_state &= ~ASC_F;
-				break;
-			case 83:
-				key_state &= ~ASC_S;
-				break;
-			case 88:
-				key_state &= ~ASC_X;
-				break;
-			case 82:
-				key_state &= ~ASC_R;
-				break;
-			case 67:
-				key_state &= ~ASC_C;
-				break;
-		}
-		ptolemy.cameraController.updatePosition(true);
+		keyReleased(new KeyEvent(null, 0, 0, 0, keyCode));
 	}
 
 	/* ************************* KeyListener ************************* */
@@ -178,104 +251,17 @@ public class InputListener implements KeyListener, MouseListener, MouseMotionLis
 			ptolemy.tileLoaderThread.interrupt();
 		}
 
-		switch (e.getKeyCode())
-		{
-			case KeyEvent.VK_A:
-				key_state |= ASC_A;
-				break;
-			case KeyEvent.VK_Z:
-				key_state |= ASC_Z;
-				break;
-			case KeyEvent.VK_LEFT:
-				key_state |= LEFT_ARROW;
-				break;
-			case KeyEvent.VK_RIGHT:
-				key_state |= RIGHT_ARROW;
-				break;
-			case KeyEvent.VK_UP:
-				key_state |= UP_ARROW;
-				break;
-			case KeyEvent.VK_DOWN:
-				key_state |= DOWN_ARROW;
-				break;
-			case KeyEvent.VK_D:
-				key_state |= ASC_D;
-				break;
-			case KeyEvent.VK_F:
-				key_state |= ASC_F;
-				break;
-			case KeyEvent.VK_S:
-				key_state |= ASC_S;
-				break;
-			case KeyEvent.VK_X:
-				key_state |= ASC_X;
-				break;
-			case KeyEvent.VK_R:
-				key_state |= ASC_R;
-				break;
-			case KeyEvent.VK_C:
-				key_state |= ASC_C;
-				break;
-//			case KeyEvent.VK_H:
-//				ptolemy.scene.hud.drawHud = ptolemy.scene.hud.drawHud ? false : true;
-//				break;
-			//case KeyEvent.VK_Q:
-			//	key_state |=  ASC_Q;
-			//	break;
-		}
+		inputState.keyPressed(inputConfig, e.getKeyCode());
 	}
-
 	public void keyReleased(KeyEvent e)
 	{
-		switch (e.getKeyCode())
-		{
-			case KeyEvent.VK_A:
-				key_state &= ~ASC_A;
-				break; // accellerate
-			case KeyEvent.VK_Z:
-				key_state &= ~ASC_Z;
-				break; // reverse
-			case KeyEvent.VK_LEFT:
-				key_state &= ~LEFT_ARROW;
-				break;
-			case KeyEvent.VK_RIGHT:
-				key_state &= ~RIGHT_ARROW;
-				break;
-			case KeyEvent.VK_UP:
-				key_state &= ~UP_ARROW;
-				break;
-			case KeyEvent.VK_DOWN:
-				key_state &= ~DOWN_ARROW;
-				break;
-			case KeyEvent.VK_D:
-				key_state &= ~ASC_D;
-				break;
-			case KeyEvent.VK_F:
-				key_state &= ~ASC_F;
-				break;
-			case KeyEvent.VK_S:
-				key_state &= ~ASC_S;
-				break;
-			case KeyEvent.VK_X:
-				key_state &= ~ASC_X;
-				break;
-			case KeyEvent.VK_R:
-				key_state &= ~ASC_R;
-				break;
-			case KeyEvent.VK_C:
-				key_state &= ~ASC_C;
-				break;
-				//case KeyEvent.VK_Q:    key_state &= ~ASC_Q;       break;
-			default:
-				if(DEBUG) {
-					IO.keyReleasedDebug(ptolemy, e.getKeyCode());
-				}
-				break;
-		}
-
+		inputState.keyReleased(inputConfig, e.getKeyCode());
 		ptolemy.cameraController.updatePosition(true);
+		
+		if(DEBUG) {
+			IO.keyReleasedDebug(ptolemy, e.getKeyCode());
+		}
 	}
-
 	public void keyTyped(KeyEvent e)
 	{
 	}
@@ -284,8 +270,7 @@ public class InputListener implements KeyListener, MouseListener, MouseMotionLis
 
 	public void mouseClicked(MouseEvent e)
 	{
-		switch (currentFunction)
-		{
+		switch (currentFunction) {
 			case OUTPUT_COORDINATES:
 				ptolemy.cameraController.outputCoordinates(e);
 				break;
@@ -297,35 +282,31 @@ public class InputListener implements KeyListener, MouseListener, MouseMotionLis
 				break;
 		}
 	}
-
 	public void mouseEntered(MouseEvent e)
 	{
 	}
-
 	public void mouseExited(MouseEvent e)
 	{
 	}
-
 	public void mousePressed(MouseEvent e)
 	{
 		ptolemy.cameraController.inAutoPilot = 0;
-		if (mouseMoveFlag == false)
-		{  // start drag
+		if (mouseMoveFlag == false) {  // start drag
 			mouseMoveFlag = true;
 			mousePoint = e.getPoint();
 		}
 	}
-
 	public void mouseReleased(MouseEvent e)
 	{
 		mouseMoveFlag = false;
 		ptolemy.cameraController.updatePosition(true);
 	}
-
+	
+	/* ************************* MouseMotionListener ************************* */
+	
 	public void mouseDragged(MouseEvent e)
 	{
-		if (mouseMoveFlag == true)
-		{
+		if (mouseMoveFlag == true) {
 			if (ptolemy.tileLoader.isSleeping) {
 				ptolemy.tileLoaderThread.interrupt();
 			}
@@ -343,29 +324,21 @@ public class InputListener implements KeyListener, MouseListener, MouseMotionLis
 			else
 			{
 				final double rot_accel = cameraController.rot_accel;
-				cameraController.lr_rot_velocity += (mousePoint.x - oldMousePoint.x) * -(rot_accel);
-				cameraController.ud_rot_velocity += (mousePoint.y - oldMousePoint.y) *  (rot_accel);
+				cameraController.lr_rot_velocity += (oldMousePoint.x - mousePoint.x) * rot_accel;
+				cameraController.ud_rot_velocity += (mousePoint.y - oldMousePoint.y) * rot_accel;
 			}
 		}
 	}
-
 	public void mouseMoved(MouseEvent e)
 	{
 
 	}
 
+	/* ************************* MouseWheelListener ************************* */
+	
 	public void mouseWheelMoved(MouseWheelEvent e)
 	{
-		key_state &= ~WHEEL_AWAY;
-		key_state &= ~WHEEL_TOWARD;
-
-		wheelCount = e.getWheelRotation() * 10;
-		if(wheelCount > 0) {
-			key_state |= WHEEL_AWAY;	//Zoom-In
-		}
-		else if(wheelCount < 0) {
-			wheelCount = -wheelCount;
-			key_state |= WHEEL_TOWARD;	//Zoom-out
-		}
+		int wheelCount = e.getWheelRotation();
+		inputState.wheel(inputConfig, wheelCount);
 	}
 }

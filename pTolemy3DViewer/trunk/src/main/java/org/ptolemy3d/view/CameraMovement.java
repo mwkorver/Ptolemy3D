@@ -72,7 +72,7 @@ public class CameraMovement
 
 	/** Flight mode */
 	protected short fmode = 1;
-	/* Some variable modified by InputListener */
+	/* Some variable modified by inputs.inputState */
 	protected double mouse_lr_rot_velocity = 0, mouse_ud_rot_velocity = 0;
 	protected double ud_rot_velocity = 0,  lr_rot_velocity = 0;
 
@@ -148,8 +148,8 @@ public class CameraMovement
 		Matrix9d vpMat_bak = new Matrix9d();
 		camera.vpMat.copyTo(vpMat_bak);
 
-		isActive = (inputs.key_state != 0) || (velocity != 0) || (vert_velocity != 0) ||
-					(ud_rot_velocity != 0) || (lr_rot_velocity != 0) || (horz_velocity != 0);
+		isActive = (velocity != 0) || (vert_velocity != 0) ||
+				   (ud_rot_velocity != 0) || (lr_rot_velocity != 0) || (horz_velocity != 0);
 
 		if (inAutoPilot > 0)
 		{
@@ -181,9 +181,7 @@ public class CameraMovement
 				vh_accel = 160;
 				vh_mmx = 8000;
 
-				if ((inputs.key_state & InputListener.ASC_S) == 0 && (inputs.key_state & InputListener.ASC_X) == 0 &&
-					(inputs.key_state & InputListener.ASC_A) == 0 && (inputs.key_state & InputListener.ASC_Z) == 0 &&
-					(inputs.key_state & InputListener.WHEEL_AWAY) == 0 && (inputs.key_state & InputListener.WHEEL_TOWARD) == 0)
+				if ((inputs.inputState.straightForward <= 0) && (inputs.inputState.straightBack <= 0))
 				{
 					if (velocity > 0) {
 						velocity -= accel;
@@ -192,7 +190,7 @@ public class CameraMovement
 						velocity += accel;
 					}
 				}
-				if ((inputs.key_state & InputListener.ASC_D) == 0 && (inputs.key_state & InputListener.ASC_F) == 0)
+				if ((inputs.inputState.strafeLeft <= 0) && (inputs.inputState.strafeRight <= 0))
 				{
 					if (vert_velocity > 0) {
 						vert_velocity -= vh_accel;
@@ -201,7 +199,7 @@ public class CameraMovement
 						vert_velocity += vh_accel;
 					}
 				}
-				if ((inputs.key_state & InputListener.ASC_R) == 0 && (inputs.key_state & InputListener.ASC_C) == 0)
+				if ((inputs.inputState.increaseAltitude <= 0) && (inputs.inputState.decreaseAltitude <= 0))
 				{
 					if (horz_velocity > 0) {
 						horz_velocity -= vh_accel;
@@ -210,7 +208,7 @@ public class CameraMovement
 						horz_velocity += vh_accel;
 					}
 				}
-				if ((inputs.key_state & InputListener.LEFT_ARROW) == 0 && (inputs.key_state & InputListener.RIGHT_ARROW) == 0)
+				if ((inputs.inputState.turnLeft <= 0) && (inputs.inputState.turnRight <= 0))
 				{
 					if (lr_rot_velocity > 0) {
 						lr_rot_velocity -= rot_accel;
@@ -222,7 +220,7 @@ public class CameraMovement
 						lr_rot_velocity = 0;
 					}
 				}
-				if ((inputs.key_state & InputListener.UP_ARROW) == 0 && (inputs.key_state & InputListener.DOWN_ARROW) == 0)
+				if ((inputs.inputState.tiltUp <= 0) && (inputs.inputState.tiltDown <= 0))
 				{
 					if (ud_rot_velocity > 0) {
 						ud_rot_velocity -= rot_accel;
@@ -240,57 +238,40 @@ public class CameraMovement
 			a_vec[0] = a_vec[1] = a_vec[2] = 0.0f;
 
 			/* Acceleration due to keys being down */
-			if ((inputs.key_state & (InputListener.ASC_S | InputListener.ASC_A)) != 0 && (inputs.key_state & (InputListener.ASC_X | InputListener.ASC_Z)) == 0 && (-velocity < mmx))
+			if (((inputs.inputState.straightForward | inputs.inputState.straightForwardConstAlt)) > 0 &&
+				((inputs.inputState.straightBack | inputs.inputState.straightBackConstAlt)) <= 0 &&
+				(-velocity < mmx))
 			{
 				velocity -= (velocity > 0) ? accel + accel : accel;
-				isPan = ((inputs.key_state & InputListener.ASC_S) != 0) ? false : true;
+				isPan = ((inputs.inputState.straightForwardConstAlt) > 0) ? false : true;
 			}
-			else if ((inputs.key_state & (InputListener.ASC_S | InputListener.ASC_A)) == 0 && (inputs.key_state & (InputListener.ASC_X | InputListener.ASC_Z)) != 0 && (velocity < mmx))
+			else if(((inputs.inputState.straightForward | inputs.inputState.straightForwardConstAlt)) <= 0 &&
+					((inputs.inputState.straightBack | inputs.inputState.straightBackConstAlt)) > 0 &&
+					(velocity < mmx))
 			{
 				velocity += (velocity < 0) ? accel + accel : accel;
-				isPan = ((inputs.key_state & InputListener.ASC_X) != 0) ? false : true;
-			}
-			//Mouse wheel: FIXME framerate dependant !
-			if ((inputs.key_state & InputListener.WHEEL_TOWARD) != 0 && (inputs.key_state & InputListener.WHEEL_AWAY) == 0 && (-velocity < mmx))
-			{
-				velocity -= (velocity > 0) ? accel + accel : accel;
-				isPan = false;
-
-				inputs.wheelCount--;
-				if(inputs.wheelCount < 0) {
-					inputs.key_state &= ~InputListener.WHEEL_TOWARD;
-					inputs.wheelCount = 0;
-				}
-			}
-			else if ((inputs.key_state & InputListener.WHEEL_TOWARD) == 0 && (inputs.key_state & InputListener.WHEEL_AWAY) != 0 && (velocity < mmx))
-			{
-				velocity += (velocity < 0) ? accel + accel : accel;
-				isPan = false;
-
-				inputs.wheelCount--;
-				if(inputs.wheelCount < 0) {
-					inputs.key_state &= ~InputListener.WHEEL_AWAY;
-					inputs.wheelCount = 0;
-				}
+				isPan = ((inputs.inputState.straightBackConstAlt) > 0) ? false : true;
 			}
 
-			if ((inputs.key_state & InputListener.ASC_D) != 0 && (inputs.key_state & InputListener.ASC_F) == 0 && (-vert_velocity < vh_mmx))
+			if ((inputs.inputState.strafeLeft > 0) && (inputs.inputState.strafeRight <= 0) && (-vert_velocity < vh_mmx))
 			{
+				inputs.inputState.strafeLeft--;
 				vert_velocity -= (vert_velocity > 0) ? (vh_accel + vh_accel) : vh_accel;
 			}
-			else if ((inputs.key_state & InputListener.ASC_D) == 0 && (inputs.key_state & InputListener.ASC_F) != 0 && (vert_velocity < vh_mmx))
+			else if ((inputs.inputState.strafeLeft <= 0) && (inputs.inputState.strafeRight > 0) && (vert_velocity < vh_mmx))
 			{
+				inputs.inputState.strafeRight--;
 				vert_velocity += (vert_velocity < 0) ? vh_accel + vh_accel : vh_accel;
 			}
-			if ((inputs.key_state & InputListener.ASC_C) != 0 && (inputs.key_state & InputListener.ASC_R) == 0 && (-horz_velocity < vh_mmx))
+			if ((inputs.inputState.decreaseAltitude > 0) && (inputs.inputState.increaseAltitude <= 0) && (-horz_velocity < vh_mmx))
 			{
 				horz_velocity -= (horz_velocity > 0) ? vh_accel + vh_accel : vh_accel;
 			}
-			else if ((inputs.key_state & InputListener.ASC_C) == 0 && (inputs.key_state & InputListener.ASC_R) != 0 && (horz_velocity < vh_mmx))
+			else if ((inputs.inputState.decreaseAltitude <= 0) && (inputs.inputState.increaseAltitude > 0) && (horz_velocity < vh_mmx))
 			{
 				horz_velocity += (horz_velocity < 0) ? vh_accel + vh_accel : vh_accel;
 			}
-			if ((inputs.key_state & InputListener.ASC_C) != 0 || (inputs.key_state & InputListener.ASC_R) != 0)
+			if ((inputs.inputState.decreaseAltitude > 0) || (inputs.inputState.increaseAltitude > 0))
 			{
 				desiredTilt = -1;//cancel setPitchDegrees order
 			}
@@ -298,21 +279,21 @@ public class CameraMovement
 			a_vec[0] = vert_velocity * scaler;
 
 			/* TURN LEFT AND RIGHT */
-			if ((inputs.key_state & InputListener.LEFT_ARROW) != 0 && (inputs.key_state & InputListener.RIGHT_ARROW) == 0 && (-lr_rot_velocity < rotAng))
+			if ((inputs.inputState.turnLeft) > 0 && (inputs.inputState.turnRight) <= 0 && (-lr_rot_velocity < rotAng))
 			{
-				lr_rot_velocity -= (lr_rot_velocity > 0) ? rot_accel + rot_accel : rot_accel;//  *  ((JS.unit.UNITS == 1) ? -1 : 1);
+				lr_rot_velocity -= (lr_rot_velocity > 0) ? rot_accel + rot_accel : rot_accel;//  *  ((JS.unit.UNITS <= 1) ? -1 : 1);
 			}
-			else if ((inputs.key_state & InputListener.LEFT_ARROW) == 0 && (inputs.key_state & InputListener.RIGHT_ARROW) != 0 && (lr_rot_velocity < rotAng))
+			else if ((inputs.inputState.turnLeft) <= 0 && (inputs.inputState.turnRight) > 0 && (lr_rot_velocity < rotAng))
 			{
-				lr_rot_velocity += (lr_rot_velocity < 0) ? rot_accel + rot_accel : rot_accel;// *  ((JSUNITS == 1) ? -1 : 1);
+				lr_rot_velocity += (lr_rot_velocity < 0) ? rot_accel + rot_accel : rot_accel;// *  ((JSUNITS <= 1) ? -1 : 1);
 
 				/*   YAW and PITCH      */
 			}
-			if ((inputs.key_state & InputListener.DOWN_ARROW) != 0 && (inputs.key_state & InputListener.UP_ARROW) == 0 && (-ud_rot_velocity < rotAng))
+			if ((inputs.inputState.tiltDown) > 0 && (inputs.inputState.tiltUp) <= 0 && (-ud_rot_velocity < rotAng))
 			{
 				ud_rot_velocity -= (ud_rot_velocity > 0) ? rot_accel + rot_accel : rot_accel;
 			}
-			else if ((inputs.key_state & InputListener.DOWN_ARROW) == 0 && (inputs.key_state & InputListener.UP_ARROW) != 0 && (ud_rot_velocity < rotAng))
+			else if ((inputs.inputState.tiltDown) <= 0 && (inputs.inputState.tiltUp) > 0 && (ud_rot_velocity < rotAng))
 			{
 				ud_rot_velocity += (ud_rot_velocity < 0) ? rot_accel + rot_accel : rot_accel;
 			}
@@ -559,11 +540,11 @@ public class CameraMovement
 	{
 		final Camera camera = ptolemy.camera;
 
-		if (inputs.key_state != 0)
+		if (inputs.inputState.hasInput())
 		{
 			force = false; // if user is still moving around no need to force.
 		}
-		if ((inputs.key_state == 0) && (inAutoPilot == 0) && (!force) && (updatecounter != (UPDATE_INC + 1)))
+		if (!inputs.inputState.hasInput() && (inAutoPilot == 0) && (!force) && (updatecounter != (UPDATE_INC + 1)))
 		{
 			return; // user is not moving, no need to call an update.
 		}
@@ -722,7 +703,7 @@ public class CameraMovement
 
 	public final void stopMovement()
 	{
-		inputs.key_state = 0;
+		inputs.inputState.reset();
 		velocity = 0;
 		vert_velocity = 0;
 		ud_rot_velocity = 0;

@@ -35,7 +35,7 @@ public class BasicFrame extends JFrame {
 
     public BasicFrame() {
 
-        String configFile = "../config/local_test.xml";
+        String configFile = "/home/antonio/AllTogether/Projects/ASI/pTolemy3D-Project/ptolemy-refactor/config/local_test.xml";
 
         // Load the configuration file.
         Configuration config = new Configuration(configFile);
@@ -48,6 +48,7 @@ public class BasicFrame extends JFrame {
         Ptolemy3D.registerCanvas(canvas);
 
         Ptolemy3D.start();
+        canvas.startRenderingLoop();
 
         this.getRootPane().setLayout(new BorderLayout());
         this.getRootPane().add(canvas, BorderLayout.CENTER);

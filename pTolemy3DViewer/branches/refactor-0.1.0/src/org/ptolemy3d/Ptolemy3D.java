@@ -92,6 +92,11 @@ public class Ptolemy3D {
     private static FntFontRenderer fontTextRenderer = null;    // TODO - Needed? Why dont use JOGL?
     private static FntFontRenderer fontNumericRenderer = null; // TODO - Needed? Why dont use JOGL?
 
+    public Ptolemy3D() {
+        System.out.println("Ptolemy created");
+    }
+
+
 
     //    // Plugins args
 //    private static String[] plugargs = new String[3];

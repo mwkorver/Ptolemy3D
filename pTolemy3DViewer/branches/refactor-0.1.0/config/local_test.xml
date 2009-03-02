@@ -1,6 +1,6 @@
 
 <root>
-    <Orientation>138473040,34764185,1500000,313.312501475566,-58.4989908828571</Orientation>
+    <Orientation>138473040,34764185,15000000,313.312501475566,-58.4989908828571</Orientation>
 
     <CenterX>0</CenterX>
     <CenterY>0</CenterY>
@@ -14,7 +14,7 @@
     <MapDemStore1>/mnt/japandem/</MapDemStore1>
     
 
-    <TILECOLOR>47,47,86</TILECOLOR>
+    <TileColor>50,50,50</TileColor>
     <Area>00</Area>
     <HORIZON>10000</HORIZON>
     <FlightFrameDelay>200</FlightFrameDelay>

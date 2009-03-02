@@ -81,7 +81,7 @@ public class Ptolemy3DGLCanvas extends GLCanvas implements GLEventListener {
 
         // Create the animator and starts the rendering process.
         animator = new Animator(this);
-        startRenderingLoop();
+//        startRenderingLoop();
     }
 
     /**
@@ -154,8 +154,8 @@ public class Ptolemy3DGLCanvas extends GLCanvas implements GLEventListener {
         GL gl = glDrawable.getGL();
 
         // Enable V-Sync
-        gl.setSwapInterval(1);
-
+//        gl.setSwapInterval(1);
+        
         // Init flight movement
         cameraMovement.init();
 
@@ -203,11 +203,11 @@ public class Ptolemy3DGLCanvas extends GLCanvas implements GLEventListener {
         // }
         // }
         // else
-        {
+//        {
             drawWidth = width;
             drawHeight = height;
             drawAspectRatio = (float) width / height;
-        }
+//        }
 
         screenWidth = width;
         screenHeight = height;

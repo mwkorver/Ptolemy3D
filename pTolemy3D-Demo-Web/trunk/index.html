@@ -148,9 +148,9 @@
 
                     <param name="Server" value="demo.spatialcloud.com">
                     <param name="nMapDataSvr" value="1">
-                    <param name="MapDataSvr1" value="jp2.spatialcloud.com">
-                    <param name="MapJp2Store1" value="/mnt/jp2base/">
-                    <param name="MapDemStore1" value="/mnt/japandem/">
+                    <param name="MapDataSvr1" value="ptolemy3d.s3.amazonaws.com">
+                    <param name="MapJp2Store1" value="/demo-data/jp2/">
+                    <param name="MapDemStore1" value="/demo-data/dem/">
                     <param name="MUrlAppend1" value="&streamID=class64">
                     <param name="MServerKey1" value="">
 
@@ -165,78 +165,42 @@
                     <param name="BGCOLOR" value="0,0,0">
                     <param name="SubTextures" value="1">
 
-                    <param name="NumLayers" value="6">
+                    <param name="NumLayers" value="5">
 
                     <param name="LayerWidth_1" value="52428800">
                     <param name="LayerDEM_1" value="9">
-                    <param name="LayerMIN_1" value="50000">
+                    <param name="LayerMIN_1" value="400000">
                     <param name="LayerMAX_1" value="10000000">
                     <param name="LayerDIVIDER_1" value="0">
 
                     <param name="LayerWidth_2" value="6553600">
                     <param name="LayerDEM_2" value="9">
-                    <param name="LayerMIN_2" value="10000">
-                    <param name="LayerMAX_2" value="5000000">
+                    <param name="LayerMIN_2" value="200000">
+                    <param name="LayerMAX_2" value="500000">
                     <param name="LayerDIVIDER_2" value="0">
 
                     <param name="LayerWidth_3" value="819200">
                     <param name="LayerDEM_3" value="9">
-                    <param name="LayerMIN_3" value="2000">
-                    <param name="LayerMAX_3" value="500000">
-
+                    <param name="LayerMIN_3" value="100000">
+                    <param name="LayerMAX_3" value="250000">
                     <param name="LayerDIVIDER_3" value="0">
+
                     <param name="LayerWidth_4" value="102400">
                     <param name="LayerDEM_4" value="9">
-                    <param name="LayerMIN_4" value="0">
-                    <param name="LayerMAX_4" value="50000">
+                    <param name="LayerMIN_4" value="20000">
+                    <param name="LayerMAX_4" value="100000">
                     <param name="LayerDIVIDER_4" value="0">
 
                     <param name="LayerWidth_5" value="12800">
                     <param name="LayerDEM_5" value="9">
                     <param name="LayerMIN_5" value="0">
                     <param name="LayerMAX_5" value="10000">
-                    <param name="LayerDIVIDER_5" value="1000000">
+                    <param name="LayerDIVIDER_5" value="0">
 
-                    <param name="LayerWidth_6" value="1600">
-                    <param name="LayerDEM_6" value="9">
-                    <param name="LayerMIN_6" value="0">
-                    <param name="LayerMAX_6" value="2000">
-                    <param name="LayerDIVIDER_6" value="100000">
+                    <param name="NumPlugins" value="1">
 
-                    <param name="NumPlugins" value="0">
-
-                    <param name="PluginType_1" value="org.ptolemy3d.plugin.POILabelPlugin">
-                    <param name="PluginParam_1" value="P -status 1 -jspurl /pTolemy3DApi/servlet/JSpoi?&POOL=jsapps&CONDITIONS=&ID_COL=id&ICON_COL=group%5Fid&TEXT_COL=name&GEOM_COL=the%5Fgeom&USER=1&UID_COL=user_id -layer shizuoka_points -iconquerywidth 1000000 -numicons 7 -iconprefix /JetStreamLib/icons/shizuoka/icon_1_ -mindistance 65 -encoding UTF-8 -bgcolor 240:240:240:0 -fontcolor 255:0:0:255 -bordercolor 100:100:250:0 -minalt 0 -maxalt 47200 -position RM -pinpoint 0 ">
-
-                    <param name="PluginType_2" value="org.ptolemy3d.plugin.XVRMLPlugin">
-                    <param name="PluginParam_2" value="P -status 1 -jspurl /pTolemy3DApi/servlet/JSxvrml?POOL=jsapps&USER=1&UID_COL=user_id&CONDITIONS=&ID_COL=id&GEOM_COL=the_geom&XVRML_COL=x3d_id&TF_COL=transform -x3durl /pTolemy3DApi/servlet/JSgetXvrmlObj?STORE=%2Fusr%2Flocal%2Fapache%2Fhtdocs%2FJetStreamLib%2Fx3d%2Fshizuoka%2Fguest%2F&RSLV=%2FJetStreamLib%2Fx3d%2Fshizuoka%2Fguest%2F&NAME=shizuoka_xobj_1_ -layer shizuoka_x3dpt -querywidth 1000000 -displayradius 500000 -maxalt 47200 -minalt 0 -maxobjects 200">
-
-                    <param name="PluginType_3" value="org.ptolemy3d.plugin.GisToolPlugin">
-                    <param name="PluginParam_3" value="1">
-
-                    <param name="PluginType_4" value="org.ptolemy3d.plugin.POILabelPlugin">
-                    <param name="PluginParam_4" value="P -status 0 -jspurl /pTolemy3DApi/servlet/JSpoi?&POOL=jsapps&CONDITIONS=&ID_COL=gid&ICON_COL=icon%5Fid&TEXT_COL=country%5Fj&GEOM_COL=the%5Fgeom -layer world_country -iconquerywidth 30000000 -numicons 1 -iconprefix /JetStreamLib/common/earth/icon/country -mindistance 50 -encoding UTF-8 -bgcolor 108:148:118:0 -fontcolor 240:50:190:255 -bordercolor 83:119:91:0 -minalt 100000 -maxalt 10000000">
-
-                    <param name="PluginType_5" value="org.ptolemy3d.plugin.POILabelPlugin">
-                    <param name="PluginParam_5" value="P -status 0 -jspurl /pTolemy3DApi/servlet/JSpoi?&POOL=jsapps&CONDITIONS=&ID_COL=gid&ICON_COL=icon%5Fid&TEXT_COL=text%5Fj&GEOM_COL=the%5Fgeom -layer world_seas -iconquerywidth 45000000 -numicons 1 -iconprefix /JetStreamLib/common/earth/icon/sea -mindistance 60 -encoding UTF-8 -bgcolor 75:139:255 -fontcolor 10:60:95 -bordercolor 95:159:255 -minalt 100000 -maxalt 10000000">
-
-                    <param name="PluginType_6" value="org.ptolemy3d.plugin.POILabelPlugin">
-                    <param name="PluginParam_6" value="P -status 0 -jspurl /pTolemy3DApi/servlet/JSpoi?&POOL=jsapps&CONDITIONS=&ID_COL=gid&ICON_COL=icon%5Fid&TEXT_COL=text%5Fj&GEOM_COL=the%5Fgeom -layer world_islands -iconquerywidth 45000000 -numicons 1 -iconprefix /JetStreamLib/common/earth/icon/island -mindistance 60 -encoding UTF-8 -bgcolor 250:250:250 -fontcolor 10:60:95 -bordercolor 230:230:240 -minalt 100000 -maxalt 10000000">
-
-                    <param name="PluginType_7" value="org.ptolemy3d.plugin.POILabelPlugin">
-                    <param name="PluginParam_7" value="P -status 0 -jspurl /pTolemy3DApi/servlet/JSpoi?&POOL=jsapps&CONDITIONS=&ID_COL=gid&ICON_COL=icon%5Fid&TEXT_COL=city%5Fj&GEOM_COL=the%5Fgeom -layer world_cities -iconquerywidth 5000000 -numicons 7 -iconprefix /JetStreamLib/common/earth/icon/city -mindistance 70 -encoding UTF-8 -bgcolor 210:210:210 -fontcolor 80:80:80 -bordercolor 230:230:240 -minalt 2000 -maxalt 1000000">
-
-                    <param name="PluginType_8" value="org.ptolemy3d.plugin.VectorPlugin">
-                    <param name="PluginParam_8" value="P -status 0 -jspurl /pTolemy3DApi/servlet/JSvector?&POOL=jsapps&CONDITIONS=&ID_COL=gid&GEOM_COL=the%5Fgeom -layer country_poly -querywidth 40000000 -displaywidth 10000000 -maxalt 10000000 -minalt 50000 -vectorraise 100 -stroke 240:250:30 -linew 2">
-
-                    <param name="PluginType_9" value="org.ptolemy3d.plugin.VectorPlugin">
-                    <param name="PluginParam_9" value="P -status 0 -jspurl /pTolemy3DApi/servlet/JSvector?&POOL=jsapps&CONDITIONS=&ID_COL=gid&GEOM_COL=the%5Fgeom -layer shimodaroad -querywidth 30000 -displaywidth 15000 -maxalt 10000 -vectorraise 2 -stroke 70:220:80 -linew 2 -interpolation 100">
-
-                    <param name="PluginType_10" value="org.ptolemy3d.plugin.BuildingPlugin">
-                    <param name="PluginParam_10" value="0,1,/pTolemy3DApi/servlet/JSbuilding?POOL=jsapps&CONDITIONS=&ID_COL=gid&GEOM_COL=the%5Fgeom&HT_COL=roofht&WALL_ID_COL=wallid,shimodatatemono,30000,15000,10000,8,/JetStreamLib/walls/dm2_">
-
-                    <param name="PluginType_11" value="org.ptolemy3d.plugin.HudPlugin">
-                    <param name="PluginParam_11" value="-hudPrefix1 Center: -hudPrefix2 Streaming%20Speed: -hudPrefix3 Altitude: -hudSuffix3 meters">
+                    <param name="PluginType_1" value="org.ptolemy3d.plugin.HudPlugin">
+                    <param name="PluginParam_1" value="-hudPrefix1 Center: -hudPrefix2 Streaming%20Speed: -hudPrefix3 Altitude: -hudSuffix3 meters">
 
                 </applet>
             </div>

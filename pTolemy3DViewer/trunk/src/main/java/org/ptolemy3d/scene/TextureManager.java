@@ -104,7 +104,11 @@ public class TextureManager
 		gl.glPixelStorei(GL.GL_UNPACK_ALIGNMENT, 1);
 		gl.glPixelStorei(GL.GL_PACK_ALIGNMENT, 1);
 
-		gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR/*GL_NEAREST*/);
+		// Good filter for better quality
+		if (ptolemy.scene.landscape.maxTextureAnisotropy > 1.0f) {
+			gl.glTexParameterf(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAX_ANISOTROPY_EXT, ptolemy.scene.landscape.maxTextureAnisotropy);
+		}
+		gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR);
 		gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
 
 		gl.glTexImage2D(GL.GL_TEXTURE_2D, 0, format, width, height, 0, format, GL.GL_UNSIGNED_BYTE, ByteBuffer.wrap(imageData));

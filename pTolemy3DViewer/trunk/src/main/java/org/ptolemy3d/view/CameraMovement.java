@@ -181,7 +181,7 @@ public class CameraMovement
 				vh_accel = 160;
 				vh_mmx = 8000;
 
-				if ((inputs.inputState.straightForward <= 0) && (inputs.inputState.straightBack <= 0))
+				if ((inputs.inputState.getStraightForward() <= 0) && (inputs.inputState.getStraightBack() <= 0))
 				{
 					if (velocity > 0) {
 						velocity -= accel;
@@ -190,7 +190,7 @@ public class CameraMovement
 						velocity += accel;
 					}
 				}
-				if ((inputs.inputState.strafeLeft <= 0) && (inputs.inputState.strafeRight <= 0))
+				if ((inputs.inputState.getStrafeLeft() <= 0) && (inputs.inputState.getStrafeRight() <= 0))
 				{
 					if (vert_velocity > 0) {
 						vert_velocity -= vh_accel;
@@ -199,7 +199,7 @@ public class CameraMovement
 						vert_velocity += vh_accel;
 					}
 				}
-				if ((inputs.inputState.increaseAltitude <= 0) && (inputs.inputState.decreaseAltitude <= 0))
+				if ((inputs.inputState.getIncreaseAltitude() <= 0) && (inputs.inputState.getDecreaseAltitude() <= 0))
 				{
 					if (horz_velocity > 0) {
 						horz_velocity -= vh_accel;
@@ -208,7 +208,7 @@ public class CameraMovement
 						horz_velocity += vh_accel;
 					}
 				}
-				if ((inputs.inputState.turnLeft <= 0) && (inputs.inputState.turnRight <= 0))
+				if ((inputs.inputState.getTurnLeft() <= 0) && (inputs.inputState.getTurnRight() <= 0))
 				{
 					if (lr_rot_velocity > 0) {
 						lr_rot_velocity -= rot_accel;
@@ -220,7 +220,7 @@ public class CameraMovement
 						lr_rot_velocity = 0;
 					}
 				}
-				if ((inputs.inputState.tiltUp <= 0) && (inputs.inputState.tiltDown <= 0))
+				if ((inputs.inputState.getTiltUp() <= 0) && (inputs.inputState.getTiltDown() <= 0))
 				{
 					if (ud_rot_velocity > 0) {
 						ud_rot_velocity -= rot_accel;
@@ -232,69 +232,79 @@ public class CameraMovement
 						ud_rot_velocity = 0;
 					}
 				}
-
 			}
 
 			a_vec[0] = a_vec[1] = a_vec[2] = 0.0f;
 
 			/* Acceleration due to keys being down */
-			if (((inputs.inputState.straightForward | inputs.inputState.straightForwardConstAlt)) > 0 &&
-				((inputs.inputState.straightBack | inputs.inputState.straightBackConstAlt)) <= 0 &&
+			if (((inputs.inputState.getStraightForward() | inputs.inputState.getStraightForwardConstAlt())) > 0 &&
+				((inputs.inputState.getStraightBack() | inputs.inputState.getStraightBackConstAlt())) <= 0 &&
 				(-velocity < mmx))
 			{
+				inputs.inputState.decStraightForward();
+				inputs.inputState.decStraightForwardConstAlt();
 				velocity -= (velocity > 0) ? accel + accel : accel;
-				isPan = ((inputs.inputState.straightForwardConstAlt) > 0) ? false : true;
+				isPan = ((inputs.inputState.getStraightForwardConstAlt()) > 0) ? false : true;
 			}
-			else if(((inputs.inputState.straightForward | inputs.inputState.straightForwardConstAlt)) <= 0 &&
-					((inputs.inputState.straightBack | inputs.inputState.straightBackConstAlt)) > 0 &&
+			else if(((inputs.inputState.getStraightForward() | inputs.inputState.getStraightForwardConstAlt())) <= 0 &&
+					((inputs.inputState.getStraightBack() | inputs.inputState.getStraightBackConstAlt())) > 0 &&
 					(velocity < mmx))
 			{
+				inputs.inputState.decStraightBack();
+				inputs.inputState.decStraightBackConstAlt();
 				velocity += (velocity < 0) ? accel + accel : accel;
-				isPan = ((inputs.inputState.straightBackConstAlt) > 0) ? false : true;
+				isPan = ((inputs.inputState.getStraightBackConstAlt()) > 0) ? false : true;
 			}
-
-			if ((inputs.inputState.strafeLeft > 0) && (inputs.inputState.strafeRight <= 0) && (-vert_velocity < vh_mmx))
+			
+			if ((inputs.inputState.getStrafeLeft() > 0) && (inputs.inputState.getStrafeRight() <= 0) && (-vert_velocity < vh_mmx))
 			{
-				inputs.inputState.strafeLeft--;
+				inputs.inputState.decStrafeLeft();
 				vert_velocity -= (vert_velocity > 0) ? (vh_accel + vh_accel) : vh_accel;
 			}
-			else if ((inputs.inputState.strafeLeft <= 0) && (inputs.inputState.strafeRight > 0) && (vert_velocity < vh_mmx))
+			else if ((inputs.inputState.getStrafeLeft() <= 0) && (inputs.inputState.getStrafeRight() > 0) && (vert_velocity < vh_mmx))
 			{
-				inputs.inputState.strafeRight--;
+				inputs.inputState.decStrafeRight();
 				vert_velocity += (vert_velocity < 0) ? vh_accel + vh_accel : vh_accel;
 			}
-			if ((inputs.inputState.decreaseAltitude > 0) && (inputs.inputState.increaseAltitude <= 0) && (-horz_velocity < vh_mmx))
+			if ((inputs.inputState.getDecreaseAltitude() > 0) && (inputs.inputState.getIncreaseAltitude() <= 0) && (-horz_velocity < vh_mmx))
 			{
+				inputs.inputState.decDecreaseAltitude();
 				horz_velocity -= (horz_velocity > 0) ? vh_accel + vh_accel : vh_accel;
 			}
-			else if ((inputs.inputState.decreaseAltitude <= 0) && (inputs.inputState.increaseAltitude > 0) && (horz_velocity < vh_mmx))
+			else if ((inputs.inputState.getDecreaseAltitude() <= 0) && (inputs.inputState.getIncreaseAltitude() > 0) && (horz_velocity < vh_mmx))
 			{
+				inputs.inputState.decIncreaseAltitude();
 				horz_velocity += (horz_velocity < 0) ? vh_accel + vh_accel : vh_accel;
 			}
-			if ((inputs.inputState.decreaseAltitude > 0) || (inputs.inputState.increaseAltitude > 0))
+			if ((inputs.inputState.getDecreaseAltitude() > 0) || (inputs.inputState.getIncreaseAltitude() > 0))
 			{
+				inputs.inputState.decDecreaseAltitude();
 				desiredTilt = -1;//cancel setPitchDegrees order
 			}
 			a_vec[2] = velocity * scaler;
 			a_vec[0] = vert_velocity * scaler;
 
 			/* TURN LEFT AND RIGHT */
-			if ((inputs.inputState.turnLeft) > 0 && (inputs.inputState.turnRight) <= 0 && (-lr_rot_velocity < rotAng))
+			if ((inputs.inputState.getTurnLeft()) > 0 && (inputs.inputState.getTurnRight()) <= 0 && (-lr_rot_velocity < rotAng))
 			{
+				inputs.inputState.decTurnLeft();
 				lr_rot_velocity -= (lr_rot_velocity > 0) ? rot_accel + rot_accel : rot_accel;//  *  ((JS.unit.UNITS <= 1) ? -1 : 1);
 			}
-			else if ((inputs.inputState.turnLeft) <= 0 && (inputs.inputState.turnRight) > 0 && (lr_rot_velocity < rotAng))
+			else if ((inputs.inputState.getTurnLeft()) <= 0 && (inputs.inputState.getTurnRight()) > 0 && (lr_rot_velocity < rotAng))
 			{
+				inputs.inputState.decTurnRight();
 				lr_rot_velocity += (lr_rot_velocity < 0) ? rot_accel + rot_accel : rot_accel;// *  ((JSUNITS <= 1) ? -1 : 1);
 
 				/*   YAW and PITCH      */
 			}
-			if ((inputs.inputState.tiltDown) > 0 && (inputs.inputState.tiltUp) <= 0 && (-ud_rot_velocity < rotAng))
+			if ((inputs.inputState.getTiltDown()) > 0 && (inputs.inputState.getTiltUp()) <= 0 && (-ud_rot_velocity < rotAng))
 			{
+				inputs.inputState.decTiltDown();
 				ud_rot_velocity -= (ud_rot_velocity > 0) ? rot_accel + rot_accel : rot_accel;
 			}
-			else if ((inputs.inputState.tiltDown) <= 0 && (inputs.inputState.tiltUp) > 0 && (ud_rot_velocity < rotAng))
+			else if ((inputs.inputState.getTiltDown()) <= 0 && (inputs.inputState.getTiltUp()) > 0 && (ud_rot_velocity < rotAng))
 			{
+				inputs.inputState.decTiltUp();
 				ud_rot_velocity += (ud_rot_velocity < 0) ? rot_accel + rot_accel : rot_accel;
 			}
 

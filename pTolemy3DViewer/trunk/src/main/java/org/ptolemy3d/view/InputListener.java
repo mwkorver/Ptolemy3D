@@ -28,9 +28,12 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.security.InvalidParameterException;
+import java.util.Arrays;
 
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.debug.IO;
+import org.ptolemy3d.view.InputListener.InputConfig.Input;
 
 /**
  * Key and mouse inputs.
@@ -53,8 +56,8 @@ public class InputListener implements KeyListener, MouseListener, MouseMotionLis
 			}
 		}
 		public Input straightForward         = new Input(KeyEvent.VK_A, 0, -10);
-		public Input straightForwardConstAlt = new Input(KeyEvent.VK_S, 0, 0);
 		public Input straightBack            = new Input(KeyEvent.VK_Z, 0, 10);
+		public Input straightForwardConstAlt = new Input(KeyEvent.VK_S, 0, 0);
 		public Input straightBackConstAlt    = new Input(KeyEvent.VK_X, 0, 0);
 		public Input strafeLeft              = new Input(KeyEvent.VK_D, 0, 0);
 		public Input strafeRight             = new Input(KeyEvent.VK_F, 0, 0);
@@ -67,141 +70,102 @@ public class InputListener implements KeyListener, MouseListener, MouseMotionLis
 	}
 	/** Action state */
 	public static class InputState {
-		public int straightForward;
-		public int straightForwardConstAlt;
-		public int straightBack;
-		public int straightBackConstAlt;
-		public int strafeLeft;
-		public int strafeRight;
-		public int increaseAltitude;
-		public int decreaseAltitude;
-		public int turnLeft;
-		public int turnRight;
-		public int tiltUp;
-		public int tiltDown;
+		private int[] inputStates;
+		public int getStraightForward() {return inputStates[0];} public void decStraightForward() {dec(0);}
+		public int getStraightBack() {return inputStates[1];} public void decStraightBack() {dec(1);}
+		public int getStraightForwardConstAlt() {return inputStates[2];} public void decStraightForwardConstAlt() {dec(2);}
+		public int getStraightBackConstAlt() {return inputStates[3];} public void decStraightBackConstAlt() {dec(3);}
+		public int getTurnLeft() {return inputStates[4];} public void decTurnLeft() {dec(4);}
+		public int getTurnRight() {return inputStates[5];} public void decTurnRight() {dec(5);}
+		public int getTiltUp() {return inputStates[6];} public void decTiltUp() {dec(6);}
+		public int getTiltDown() {return inputStates[7];} public void decTiltDown() {dec(7);}
+		public int getStrafeLeft() {return inputStates[8];} public void decStrafeLeft() {dec(8);}
+		public int getStrafeRight() {return inputStates[9];} public void decStrafeRight() {dec(9);}
+		public int getIncreaseAltitude() {return inputStates[10];} public void decIncreaseAltitude() {dec(10);}
+		public int getDecreaseAltitude() {return inputStates[11];} public void decDecreaseAltitude() {dec(11);}
+		private final void dec(int index) {
+			if(inputStates[index] > 0) {
+				inputStates[index]--;
+			}
+		}
+		private final static int maxNumInputs = 12;
 		
 		private InputState() {
+			inputStates = new int[maxNumInputs];
 			reset();
 		}
 		public void reset() {
-			straightForward         = 0;
-			straightForwardConstAlt = 0;
-			straightBack            = 0;
-			straightBackConstAlt    = 0;
-			strafeLeft              = 0;
-			strafeRight             = 0;
-			increaseAltitude        = 0;
-			decreaseAltitude        = 0;
-			turnLeft                = 0;
-			turnRight               = 0;
-			tiltUp                  = 0;
-			tiltDown                = 0;
+			Arrays.fill(inputStates, 0);
 		}
 		public boolean hasInput() {
-			return 0 != 
-				straightForward *
-				straightForwardConstAlt *
-				straightBack *
-				straightBackConstAlt *
-				strafeLeft *
-				strafeRight *
-				increaseAltitude *
-				decreaseAltitude *
-				turnLeft *
-				turnRight *
-				tiltUp *
-				tiltDown;
+			int mult = 0;
+			for(int value : inputStates) {
+				mult *= value;
+			}
+			return mult != 0;
+		}
+		
+		private Input getInput(InputConfig inputConfig, int index) {
+			switch(index) {
+				case 0:  return inputConfig.straightForward;
+				case 1:  return inputConfig.straightBack;
+				case 2:  return inputConfig.straightForwardConstAlt;
+				case 3:  return inputConfig.straightBackConstAlt;
+				case 4:  return inputConfig.turnLeft;
+				case 5:  return inputConfig.turnRight;
+				case 6:  return inputConfig.tiltUp;
+				case 7:  return inputConfig.tiltDown;
+				case 8:  return inputConfig.strafeLeft;
+				case 9:  return inputConfig.strafeRight;
+				case 10: return inputConfig.increaseAltitude;
+				case 11: return inputConfig.decreaseAltitude;
+			}
+			throw new InvalidParameterException();
 		}
 		
 		private void keyPressed(InputConfig inputConfig, int keyCode) {
-			if(keyCode == inputConfig.straightForward.key) {
-				straightForward = 1;
-			}
-			else if(keyCode == inputConfig.straightForwardConstAlt.key) {
-				straightForwardConstAlt = 1;
-			}
-			else if(keyCode == inputConfig.straightBack.key) {
-				straightBack = 1;
-			}
-			else if(keyCode == inputConfig.straightBackConstAlt.key) {
-				straightBackConstAlt = 1;
-			}
-			else if(keyCode == inputConfig.turnLeft.key) {
-				turnLeft = 1;
-			}
-			else if(keyCode == inputConfig.turnRight.key) {
-				turnRight = 1;
-			}
-			else if(keyCode == inputConfig.tiltUp.key) {
-				tiltUp = 1;
-			}
-			else if(keyCode == inputConfig.tiltDown.key) {
-				tiltDown = 1;
-			}
-			else if(keyCode == inputConfig.strafeLeft.key) {
-				strafeLeft = 1;
-			}
-			else if(keyCode == inputConfig.strafeRight.key) {
-				strafeRight = 1;
-			}
-			else if(keyCode == inputConfig.increaseAltitude.key) {
-				increaseAltitude = 1;
-			}
-			else if(keyCode == inputConfig.decreaseAltitude.key) {
-				decreaseAltitude = 1;
+			for(int i = 0; i < inputStates.length; i++) {
+				final Input input = getInput(inputConfig, i);
+				if(keyCode == input.key) {
+					inputStates[i] = 1000;
+				}
 			}
 		}
 		private void keyReleased(InputConfig inputConfig, int keyCode) {
-			if(keyCode == inputConfig.straightForward.key) {
-				straightForward = 0;
+			for(int i = 0; i < inputStates.length; i++) {
+				final Input input = getInput(inputConfig, i);
+				if(keyCode == input.key) {
+					inputStates[i] = 0;
+				}
 			}
-			else if(keyCode == inputConfig.straightForwardConstAlt.key) {
-				straightForwardConstAlt = 0;
+		}
+		private void mousePressed(InputConfig inputConfig, int button) {
+			for(int i = 0; i < inputStates.length; i++) {
+				final Input input = getInput(inputConfig, i);
+				if(button == input.button) {
+					inputStates[i] = 1;
+				}
 			}
-			else if(keyCode == inputConfig.straightBack.key) {
-				straightBack = 0;
-			}
-			else if(keyCode == inputConfig.straightBackConstAlt.key) {
-				straightBackConstAlt = 0;
-			}
-			else if(keyCode == inputConfig.turnLeft.key) {
-				turnLeft = 0;
-			}
-			else if(keyCode == inputConfig.turnRight.key) {
-				turnRight = 0;
-			}
-			else if(keyCode == inputConfig.tiltUp.key) {
-				tiltUp = 0;
-			}
-			else if(keyCode == inputConfig.tiltDown.key) {
-				tiltDown = 0;
-			}
-			else if(keyCode == inputConfig.strafeLeft.key) {
-				strafeLeft = 0;
-			}
-			else if(keyCode == inputConfig.strafeRight.key) {
-				strafeRight = 0;
-			}
-			else if(keyCode == inputConfig.increaseAltitude.key) {
-				increaseAltitude = 0;
-			}
-			else if(keyCode == inputConfig.decreaseAltitude.key) {
-				decreaseAltitude = 0;
+		}
+		private void mouseReleased(InputConfig inputConfig, int button) {
+			for(int i = 0; i < inputStates.length; i++) {
+				final Input input = getInput(inputConfig, i);
+				if(button == input.button) {
+					inputStates[i] = 0;
+				}
 			}
 		}
 		public void wheel(InputConfig inputConfig, int wheelCount) {
-			if(inputConfig.straightForward.wheel != 0) {
-				int w = wheelCount * inputConfig.straightForward.wheel;
-				if(w >= 0) {
-					straightForward = w;
-					straightBack = 0;
-				}
-			}
-			if(inputConfig.straightBack.wheel != 0) {
-				int w = wheelCount * inputConfig.straightBack.wheel;
-				if(w >= 0) {
-					straightBack = w;
-					straightForward = 0;
+			for(int i = 0; i < inputStates.length; i++) {
+				final Input input = getInput(inputConfig, i);
+				
+				int w = wheelCount * input.wheel;
+				if(w > 0) {
+					inputStates[i] = w;
+					if(i < 12) {
+						final int j = ((i&0x1) != 0) ? i&~0x01 : i+1;
+						inputStates[j] = 0;
+					}
 				}
 			}
 		}
@@ -290,6 +254,8 @@ public class InputListener implements KeyListener, MouseListener, MouseMotionLis
 	}
 	public void mousePressed(MouseEvent e)
 	{
+		inputState.mousePressed(inputConfig, e.getButton());
+		
 		ptolemy.cameraController.inAutoPilot = 0;
 		if (mouseMoveFlag == false) {  // start drag
 			mouseMoveFlag = true;
@@ -298,6 +264,8 @@ public class InputListener implements KeyListener, MouseListener, MouseMotionLis
 	}
 	public void mouseReleased(MouseEvent e)
 	{
+		inputState.mouseReleased(inputConfig, e.getButton());
+		
 		mouseMoveFlag = false;
 		ptolemy.cameraController.updatePosition(true);
 	}
@@ -316,13 +284,11 @@ public class InputListener implements KeyListener, MouseListener, MouseMotionLis
 
 			final CameraMovement cameraController = ptolemy.cameraController;
 
-			if (cameraController.fmode == 0)
-			{
-				cameraController.mouse_lr_rot_velocity = (double) (oldMousePoint.x - mousePoint.x) / 150;
-				cameraController.mouse_ud_rot_velocity = (double) (mousePoint.y - oldMousePoint.y) / 150;
+			if(cameraController.fmode == 0) {
+				cameraController.mouse_lr_rot_velocity = (double)(oldMousePoint.x - mousePoint.x) / 150;
+				cameraController.mouse_ud_rot_velocity = (double)(mousePoint.y - oldMousePoint.y) / 150;
 			}
-			else
-			{
+			else {
 				final double rot_accel = cameraController.rot_accel;
 				cameraController.lr_rot_velocity += (oldMousePoint.x - mousePoint.x) * rot_accel;
 				cameraController.ud_rot_velocity += (mousePoint.y - oldMousePoint.y) * rot_accel;

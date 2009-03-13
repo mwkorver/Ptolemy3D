@@ -183,6 +183,7 @@ public class Landscape
 
 	/** Landscape levels (resolution levels) */
 	public Level[] levels;
+	protected float maxTextureAnisotropy = 1.0f;
 
 	/** Fog radius */
 	public int fogRadius;
@@ -314,7 +315,7 @@ public class Landscape
 				(topColor[0] - tileColor[0]) / maxColorHeight,
 				(topColor[1] - tileColor[1]) / maxColorHeight,
 				(topColor[2] - tileColor[2]) / maxColorHeight};
-
+		
 //		setLevel(0);
 	}
 
@@ -347,6 +348,16 @@ public class Landscape
 
 		final float[] clearColor = ptolemy.configuration.backgroundColor;
 		gl.glClearColor(clearColor[0], clearColor[1], clearColor[2], 1.0f);
+
+		//Check for the extension GL_EXT_texture_filter_anisotropic
+		{
+			final String extensions = gl.glGetString(GL.GL_EXTENSIONS);
+			if(extensions.indexOf("GL_EXT_texture_filter_anisotropic") >= 0) {
+				float[] buff = new float[1];
+				gl.glGetFloatv(GL.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, buff, 0);
+				maxTextureAnisotropy = buff[0];
+			}
+		}
 	}
 
 	/** Landscape Prepare */
@@ -487,33 +498,40 @@ public class Landscape
 
 		this.gl = gl;
 
-		if(displayMode == DISPLAY_MESH) {
-			gl.glColor3f(meshColor, meshColor, meshColor);
-			gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE);
-			gl.glDisable(GL.GL_TEXTURE_2D);
+		boolean loading = false/*Loading.isRenderLoadingScreen(this)*/;
+		if(loading) {
+			//Loading.renderLoadingScreen(gl);
 		}
-		else if(displayMode == DISPLAY_SHADEDDEM) {
-			gl.glColor3f(tileColor[0], tileColor[1], tileColor[2]);
-			gl.glShadeModel(GL.GL_SMOOTH);
-			gl.glDisable(GL.GL_TEXTURE_2D);
-		}
-		else if(displayMode == DISPLAY_JP2RES || displayMode == DISPLAY_TILEID || displayMode == DISPLAY_LEVELID) {
-			gl.glDisable(GL.GL_TEXTURE_2D);
-		}
+		else {
+			//andscape rendering
+			if(displayMode == DISPLAY_MESH) {
+				gl.glColor3f(meshColor, meshColor, meshColor);
+				gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE);
+				gl.glDisable(GL.GL_TEXTURE_2D);
+			}
+			else if(displayMode == DISPLAY_SHADEDDEM) {
+				gl.glColor3f(tileColor[0], tileColor[1], tileColor[2]);
+				gl.glShadeModel(GL.GL_SMOOTH);
+				gl.glDisable(GL.GL_TEXTURE_2D);
+			}
+			else if(displayMode == DISPLAY_JP2RES || displayMode == DISPLAY_TILEID || displayMode == DISPLAY_LEVELID) {
+				gl.glDisable(GL.GL_TEXTURE_2D);
+			}
 
-		for (int p = levels.length - 1; p >= 0; p--) {
-			final Level level = levels[p];
-			level.draw(gl);
-		}
+			for (int p = levels.length - 1; p >= 0; p--) {
+				final Level level = levels[p];
+				level.draw(gl);
+			}
 
-		if(displayMode == DISPLAY_MESH) {
-			gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_FILL);
+			if(displayMode == DISPLAY_MESH) {
+				gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_FILL);
+			}
+			else if(displayMode == DISPLAY_SHADEDDEM) {
+				gl.glShadeModel(GL.GL_FLAT);
+			}
+			gl.glColor3f(1, 1, 1);
+			gl.glEnable(GL.GL_TEXTURE_2D);
 		}
-		else if(displayMode == DISPLAY_SHADEDDEM) {
-			gl.glShadeModel(GL.GL_FLAT);
-		}
-		gl.glColor3f(1, 1, 1);
-		gl.glEnable(GL.GL_TEXTURE_2D);
 
 		this.gl = null;
 	}

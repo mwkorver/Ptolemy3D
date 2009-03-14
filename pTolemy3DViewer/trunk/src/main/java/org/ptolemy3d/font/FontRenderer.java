@@ -26,7 +26,7 @@ import org.ptolemy3d.Ptolemy3D;
 import com.sun.opengl.util.j2d.TextRenderer;
 
 /**
- * 
+ * AWT Font renderer.
  */
 public class FontRenderer
 {

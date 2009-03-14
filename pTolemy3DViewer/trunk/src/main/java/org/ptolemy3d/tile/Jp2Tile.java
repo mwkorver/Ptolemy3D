@@ -242,4 +242,17 @@ public class Jp2Tile
 		final Jp2TileRes tile = tileRes[res];
 		return tile.textureId;
 	}
+	
+	/** @return the number of wavelets already loaded */
+	public int getNumWavelets() {
+		int num = 0;
+		if(tileRes != null) {
+			for(Jp2TileRes res : tileRes) {
+				if(res != null && res.textureId > 0) {
+					num++;
+				}
+			}
+		}
+		return num;
+	}
 }

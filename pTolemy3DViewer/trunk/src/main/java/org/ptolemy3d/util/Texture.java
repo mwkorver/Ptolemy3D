@@ -19,6 +19,8 @@
 package org.ptolemy3d.util;
 
 import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 
 import javax.imageio.ImageIO;
@@ -44,6 +46,9 @@ public class Texture
 		this.height = height;
 		this.format = format;
 	}
+	public Texture removeData() {
+		return new Texture(null, width, height, format);
+	}
 	
 	public final static int colorTypeToFormat(int colorType)
 	{
@@ -55,6 +60,37 @@ public class Texture
 			case 1: format = GL.GL_LUMINANCE_ALPHA; break;
 		}
 		return format;
+	}
+	
+	public final static Texture load(InputStream is)
+	{
+		try {
+			BufferedImage buffer = ImageIO.read(is);
+			boolean hasAlpha = buffer.getAlphaRaster() != null;
+			
+			int width = buffer.getWidth();
+			int height = buffer.getHeight();
+			int numChannel = hasAlpha ? 4 : 3;
+			byte[] pixels = new byte[width*height*numChannel];
+
+			for(int y = 0; y < height; y++) {
+				for(int x = 0; x < width; x++) {
+					int i = (height-1-y)*width+x;
+					int color = buffer.getRGB(x, y);
+					pixels[numChannel*i  ] = (byte) ((color >> 16) & 0xFF);
+					pixels[numChannel*i+1] = (byte) ((color >>  8) & 0xFF);
+					pixels[numChannel*i+2] = (byte) ((color      ) & 0xFF);
+					if(hasAlpha) {
+					pixels[numChannel*i+3] = (byte) ((color >> 24) & 0xFF);
+					}
+				}
+			}
+			
+			return new Texture(pixels, width, height, hasAlpha ? GL.GL_RGBA : GL.GL_RGB);
+		}
+		catch(IOException e) {
+			return null;
+		}
 	}
 	
 	public final static Texture loadRaster(float[] pms, byte[] data, byte[] img, short transparency, int[] tran_color)

@@ -24,6 +24,7 @@ import java.awt.Toolkit;
 import javax.media.opengl.GL;
 
 import org.ptolemy3d.Ptolemy3D;
+import org.ptolemy3d.font.FntFont.FntFontChar;
 
 /**
  * FNT Font Renderer<BR>

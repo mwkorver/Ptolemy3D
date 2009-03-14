@@ -26,6 +26,15 @@ import java.io.IOException;
  */
 public class FntFont
 {
+	static class FntFontChar {
+	    public float left;
+	    public float top;
+	    public float right;
+	    public float bottom;
+	    public boolean enabled;
+	    public float widthFactor;
+	}
+	
 	/** Font character descriptor */
     protected FntFontChar[] chars = new FntFontChar[256];
 	/** Width of the font texture */
@@ -93,11 +102,10 @@ public class FntFont
 
 	private final int readIntLittleEndian(DataInputStream dis) throws IOException
 	{
-		int accum = ((dis.readByte() & 0xff)      ) |
-					((dis.readByte() & 0xff) <<  8) |
-					((dis.readByte() & 0xff) << 16) |
-					((dis.readByte() & 0xff) << 24);
-		return accum;
+		return ((dis.readByte() & 0xff)      ) |
+			   ((dis.readByte() & 0xff) <<  8) |
+			   ((dis.readByte() & 0xff) << 16) |
+			   ((dis.readByte() & 0xff) << 24);
 	}
 
 	private final float readFloatLittleEndian(DataInputStream dis) throws IOException

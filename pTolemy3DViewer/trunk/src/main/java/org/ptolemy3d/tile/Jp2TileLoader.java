@@ -450,7 +450,7 @@ loop:		for (int p = 0; p < levels.length; p++)
 					}
 					catch (Exception ex) {
 						IO.printStackConnection(ex);
-						System.err.println("TileLoader.setData(): " + ex.toString());
+						System.err.println("Jp2TileLoader.setData(): " + ex.toString());
 						System.err.println("File: " + ptolemy.configuration.locations[jp2DatServer][locIndex] + jp2Tiles[p][tileId].fileBase + ".jp2");
 					}
 				}
@@ -1073,8 +1073,10 @@ loop:		for (int p = 0; p < levels.length; p++)
 
 	/** Acquire jp2 tile for the specified level.
 	 * @param lastLevel true is the level is the last. */
-	public void acquireTile(Level level, boolean lastLevel)
+	public int acquireTile(Level level, boolean lastLevel)
 	{
+		int numTilesAssigned = 0;
+		
 		final Tile[] tiles = level.tiles;
 		for (int i = 0; i < LEVEL_NUMTILES; i++) {
 			final Tile tile = tiles[i];
@@ -1083,6 +1085,11 @@ loop:		for (int p = 0; p < levels.length; p++)
 			if ((tile.jp2 == null) || ((tile.isImageDataReady(0) == false) && !lastLevel)) {
 				tile.jp2 = getAlternateData(tile);
 			}
+			if ((tile.jp2 != null) && (tile.jp2.getNumWavelets() > 0)){
+				numTilesAssigned++;
+			}
 		}
+		
+		return numTilesAssigned;
 	}
 }

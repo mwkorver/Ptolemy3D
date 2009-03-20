@@ -185,7 +185,7 @@ public class Landscape
 	public Level[] levels;
 	protected transient int numVisibleJp2 = 0;
 	protected transient float maxTextureAnisotropy = 1.0f;
-	protected transient LoadingScreen loadingScreen = new LoadingScreen();
+//	protected transient LoadingScreen loadingScreen = new LoadingScreen();
 
 	/** Fog radius */
 	public int fogRadius;
@@ -318,7 +318,7 @@ public class Landscape
 				(topColor[1] - tileColor[1]) / maxColorHeight,
 				(topColor[2] - tileColor[2]) / maxColorHeight};
 		
-		loadingScreen.init(ptolemy);
+//		loadingScreen.init(ptolemy);
 		
 //		setLevel(0);
 	}
@@ -361,7 +361,7 @@ public class Landscape
 			}
 		}
 		
-		loadingScreen.initGL(gl);
+//		loadingScreen.initGL(gl);
 	}
 
 	/** Landscape Prepare */
@@ -538,9 +538,9 @@ public class Landscape
 		gl.glEnable(GL.GL_TEXTURE_2D);
 		
 		//Loading screen
-		if(loadingScreen.isDrawLoadingScreen()) {
-			loadingScreen.drawLoadingScreen(gl);
-		}
+//		if(loadingScreen.isDrawLoadingScreen()) {
+//			loadingScreen.drawLoadingScreen(gl);
+//		}
 
 		this.gl = null;
 	}
@@ -598,6 +598,6 @@ public class Landscape
 
 	protected void destroyGL(GL gl)
 	{
-		loadingScreen.destroyGL(gl);
+//		loadingScreen.destroyGL(gl);
 	}
 }

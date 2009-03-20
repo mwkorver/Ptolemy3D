@@ -48,8 +48,7 @@ public class BasicFrame extends JFrame {
         Ptolemy3D.registerCanvas(canvas);
 
         Ptolemy3D.start();
-        canvas.startRenderingLoop();
-
+        
         this.getRootPane().setLayout(new BorderLayout());
         this.getRootPane().add(canvas, BorderLayout.CENTER);
         this.pack();

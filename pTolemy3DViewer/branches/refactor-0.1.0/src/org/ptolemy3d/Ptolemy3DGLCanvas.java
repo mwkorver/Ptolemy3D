@@ -81,7 +81,7 @@ public class Ptolemy3DGLCanvas extends GLCanvas implements GLEventListener {
 
         // Create the animator and starts the rendering process.
         animator = new Animator(this);
-//        startRenderingLoop();
+        startRenderingLoop();
     }
 
     /**

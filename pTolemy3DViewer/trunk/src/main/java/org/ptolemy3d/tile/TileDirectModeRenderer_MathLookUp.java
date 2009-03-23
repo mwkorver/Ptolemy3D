@@ -278,7 +278,7 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer implement
 		double sinZ = lookUpCos(angle90-lat);
 
 		int pos_d1 = (startz * rowWidth) + (startx * 2);
-		gl.glBegin(GL.GL_TRIANGLE_STRIP);
+//		gl.glBegin(GL.GL_TRIANGLE_STRIP);
 		for (int i = startz; i < endz; i++)	//startz can be equal to (endz-1)
 		{
 			final int lat2 = lat + dz;
@@ -309,7 +309,7 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer implement
 				b_ez_wt = 1;
 			}
 
-			//gl.glBegin(GL.GL_TRIANGLE_STRIP);
+			gl.glBegin(GL.GL_TRIANGLE_STRIP);
 			int pos_d1_save = pos_d1;	//int pos_d1 = (i * rowWidth) + (startx * 2);
 			int lon = xStart;
 			for (int j = startx; j < endx; j++)
@@ -405,12 +405,12 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer implement
 				pos_d1 += 2;
 				lon    += dx;
 			}
-			//gl.glEnd();
+			gl.glEnd();
 
 			lat = lat2; cosZ = cos2Z; sinZ = sin2Z;
 			pos_d1 = pos_d1_save + rowWidth;
 		}
-		gl.glEnd();
+//		gl.glEnd();
 
 		if(DEBUG) {
 			int numVertices = 2 * (endx-startx) * (endz-startz);
@@ -500,7 +500,7 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer implement
 		double sinZ = lookUpCos(angle90-lat);
 
 		int pos_d1 = (startz * rowWidth) + (startx * 2);
-		gl.glBegin(GL.GL_TRIANGLE_STRIP);
+//		gl.glBegin(GL.GL_TRIANGLE_STRIP);
 		for (int i = startz; i < endz; i++)	//startz can be equal to (endz-1)
 		{
 			final int lat2 = lat + dz;
@@ -526,7 +526,7 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer implement
 				b_ez_wt = 1;
 			}
 
-			//gl.glBegin(GL.GL_TRIANGLE_STRIP);
+			gl.glBegin(GL.GL_TRIANGLE_STRIP);
 			int pos_d1_save = pos_d1;	//int pos_d1 = (i * rowWidth) + (startx * 2);
 			int lon = xStart;
 			for (int j = startx; j < endx; j++)
@@ -622,12 +622,12 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer implement
 				pos_d1 += 2;
 				lon    += dx;
 			}
-			//gl.glEnd();
+			gl.glEnd();
 
 			lat = lat2; cosZ = cos2Z; sinZ = sin2Z;
 			pos_d1 = pos_d1_save + rowWidth;
 		}
-		gl.glEnd();
+//		gl.glEnd();
 
 		if(DEBUG) {
 			int numVertices = 2 * (endx-startx) * (endz-startz);

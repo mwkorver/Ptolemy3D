@@ -210,7 +210,7 @@ class TileDirectModeRenderer implements ITileRenderer
 		double cos2Z, sin2Z;
 
 		int pos_d1 = (startz * rowWidth) + (startx * 2);
-		gl.glBegin(GL.GL_TRIANGLE_STRIP);
+//		gl.glBegin(GL.GL_TRIANGLE_STRIP);
 		for (int i = startz; i < endz; i++)	//startz can be equal to (endz-1)
 		{
 			final double d2z = dz + dPhiOverN;
@@ -241,7 +241,7 @@ class TileDirectModeRenderer implements ITileRenderer
 				b_ez_wt = 1;
 			}
 
-			//gl.glBegin(GL.GL_TRIANGLE_STRIP);
+			gl.glBegin(GL.GL_TRIANGLE_STRIP);
 			int pos_d1_save = pos_d1;	//int pos_d1 = (i * rowWidth) + (startx * 2);
 			double dx = theta1;
 			for (int j = startx; j < endx; j++)
@@ -337,12 +337,12 @@ class TileDirectModeRenderer implements ITileRenderer
 				pos_d1 += 2;
 				dx     += dTetaOverN;
 			}
-			//gl.glEnd();
+			gl.glEnd();
 
 			dz = d2z; cosZ = cos2Z; sinZ = sin2Z;
 			pos_d1 = pos_d1_save + rowWidth;
 		}
-		gl.glEnd();
+//		gl.glEnd();
 
 		if(DEBUG) {
 			int numVertices = 2 * (endx-startx) * (endz-startz);
@@ -440,7 +440,7 @@ class TileDirectModeRenderer implements ITileRenderer
 		double cos2Z, sin2Z;
 
 		int pos_d1 = (startz * rowWidth) + (startx * 2);
-		gl.glBegin(GL.GL_TRIANGLE_STRIP);
+//		gl.glBegin(GL.GL_TRIANGLE_STRIP);
 		for (int i = startz; i < endz; i++)
 		{
 			final double d2z = dz + dPhiOverN;
@@ -466,7 +466,7 @@ class TileDirectModeRenderer implements ITileRenderer
 				b_ez_wt = 1;
 			}
 
-			//gl.glBegin(GL.GL_TRIANGLE_STRIP);
+			gl.glBegin(GL.GL_TRIANGLE_STRIP);
 			int pos_d1_save = pos_d1;	//int pos_d1 = (i * rowWidth) + (startx * 2);
 			double dx = theta1;
 			for (int j = startx; j < endx; j++)
@@ -562,12 +562,12 @@ class TileDirectModeRenderer implements ITileRenderer
 				pos_d1 += 2;
 				dx     += dTetaOverN;
 			}
-			//gl.glEnd();
+			gl.glEnd();
 
 			dz = d2z; cosZ = cos2Z; sinZ = sin2Z;
 			pos_d1 = pos_d1_save + rowWidth;
 		}
-		gl.glEnd();
+//		gl.glEnd();
 
 		if(DEBUG) {
 			int numVertices = 2 * (endx-startx) * (endz-startz);

@@ -384,7 +384,7 @@ public class Ptolemy3DConfiguration {
 			if (st.countTokens() >= 5) {
 				double lon = Double.parseDouble(st.nextToken());
 				double lat = Double.parseDouble(st.nextToken());
-				double alt = Double.parseDouble(st.nextToken());
+				double alt = Double.parseDouble(st.nextToken()) / ptolemy.unit.coordSystemRatio;
 				double dir = Double.parseDouble(st.nextToken());
 				double pitch = Double.parseDouble(st.nextToken());
 				cameraController.setOrientation(LatLonAlt.fromDD(lat, lon, alt), dir, pitch);

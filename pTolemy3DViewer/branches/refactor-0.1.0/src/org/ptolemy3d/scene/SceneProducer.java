@@ -26,49 +26,43 @@ class SceneProducer implements ImageProducer
 {
 	/** The list of image consumers for this image producer */
 	private volatile Vector<ImageConsumer> consumers;
-	private int Ht;
-	private int Wt;
+	private int height;
+	private int weight;
 	private byte[] data;
 	private boolean isBugged;
 
 	public SceneProducer(byte[] d, int w, int h)
 	{
-		this.Ht = h;
-		this.Wt = w;
+		this.consumers = new Vector<ImageConsumer>();
+		this.height = h;
+		this.weight = w;
 		this.data = d;
-		isBugged = false;
+		this.isBugged = false;
 
 		// scan data to see if last line is black
-		int offset = (Ht - 1) * (Wt + 1) * 3;
-		for (int i = 0; i < Wt * 3; i++) {
+		for (int i = 0; i < weight * 3; i++) {
 			if (data[i] != 0) {
 				isBugged = true;
 				break;
 			}
 		}
-
-		consumers = new Vector<ImageConsumer>();
 	}
 
-	public final synchronized void addConsumer(ImageConsumer ic)
-	{
-		if (ic != null && !consumers.contains(ic)) {
+	public final synchronized void addConsumer(ImageConsumer ic) {
+		if(ic != null && !consumers.contains(ic)) {
 			consumers.addElement(ic);
 		}
 	}
 
-	public boolean isConsumer(ImageConsumer ic)
-	{
+	public boolean isConsumer(ImageConsumer ic) {
 		return consumers.contains(ic);
 	}
 
-	public synchronized void removeConsumer(ImageConsumer ic)
-	{
+	public synchronized void removeConsumer(ImageConsumer ic) {
 		consumers.removeElement(ic);
 	}
 
-	public void startProduction(ImageConsumer ic)
-	{
+	public void startProduction(ImageConsumer ic) {
 		//The default color model (0xAARRGGBB) used in Java
 		final ColorModel cm = ColorModel.getRGBdefault();
 
@@ -89,21 +83,21 @@ class SceneProducer implements ImageProducer
 
 		for (int i = cons.length - 1; i >= 0; i--) {
 			cons[i].setColorModel(cm);
-			cons[i].setDimensions(Wt, Ht);
+			cons[i].setDimensions(weight, height);
 			cons[i].setHints(hints);
 		}
 
-		int[] pixbuf = new int[Wt];
+		int[] pixbuf = new int[weight];
 		int offset;
-		int dWt = (isBugged) ? (Wt + 1) : Wt;
+		int dWt = (isBugged) ? (weight + 1) : weight;
 
-		for (int i = 0; i < Ht; i++) {
-			offset = (Ht - 1 - i) * dWt * 3;
-			for (int j = 0; j < Wt; j++) {
+		for (int i = 0; i < height; i++) {
+			offset = (height - 1 - i) * dWt * 3;
+			for (int j = 0; j < weight; j++) {
 				pixbuf[j] = (0xFF << 24) | ((data[offset++] & 0xFF) << 16) | ((data[offset++] & 0xFF) << 8) | (data[offset++] & 0xFF);
 			}
 			for (int h = cons.length - 1; h >= 0; h--) {
-				cons[h].setPixels(0, i, Wt, 1, cm, pixbuf, 0, Wt);
+				cons[h].setPixels(0, i, weight, 1, cm, pixbuf, 0, weight);
 			}
 		}
 
@@ -124,7 +118,5 @@ class SceneProducer implements ImageProducer
 		}
 	}
 
-	public void requestTopDownLeftRightResend(ImageConsumer ic)
-	{
-	}
+	public void requestTopDownLeftRightResend(ImageConsumer ic) {}
 }

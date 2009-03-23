@@ -186,17 +186,17 @@ public class IO {
             Scene scene = Ptolemy3D.getScene();
             Landscape landscape = scene.landscape;
 
-            ProfilerInterface.forceLevel = -1;
+            ProfilerUtil.forceLevel = -1;
             switch (keyCode) {
                 case KeyEvent.VK_F1:
                     //Hide/Show landscape
                     scene.landscape.drawLandscape = !scene.landscape.drawLandscape;
                     break;
                 case KeyEvent.VK_F2:
-                    ProfilerInterface.renderTiles = !ProfilerInterface.renderTiles;
+                    ProfilerUtil.renderTiles = !ProfilerUtil.renderTiles;
                     break;
                 case KeyEvent.VK_F3:
-                    ProfilerInterface.enablePrintProfiler = !ProfilerInterface.enablePrintProfiler;
+                    ProfilerUtil.enablePrintProfiler = !ProfilerUtil.enablePrintProfiler;
                     break;
                 case KeyEvent.VK_F5:
                     switch (landscape.getDisplayMode()) {
@@ -225,16 +225,10 @@ public class IO {
                     printlnRenderer(camera.toString());
                     break;
                 case KeyEvent.VK_F9:
-                    ProfilerInterface.freezeCorrectLevels = !ProfilerInterface.freezeCorrectLevels;
+                    ProfilerUtil.forceLevel++;
                     break;
                 case KeyEvent.VK_F10:
-                    ProfilerInterface.freezeVisibility = !ProfilerInterface.freezeVisibility;
-                    break;
-                case KeyEvent.VK_F11:
-                    ProfilerInterface.forceLevel++;
-                    break;
-                case KeyEvent.VK_F12:
-                    ProfilerInterface.forceLevel = -1;
+                    ProfilerUtil.forceLevel = -1;
                     break;
             }
         }

@@ -36,6 +36,43 @@ import java.util.Vector;
 
 class Profiler
 {
+	class ProfilerEventReport {
+		public ProfilerEvent event;
+		public boolean active;
+
+		public long startTime;
+		public long endTime;
+
+		public long duration;
+		public long numPolygons;
+		public long numVertices;
+
+		public float durationAverage;
+		public long numFrames;
+
+		public ProfilerEventReport() {
+			event = null;
+			update();
+			durationAverage = 0;
+			numFrames = 0;
+		}
+
+		protected void update() {
+			//Calculate average
+			if(numFrames > 0) {
+				durationAverage = (durationAverage+duration) / (numFrames+1);
+			}
+
+			active      = false;
+			startTime   = 0;
+			endTime     = 0;
+			duration    = 0;
+			numPolygons = 0;
+			numVertices = 0;
+			numFrames++;
+		}
+	}
+	
 	static interface ProfilerEvent {
 	}
 	
@@ -44,42 +81,39 @@ class Profiler
 
 	private ProfilerEventReport[] report;
 
-	public Profiler(Timer counter)
-	{
+	public Profiler(Timer counter) {
 		this.counter = counter;
 
 		events = new Vector<ProfilerEvent>();
 		report = null;
 	}
 
-	public void registerEvent(ProfilerEvent event)
-	{
+	public void registerEvent(ProfilerEvent event) {
 		events.add(event);
 	}
-	public void unregisterEvent(ProfilerEvent event)
-	{
+
+	public void unregisterEvent(ProfilerEvent event) {
 		events.remove(event);
 	}
 
-	public void start()
-	{
+	public void start() {
 		counter.update();
 
 		if(report == null || report.length < events.size()) {
 			report = new ProfilerEventReport[events.size()];
-			for(int i=0; i < report.length; i++) {
+			for(int i = 0; i < report.length; i++) {
 				ProfilerEventReport eventReport = new ProfilerEventReport();
 				eventReport.event = events.get(i);
 				report[i] = eventReport;
 			}
 		}
-		
+
 		for(ProfilerEventReport eventReport : report) {
 			eventReport.update();
 		}
 	}
-	public ProfilerEventReport getEventReport(ProfilerEvent event)
-	{
+
+	public ProfilerEventReport getEventReport(ProfilerEvent event) {
 		if(report != null) {
 			for(int i = 0; i < report.length; i++) {
 				ProfilerEventReport eventReport = report[i];
@@ -91,29 +125,26 @@ class Profiler
 		return null;
 	}
 
-	public void onEventStart(ProfilerEvent event)
-	{
+	public void onEventStart(ProfilerEvent event) {
 		ProfilerEventReport eventReport = getEventReport(event);
 		if(eventReport != null) {
-			eventReport.active    = true;
+			eventReport.active = true;
 			eventReport.startTime = counter.getTimeNanos();
-			eventReport.endTime   = 0;
+			eventReport.endTime = 0;
 		}
 	}
-	
-	public void onEventEnd(ProfilerEvent event)
-	{
+
+	public void onEventEnd(ProfilerEvent event) {
 		ProfilerEventReport eventReport = getEventReport(event);
 		if(eventReport != null) {
-			eventReport.endTime   = counter.getTimeNanos();
+			eventReport.endTime = counter.getTimeNanos();
 			eventReport.duration += (eventReport.endTime - eventReport.startTime) / 1000;
-			
-			eventReport.active    = false;
+
+			eventReport.active = false;
 		}
 	}
-	
-	public void profileGeometry(int numPolys, int numVertices)
-	{
+
+	public void profileGeometry(int numPolys, int numVertices) {
 		if(report != null) {
 			for(ProfilerEventReport eventReport : report) {
 				if(eventReport.active) {
@@ -124,8 +155,7 @@ class Profiler
 		}
 	}
 
-	public void end()
-	{
+	public void end() {
 		counter.update();
 	}
 }

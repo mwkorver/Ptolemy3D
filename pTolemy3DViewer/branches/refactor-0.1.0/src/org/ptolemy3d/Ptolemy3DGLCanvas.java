@@ -42,36 +42,23 @@ import com.sun.opengl.util.Animator;
  * @author Antonio Santiago <asantiagop(at)gmail(dot)com>
  */
 public class Ptolemy3DGLCanvas extends GLCanvas implements GLEventListener {
-
-    // Camera that renders ptolemy instance.
-    private Camera camera = null;
-    private CameraMovement cameraMovement = null;
-    private InputHandler input = null;
-    private DrawContext drawContext = new DrawContext();
+	private static final long serialVersionUID = 1L;
+	
+	// Camera that renders ptolemy instance.
+    private final Camera camera;
+    private final CameraMovement cameraMovement;
+    private final InputHandler input;
+    private final DrawContext drawContext;
     // Rendering loop
-    private Animator animator = null;
-
-    // Width on the screen
-    private int screenWidth = 0;
-    // Height on the screen
-    private int screenHeight = 0;
-    // Aspect ratio of the frame buffer.
-    private float screenAspectRatio = 1;
-    // Width of the frame buffer, can be different to screen in case of an
-    // offscreen rendering.
-    private int drawWidth = 0;
-    // Height of the frame buffer, can be different to screen in case of an
-    // offscreen rendering.
-    private int drawHeight = 0;
-    // Aspect ration of the frame buffer.
-    private float drawAspectRatio = 1;
-
+    private final Animator animator;
+    
     /**
      * Creates a new instance.
      *
      * @param ptolemy
      */
     public Ptolemy3DGLCanvas() {
+    	this.drawContext = new DrawContext();
         this.camera = new Camera(this);
         this.input = new InputHandler(this);
         this.cameraMovement = new CameraMovement(this, this.input);
@@ -80,8 +67,7 @@ public class Ptolemy3DGLCanvas extends GLCanvas implements GLEventListener {
         this.addGLEventListener(this);
 
         // Create the animator and starts the rendering process.
-        animator = new Animator(this);
-        startRenderingLoop();
+        this.animator = new Animator(this);
     }
 
     /**
@@ -140,9 +126,9 @@ public class Ptolemy3DGLCanvas extends GLCanvas implements GLEventListener {
      * and useful in the rendering process.
      */
     private void initializeDrawContext(GLAutoDrawable glDrawable) {
-        drawContext.setGlDrawable(glDrawable);
-        drawContext.setGl(glDrawable.getGL());
-        drawContext.setGlcontext(GLContext.getCurrent());
+        drawContext.setGLDrawable(glDrawable);
+        drawContext.setGL(glDrawable.getGL());
+        drawContext.setGLContext(GLContext.getCurrent());
         drawContext.setCanvas(this);
     }
 
@@ -151,10 +137,8 @@ public class Ptolemy3DGLCanvas extends GLCanvas implements GLEventListener {
 
         initializeDrawContext(glDrawable);
 
-        GL gl = glDrawable.getGL();
-
         // Enable V-Sync
-//        gl.setSwapInterval(1);
+//        glDrawable.getGL().setSwapInterval(1);
         
         // Init flight movement
         cameraMovement.init();
@@ -170,140 +154,59 @@ public class Ptolemy3DGLCanvas extends GLCanvas implements GLEventListener {
     }
 
     public void display(GLAutoDrawable glDrawable) {
-
         initializeDrawContext(glDrawable);
 
         Ptolemy3D.getScene().draw(drawContext);
     }
 
     public void reshape(GLAutoDrawable glDrawable, int x, int y, int width, int height) {
-
         initializeDrawContext(glDrawable);
 
         GL gl = glDrawable.getGL();
-
         gl.glViewport(x, y, width, height);
-
-        if (height == 0) {
-            height = 1;
-        }
-
-        // if (isOffscreenRender && (width > 512) || (height > 512)) //FIXME Not
-        // implement with JOGL
-        // {
-        // // put a 512 pix cap on height and width
-        // if (Math.max(height, width) == height){
-        // double rat = 512.0/height;
-        // GL_HEIGHT = 512;
-        // GL_WIDTH = (int)(width * rat);
-        // } else{
-        // double rat = 512.0 / width;
-        // GL_WIDTH = 512;
-        // GL_HEIGHT = (int)(height * rat);
-        // }
-        // }
-        // else
-//        {
-            drawWidth = width;
-            drawHeight = height;
-            drawAspectRatio = (float) width / height;
-//        }
-
-        screenWidth = width;
-        screenHeight = height;
-        setScreenAspectRatio((float) width / height);
     }
 
     public void displayChanged(GLAutoDrawable drawable, boolean modeChanged, boolean deviceChanged) {
     }
-
-    /**
-     * @param screenWidth
-     *            the screenWidth to set
-     */
-    public void setScreenWidth(int screenWidth) {
-        this.screenWidth = screenWidth;
-    }
-
-    /**
-     * @return the screenWidth
-     */
-    public int getScreenWidth() {
-        return screenWidth;
-    }
-
-    /**
-     * @param screenHeight
-     *            the screenHeight to set
-     */
-    public void setScreenHeight(int screenHeight) {
-        this.screenHeight = screenHeight;
-    }
-
-    /**
-     * @return the screenHeight
-     */
-    public int getScreenHeight() {
-        return screenHeight;
-    }
-
-    /**
-     * @param screenAspectRatio
-     *            the screenAspectRatio to set
-     */
-    public void setScreenAspectRatio(float screenAspectRatio) {
-        this.screenAspectRatio = screenAspectRatio;
-    }
-
-    /**
-     * @return the screenAspectRatio
-     */
-    public float getScreenAspectRatio() {
-        return screenAspectRatio;
-    }
-
-    /**
-     * @param drawWidth
-     *            the drawWidth to set
-     */
-    public void setDrawWidth(int drawWidth) {
-        this.drawWidth = drawWidth;
-    }
-
-    /**
-     * @return the drawWidth
-     */
-    public int getDrawWidth() {
-        return drawWidth;
-    }
-
-    /**
-     * @param drawHeight
-     *            the drawHeight to set
-     */
-    public void setDrawHeight(int drawHeight) {
-        this.drawHeight = drawHeight;
-    }
-
-    /**
-     * @return the drawHeight
-     */
-    public int getDrawHeight() {
-        return drawHeight;
-    }
-
-    /**
-     * @param drawAspectRatio
-     *            the drawAspectRatio to set
-     */
-    public void setDrawAspectRatio(float drawAspectRatio) {
-        this.drawAspectRatio = drawAspectRatio;
-    }
-
+    
     /**
      * @return the drawAspectRatio
      */
-    public float getDrawAspectRatio() {
-        return drawAspectRatio;
+    public float getAspectRatio() {
+    	int width = getWidth();
+    	int height = getHeight();
+        if (height == 0) {
+            height = 1;
+        }
+        return (float) width / height;
     }
+    
+//	protected final void destroyGL() {
+//		// Stop rendering loop
+//		stopRenderingLoop();
+//
+//		// Destroy OpenGL Datas
+//		runInContext(new ActionListener() {
+//			public void actionPerformed(ActionEvent e) {
+//				Ptolemy3D.getScene().destroyGL(drawContext);
+//				Ptolemy3D.getTextureManager().destroyGL(drawContext);
+//			}
+//		});
+//	}
+//	private void runInContext(ActionListener action) {
+//		final GLContext glContext = drawContext.getGLContext();
+//		if (glContext != null) {
+//			int result = glContext.makeCurrent();
+//			if(result != GLContext.CONTEXT_NOT_CURRENT) {
+//				try {
+//					action.actionPerformed(null);
+//				} catch(Exception e) { } catch(Error e) { }
+//
+//				glContext.release();
+//				if(result == GLContext.CONTEXT_CURRENT_NEW) {
+//					glContext.destroy();
+//				}
+//			}
+//		}
+//	}
 }

@@ -32,8 +32,9 @@ import javax.media.opengl.GL;
 import org.ptolemy3d.DrawContext;
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.Ptolemy3DGLCanvas;
-import org.ptolemy3d.debug.ProfilerInterface;
-import org.ptolemy3d.debug.ProfilerInterface.ProfilerEventInterface;
+import org.ptolemy3d.debug.ProfilerUtil;
+import org.ptolemy3d.debug.ProfilerUtil.ProfilerEventInterface;
+import org.ptolemy3d.plugin.Sky;
 import org.ptolemy3d.view.Camera;
 
 /**
@@ -99,18 +100,6 @@ public class Scene implements Transferable {
         sky.destroyGL(drawContext);
         plugins.destroyGL(drawContext);
         light.destroyGL(drawContext);
-
-        // Destroy Ptolemy3D OpenGL datas
-        if (Ptolemy3D.getFontTextRenderer() != null) {
-            Ptolemy3D.getFontTextRenderer().destroyGL(drawContext.getGl());
-            Ptolemy3D.setFontTextRenderer(null);
-        }
-        if (Ptolemy3D.getFontNumericRenderer() != null) {
-            Ptolemy3D.getFontNumericRenderer().destroyGL(drawContext.getGl());
-            Ptolemy3D.setFontNumericRenderer(null);
-        }
-
-        Ptolemy3D.getTextureManager().destroyGL(drawContext.getGl());
     }
 
     /**
@@ -120,31 +109,25 @@ public class Scene implements Transferable {
      */
     public void draw(DrawContext drawContext) {
 
-        GL gl = drawContext.getGl();
-
-        if (Ptolemy3D.getTileLoader() == null) {
-            // Just clear out the screen
-            gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
-            return;
-        }
-
-        Camera camera = drawContext.getCanvas().getCamera();
-
+    	final GL gl = drawContext.getGL();
+        final boolean tileLoaderStarted = (Ptolemy3D.getTileLoader() != null);
+        
         if (DEBUG) {
-            ProfilerInterface.start(ProfilerEventInterface.Frame);
-        }
-        if (DEBUG) {
-            ProfilerInterface.start(ProfilerEventInterface.Prepare);
+            ProfilerUtil.start(ProfilerEventInterface.Frame);
+            ProfilerUtil.start(ProfilerEventInterface.Prepare);
         }
 
         /* Camera */
-        camera.update(gl);
+        Camera camera = drawContext.getCanvas().getCamera();
+        camera.update();
 
         /* Prepare frame */
-        landscape.prepareFrame(drawContext);
-        plugins.prepareFrame(drawContext);
-        if (DEBUG) {
-            ProfilerInterface.stop(ProfilerEventInterface.Prepare);
+        if (tileLoaderStarted) {
+            landscape.prepareFrame(drawContext);
+            plugins.prepareFrame(drawContext);
+            if (DEBUG) {
+                ProfilerUtil.stop(ProfilerEventInterface.Prepare);
+            }
         }
 
         // Standard OpenGL Init: Clear frame buffer color and Z
@@ -153,10 +136,9 @@ public class Scene implements Transferable {
         gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 
         // Light
-        // TODO - Really necessary
+        // TODO - Q: Really necessary ? A: Probably not.
         light.draw(drawContext); // FIXME Strange here, must be after camera ?
 
-        // TODO - why don't to put in the Camera.update ???
         /* Perspective matrix */
         gl.glMatrixMode(GL.GL_PROJECTION);
         gl.glLoadMatrixd(camera.perspective.m, 0);
@@ -164,70 +146,69 @@ public class Scene implements Transferable {
         gl.glMatrixMode(GL.GL_MODELVIEW);
         gl.glLoadMatrixd(camera.modelview.m, 0);
 
-        // Rendering
-        if (DEBUG) {
-            ProfilerInterface.start(ProfilerEventInterface.Sky);
-        }
-        sky.draw(drawContext);
-        if (DEBUG) {
-            ProfilerInterface.stop(ProfilerEventInterface.Sky);
-        }
+        if (tileLoaderStarted) {
+            // Rendering
+            if (DEBUG) {
+                ProfilerUtil.start(ProfilerEventInterface.Sky);
+            }
+            sky.draw(drawContext);
+            if (DEBUG) {
+                ProfilerUtil.stop(ProfilerEventInterface.Sky);
+            }
 
-        if (DEBUG) {
-            ProfilerInterface.start(ProfilerEventInterface.Landscape);
-        }
-        landscape.draw(drawContext);
-        if (DEBUG) {
-            ProfilerInterface.stop(ProfilerEventInterface.Landscape);
-        }
+            if (DEBUG) {
+                ProfilerUtil.start(ProfilerEventInterface.Landscape);
+            }
+            landscape.draw(drawContext);
+            if (DEBUG) {
+                ProfilerUtil.stop(ProfilerEventInterface.Landscape);
+            }
 
-        if (DEBUG) {
-            ProfilerInterface.start(ProfilerEventInterface.Plugins);
-        }
-        plugins.draw(drawContext);
-        if (DEBUG) {
-            ProfilerInterface.stop(ProfilerEventInterface.Plugins);
-        }
+            if (DEBUG) {
+                ProfilerUtil.start(ProfilerEventInterface.Plugins);
+            }
+            plugins.draw(drawContext);
+            if (DEBUG) {
+                ProfilerUtil.stop(ProfilerEventInterface.Plugins);
+            }
 
-        // Screenshot
-        if (DEBUG) {
-            ProfilerInterface.start(ProfilerEventInterface.Screenshot);
-        }
-        if (screenshot) {
-            getSceneImage(drawContext);
-        }
-        if (DEBUG) {
-            ProfilerInterface.stop(ProfilerEventInterface.Screenshot);
-        }
+            // Screenshot
+            if (DEBUG) {
+                ProfilerUtil.start(ProfilerEventInterface.Screenshot);
+            }
+            if (screenshot) {
+                getSceneImage(drawContext);
+            }
+            if (DEBUG) {
+                ProfilerUtil.stop(ProfilerEventInterface.Screenshot);
+            }
 
-        if (DEBUG) {
-            ProfilerInterface.stop(ProfilerEventInterface.Frame);
+            if (DEBUG) {
+                ProfilerUtil.stop(ProfilerEventInterface.Frame);
+            }
         }
         if (DEBUG) {
-            ProfilerInterface.drawProfiler(drawContext);
+        	ProfilerUtil.drawProfiler(gl);
         }
     }
 
     protected void getSceneImage(DrawContext drawContext) {
-        GL gl = drawContext.getGl();
+        GL gl = drawContext.getGL();
         Ptolemy3DGLCanvas canvas = drawContext.getCanvas();
 
-        final int GL_WIDTH = canvas.getDrawWidth();
-        final int GL_HEIGHT = canvas.getDrawHeight();
+        final int width = canvas.getWidth();
+        final int height = canvas.getHeight();
 
-        byte[] pixels = new byte[(GL_WIDTH + 1) * (GL_HEIGHT + 1) * 3];
-        gl.glReadPixels(0, 0, GL_WIDTH, GL_HEIGHT, GL.GL_RGB,
-                        GL.GL_UNSIGNED_BYTE, ByteBuffer.wrap(pixels));
+        byte[] pixels = new byte[(width + 1) * (height + 1) * 3];
+        gl.glReadPixels(0, 0, width, height, GL.GL_RGB, GL.GL_UNSIGNED_BYTE, ByteBuffer.wrap(pixels));
 
         try {
             clipboardImage = Toolkit.getDefaultToolkit().createImage(
-                    new SceneProducer(pixels, GL_WIDTH, GL_HEIGHT));
-            Toolkit.getDefaultToolkit().getSystemClipboard().setContents(this,
-                                                                         null);
+                    new SceneProducer(pixels, width, height));
+            Toolkit.getDefaultToolkit().getSystemClipboard().setContents(this, null);
         }
         catch (Exception e) {
-            // ptolemy
-            // .sendErrorMessage("Security Exception : Unable to access clipboard.");
+            // ptolemy.sendErrorMessage("Security Exception : Unable to access clipboard.");
         }
     }
 

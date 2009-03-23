@@ -26,11 +26,11 @@ import org.ptolemy3d.scene.Landscape;
  */
 public class Math3D {
 
-    public static final double DEGREE_TO_RADIAN_FACTOR = (Math.PI / 180.0);
-    public static final double RADIAN_TO_DEGREE_FACTOR = (180.0 / Math.PI);
-    public static final double TWO_PI_VALUE = (2 * Math.PI); // value raised
+    public static final double DEGREE_TO_RADIAN = (Math.PI / 180.0);
+    public static final double RADIAN_TO_DEGREE = (180.0 / Math.PI);
+    public static final double TWO_PI = (2 * Math.PI);
     // above ground.
-    public static final double HALF_PI_VALUE = (Math.PI / 2.0);
+    public static final double HALF_PI = (Math.PI / 2.0);
     private static double[][] T = new double[3][3];
 
     /**
@@ -49,7 +49,7 @@ public class Math3D {
     public static final void setSphericalCoord(double lon, double lat, double[] dest) {
         final Landscape landscape = Ptolemy3D.getScene().landscape;
 
-        double toRadiansOverDDBuffer = Math3D.DEGREE_TO_RADIAN_FACTOR / Unit.getDDFactor();
+        double toRadiansOverDDBuffer = Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor();
 
         double thx = (lon - landscape.getMaxLongitude()) * toRadiansOverDDBuffer; // +
         // or
@@ -230,7 +230,7 @@ public class Math3D {
         double mag2 = Math.sqrt((x2 * x2) + (y2 * y2) + (z2 * z2));
         double dot = ((x1 * x2) + (y1 * y2) + (z1 * z2)) / (mag1 * mag2);
         if (degrees) {
-            return (float) (Math.acos(dot) * Math3D.RADIAN_TO_DEGREE_FACTOR);
+            return (float) (Math.acos(dot) * Math3D.RADIAN_TO_DEGREE);
         }
         else {
             return (float) Math.acos(dot);
@@ -307,7 +307,7 @@ public class Math3D {
         if (intvec[0] >= 0) {
             o_lon = -o_lon;
         }
-        out[0] = Math.asin(intvec[1]) * RADIAN_TO_DEGREE_FACTOR;
+        out[0] = Math.asin(intvec[1]) * RADIAN_TO_DEGREE;
         out[1] = o_lon;
 
         double alt = (Math.sqrt(in[0] * in[0]) + (in[1] * in[1]) + (in[2] * in[2]) - Unit.EARTH_RADIUS) / Unit.getCoordSystemRatio();

@@ -25,7 +25,6 @@ public interface Communicator
     /*
      *  this times out and refreshes the socket as well
      */
-
     public static final int HEADERMAXLEN = 1100;
 
     public void setServer(String server);

@@ -11,52 +11,51 @@ import javax.media.opengl.GLContext;
  */
 public class DrawContext {
 
-    private GLAutoDrawable glDrawable = null;
-    private GL gl = null;
-    private GLContext glcontext = null;
+    private GLAutoDrawable gLDrawable = null;
+    private GL gL = null;
+    private GLContext gLContext = null;
     private Ptolemy3DGLCanvas canvas = null;
-    private Ptolemy3D ptolemy = null;
 
     /**
      * @return the glDrawable
      */
-    public GLAutoDrawable getGlDrawable() {
-        return glDrawable;
+    public GLAutoDrawable getGLDrawable() {
+        return gLDrawable;
     }
 
     /**
      * @param glDrawable the glDrawable to set
      */
-    public void setGlDrawable(GLAutoDrawable glDrawable) {
-        this.glDrawable = glDrawable;
+    public void setGLDrawable(GLAutoDrawable glDrawable) {
+        this.gLDrawable = glDrawable;
     }
 
     /**
      * @return the gl
      */
-    public GL getGl() {
-        return gl;
+    public GL getGL() {
+        return gL;
     }
 
     /**
      * @param gl the gl to set
      */
-    public void setGl(GL gl) {
-        this.gl = gl;
+    public void setGL(GL gl) {
+        this.gL = gl;
     }
 
     /**
      * @return the glcontext
      */
-    public GLContext getGlcontext() {
-        return glcontext;
+    public GLContext getGLContext() {
+        return gLContext;
     }
 
     /**
      * @param glcontext the glcontext to set
      */
-    public void setGlcontext(GLContext glcontext) {
-        this.glcontext = glcontext;
+    public void setGLContext(GLContext glcontext) {
+        this.gLContext = glcontext;
     }
 
     /**
@@ -71,19 +70,5 @@ public class DrawContext {
      */
     public void setCanvas(Ptolemy3DGLCanvas canvas) {
         this.canvas = canvas;
-    }
-
-    /**
-     * @return the ptolemy
-     */
-    public Ptolemy3D getPtolemy() {
-        return ptolemy;
-    }
-
-    /**
-     * @param ptolemy the ptolemy to set
-     */
-    public void setPtolemy(Ptolemy3D ptolemy) {
-        this.ptolemy = ptolemy;
     }
 }

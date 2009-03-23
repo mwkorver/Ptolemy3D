@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.ptolemy3d.tile;
+package org.ptolemy3d.globe;
 
 import javax.media.opengl.GL;
 
@@ -23,6 +23,8 @@ import org.ptolemy3d.DrawContext;
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.Unit;
 import org.ptolemy3d.debug.IO;
+import org.ptolemy3d.manager.Jp2TileLoader;
+import org.ptolemy3d.manager.MapDataManager;
 import org.ptolemy3d.math.Math3D;
 import org.ptolemy3d.scene.Landscape;
 
@@ -32,7 +34,7 @@ import org.ptolemy3d.scene.Landscape;
  * @author Antonio Santiago <asantiagop(at)gmail(dot)com>
  * @author Jerome Jouvie
  */
-public class Level {
+public class Layer {
     // Number of tiles in longitude direction
 
     public final static int LEVEL_NUMTILE_LON = 8;
@@ -76,7 +78,7 @@ public class Level {
      * @param tileSize
      * @param divider
      */
-    public Level(int levelId, int minZoom, int maxZoom, int tileSize, int divider) {
+    public Layer(int levelId, int minZoom, int maxZoom, int tileSize, int divider) {
         this.levelID = levelId;
         this.minZoom = minZoom;
         this.maxZoom = maxZoom;
@@ -93,7 +95,7 @@ public class Level {
 
         tiles = new Tile[LEVEL_NUMTILES];
         for (int i = 0; i < LEVEL_NUMTILES; i++) {
-            tiles[i] = new Tile();
+            tiles[i] = new Tile(i);
         }
     }
 
@@ -182,13 +184,11 @@ public class Level {
      * Draw Level geometry
      */
     public void draw(DrawContext drawContext) {
-        GL gl = drawContext.getGl();
+        GL gl = drawContext.getGL();
 
         if (!visible) {
             return;
         }
-
-        final Landscape landscape = Ptolemy3D.getScene().landscape;
 
         // Render layer tiles
         for (int i = 0; i < LEVEL_NUMTILE_LAT; i++) {
@@ -196,13 +196,14 @@ public class Level {
                 final int tileID = (i * LEVEL_NUMTILE_LON) + j;
                 final Tile tile = tiles[tileID];
 
-                // Bind texture
+                // Bind texture - FIXME Move
                 boolean hasTexture = false;
                 if (tile != null) {
                     if (tile.isImageDataReady(0)) {
-                        int textureId = tile.getCurTextureId();
+                        int textureId = tile.getCurTextureID();
                         if (textureId == -1) {
-                            byte[] datas = tile.getCurImageData();
+                        	final MapDataManager mapDataManager = Ptolemy3D.getMapDataManager();
+                        	byte[] datas = mapDataManager.getImageData(tile.mapData, tile.mapData.curRes);
                             if (datas != null) {
                                 final int curRes = tile.getCurRes();
                                 final int width = tile.getWidth();
@@ -210,7 +211,7 @@ public class Level {
 
                                 textureId = Ptolemy3D.getTextureManager().load(gl, datas, width, height, GL.GL_RGB, true, curRes);
 
-                                tile.setCurTextureId(textureId);
+                                tile.setCurTextureID(textureId);
                             }
                         }
                         else {
@@ -222,13 +223,10 @@ public class Level {
 
                 // Display
                 try {
-                    tile.display(gl, hasTexture,
-                                 (j == (LEVEL_NUMTILE_LON - 1)) ? null
-                            : tiles[(i * LEVEL_NUMTILE_LON) + j + 1],
-                                 (i == (LEVEL_NUMTILE_LAT - 1)) ? null
-                            : tiles[((i + 1) * LEVEL_NUMTILE_LON) + j],
-                                 (j == 0) ? null : tiles[(i * LEVEL_NUMTILE_LON) + j - 1], (i == 0) ? null
-                            : tiles[((i - 1) * LEVEL_NUMTILE_LON) + j]);
+                	tile.display(gl, hasTexture,
+                		(j == (LEVEL_NUMTILE_LON - 1)) ? null : tiles[(i * LEVEL_NUMTILE_LON) + j + 1],
+                		(i == (LEVEL_NUMTILE_LAT - 1)) ? null : tiles[((i + 1) * LEVEL_NUMTILE_LON) + j],
+                		(j == 0) ? null : tiles[(i * LEVEL_NUMTILE_LON) + j - 1], (i == 0) ? null : tiles[((i - 1) * LEVEL_NUMTILE_LON) + j]);
                 }
                 catch (Exception e) {
                     IO.printStackRenderer(e);
@@ -258,28 +256,28 @@ public class Level {
 
         final Jp2TileLoader tileLoader = Ptolemy3D.getTileLoader();
 
-        Jp2Tile head = tileLoader.getHeader(lon, lat, levelID);
-        if (head == null) {
+        MapData mapDataHeader = tileLoader.getHeader(lon, lat, levelID);
+        if (mapDataHeader == null) {
             return null;
         }
 
         final double[] pickArr = {-999, -999, -999};
-        if (head.dem != null) {
+        if (mapDataHeader.dem != null) {
             /*
              * DEM Elevation
              */
-            final byte[] dem = head.dem.demDatas;
-            final int numRows = head.dem.numRows;
+            final byte[] dem = mapDataHeader.dem.demDatas;
+            final int numRows = mapDataHeader.dem.numRows;
             final int rowWidth = numRows * 2; // assuming we have a square tile
 
             float dw = (float) (numRows - 1) / tileSize;
-            int xpos = (int) ((lon - head.lon) * (dw));
-            int ypos = (int) ((head.lat - lat) * (dw));
+            int xpos = (int) ((lon - mapDataHeader.getLon()) * (dw));
+            int ypos = (int) ((mapDataHeader.getLat() - lat) * (dw));
             float sw = (float) tileSize / (numRows - 1);
-            double gminx = head.lon + xpos * sw;
-            double gmaxx = head.lon + (xpos + 1) * sw;
-            double gminy = head.lat - ypos * sw;
-            double gmaxy = head.lat - (ypos + 1) * sw;
+            double gminx = mapDataHeader.getLon() + xpos * sw;
+            double gmaxx = mapDataHeader.getLon() + (xpos + 1) * sw;
+            double gminy = mapDataHeader.getLat() - ypos * sw;
+            double gmaxy = mapDataHeader.getLat() - (ypos + 1) * sw;
 
             if (lon <= gminx) {
                 gminx = lon - 1;
@@ -328,21 +326,21 @@ public class Level {
             pickArr[1] *= Unit.getCoordSystemRatio();
             return pickArr; // FIXME Must be just over ?
         }
-        else if (head.tin != null) {
+        else if (mapDataHeader.tin != null) {
             /*
              * TIN Elevation
              */
-            for (int k = 0; (k < head.tin.nSt.length); k++) {
-                if (head.tin.nSt[k] == null) {
+            for (int k = 0; (k < mapDataHeader.tin.nSt.length); k++) {
+                if (mapDataHeader.tin.nSt[k] == null) {
                     continue;
                 }
-                for (int j = 2; (j < head.tin.nSt[k].length); j++) {
-                    Math3D.setTriVert(0, head.lon + (head.tin.p[head.tin.nSt[k][j - 2]][0]),
-                                      head.tin.p[head.tin.nSt[k][j - 2]][1], head.lat - (head.tin.p[head.tin.nSt[k][j - 2]][2]));
-                    Math3D.setTriVert(1, head.lon + (head.tin.p[head.tin.nSt[k][j - 1]][0]),
-                                      head.tin.p[head.tin.nSt[k][j - 1]][1], head.lat - (head.tin.p[head.tin.nSt[k][j - 1]][2]));
-                    Math3D.setTriVert(2, head.lon + (head.tin.p[head.tin.nSt[k][j]][0]),
-                                      head.tin.p[head.tin.nSt[k][j]][1], head.lat - (head.tin.p[head.tin.nSt[k][j]][2]));
+                for (int j = 2; (j < mapDataHeader.tin.nSt[k].length); j++) {
+                    Math3D.setTriVert(0, mapDataHeader.getLon() + (mapDataHeader.tin.p[mapDataHeader.tin.nSt[k][j - 2]][0]),
+                                      mapDataHeader.tin.p[mapDataHeader.tin.nSt[k][j - 2]][1], mapDataHeader.getLat() - (mapDataHeader.tin.p[mapDataHeader.tin.nSt[k][j - 2]][2]));
+                    Math3D.setTriVert(1, mapDataHeader.getLon() + (mapDataHeader.tin.p[mapDataHeader.tin.nSt[k][j - 1]][0]),
+                                      mapDataHeader.tin.p[mapDataHeader.tin.nSt[k][j - 1]][1], mapDataHeader.getLat() - (mapDataHeader.tin.p[mapDataHeader.tin.nSt[k][j - 1]][2]));
+                    Math3D.setTriVert(2, mapDataHeader.getLon() + (mapDataHeader.tin.p[mapDataHeader.tin.nSt[k][j]][0]),
+                                      mapDataHeader.tin.p[mapDataHeader.tin.nSt[k][j]][1], mapDataHeader.getLat() - (mapDataHeader.tin.p[mapDataHeader.tin.nSt[k][j]][2]));
                     if (Math3D.rayIntersectTri(pickArr, ray) == 1) {
                         pickArr[1] *= Unit.getCoordSystemRatio();
                         return pickArr;

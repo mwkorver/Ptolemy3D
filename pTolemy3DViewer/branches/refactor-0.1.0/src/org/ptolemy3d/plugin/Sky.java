@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.ptolemy3d.scene;
+package org.ptolemy3d.plugin;
 
 import java.util.Random;
 
@@ -50,22 +50,29 @@ public class Sky {
     private float[] botColor = new float[3];
     private float[] topColor = new float[3];
     private float[] zenithColor = {(float) 43 / 255, (float) 86 / 255, (float) 207 / 255};
+    
+    // Fog radius
+    private int fogRadius;
+    // Fog color
+    private float fogColor[] = {214.0f / 255, 235.0f / 255, 248.0f / 255, 1.0f};
 
     public Sky() {
+        fogRadius = 20000; // this is the max
+        fogColor[0] = 164.f / 255;
+        fogColor[1] = 193.f / 255;
+        fogColor[2] = 232.f / 255;
     }
 
     public void initGL(DrawContext drawContext) {
-        GL gl = drawContext.getGl();
-
         initSkyTexture(drawContext);
         createSkyDisplayList(drawContext);
     }
 
     private final void createSkyDisplayList(DrawContext drawContext) {
-        GL gl = drawContext.getGl();
+        GL gl = drawContext.getGL();
         final int NUM_STARS = 200;
 
-        float star_exp = (float) ((((horizonAlt * Unit.getCoordSystemRatio()) / 2) * 1.5) / Math.cos(30.0 * Math3D.DEGREE_TO_RADIAN_FACTOR));
+        float star_exp = (float) ((((horizonAlt) / 2) * 1.5) / Math.cos(30.0 * Math3D.DEGREE_TO_RADIAN));
 
         Random generator = new Random();
         skyCallList = gl.glGenLists(1);
@@ -88,7 +95,7 @@ public class Sky {
     }
 
     private final void initSkyTexture(DrawContext drawContext) {
-        GL gl = drawContext.getGl();
+        GL gl = drawContext.getGL();
         int j, i, h, numLevels = 128;
 
         byte[] atm_tex = new byte[numLevels * 2 * 4];
@@ -111,8 +118,8 @@ public class Sky {
         skyTexId = Ptolemy3D.getTextureManager().load(gl, atm_tex, 2, numLevels, GL.GL_RGBA, false, -1);
     }
 
-    protected void destroyGL(DrawContext drawContext) {
-        GL gl = drawContext.getGl();
+    public void destroyGL(DrawContext drawContext) {
+        GL gl = drawContext.getGL();
 
         if (skyTexId != -1) {
             Ptolemy3D.getTextureManager().unload(gl, skyTexId);
@@ -124,14 +131,26 @@ public class Sky {
         }
     }
 
-    protected void draw(DrawContext drawContext) {
-        GL gl = drawContext.getGl();
+    public void draw(DrawContext drawContext) {
+        GL gl = drawContext.getGL();
         Ptolemy3DGLCanvas canvas = drawContext.getCanvas();
 
-        if (!drawSky) {
+        if (true | !drawSky) {
             return;
         }
 
+        if (fogStateOn) {
+            gl.glEnable(GL.GL_FOG);
+            gl.glFogi(GL.GL_FOG_MODE, GL.GL_LINEAR);
+            gl.glFogfv(GL.GL_FOG_COLOR, fogColor, 0);
+            gl.glFogf(GL.GL_FOG_DENSITY, 0.4f);
+            gl.glFogf(GL.GL_FOG_START, 4000.0f);
+            gl.glFogf(GL.GL_FOG_END, fogRadius);
+        }
+        else {
+            gl.glDisable(GL.GL_FOG);
+        }
+        
         final Camera camera = canvas.getCamera();
 
         int radius = 10000;
@@ -169,11 +188,10 @@ public class Sky {
         if (fogStateOn) {
             gl.glEnable(GL.GL_FOG);
         }
-
     }
 
     private final void spaceAtmosphere(DrawContext drawContext) {
-        GL gl = drawContext.getGl();
+        GL gl = drawContext.getGL();
         final Camera camera = drawContext.getCanvas().getCamera();
 
         int i;
@@ -205,7 +223,7 @@ public class Sky {
 
         int numSteps = 80;
 
-        double theta2 = Math3D.TWO_PI_VALUE, t3;
+        double theta2 = Math3D.TWO_PI, t3;
 
         gl.glPushMatrix();
         gl.glLoadIdentity();
@@ -241,5 +259,20 @@ public class Sky {
         gl.glEnable(GL.GL_DEPTH_TEST);
 
         gl.glPopMatrix();
+    }
+    
+    /**
+     * @param fogRadius
+     *            the fogRadius to set
+     */
+    public void setFogRadius(int fogRadius) {
+        this.fogRadius = fogRadius;
+    }
+
+    /**
+     * @return the fogRadius
+     */
+    public int getFogRadius() {
+        return fogRadius;
     }
 }

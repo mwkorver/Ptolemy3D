@@ -17,8 +17,6 @@
  */
 package org.ptolemy3d.view;
 
-import javax.media.opengl.GL;
-
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.Ptolemy3DGLCanvas;
 import org.ptolemy3d.Unit;
@@ -26,83 +24,66 @@ import org.ptolemy3d.debug.IO;
 import org.ptolemy3d.math.Math3D;
 import org.ptolemy3d.math.Matrix16d;
 import org.ptolemy3d.math.Matrix9d;
+import org.ptolemy3d.plugin.Sky;
 import org.ptolemy3d.scene.Landscape;
-import org.ptolemy3d.scene.Sky;
 
 /**
- * <H1>Camera Coordinate System</H1> <BR>
- * The view position is defined with the position (longitude, latitude,
- * altitude, direction, tilt).<BR>
+ * <H1>Camera Coordinate System</H1>
  * <BR>
- * The longitude and latitude components are angles in the ranges respectively
- * [-180;180] and [-90;90]. Those two angles define every position on the
- * globe.<BR>
+ * The view position is defined with the position (longitude, latitude, altitude, direction, tilt).<BR>
  * <BR>
- * <div align="center"><img
- * src="../../../ViewCoordinateSystem-LongitudeLatitude.jpg" width=256
- * height=256><BR>
+ * The longitude and latitude components are angles in the ranges respectively [-180°;180°] and [-90°;90°].
+ * Those two angles define every position on the globe.<BR>
+ * <BR>
+ * <div align="center"><img src="../../../ViewCoordinateSystem-LongitudeLatitude.jpg" width=256 height=256><BR>
  * Longitude / Latitude angles</div><BR>
  * <BR>
- * The view always look towards that position, but from any possible
- * orientation. The view orientation is describe with the two angles (direction,
- * tilt).<BR>
+ * The view always look towards that position, but from any possible orientation.
+ * The view orientation is describe with the two angles (direction, tilt).<BR>
  * <BR>
- * The reference view orientation is as follow: the view up direction is tangent
- * to the longitude line, the view forward is in direction to the globe center.<BR>
+ * The reference view orientation is as follow: the view up direction is tangent to the longitude line, the view forward is in direction to the globe center.<BR>
  * The view vectors are represented on the next picture:<BR>
- * <div align="center"><img
- * src="../../../ViewCoordinateSystem-RefDirectionPitch.jpg" width=256
- * height=256></div><BR>
+ * <div align="center"><img src="../../../ViewCoordinateSystem-RefDirectionPitch.jpg" width=256 height=256></div><BR>
  * <BR>
- * The first angle <code>direction</code> defines the rotation around the
- * vertical (upward) direction:<BR>
- * <div align="center"><img src="../../../ViewCoordinateSystem-Direction.jpg"
- * width=256 height=256></div><BR>
+ * The first angle <code>direction</code> defines the rotation around the vertical (upward) direction:<BR>
+ * <div align="center"><img src="../../../ViewCoordinateSystem-Direction.jpg" width=256 height=256></div><BR>
  * <BR>
  * The second angle <code>tilt</code> is the rotation around the side vector:<BR>
- * <div align="center"><img src="../../../ViewCoordinateSystem-Tilt.jpg"
- * width=256 height=256></div><BR>
+ * <div align="center"><img src="../../../ViewCoordinateSystem-Tilt.jpg" width=256 height=256></div><BR>
  * <BR>
- * Finally the altitude tell how far we are from the position on the globe,
- * along the view forward vector.<BR>
+ * Finally the altitude tell how far we are from the position on the globe, along the view forward vector.<BR>
  * This last picture represents the view vectors and the view position:<BR>
- * <div align="center"><img src="../../../ViewCoordinateSystem-Altitude.jpg"
- * width=256 height=256></div><BR>
+ * <div align="center"><img src="../../../ViewCoordinateSystem-Altitude.jpg" width=256 height=256></div><BR>
  * <BR>
  * <BR>
- * <H1>Camera & Cartesian Coordinate System Relation</H1> <BR>
+ * <H1>Camera & Cartesian Coordinate System Relation</H1>
+ * <BR>
  * Here are relations between cartesian axis and longitude/latitude:<BR>
  * <ul>
- * <li>X axis: longitude=180ï¿½, latitude=0ï¿½</li>
- * <li>Y axis: longitude=90ï¿½, latitude=any angles</li>
- * <li>Z axis: longitude=90ï¿½, latitude=0ï¿½</li>
+ * <li>X axis: longitude=180°, latitude=0°</li>
+ * <li>Y axis: longitude=90°, latitude=any angles</li>
+ * <li>Z axis: longitude=90°, latitude=0°</li>
  * </ul>
  * From that, you can find easily those relations :<BR>
  * <ul>
- * <li>-X axis: longitude=0ï¿½, latitude=0ï¿½</li>
- * <li>-Y axis: longitude=-90ï¿½, latitude=any angles</li>
- * <li>-Z axis: longitude=-90ï¿½, latitude=0ï¿½</li>
+ * <li>-X axis: longitude=0°, latitude=0°</li>
+ * <li>-Y axis: longitude=-90°, latitude=any angles</li>
+ * <li>-Z axis: longitude=-90°, latitude=0°</li>
  * </ul>
  * <BR>
- * <i><u>Remark:</u> All angles are expressed modulos 360ï¿½ (180ï¿½ equals to -180ï¿½
- * and 540ï¿½ ...)</i><BR>
+ * <i><u>Remark:</u> All angles are expressed modulos 360° (180° equals to -180° and 540° ...)</i><BR>
  * <BR>
  * <BR>
- * <H1>Positioning</H1> <BR>
- * View movements are controlled in the coordinate system describe in the
- * previous paragraph.<BR>
- * View movements is controlled from CameraMovement, for more information, see
- * the <a href="CameraMovement.html">CameraMovement documentation</a>.<BR>
+ * <H1>Positioning</H1>
  * <BR>
- * Sometimes you'll may find usefull to convert that position into another
- * coordinate system.<BR>
- * You can get the equivalent cartesian coordinates (x,y,z), using the method
- * <code>getCartesianPosition</code>.<BR>
+ * View movements are controlled in the coordinate system describe in the previous paragraph.<BR>
+ * View movements is controlled from CameraMovement, for more information, see the <a href="CameraMovement.html">CameraMovement documentation</a>.<BR>
+ * <BR>
+ * Sometimes you'll may find usefull to convert that position into another coordinate system.<BR>
+ * You can get the equivalent cartesian coordinates (x,y,z), using the method <code>getCartesianPosition</code>.<BR>
  * Axis system of cartesian coordinate system is shown in the final picture:<BR>
- * <div align="center"><img src="../../../ViewCoordinateSystem-Cartesian.jpg"
- * width=256 height=256></div><BR>
+ * <div align="center"><img src="../../../ViewCoordinateSystem-Cartesian.jpg" width=256 height=256></div><BR>
  * <BR>
- * 
  * @see CameraMovement
  * @see #getCartesianPosition
  */
@@ -112,16 +93,13 @@ public class Camera {
 
     // Camera position.
     private Position position = new Position(0, 0, 5000);
-    // Direction, in radians, defined with a rotation around the vertical axis
-    // <i>(axis that goes from the earth center to the longitude/latitude
-    // position)</i>.
-    private double direction = 0;
-    // Tilt defined with a rotation around the side axis.
-    private double tilt = 0;
-    // Vertical altitude in meters. 0 is the ground reference (ground with no
-    // elevation).
-    private double vertAlt = 0;
-    private double vertAltDD = 0;
+	// Direction defined with a rotation around the vertical axis <i>(axis that goes from the earth center to the longitude/latitude position)</i>.
+	protected double direction;
+	// Tilt defined with a rotation around the side axis. */
+	protected double tilt;
+	// Vertical altitude in meters. 0 is the ground reference (ground with no elevation). */
+	protected double vertAlt, vertAltDD;
+	
     private double cameraY = 0;
     private double cameraX = 0;
 
@@ -147,12 +125,10 @@ public class Camera {
 
     /**
      * Updates the camera view.
-     *
-     * @param gl
      */
-    public void update(GL gl) {
+    public void update() {
         /* update perspective */
-        updatePerspective(gl);
+        updatePerspective();
 
         /* Update modelview */
         CameraMovement cameraController = canvas.getCameraMovement();
@@ -171,31 +147,30 @@ public class Camera {
      *
      * @param gl
      */
-    private final void updatePerspective(GL gl) {
+    private final void updatePerspective() {
         final CameraMovement cameraController = canvas.getCameraMovement();
         final Landscape landscape = Ptolemy3D.getScene().landscape;
         final Sky sky = Ptolemy3D.getScene().sky;
-        final int FAR_CLIP = landscape.getFarClip();
-        final int FOG_RADIUS = landscape.getFogRadius();
-        final double aspectRatio = canvas.getDrawAspectRatio();
+        final int farClip = landscape.getFarClip();
+        final int fogRadius = sky.getFogRadius();
+        final double aspectRatio = canvas.getAspectRatio();
 
         // maximize our precision
         if (sky.fogStateOn) {
             if (vertAlt > sky.horizonAlt) {
-                gl.glDisable(GL.GL_FOG);
-                perspective.setPerspectiveProjection(fov, aspectRatio, ((sky.horizonAlt * Unit.getCoordSystemRatio()) / 2), FAR_CLIP);
+                perspective.setPerspectiveProjection(fov, aspectRatio, ((sky.horizonAlt * Unit.getCoordSystemRatio()) / 2), farClip);
                 sky.fogStateOn = false;
             }
             else {
                 // minimize our back z clip for precision
                 double gamma = 0.5235987756 - tilt;
-                if (gamma > Math3D.HALF_PI_VALUE) {
-                    perspective.setPerspectiveProjection(fov, aspectRatio, 1, FOG_RADIUS + 10000);
+                if (gamma > Math3D.HALF_PI) {
+                    perspective.setPerspectiveProjection(fov, aspectRatio, 1, fogRadius + 10000);
                 }
                 else {
                     double maxView = Math.tan(gamma) * (position.getAltitudeDD() + cameraController.ground_ht) * 2;
-                    if (maxView >= FOG_RADIUS + 10000) {
-                        perspective.setPerspectiveProjection(fov, aspectRatio, 1, FOG_RADIUS + 10000);
+                    if (maxView >= fogRadius + 10000) {
+                        perspective.setPerspectiveProjection(fov, aspectRatio, 1, fogRadius + 10000);
                     }
                     else {
                         perspective.setPerspectiveProjection(fov, aspectRatio, 1, maxView);
@@ -207,11 +182,10 @@ public class Camera {
             if (vertAlt > sky.horizonAlt) {
                 // On resize, force update aspectRatio
                 perspective.setPerspectiveProjection(fov, aspectRatio,
-                                                     ((sky.horizonAlt * Unit.getCoordSystemRatio()) / 2), FAR_CLIP);
+                                                     ((sky.horizonAlt * Unit.getCoordSystemRatio()) / 2), farClip);
             }
             else {
-                gl.glEnable(GL.GL_FOG);
-                perspective.setPerspectiveProjection(fov, aspectRatio, 1, FOG_RADIUS + 10000);
+                perspective.setPerspectiveProjection(fov, aspectRatio, 1, fogRadius + 10000);
                 sky.fogStateOn = true;
             }
         }
@@ -227,7 +201,7 @@ public class Camera {
 
     /** @return direction: unit is degrees. */
     public final double getDirectionDegrees() {
-        return direction * Math3D.RADIAN_TO_DEGREE_FACTOR;
+        return direction * Math3D.RADIAN_TO_DEGREE;
     }
 
     /** @return direction: unit is radians. */
@@ -237,7 +211,7 @@ public class Camera {
 
     /** @return pitch (tilt): unit is degrees. */
     public final double getPitchDegrees() {
-        return tilt * Math3D.RADIAN_TO_DEGREE_FACTOR;
+        return tilt * Math3D.RADIAN_TO_DEGREE;
     }
 
     /** @return pitch (tilt): unit is radians. */

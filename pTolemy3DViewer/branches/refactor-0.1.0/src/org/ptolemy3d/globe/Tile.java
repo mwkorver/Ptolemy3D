@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.ptolemy3d.tile;
+package org.ptolemy3d.globe;
 
 import static org.ptolemy3d.debug.Config.DEBUG;
 
@@ -23,10 +23,11 @@ import javax.media.opengl.GL;
 
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.Unit;
-import org.ptolemy3d.debug.ProfilerInterface;
+import org.ptolemy3d.debug.ProfilerUtil;
+import org.ptolemy3d.globe.MapData.MapWavelet;
+import org.ptolemy3d.manager.Jp2TileLoader;
 import org.ptolemy3d.math.Math3D;
 import org.ptolemy3d.scene.Landscape;
-import org.ptolemy3d.tile.Jp2Tile.Jp2TileRes;
 
 /**
  * A tile.
@@ -34,7 +35,8 @@ import org.ptolemy3d.tile.Jp2Tile.Jp2TileRes;
 public class Tile {
 
     /* Variable updated by setTile */
-    private int levelID;
+    private final int tileID;
+	private int levelID;
     private int upLeftLat;
     private int upLeftLon;
     private int lowRightLat;
@@ -42,30 +44,28 @@ public class Tile {
     private int fmz;
     private int fmx;
 
-    /* TexTile renderer */
-    // private static final ITileRenderer renderer = new TileDefaultRenderer();
-    // //Original version
-    // private static final ITileRenderer renderer = new TileDirectModeRenderer(); //CPU Optimizations
-    private static final TileRenderer renderer = new TileDirectModeRenderer_MathLookUp();// Cos/Sin
-    // table
-    // lookup
-    // private static final ITileRenderer renderer = new TileVARenderer(); //
-
+	/* TexTile renderer */
+//	private static final TileRenderer renderer = new TileDefaultRenderer();					//First clean version
+//	private static final TileRenderer renderer = new TileDirectModeRenderer();				//CPU Optimizations
+	private static final TileRenderer renderer = new TileDirectModeRenderer_MathLookUp();	//Cos/Sin table lookup
+	protected interface TileRenderer { public void drawSubsection(Tile tile, int x1, int z1, int x2, int z2) throws Exception; }
+	
     /* Variable updated by Landscape */
     /** Tile status (for visibility, ...) */
     public boolean status;
-    protected Jp2Tile jp2;
+    public MapData mapData;
 
     /* Temporary datas for display */
     protected GL gl;
     protected int drawZlevel;
     protected boolean texture;
-    protected Tile left,  above,  right,  below;
+    protected Tile left, above, right, below;
 
-    public Tile() {
-    }
+	protected Tile(int tileID) {
+		this.tileID = tileID;
+	}
 
-    public void setTile(Level level, int lon, int lat) {
+    public void setTile(Layer level, int lon, int lat) {
         this.upLeftLon = lon;
         this.upLeftLat = lat;
         this.lowRightLon = lon + level.getTileSize();
@@ -76,7 +76,7 @@ public class Tile {
         this.fmz = -lat;
 
         this.status = true;
-        this.jp2 = null;
+        this.mapData = null;
     }
 
     protected void processVisibility() {
@@ -94,11 +94,11 @@ public class Tile {
         }
 
         if (DEBUG) {
-            ProfilerInterface.tileCounter++;
+            ProfilerUtil.tileCounter++;
         }
 
         final Landscape landscape = Ptolemy3D.getScene().landscape;
-        final Level[] levels = landscape.getLevels();
+        final Layer[] levels = landscape.getLayers();
 
         this.gl = gl;
         this.texture = texture;
@@ -134,24 +134,24 @@ public class Tile {
         }
 
         drawZlevel = levelID;
-        if ((jp2 != null) && (jp2.level != levelID)) {
-            final int tileWidth = levels[jp2.level].getTileSize();
+        if ((mapData != null) && (mapData.getLevel() != levelID)) {
+            final int tileWidth = levels[mapData.getLevel()].getTileSize();
 
-            upLeftLon = jp2.lon - Unit.getMeterX();
-            upLeftLat = Unit.getMeterZ() - jp2.lat;
+            upLeftLon = mapData.getLon() - Unit.getMeterX();
+            upLeftLat = Unit.getMeterZ() - mapData.getLat();
             lowRightLon = upLeftLon + tileWidth;
             lowRightLat = upLeftLat + tileWidth;
-            drawZlevel = jp2.level;
+            drawZlevel = mapData.getLevel();
         }
         if (DEBUG) {
-            if (ProfilerInterface.forceLevel != -1 && ProfilerInterface.forceLevel != drawZlevel) {
+            if (ProfilerUtil.forceLevel != -1 && ProfilerUtil.forceLevel != drawZlevel) {
                 return;
             }
         }
 
         if (levelID < /* != */ (levels.length - 1)) {
             final int below = levelID + 1;
-            final Level levelBelow = levels[below];
+            final Layer levelBelow = levels[below];
 
             if (levelBelow.isVisible()) {
                 int c_ulx = levelBelow.getUpLeftLon();
@@ -172,7 +172,7 @@ public class Tile {
                     }
 
                     if (c_lrx > maxx) {
-                        int t_past = Level.LEVEL_NUMTILE_LON - ((landscape.getMaxLongitude() - c_ulx) / levelBelow.getTileSize()) - 1;
+                        int t_past = Layer.LEVEL_NUMTILE_LON - ((landscape.getMaxLongitude() - c_ulx) / levelBelow.getTileSize()) - 1;
                         c_ulx = -maxx;
                         c_lrx = c_ulx + (t_past * levelBelow.getTileSize());
 
@@ -251,7 +251,7 @@ public class Tile {
 
     /** Tile Picking */
     protected boolean pick(double[] intersectPoint, double[][] ray) {
-        if ((jp2 == null) || ((jp2 != null) && (jp2.level != levelID))) {
+        if ((mapData == null) || ((mapData != null) && (mapData.getLevel() != levelID))) {
             return false;
         }
 
@@ -267,9 +267,9 @@ public class Tile {
 
         boolean useDem, useTin;
         {
-            boolean b = landscape.isTerrainEnabled() && (jp2 != null);
-            useDem = (b && (jp2.dem != null)) ? true : false;
-            useTin = (b && (jp2.tin != null)) ? true : false;
+            boolean b = landscape.isTerrainEnabled() && (mapData != null);
+            useDem = (b && (mapData.dem != null)) ? true : false;
+            useTin = (b && (mapData.tin != null)) ? true : false;
         }
 
         double theta1, dTetaOverN;
@@ -278,7 +278,7 @@ public class Tile {
             double theta2, phi2;
             double oneOverDDToRad;
 
-            oneOverDDToRad = Math3D.DEGREE_TO_RADIAN_FACTOR / Unit.getDDFactor();
+            oneOverDDToRad = Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor();
 
             theta1 = (x1 + landscape.getMaxLongitude()) * oneOverDDToRad;
             theta2 = (x2 + landscape.getMaxLongitude()) * oneOverDDToRad;
@@ -351,18 +351,18 @@ public class Tile {
         }
         else if (useTin) {
             {
-                double d = 1.0 / jp2.tin.w;
+                double d = 1.0 / mapData.tin.w;
                 dTetaOverN /= d;
                 dPhiOverN /= d;
             }
             double scaler = Unit.getCoordSystemRatio() * terrainScaler;
 
-            for (int i = 0; i < jp2.tin.nSt.length; i++) {
-                for (int j = 0; j < jp2.tin.nSt[i].length; j++) {
+            for (int i = 0; i < mapData.tin.nSt.length; i++) {
+                for (int j = 0; j < mapData.tin.nSt[i].length; j++) {
                     double dx, dz, dy;
                     {
-                        final int v = jp2.tin.nSt[i][j];
-                        final float[] p = jp2.tin.p[v];
+                        final int v = mapData.tin.nSt[i][j];
+                        final float[] p = mapData.tin.p[v];
 
                         dx = theta1 + p[0] * dTetaOverN;
                         dy = p[1] * scaler;
@@ -396,7 +396,7 @@ public class Tile {
             }
         }
         else if (useDem) {
-            final byte[] dem = jp2.dem.demDatas;
+            final byte[] dem = mapData.dem.demDatas;
 
             final int row_width = (int) Math.sqrt((dem.length / 2)) * 2; // assuming
             // we
@@ -496,53 +496,58 @@ public class Tile {
         return false;
     }
 
-    protected final boolean isImageDataReady(int res) {
-        if (jp2 == null) {
+    public final boolean isImageDataReady(int res) {
+        if (mapData == null) {
             return false;
         }
 
-        final Jp2TileRes tile = jp2.tileRes[res];
+        final MapWavelet tile = mapData.wavelets[res];
         return tile.imageDataReady;
-    }
-
-    /** @return OpenGL texture texels, in the format RGB */
-    protected byte[] getCurImageData() {
-        return jp2.getImageData(jp2.curRes);
     }
 
     /** @return current resolution */
     protected final int getCurRes() {
-        return jp2.curRes;
+        return mapData.curRes;
     }
 
     /** @return current tile width */
     protected final int getWidth() {
         final Jp2TileLoader tileLoader = Ptolemy3D.getTileLoader();
-        return tileLoader.twidth[jp2.curRes];
+        return tileLoader.tileSize[mapData.curRes];
     }
 
     /** @return current tile height */
     protected final int getHeight() {
         final Jp2TileLoader tileLoader = Ptolemy3D.getTileLoader();
-        return tileLoader.twidth[jp2.curRes]; // Square textures
+        return tileLoader.tileSize[mapData.curRes];
     }
 
     /**
      * @param textureId
      *            OpenGL texture ID
      */
-    protected final void setCurTextureId(int textureId) {
-        final Jp2TileRes tile = jp2.tileRes[jp2.curRes];
-        tile.textureId = textureId;
+    protected final void setCurTextureID(int textureId) {
+        final MapWavelet tile = mapData.wavelets[mapData.curRes];
+        tile.textureID = textureId;
     }
 
     /** @return OpenGL texture ID */
-    protected final int getCurTextureId() {
-        final Jp2TileRes tile = jp2.tileRes[jp2.curRes];
-        return tile.textureId;
+    protected final int getCurTextureID() {
+        final MapWavelet tile = mapData.wavelets[mapData.curRes];
+        return tile.textureID;
     }
 
     // Getters
+    
+    /**
+     * Tile ID
+     *
+     * @return the tile id (first is 0)
+     */
+    public int getTileID() {
+        return tileID;
+    }
+    
     /**
      * Level ID
      *
@@ -589,59 +594,10 @@ public class Tile {
     }
 
     /**
-     * @param levelID the levelID to set
-     */
-    private void setLevelID(int levelID) {
-        this.levelID = levelID;
-    }
-
-    /**
-     * @param upLeftLon the upLeftLon to set
-     */
-    public void setUpLeftLon(int upLeftLon) {
-        this.upLeftLon = upLeftLon;
-    }
-
-    /**
-     * @param upLeftLat the upLeftLat to set
-     */
-    public void setUpLeftLat(int upLeftLat) {
-        this.upLeftLat = upLeftLat;
-    }
-
-    /**
-     * @param lowRightLon the lowRightLon to set
-     */
-    public void setLowRightLon(int lowRightLon) {
-        this.lowRightLon = lowRightLon;
-    }
-
-    /**
-     * @param lowRightLat the lowRightLat to set
-     */
-    public void setLowRightLat(int lowRightLat) {
-        this.lowRightLat = lowRightLat;
-    }
-
-    /**
-     * @param fmx the fmx to set
-     */
-    public void setFmx(int fmx) {
-        this.fmx = fmx;
-    }
-
-    /**
      * @return the fmx
      */
     public int getFmx() {
         return fmx;
-    }
-
-    /**
-     * @param fmz the fmz to set
-     */
-    public void setFmz(int fmz) {
-        this.fmz = fmz;
     }
 
     /**

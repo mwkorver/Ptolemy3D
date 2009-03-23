@@ -141,208 +141,213 @@ public class CameraMovement {
         final Landscape landscape = Ptolemy3D.getScene().landscape;
         final Camera camera = canvas.getCamera();
 
-        double vpPos_1_bak = camera.getPosition().getAltitudeDD(), tilt_bak = camera.getTilt();
+		double vpPos_1_bak = camera.getPosition().getAltitudeDD(), tilt_bak = camera.tilt;
 
-        Matrix9d vpMat_bak = new Matrix9d();
-        camera.vpMat.copyTo(vpMat_bak);
+		Matrix9d vpMat_bak = new Matrix9d();
+		camera.vpMat.copyTo(vpMat_bak);
 
-        isActive = (inputs.key_state != 0) || (velocity != 0) || (vert_velocity != 0) || (ud_rot_velocity != 0) || (lr_rot_velocity != 0) || (horz_velocity != 0);
+		isActive = (velocity != 0) || (vert_velocity != 0) ||
+				   (ud_rot_velocity != 0) || (lr_rot_velocity != 0) || (horz_velocity != 0);
 
-        if (inAutoPilot > 0) {
-            switch (inAutoPilot) {
-                case 1:
-                    moveAutopilot();
-                    break;
-                case 2:
-                    movePanorama();
-                    break;
-            }
-        }
-        else {
-            int vh_accel = accel;
-            double vh_mmx = mmx;
+		if (inAutoPilot > 0)
+		{
+			switch (inAutoPilot)
+			{
+				case 1: moveAutopilot(); break;
+				case 2: movePanorama(); break;
+			}
+		}
+		else
+		{
 
-            if (fmode == 0) {
-                // alter velocity and accel according to current altitude.
+			int vh_accel = accel;
+			double vh_mmx = mmx;
+
+			if (fmode == 0)
+			{
+				// alter velocity and accel according to current altitude.
                 mmx = accel = (int) ((2 * (Math.tan(0.5235987756) * (camera.getPosition().getAltitudeDD() + 1))) * 25 * relspdmult);
-                horz_velocity = vert_velocity = velocity = 0;
-                lr_rot_velocity = mouse_lr_rot_velocity;
-                ud_rot_velocity = mouse_ud_rot_velocity;
-                mouse_lr_rot_velocity = mouse_ud_rot_velocity = 0;
-                vh_accel = accel;
-                vh_mmx = mmx;
-            }
-            else {
-                vh_accel = 160;
-                vh_mmx = 8000;
+				horz_velocity = vert_velocity = velocity = 0;
+				lr_rot_velocity = mouse_lr_rot_velocity;
+				ud_rot_velocity = mouse_ud_rot_velocity;
+				mouse_lr_rot_velocity = mouse_ud_rot_velocity = 0;
+				vh_accel = accel;
+				vh_mmx = mmx;
+			}
+			else
+			{
+				vh_accel = 160;
+				vh_mmx = 8000;
 
-                if ((inputs.key_state & InputHandler.ASC_S) == 0 && (inputs.key_state & InputHandler.ASC_X) == 0 && (inputs.key_state & InputHandler.ASC_A) == 0 && (inputs.key_state & InputHandler.ASC_Z) == 0 && (inputs.key_state & InputHandler.WHEEL_AWAY) == 0 && (inputs.key_state & InputHandler.WHEEL_TOWARD) == 0) {
-                    if (velocity > 0) {
-                        velocity -= accel;
-                    }
-                    else if (velocity < 0) {
-                        velocity += accel;
-                    }
-                }
-                if ((inputs.key_state & InputHandler.ASC_D) == 0 && (inputs.key_state & InputHandler.ASC_F) == 0) {
-                    if (vert_velocity > 0) {
-                        vert_velocity -= vh_accel;
-                    }
-                    else if (vert_velocity < 0) {
-                        vert_velocity += vh_accel;
-                    }
-                }
-                if ((inputs.key_state & InputHandler.ASC_R) == 0 && (inputs.key_state & InputHandler.ASC_C) == 0) {
-                    if (horz_velocity > 0) {
-                        horz_velocity -= vh_accel;
-                    }
-                    else if (horz_velocity < 0) {
-                        horz_velocity += vh_accel;
-                    }
-                }
-                if ((inputs.key_state & InputHandler.LEFT_ARROW) == 0 && (inputs.key_state & InputHandler.RIGHT_ARROW) == 0) {
-                    if (lr_rot_velocity > 0) {
-                        lr_rot_velocity -= rot_accel;
-                    }
-                    else if (lr_rot_velocity < 0) {
-                        lr_rot_velocity += rot_accel;
-                    }
-                    if (Math.abs(lr_rot_velocity) <= rot_accel) {
-                        lr_rot_velocity = 0;
-                    }
-                }
-                if ((inputs.key_state & InputHandler.UP_ARROW) == 0 && (inputs.key_state & InputHandler.DOWN_ARROW) == 0) {
-                    if (ud_rot_velocity > 0) {
-                        ud_rot_velocity -= rot_accel;
-                    }
-                    else if (ud_rot_velocity < 0) {
-                        ud_rot_velocity += rot_accel;
-                    }
-                    if (Math.abs(ud_rot_velocity) <= rot_accel) {
-                        ud_rot_velocity = 0;
-                    }
-                }
+				if ((inputs.inputState.getStraightForward() <= 0) && (inputs.inputState.getStraightBack() <= 0))
+				{
+					if (velocity > 0) {
+						velocity -= accel;
+					}
+					else if (velocity < 0) {
+						velocity += accel;
+					}
+				}
+				if ((inputs.inputState.getStrafeLeft() <= 0) && (inputs.inputState.getStrafeRight() <= 0))
+				{
+					if (vert_velocity > 0) {
+						vert_velocity -= vh_accel;
+					}
+					else if (vert_velocity < 0) {
+						vert_velocity += vh_accel;
+					}
+				}
+				if ((inputs.inputState.getIncreaseAltitude() <= 0) && (inputs.inputState.getDecreaseAltitude() <= 0))
+				{
+					if (horz_velocity > 0) {
+						horz_velocity -= vh_accel;
+					}
+					else if (horz_velocity < 0) {
+						horz_velocity += vh_accel;
+					}
+				}
+				if ((inputs.inputState.getTurnLeft() <= 0) && (inputs.inputState.getTurnRight() <= 0))
+				{
+					if (lr_rot_velocity > 0) {
+						lr_rot_velocity -= rot_accel;
+					}
+					else if (lr_rot_velocity < 0) {
+						lr_rot_velocity += rot_accel;
+					}
+					if (Math.abs(lr_rot_velocity) <= rot_accel) {
+						lr_rot_velocity = 0;
+					}
+				}
+				if ((inputs.inputState.getTiltUp() <= 0) && (inputs.inputState.getTiltDown() <= 0))
+				{
+					if (ud_rot_velocity > 0) {
+						ud_rot_velocity -= rot_accel;
+					}
+					else if (ud_rot_velocity < 0) {
+						ud_rot_velocity += rot_accel;
+					}
+					if (Math.abs(ud_rot_velocity) <= rot_accel) {
+						ud_rot_velocity = 0;
+					}
+				}
+			}
 
-            }
+			a_vec[0] = a_vec[1] = a_vec[2] = 0.0f;
 
-            a_vec[0] = a_vec[1] = a_vec[2] = 0.0f;
+			/* Acceleration due to keys being down */
+			if (((inputs.inputState.getStraightForward() | inputs.inputState.getStraightForwardConstAlt())) > 0 &&
+				((inputs.inputState.getStraightBack() | inputs.inputState.getStraightBackConstAlt())) <= 0 &&
+				(-velocity < mmx))
+			{
+				inputs.inputState.decStraightForward();
+				inputs.inputState.decStraightForwardConstAlt();
+				velocity -= (velocity > 0) ? accel + accel : accel;
+				isPan = ((inputs.inputState.getStraightForwardConstAlt()) > 0) ? false : true;
+			}
+			else if(((inputs.inputState.getStraightForward() | inputs.inputState.getStraightForwardConstAlt())) <= 0 &&
+					((inputs.inputState.getStraightBack() | inputs.inputState.getStraightBackConstAlt())) > 0 &&
+					(velocity < mmx))
+			{
+				inputs.inputState.decStraightBack();
+				inputs.inputState.decStraightBackConstAlt();
+				velocity += (velocity < 0) ? accel + accel : accel;
+				isPan = ((inputs.inputState.getStraightBackConstAlt()) > 0) ? false : true;
+			}
+			
+			if ((inputs.inputState.getStrafeLeft() > 0) && (inputs.inputState.getStrafeRight() <= 0) && (-vert_velocity < vh_mmx))
+			{
+				inputs.inputState.decStrafeLeft();
+				vert_velocity -= (vert_velocity > 0) ? (vh_accel + vh_accel) : vh_accel;
+			}
+			else if ((inputs.inputState.getStrafeLeft() <= 0) && (inputs.inputState.getStrafeRight() > 0) && (vert_velocity < vh_mmx))
+			{
+				inputs.inputState.decStrafeRight();
+				vert_velocity += (vert_velocity < 0) ? vh_accel + vh_accel : vh_accel;
+			}
+			if ((inputs.inputState.getDecreaseAltitude() > 0) && (inputs.inputState.getIncreaseAltitude() <= 0) && (-horz_velocity < vh_mmx))
+			{
+				inputs.inputState.decDecreaseAltitude();
+				horz_velocity -= (horz_velocity > 0) ? vh_accel + vh_accel : vh_accel;
+			}
+			else if ((inputs.inputState.getDecreaseAltitude() <= 0) && (inputs.inputState.getIncreaseAltitude() > 0) && (horz_velocity < vh_mmx))
+			{
+				inputs.inputState.decIncreaseAltitude();
+				horz_velocity += (horz_velocity < 0) ? vh_accel + vh_accel : vh_accel;
+			}
+			if ((inputs.inputState.getDecreaseAltitude() > 0) || (inputs.inputState.getIncreaseAltitude() > 0))
+			{
+				inputs.inputState.decDecreaseAltitude();
+				desiredTilt = -1;//cancel setPitchDegrees order
+			}
+			a_vec[2] = velocity * scaler;
+			a_vec[0] = vert_velocity * scaler;
 
-            /* Acceleration due to keys being down */
-            if ((inputs.key_state & (InputHandler.ASC_S | InputHandler.ASC_A)) != 0 && (inputs.key_state & (InputHandler.ASC_X | InputHandler.ASC_Z)) == 0 && (-velocity < mmx)) {
-                velocity -= (velocity > 0) ? accel + accel : accel;
-                isPan = ((inputs.key_state & InputHandler.ASC_S) != 0) ? false
-                        : true;
-            }
-            else if ((inputs.key_state & (InputHandler.ASC_S | InputHandler.ASC_A)) == 0 && (inputs.key_state & (InputHandler.ASC_X | InputHandler.ASC_Z)) != 0 && (velocity < mmx)) {
-                velocity += (velocity < 0) ? accel + accel : accel;
-                isPan = ((inputs.key_state & InputHandler.ASC_X) != 0) ? false
-                        : true;
-            }
-            // Mouse wheel: FIXME framerate dependant !
-            if ((inputs.key_state & InputHandler.WHEEL_TOWARD) != 0 && (inputs.key_state & InputHandler.WHEEL_AWAY) == 0 && (-velocity < mmx)) {
-                velocity -= (velocity > 0) ? accel + accel : accel;
-                isPan = false;
+			/* TURN LEFT AND RIGHT */
+			if ((inputs.inputState.getTurnLeft()) > 0 && (inputs.inputState.getTurnRight()) <= 0 && (-lr_rot_velocity < rotAng))
+			{
+				inputs.inputState.decTurnLeft();
+				lr_rot_velocity -= (lr_rot_velocity > 0) ? rot_accel + rot_accel : rot_accel;//  *  ((JS.unit.UNITS <= 1) ? -1 : 1);
+			}
+			else if ((inputs.inputState.getTurnLeft()) <= 0 && (inputs.inputState.getTurnRight()) > 0 && (lr_rot_velocity < rotAng))
+			{
+				inputs.inputState.decTurnRight();
+				lr_rot_velocity += (lr_rot_velocity < 0) ? rot_accel + rot_accel : rot_accel;// *  ((JSUNITS <= 1) ? -1 : 1);
 
-                inputs.wheelCount--;
-                if (inputs.wheelCount < 0) {
-                    inputs.key_state &= ~InputHandler.WHEEL_TOWARD;
-                    inputs.wheelCount = 0;
-                }
-            }
-            else if ((inputs.key_state & InputHandler.WHEEL_TOWARD) == 0 && (inputs.key_state & InputHandler.WHEEL_AWAY) != 0 && (velocity < mmx)) {
-                velocity += (velocity < 0) ? accel + accel : accel;
-                isPan = false;
+				/*   YAW and PITCH      */
+			}
+			if ((inputs.inputState.getTiltDown()) > 0 && (inputs.inputState.getTiltUp()) <= 0 && (-ud_rot_velocity < rotAng))
+			{
+				inputs.inputState.decTiltDown();
+				ud_rot_velocity -= (ud_rot_velocity > 0) ? rot_accel + rot_accel : rot_accel;
+			}
+			else if ((inputs.inputState.getTiltDown()) <= 0 && (inputs.inputState.getTiltUp()) > 0 && (ud_rot_velocity < rotAng))
+			{
+				inputs.inputState.decTiltUp();
+				ud_rot_velocity += (ud_rot_velocity < 0) ? rot_accel + rot_accel : rot_accel;
+			}
 
-                inputs.wheelCount--;
-                if (inputs.wheelCount < 0) {
-                    inputs.key_state &= ~InputHandler.WHEEL_AWAY;
-                    inputs.wheelCount = 0;
-                }
-            }
+			/* Addition to existing orientation */
+//			if (((lr_rot_velocity != 0.0) || (ud_rot_velocity != 0.0) || (vert_velocity != 0)) && (false))
+//			{
+//				camera.vpMat.invert(cloneMat);
+//				if (lr_rot_velocity != 0.0)
+//				{
+//					direction -= lr_rot_velocity;
+//					if (direction < 0) {
+//						direction += Math3D.twoPi;
+//					}
+//					if (direction > (Math3D.twoPi)) {
+//						direction -= Math3D.twoPi;
+//					}
+//					rotMat.rotY(lr_rot_velocity);
+//					camera.vpMat.copyTo(cloneMat);
+//					Matrix3x3d.multiply(cloneMat, rotMat, camera.vpMat);
+//				}
+//				if (((pitch - ud_rot_velocity) > -((Math3D.halfPI) - 0.005f)) && ((pitch - ud_rot_velocity) < (Math3D.halfPI)))
+//				{
+//					pitch -= ud_rot_velocity;
+//					if (ud_rot_velocity != 0.0) {
+//						rotMat.rotX(ud_rot_velocity);
+//						camera.vpMat.copyTo(cloneMat);
+//						Matrix3x3d.multiply(rotMat, cloneMat, camera.vpMat);
+//					}
+//				}
+//				else
+//				{
+//					ud_rot_velocity = 0;
+//					/* Rotation of distance vector */
+//				}
+//				camera.vpMat.invert(cloneMat);
+//			}
 
-            if ((inputs.key_state & InputHandler.ASC_D) != 0 && (inputs.key_state & InputHandler.ASC_F) == 0 && (-vert_velocity < vh_mmx)) {
-                vert_velocity -= (vert_velocity > 0) ? (vh_accel + vh_accel)
-                        : vh_accel;
-            }
-            else if ((inputs.key_state & InputHandler.ASC_D) == 0 && (inputs.key_state & InputHandler.ASC_F) != 0 && (vert_velocity < vh_mmx)) {
-                vert_velocity += (vert_velocity < 0) ? vh_accel + vh_accel
-                        : vh_accel;
-            }
-            if ((inputs.key_state & InputHandler.ASC_C) != 0 && (inputs.key_state & InputHandler.ASC_R) == 0 && (-horz_velocity < vh_mmx)) {
-                horz_velocity -= (horz_velocity > 0) ? vh_accel + vh_accel
-                        : vh_accel;
-            }
-            else if ((inputs.key_state & InputHandler.ASC_C) == 0 && (inputs.key_state & InputHandler.ASC_R) != 0 && (horz_velocity < vh_mmx)) {
-                horz_velocity += (horz_velocity < 0) ? vh_accel + vh_accel
-                        : vh_accel;
-            }
-
-            if ((inputs.key_state & InputHandler.ASC_C) != 0 || (inputs.key_state & InputHandler.ASC_R) != 0) {
-                desiredTilt = -1;// cancel setPitchDegrees order
-            }
-            a_vec[2] = velocity * scaler;
-            a_vec[0] = vert_velocity * scaler;
-
-            /* TURN LEFT AND RIGHT */
-            if ((inputs.key_state & InputHandler.LEFT_ARROW) != 0 && (inputs.key_state & InputHandler.RIGHT_ARROW) == 0 && (-lr_rot_velocity < rotAng)) {
-                lr_rot_velocity -= (lr_rot_velocity > 0) ? rot_accel + rot_accel : rot_accel;// * ((JS.unit.UNITS == 1) ? -1
-            // : 1);
-            }
-            else if ((inputs.key_state & InputHandler.LEFT_ARROW) == 0 && (inputs.key_state & InputHandler.RIGHT_ARROW) != 0 && (lr_rot_velocity < rotAng)) {
-                lr_rot_velocity += (lr_rot_velocity < 0) ? rot_accel + rot_accel : rot_accel;// * ((JSUNITS == 1) ? -1 : 1);
-
-            /* YAW and PITCH */
-            }
-            if ((inputs.key_state & InputHandler.DOWN_ARROW) != 0 && (inputs.key_state & InputHandler.UP_ARROW) == 0 && (-ud_rot_velocity < rotAng)) {
-                ud_rot_velocity -= (ud_rot_velocity > 0) ? rot_accel + rot_accel : rot_accel;
-            }
-            else if ((inputs.key_state & InputHandler.DOWN_ARROW) == 0 && (inputs.key_state & InputHandler.UP_ARROW) != 0 && (ud_rot_velocity < rotAng)) {
-                ud_rot_velocity += (ud_rot_velocity < 0) ? rot_accel + rot_accel : rot_accel;
-            }
-
-            /* Addition to existing orientation */
-            // if (((lr_rot_velocity != 0.0) || (ud_rot_velocity != 0.0) ||
-            // (vert_velocity != 0)) && (false))
-            // {
-            // camera.vpMat.invert(cloneMat);
-            // if (lr_rot_velocity != 0.0)
-            // {
-            // direction -= lr_rot_velocity;
-            // if (direction < 0) {
-            // direction += Math3D.TWO_PI_VALUE;
-            // }
-            // if (direction > (Math3D.TWO_PI_VALUE)) {
-            // direction -= Math3D.TWO_PI_VALUE;
-            // }
-            // rotMat.rotY(lr_rot_velocity);
-            // camera.vpMat.copyTo(cloneMat);
-            // Matrix3x3d.multiply(cloneMat, rotMat, camera.vpMat);
-            // }
-            // if (((pitch - ud_rot_velocity) > -((Math3D.HALF_PI_VALUE) -
-            // 0.005f)) && ((pitch - ud_rot_velocity) < (Math3D.HALF_PI_VALUE)))
-            // {
-            // pitch -= ud_rot_velocity;
-            // if (ud_rot_velocity != 0.0) {
-            // rotMat.rotX(ud_rot_velocity);
-            // camera.vpMat.copyTo(cloneMat);
-            // Matrix3x3d.multiply(rotMat, cloneMat, camera.vpMat);
-            // }
-            // }
-            // else
-            // {
-            // ud_rot_velocity = 0;
-            // /* Rotation of distance vector */
-            // }
-            // camera.vpMat.invert(cloneMat);
-            // }
-            if (isPan) {
-                rotMat.rotY(camera.getDirection());
-                rotMat.transform(a_vec);
-            }
-            else {
-                camera.vpMat.transform(a_vec);
-            }
-            a_vec[1] += (horz_velocity * scaler);
+			if (isPan) {
+				rotMat.rotY(camera.direction);
+				rotMat.transform(a_vec);
+			}
+			else {
+				camera.vpMat.transform(a_vec);
+			}
+			a_vec[1] += (horz_velocity * scaler);
 
             {
                 camera.getPosition().setAltitudeDD(camera.getPosition().getAltitudeDD() + velocity * scaler); // distance away from surface...
@@ -356,12 +361,12 @@ public class CameraMovement {
                     camera.getPosition().setAltitudeDD(MAXIMUM_ALTITUDE);
                 }
                 double rot_scaler = 0.000005;
-                double rot_y = (lr_rot_velocity * rot_vel_scaler / 10) * Math3D.DEGREE_TO_RADIAN_FACTOR;
-                double rot_x = -(ud_rot_velocity * rot_vel_scaler / 10) * Math3D.DEGREE_TO_RADIAN_FACTOR;
+                double rot_y = (lr_rot_velocity * rot_vel_scaler / 10) * Math3D.DEGREE_TO_RADIAN;
+                double rot_x = -(ud_rot_velocity * rot_vel_scaler / 10) * Math3D.DEGREE_TO_RADIAN;
 
                 if (fmode == 0) {
-                    final double GL_WIDTH = canvas.getDrawWidth();
-                    final double GL_HEIGHT = canvas.getDrawHeight();
+                    final double GL_WIDTH = canvas.getWidth();
+                    final double GL_HEIGHT = canvas.getHeight();
 
                     // this is to cancel out the relative acceleration.
                     horz_velocity /= (2 * (0.57735026919189393373967470078005 * camera.getPosition().getAltitudeDD()));
@@ -377,49 +382,48 @@ public class CameraMovement {
                     rot_scaler = 0.001;
                 }
 
-                if (desiredTilt == -1) {
-                    camera.setTilt(camera.getTilt() + (horz_velocity * rot_scaler));
-                }
-                else {
-                    double tiltDiff = desiredTilt - camera.getTilt();
-                    if (Math.abs(tiltDiff) < desiredTiltIncrement) {
-                        camera.setTilt(desiredTilt);
-                    }
-                    else {
-                        camera.setTilt(camera.getTilt() + (desiredTilt > camera.getTilt() ? desiredTiltIncrement
-                                : -desiredTiltIncrement));
-                    }
-                }
+				if (desiredTilt == -1) {
+					camera.tilt += horz_velocity * rot_scaler;
+				}
+				else {
+					double tiltDiff = desiredTilt - camera.tilt;
+					if (Math.abs(tiltDiff) < desiredTiltIncrement) {
+						camera.tilt = desiredTilt;
+					}
+					else {
+						camera.tilt += (desiredTilt > camera.tilt ? desiredTiltIncrement : -desiredTiltIncrement);
+					}
+				}
+
 
                 if (camera.getTilt() > 0) {
                     camera.setTilt(0);
                 }
-                else if (camera.getTilt() < -Math3D.HALF_PI_VALUE) {
-                    camera.setTilt(-Math3D.HALF_PI_VALUE);
+                else if (camera.getTilt() < -Math3D.HALF_PI) {
+                    camera.setTilt(-Math3D.HALF_PI);
                 }
-                rotMat.rotY(rot_y);
-                camera.vpMat.copyTo(cloneMat);
-                Matrix9d.multiply(cloneMat, rotMat, camera.vpMat);
+				rotMat.rotY(rot_y);
+				camera.vpMat.copyTo(cloneMat);
+				Matrix9d.multiply(cloneMat, rotMat, camera.vpMat);
 
-                rotMat.rotX(rot_x);
-                camera.vpMat.copyTo(cloneMat);
-                Matrix9d.multiply(cloneMat, rotMat, camera.vpMat);
+				rotMat.rotX(rot_x);
+				camera.vpMat.copyTo(cloneMat);
+				Matrix9d.multiply(cloneMat, rotMat, camera.vpMat);
 
-                rotMat.rotZ(vert_velocity * rot_scaler);
-                camera.vpMat.copyTo(cloneMat);
-                Matrix9d.multiply(cloneMat, rotMat, camera.vpMat);
-            }
-        } // end of !autopilot condition
+				rotMat.rotZ(vert_velocity * rot_scaler);
+				camera.vpMat.copyTo(cloneMat);
+				Matrix9d.multiply(cloneMat, rotMat, camera.vpMat);
+			}
+		} // end of !autopilot condition
 
         ground_ht = landscape.groundHeight(camera.getPosition().getLongitudeDD(), camera.getPosition().getLatitudeDD(), 0);
         setCameraMatrix(followDemOn);
 
-        {
+		{
             if (!checkAlt() && (inAutoPilot == 0)) {
                 vpMat_bak.copyTo(camera.vpMat);
                 camera.setTilt(tilt_bak);
-                if (vpPos_1_bak > camera.getPosition().getAltitudeDD()) // always allow to
-                // zoom out
+                if (vpPos_1_bak > camera.getPosition().getAltitudeDD()) // always allow to zoom out
                 {
                     camera.getPosition().setAltitudeDD(vpPos_1_bak);
                 }
@@ -432,17 +436,8 @@ public class CameraMovement {
             modelView.translate(0, 0, -Unit.EARTH_RADIUS - ((followDemOn) ? ground_ht : 0));
             modelView.multiply(camera.vpMat);
 
-            // Old code
-            // gl.glLoadIdentity();
-            // gl.glTranslated(0, 0, -camera.latLonAlt.alt);
-            // gl.glRotated(camera.tilt * JetMath3d.radToDegConst, 1.0f, 0.0f,
-            // 0);
-            // gl.glTranslated(0, 0, -EARTH_RADIUS - ((followDemOn) ? ground_ht
-            // : 0));
-            // gl.glMultMatrixd(Matrix16d.from(camera.vpMat).m, 0);
-
             /*** set coordinate information using current matrices ****/
-            camera.getPosition().setLatitudeDD(Math.asin(camera.vpMat.m[1][2]) * Math3D.RADIAN_TO_DEGREE_FACTOR);
+            camera.getPosition().setLatitudeDD(Math.asin(camera.vpMat.m[1][2]) * Math3D.RADIAN_TO_DEGREE);
             camera.getPosition().setLongitudeDD(Math3D.angle2dvec(-1, 0, camera.vpMat.m[2][2], camera.vpMat.m[0][2], true));
             if (camera.vpMat.m[0][2] >= 0) {
                 camera.getPosition().setLongitudeDD(-camera.getPosition().getLongitudeDD());
@@ -450,9 +445,9 @@ public class CameraMovement {
             // yup of a north facing one.
             // north facing y up vector
             }
-            double yup_x = (Math.sin((Math3D.DEGREE_TO_RADIAN_FACTOR * camera.getPosition().getLongitudeDD())) * Math.sin((camera.getPosition().getLatitudeDD() * Math3D.DEGREE_TO_RADIAN_FACTOR)));
-            double yup_y = Math.cos((Math3D.DEGREE_TO_RADIAN_FACTOR * camera.getPosition().getLatitudeDD()));
-            double yup_z = (Math.cos((Math3D.DEGREE_TO_RADIAN_FACTOR * camera.getPosition().getLongitudeDD())) * Math.sin((camera.getPosition().getLatitudeDD() * Math3D.DEGREE_TO_RADIAN_FACTOR)));
+            double yup_x = (Math.sin((Math3D.DEGREE_TO_RADIAN * camera.getPosition().getLongitudeDD())) * Math.sin((camera.getPosition().getLatitudeDD() * Math3D.DEGREE_TO_RADIAN)));
+            double yup_y = Math.cos((Math3D.DEGREE_TO_RADIAN * camera.getPosition().getLatitudeDD()));
+            double yup_z = (Math.cos((Math3D.DEGREE_TO_RADIAN * camera.getPosition().getLongitudeDD())) * Math.sin((camera.getPosition().getLatitudeDD() * Math3D.DEGREE_TO_RADIAN)));
 
             camera.getPosition().setLongitudeDD(camera.getPosition().getLongitudeDD() * Unit.getDDFactor());
             camera.getPosition().setLatitudeDD(camera.getPosition().getLatitudeDD() * Unit.getDDFactor());
@@ -463,19 +458,19 @@ public class CameraMovement {
             if ((camera.getPosition().getLongitudeDD() > (90 * Unit.getDDFactor())) || (camera.getPosition().getLongitudeDD() < (-90 * Unit.getDDFactor()))) {
                 if (((yup_x * camera.vpMat.m[1][1]) - (yup_y * camera.vpMat.m[0][1])) < 0) { // rotate
                     // left
-                    camera.setDirection(Math3D.TWO_PI_VALUE - camera.getDirection());
+                    camera.setDirection(Math3D.TWO_PI - camera.getDirection());
                 }
             }
             else {
                 if (((yup_x * camera.vpMat.m[1][1]) - (yup_y * camera.vpMat.m[0][1])) > 0) { // rotate
                     // left
-                    camera.setDirection(Math3D.TWO_PI_VALUE - camera.getDirection());
+                    camera.setDirection(Math3D.TWO_PI - camera.getDirection());
                 }
             }
         }
 
-        // check for any bad numbers, if any unacceptable values set back to 0.
-        {
+		// check for any bad numbers, if any unacceptable values set back to 0.
+		{
             if (Double.isNaN(camera.getPosition().getLongitudeDD())) {
                 camera.getPosition().setLongitudeDD(0);
             }
@@ -491,10 +486,10 @@ public class CameraMovement {
             if (Double.isNaN(camera.getTilt())) {
                 camera.setTilt(0);
             }
-        }
+		}
 
-        updatePosition(false);
-    }
+		updatePosition(false);
+	}
 
     private final void setCameraMatrix(boolean addGroundHeight) {
         final Camera camera = canvas.getCamera();
@@ -522,7 +517,7 @@ public class CameraMovement {
 
         {
             double mag = camera.getVertAltDD() + Unit.EARTH_RADIUS;
-            camera.setCameraY(Math.asin(camera.cameraPos[1] / mag) * Math3D.RADIAN_TO_DEGREE_FACTOR * Unit.getDDFactor());
+            camera.setCameraY(Math.asin(camera.cameraPos[1] / mag) * Math3D.RADIAN_TO_DEGREE * Unit.getDDFactor());
             camera.setCameraX(Math3D.angle2dvec(-1, 0, camera.cameraPos[2] / mag, camera.cameraPos[0] / mag, true) * Unit.getDDFactor());
             if ((camera.cameraPos[0] / mag) >= 0) {
                 camera.setCameraX(camera.getCameraX() * (-1));
@@ -536,35 +531,26 @@ public class CameraMovement {
     }
 
     protected synchronized final void updatePosition(boolean force) {
-        final Camera camera = canvas.getCamera();
-
-        if (inputs.key_state != 0) {
+        if (inputs.inputState.hasInput()) {
             force = false; // if user is still moving around no need to force.
         }
-        if ((inputs.key_state == 0) && (inAutoPilot == 0) && (!force) && (updatecounter != (UPDATE_INC + 1))) {
+        if (!inputs.inputState.hasInput() && (inAutoPilot == 0) && (!force) && (updatecounter != (UPDATE_INC + 1))) {
             return; // user is not moving, no need to call an update.
         }
         updatecounter++;
         if ((updatecounter > UPDATE_INC) || (force)) {
-            // if (ptolemy.javascript != null &&
-            // ptolemy.javascript.getJSObject() != null)
-            // {
-            // try
-            // {
-            // jsArgs[0] = String.valueOf(camera.getCameraX());
-            // jsArgs[1] = String.valueOf(camera.getCameraY());
-            // jsArgs[2] = String.valueOf(camera.getDirection() *
-            // Math3D.RADIAN_TO_DEGREE_FACTOR);
-            // jsArgs[3] = String.valueOf(camera.getVerticalAltitudeMeters());
-            // jsArgs[4] =
-            // String.valueOf(camera.getPosition().getLongitudeDD());
-            // jsArgs[5] = String.valueOf(camera.getPosition().getLatitudeDD());
-            // ptolemy.javascript.getJSObject().call("updatePosition", jsArgs);
-            // }
-            // catch (Exception e)
-            // {
-            // }
-            // }
+//             if(ptolemy.javascript != null && ptolemy.javascript.getJSObject() != null) {
+//				try {
+//					jsArgs[0] = String.valueOf(camera.getCameraX());
+//					jsArgs[1] = String.valueOf(camera.getCameraY());
+//					jsArgs[2] = String.valueOf(camera.getDirection() * Math3D.RADIAN_TO_DEGREE_FACTOR);
+//					jsArgs[3] = String.valueOf(camera.getVerticalAltitudeMeters());
+//					jsArgs[4] = String.valueOf(camera.getPosition().getLongitudeDD());
+//					jsArgs[5] = String.valueOf(camera.getPosition().getLatitudeDD());
+//					ptolemy.javascript.getJSObject().call("updatePosition", jsArgs);
+//				}
+//				catch(Exception e) {}
+//			}
             updatecounter = 0;
         }
     }
@@ -586,14 +572,14 @@ public class CameraMovement {
         inAutoPilot = 0;
 
         try {
-            camera.setDirection(dir * Math3D.DEGREE_TO_RADIAN_FACTOR);
+            camera.setDirection(dir * Math3D.DEGREE_TO_RADIAN);
 
             camera.vpMat.identity();
-            rotMat.rotY(((lon / Unit.getDDFactor()) + 180) * Math3D.DEGREE_TO_RADIAN_FACTOR);
+            rotMat.rotY(((lon / Unit.getDDFactor()) + 180) * Math3D.DEGREE_TO_RADIAN);
             camera.vpMat.copyTo(evtclnMat);
             Matrix9d.multiply(evtclnMat, rotMat, camera.vpMat);
 
-            rotMat.rotX((-lat / Unit.getDDFactor()) * Math3D.DEGREE_TO_RADIAN_FACTOR);
+            rotMat.rotX((-lat / Unit.getDDFactor()) * Math3D.DEGREE_TO_RADIAN);
             camera.vpMat.copyTo(evtclnMat);
             Matrix9d.multiply(evtclnMat, rotMat, camera.vpMat);
 
@@ -601,7 +587,7 @@ public class CameraMovement {
             camera.vpMat.copyTo(evtclnMat);
             Matrix9d.multiply(evtclnMat, rotMat, camera.vpMat);
 
-            camera.setTilt(pit * Math3D.DEGREE_TO_RADIAN_FACTOR);
+            camera.setTilt(pit * Math3D.DEGREE_TO_RADIAN);
 
             camera.getPosition().setLongitudeDD(lon);
             camera.getPosition().setLatitudeDD(lat);
@@ -677,12 +663,12 @@ public class CameraMovement {
 
     public void setPitchDegrees(double newPitchDegrees,
                                 double newPitchDegreesIncrement) {
-        desiredTilt = newPitchDegrees * Math3D.DEGREE_TO_RADIAN_FACTOR;
+        desiredTilt = newPitchDegrees * Math3D.DEGREE_TO_RADIAN;
         if (desiredTilt > 0) {
             desiredTilt = 0;
         }
-        if (desiredTilt < -Math3D.HALF_PI_VALUE) {
-            desiredTilt = -Math3D.HALF_PI_VALUE;
+        if (desiredTilt < -Math3D.HALF_PI) {
+            desiredTilt = -Math3D.HALF_PI;
         }
 
         desiredTiltIncrement = newPitchDegreesIncrement;
@@ -692,11 +678,11 @@ public class CameraMovement {
         else if (desiredTiltIncrement > 45) {
             desiredTiltIncrement = 45;
         }
-        desiredTiltIncrement *= Math3D.DEGREE_TO_RADIAN_FACTOR;
+        desiredTiltIncrement *= Math3D.DEGREE_TO_RADIAN;
     }
 
     public final void stopMovement() {
-        inputs.key_state = 0;
+    	inputs.inputState.reset();
         velocity = 0;
         vert_velocity = 0;
         ud_rot_velocity = 0;
@@ -811,7 +797,7 @@ public class CameraMovement {
 
         Matrix9d tmpMat = new Matrix9d();
 
-        stopangle = s_tilt * Math3D.DEGREE_TO_RADIAN_FACTOR;
+        stopangle = s_tilt * Math3D.DEGREE_TO_RADIAN;
 
         setCrossVert();
 
@@ -845,9 +831,9 @@ public class CameraMovement {
         }
 
         if (tmpMat.m[1][0] < 0) {
-            uangle = Math3D.TWO_PI_VALUE - uangle;
+            uangle = Math3D.TWO_PI - uangle;
         }
-        s_direction *= Math3D.DEGREE_TO_RADIAN_FACTOR;
+        s_direction *= Math3D.DEGREE_TO_RADIAN;
 
         // set camera.direction to look
         if (uangle < s_direction) {
@@ -863,7 +849,7 @@ public class CameraMovement {
         }
         // fix to see if its closer to go the other way.
         if (uangle > Math.PI) {
-            uangle = Math3D.TWO_PI_VALUE - uangle;
+            uangle = Math3D.TWO_PI - uangle;
             isRight = (isRight) ? false : true;
         }
 
@@ -879,7 +865,7 @@ public class CameraMovement {
         if (flight_arc < 1) {
             flight_arc = 1;
         }
-        cruise_alt = (((Unit.EARTH_RADIUS * angle) * Math.atan(flight_arc * Math3D.DEGREE_TO_RADIAN_FACTOR)) + auto_y);
+        cruise_alt = (((Unit.EARTH_RADIUS * angle) * Math.atan(flight_arc * Math3D.DEGREE_TO_RADIAN)) + auto_y);
         if (cruise_alt > 7000000) {
             cruise_alt = 7000000;
         }
@@ -1068,7 +1054,7 @@ public class CameraMovement {
         if (tmpMat.m[1][0] > 0) {
             isRight = false;
         }
-        stopangle = ld_angle * Math3D.DEGREE_TO_RADIAN_FACTOR;
+        stopangle = ld_angle * Math3D.DEGREE_TO_RADIAN;
         total_distance = Math.abs(camera.getTilt() - stopangle);
         isUp = (camera.getTilt() < stopangle) ? true : false;
 
@@ -1076,7 +1062,7 @@ public class CameraMovement {
         max_rate = 0.2;
 
         halfway = angle / 2.0;
-        cruise_alt = auto_y + ((type == 0) ? (Unit.EARTH_RADIUS * angle) * (Math.atan(arc_angle * Math3D.DEGREE_TO_RADIAN_FACTOR)) : 0);
+        cruise_alt = auto_y + ((type == 0) ? (Unit.EARTH_RADIUS * angle) * (Math.atan(arc_angle * Math3D.DEGREE_TO_RADIAN)) : 0);
         if (cruise_alt > 7000000) {
             cruise_alt = 7000000;
         }
@@ -1132,7 +1118,7 @@ public class CameraMovement {
         {
             setCameraMatrix(false);
             halfway = (Math.sqrt((camera.cameraPos[0] * camera.cameraPos[0]) + (camera.cameraPos[1] * camera.cameraPos[1]) + (camera.cameraPos[2] * camera.cameraPos[2])) - Unit.EARTH_RADIUS);
-            cruise_alt = Math.atan((halfway * Math.tan(setang * Math3D.DEGREE_TO_RADIAN_FACTOR)) / Unit.EARTH_RADIUS);
+            cruise_alt = Math.atan((halfway * Math.tan(setang * Math3D.DEGREE_TO_RADIAN)) / Unit.EARTH_RADIUS);
             // move forward to center camera over point.
             rotMat.rotX(cruise_alt);
             camera.vpMat.copyTo(evtclnMat);
@@ -1151,11 +1137,11 @@ public class CameraMovement {
         camera.setDirection(camera.getDirection() + current_lr_rot);
 
         if (camera.getDirection() < 0) {
-            camera.setDirection(camera.getDirection() + Math3D.TWO_PI_VALUE);
+            camera.setDirection(camera.getDirection() + Math3D.TWO_PI);
             rot_lr_trav--;
         }
-        if (camera.getDirection() > (Math3D.TWO_PI_VALUE)) {
-            camera.setDirection(camera.getDirection() - Math3D.TWO_PI_VALUE);
+        if (camera.getDirection() > (Math3D.TWO_PI)) {
+            camera.setDirection(camera.getDirection() - Math3D.TWO_PI);
             rot_lr_trav--;
         }
 
@@ -1208,7 +1194,7 @@ public class CameraMovement {
                 if (intvec[0] >= 0) {
                     o_lon = -o_lon;
                 }
-                tz = Math.asin(intvec[1]) * Math3D.RADIAN_TO_DEGREE_FACTOR * Unit.getDDFactor();
+                tz = Math.asin(intvec[1]) * Math3D.RADIAN_TO_DEGREE * Unit.getDDFactor();
                 tx = o_lon * Unit.getDDFactor();
                 if (Double.isNaN(tx) || Double.isNaN(tz)) {
                     return;
@@ -1232,32 +1218,15 @@ public class CameraMovement {
 
     private final void setRays(MouseEvent e) {
         final Camera camera = canvas.getCamera();
-        final int screenWidth = canvas.getScreenWidth();
-        final int screenHeight = canvas.getScreenHeight();
+        final int width = canvas.getWidth();
+        final int height = canvas.getHeight();
 
-        double pixelCenterX = screenWidth / 2.0, pixelCenterY = screenHeight / 2.0; // number
-        // of
-        // pixels
-        // from
-        // view
-        // center
-        // to
-        // top/right
-        // edge
-        // of
-        // viewport
-        double worldFOVDistY = Math.tan(Math3D.DEGREE_TO_RADIAN_FACTOR * (camera.fov / 2.0)); // world distance from view center to top
-        // edge of viewport (on near viewplane)
-        double worldFOVDistX = worldFOVDistY * (screenWidth / (double) screenHeight); // distance from view
-        // center to right
-        // edge of viewport
-        // (on near
-        // viewplane)
+		double pixelCenterX = width / 2.0, pixelCenterY = height / 2.0; //number of pixels from view center to top/right edge of viewport
+		double worldFOVDistY = Math.tan(Math3D.DEGREE_TO_RADIAN * (camera.fov / 2.0)); //world distance from view center to top edge of viewport (on near viewplane)
+		double worldFOVDistX = worldFOVDistY * (width / (double) height); //distance from view center to right edge of viewport (on near viewplane)
 
-        double rightDist = ((e.getX() - pixelCenterX) / pixelCenterX) * worldFOVDistX; // horiz distance from view center to clicked
-        // point (on near viewplane)
-        double upDist = ((pixelCenterY - e.getY()) / pixelCenterY) * worldFOVDistY; // vert distance from view center to clicked
-        // point (on near viewplane)
+		double rightDist = ((e.getX() - pixelCenterX) / pixelCenterX) * worldFOVDistX; //horiz distance from view center to clicked point (on near viewplane)
+		double upDist = ((pixelCenterY - e.getY()) / pixelCenterY) * worldFOVDistY; //vert distance from view center to clicked point (on near viewplane)
 
         pickray[0][0] = camera.cameraMat.m[0][0] * rightDist + camera.cameraMat.m[0][1] * upDist - camera.cameraMat.m[0][2];
         pickray[0][1] = camera.cameraMat.m[1][0] * rightDist + camera.cameraMat.m[1][1] * upDist - camera.cameraMat.m[1][2];

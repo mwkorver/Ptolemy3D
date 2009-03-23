@@ -15,14 +15,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.ptolemy3d.tile;
+package org.ptolemy3d.globe;
 
 import org.ptolemy3d.util.ByteReader;
 
 /**
  *
  */
-class ElevationTin
+public class ElevationTin
 {
 	/** Array of positions */
 	public float[][] p;

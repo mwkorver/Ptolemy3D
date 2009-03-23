@@ -17,7 +17,6 @@
  */
 package org.ptolemy3d;
 
-import java.awt.Color;
 import java.io.File;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
@@ -28,17 +27,16 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.ptolemy3d.debug.IO;
 import org.ptolemy3d.exceptions.Ptolemy3DConfigurationException;
 import org.ptolemy3d.exceptions.Ptolemy3DException;
+import org.ptolemy3d.globe.Layer;
+import org.ptolemy3d.plugin.Sky;
 import org.ptolemy3d.scene.Landscape;
 import org.ptolemy3d.scene.Plugins;
 import org.ptolemy3d.scene.Scene;
-import org.ptolemy3d.scene.Sky;
-import org.ptolemy3d.tile.Level;
 import org.ptolemy3d.view.CameraMovement;
 import org.ptolemy3d.view.Position;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 /**
  * Configuration class loads and stores a set of Ptolemy3D configuration parameters.
@@ -49,76 +47,78 @@ import org.xml.sax.SAXException;
  * @author Antonio Santiago <asantiagop(at)gmail(dot)com>
  */
 public class Configuration {
+	private static interface Requiered {
+		/* Server */
+		public final static String Server = "Server";
+		public final static String NumMapDataServer = "NumMapDataServers";
+		public final static String MapDataSvr = "MapDataSvr";
+		public final static String MapJp2Store = "MapJp2Store";
+		public final static String MapDemStore = "MapDemStore";
+		public final static String LocationRoot = "LocationRoot";
+		public final static String Area = "Area";
+		public final static String DEM = "DEM";		
+		/* Unit */
+		public final static String CenterX = "CenterX";
+		public final static String CenterY = "CenterY";
+		/* Layers */
+		public final static String NumLayers = "NumLayers";
+		public final static String LayerWidth_ = "LayerWidth_";
+		public final static String LayerMIN_ = "LayerMin_";
+		public final static String LayerMAX_ = "LayerMax_";
+	}
+	private static interface Optional {
+		/* Server */
+		public final static String MUrlAppend = "MUrlAppend";
+		public final static String MHeaderKey = "MHeaderKey";
+		public final static String numMapDataServer = "MDataServer";
+		public final static String isKeepAlive = "isKeepAlive";
+		/* Unit */
+		public final static String DD = "DD";	//Jerome: I think nothing will work if different to 1E6
+		/* Initial position */
+		public final static String Orientation = "Orientation";
+		/* Layer */
+		public final static String LayerDIVIDER_ = "LayerDivider_";
+		/* Plugin */
+		public final static String NumPlugins = "NumPlugins";
+		public final static String PluginType_ = "PluginType_";
+		public final static String PluginParam_ = "PluginParam_";
+		/* Misc */
+		public final static String FollowDEM = "FollowDEM";
+		public final static String HeightScale = "HeightScale";
+		public final static String TIN = "TIN";
+		public final static String BackgroundImageUrl = "BackgroundImageUrl";
+		public final static String SubTextures = "SubTextures";
+		public final static String Horizon = "Horizon";
+		public final static String MaxAltitude = "MaxAltitude";
+		public final static String TileColor = "TileColor";
+		public final static String BackgroundColor = "BackgroundColor";
+		public final static String FlightFrameDelay = "FlightFrameDelay";
+	}
+	private static interface Deprecated {
+		
+	}
 
-    // ////////////////////////////////////////////////
-    // Required params
-    // Server
-    public final static String SERVER = "Server";
-    public final static String NUM_MAP_DATA_SERVER = "NumMapDataServers";
-    public final static String MAP_DATA_SERVER = "MapDataSvr";
-    public final static String MAP_JP2_STORE = "MapJp2Store";
-    public final static String MAP_DEM_STORE = "MapDemStore";
-    public final static String LOCATION_ROOT = "LocationRoot";
-    public final static String AREA = "Area";
-    public final static String DEM = "DEM";
-    // Unit
-    public final static String CENTER_X = "CenterX";
-    public final static String CENTER_Y = "CenterY";
-    // Layers
-    public final static String NUM_LAYERS = "NumLayers";
-    public final static String LAYER_WIDTH = "LayerWidth_";
-    public final static String LAYER_MIN = "LayerMin_";
-    public final static String LAYER_MAX = "LayerMax_";
-
-    // ////////////////////////////////////////////////
-    // Optional params
-    // Server
-    public final static String MURL_APPEND = "MUrlAppend";
-    public final static String MHEADER_KEY = "MHeaderKey";
-    public final static String IS_KEEP_ALIVE = "isKeepAlive";
-    // Unit
-    public final static String DD = "DDBuffer"; // Jerome: I think nothing
-    // Initial position
-    public final static String ORIENTARION = "Orientation";
-    // Layer
-    public final static String LAYER_DIVIDER = "LayerDivider_";
-    // Plugin
-    public final static String NUM_PLUGINS = "NumPlugins";
-    public final static String PLUGIN_TYPE = "PluginType_";
-    public final static String PLUGIN_PARAM = "PluginParam_";
-    // Misc
-    public final static String FOLLOW_DEM = "FollowDEM";
-    public final static String HTSCALE = "HTSCALE";
-    public final static String TIN = "TIN";
-    public final static String BACKGROUND_IMAGE_URL = "BackgroundImageUrl";
-    public final static String SUBTEXTURES = "SubTextures";
-    public final static String HORIZON = "Horizon";
-    public final static String MAX_ALT = "MAX_ALT";
-    public final static String TILE_COLOR = "TileColor";
-    public final static String BACKGROUND_COLOR = "BackgroundColor";
-    public final static String HUD_BG_RGBA = "HUDBGRGBA";
-    public final static String FLIGHT_FRAME_DELAY = "FlightFrameDelay";
-
-    // Logger instance.
-    private static final Logger logger = Logger.getLogger(Configuration.class.getName());
-    // Clearing color (back ground color)
-    public float[] backgroundColor = {0.541176470588f, 0.540176470588f, 0.540176470588f};
-    public String server = "";
-    public String[] dataServers;
-    public String[] urlAppends;
-    public String[] headerKeys;
-    public boolean[] keepAlives;
-    public String[][] locations;
-    public String area = "";
-    public String DEMLocation[][];
-    public int flightFrameDelay = 1;
-    public boolean useSubtexturing = false;
-    public boolean useTIN = false;
-    public Color hudBackgroundColor = new Color(20, 20, 20, 128);
-    public String backgroundImageUrl = null;
+	// Logger instance.
+	private static final Logger logger = Logger.getLogger(Configuration.class.getName());
+	// Clearing color (back ground color)
+	public float[] backgroundColor = {0.541176470588f, 0.540176470588f, 0.540176470588f};
+	// Initial position of the camera.
     public Position initialCameraPosition = new Position(0, 0, 0);
     public double initialCameraDirection = 0;
     public double initialCameraPitch = 0;
+
+	public String server = "";
+	public String[] dataServers;
+	public String[] urlAppends;
+	public String[] headerKeys;
+	public boolean[] keepAlives;
+	public String[][] locations;
+	public String area = "";
+	public String DEMLocation[][];
+	public int flightFrameDelay = 1;
+	public boolean useSubtexturing = false;
+	public boolean useTIN = false;
+	public String backgroundImageUrl = null;
     public boolean follorDEM = true;
 
     /**
@@ -148,13 +148,6 @@ public class Configuration {
                 document = builder.parse(xmlFile);
             }
         }
-        catch (SAXException sxe) {
-            Exception x = sxe;
-            if (sxe.getException() != null) {
-                x = sxe.getException();
-            }
-            IO.printStack(x);
-        }
         catch (Exception e) {
             logger.severe(e.getMessage());
             IO.printStack(e);
@@ -182,64 +175,112 @@ public class Configuration {
         final Sky sky = scene.sky;
         final Plugins plugins = scene.plugins;
 
-        // Load settings. If any configuration exception occurs then stop the
-        // loading process and throws a general exception.
+        // Coordinate System Units
         try {
-
-            // Coordinate System Units
-            int meterX = getRequieredParameterInt(CENTER_X, docelem);
-            int meterZ = getRequieredParameterInt(CENTER_Y, docelem);
+            int meterX = getRequieredParameterInt(Requiered.CenterX, docelem);
+            int meterZ = getRequieredParameterInt(Requiered.CenterY, docelem);
             Unit.setMeterX(meterX);
             Unit.setMeterZ(meterZ);
 
-            int dd = getOptionalParameterInt(DD, docelem);
+            int dd = getOptionalParameterInt(Optional.DD, docelem);
             if (dd != -1) {
                 Unit.setDDFactor(dd);
             }
+        }
+        catch (Ptolemy3DConfigurationException ex) {
+            // Abort the load process if some required parameter fails.
+            logger.severe(ex.getMessage());
+            return;
+        }
+        
+		// Server informations
+		server = getRequieredParameter(Requiered.Server, docelem);
 
-            // Server information
-            server = getRequieredParameter(SERVER, docelem);
-            // Area
-            area = getRequieredParameter(AREA, docelem);
+		// Area
+        area = getRequieredParameter(Requiered.Area, docelem);
 
+		int nDataServers = getRequieredParameterInt(Requiered.NumMapDataServer, docelem);
+		headerKeys = new String[nDataServers];
+		dataServers = new String[nDataServers];
+		locations = new String[nDataServers][];
+		DEMLocation = new String[nDataServers][];
+		keepAlives = new boolean[nDataServers];
+		urlAppends = new String[nDataServers];
+
+		for (int i = 1; i <= nDataServers; i++) {
+			dataServers[i - 1] = getRequieredParameter(Requiered.MapDataSvr + i, docelem);
+			headerKeys[i - 1] = getOptionalParameter(Optional.MHeaderKey + i, docelem);
+			urlAppends[i - 1] = getOptionalParameter(Optional.MUrlAppend + i, docelem);
+
+			String temppm = getRequieredParameter(Requiered.MapJp2Store + i, docelem);
+			if (temppm == null) {
+				locations[i - 1] = null;
+			}
+			else {
+				StringTokenizer ptok = new StringTokenizer(temppm, ",");
+				locations[i - 1] = new String[ptok.countTokens()];
+				for (int nfloc = 0; nfloc < locations[i - 1].length; nfloc++) {
+					locations[i - 1][nfloc] = addTrailingChar(ptok.nextToken(),
+					"/");
+				}
+			}
+
+			temppm = getRequieredParameter(Requiered.MapDemStore + i, docelem);
+			if (temppm == null) {
+				DEMLocation[i - 1] = null;
+			}
+			else {
+				StringTokenizer ptok = new StringTokenizer(temppm, ",");
+				DEMLocation[i - 1] = new String[ptok.countTokens()];
+				for (int nfloc = 0; nfloc < DEMLocation[i - 1].length; nfloc++) {
+					DEMLocation[i - 1][nfloc] = addTrailingChar(ptok.nextToken(), "/");
+				}
+			}
+
+			temppm = getOptionalParameter(Optional.isKeepAlive + i, docelem);
+			if (temppm == null) {
+				keepAlives[i - 1] = true;
+			}
+			else {
+				keepAlives[i - 1] = (temppm.equals("0")) ? false : true;
+			}
+		}
+
+        try {
             // Layers: Landscape levels (resolution levels) and layers
             // properties
-            int numLayers = getRequieredParameterInt(NUM_LAYERS, docelem);
-            landScape.setLevels(new Level[numLayers]);
+            int numLayers = getRequieredParameterInt(Requiered.NumLayers, docelem);
+            landScape.setLevels(new Layer[numLayers]);
 
             for (int i = 0; i < numLayers; i++) {
-                int tilePixel = getRequieredParameterInt(LAYER_WIDTH + (i + 1),
-                                                         docelem);
-                int minZoom = getRequieredParameterInt(LAYER_MIN + (i + 1),
-                                                       docelem);
-                int maxZoom = getRequieredParameterInt(LAYER_MAX + (i + 1),
-                                                       docelem);
-                int divider = getOptionalParameterInt(LAYER_DIVIDER + (i + 1),
-                                                      docelem);
+                int tilePixel = getRequieredParameterInt(Requiered.LayerWidth_ + (i + 1), docelem);
+                int minZoom = getRequieredParameterInt(Requiered.LayerMIN_ + (i + 1), docelem);
+                int maxZoom = getRequieredParameterInt(Requiered.LayerMAX_ + (i + 1), docelem);
+                int divider = getOptionalParameterInt(Optional.LayerDIVIDER_ + (i + 1), docelem);
                 if (divider == -1) {
                     divider = 0;
                 }
 
-                Level level = new Level(i, minZoom, maxZoom, tilePixel, divider);
-                landScape.getLevels()[i] = level;
+                Layer level = new Layer(i, minZoom, maxZoom, tilePixel, divider);
+                landScape.getLayers()[i] = level;
             }
+        }
+        catch (Ptolemy3DConfigurationException ex) {
+            // Abort the load process if some required parameter fails.
+            logger.severe(ex.getMessage());
+            return;
+        }
 
-            // Background image
-            backgroundImageUrl = getOptionalParameter(BACKGROUND_IMAGE_URL,
-                                                      docelem);
-            if (backgroundImageUrl != null && !backgroundImageUrl.endsWith("?")) {
-                backgroundImageUrl = backgroundImageUrl + "?";
-            }
-
+        try {
             // Initial position of the camera.
-            String orientation = getOptionalParameter(ORIENTARION, docelem);
+            String orientation = getOptionalParameter(Optional.Orientation, docelem);
             if (orientation != null) {
                 String[] values = orientation.split(",");
                 if (values.length == 5) {
                     try {
                         double lat = Double.parseDouble(values[0]);
                         double lon = Double.parseDouble(values[1]);
-                        double alt = Double.parseDouble(values[2]);
+                        double alt = Double.parseDouble(values[2]) / Unit.getCoordSystemRatio();
                         double dir = Double.parseDouble(values[3]);
                         double pitch = Double.parseDouble(values[4]);
                         initialCameraPosition = new Position(lat, lon, alt);
@@ -247,45 +288,54 @@ public class Configuration {
                         initialCameraPitch = pitch;
                     }
                     catch (NumberFormatException e) {
-                        String message = "Some of the values in the " + ORIENTARION + " property are invalids.\nThe property will be ignored";
+                        String message = "Some of the values in the " + Optional.Orientation + " property are invalids.\nThe property will be ignored";
                         logger.warning(message);
                     }
                 }
                 else {
-                    String message = "The number of values for the " + ORIENTARION + " property does not correspond to (lat,lon,alt,dir,pitch). " + "You have specified a different number.\nThe property will be ignored";
+                    String message = "The number of values for the " + Optional.Orientation + " property does not correspond to (lat,lon,alt,dir,pitch). " + "You have specified a different number.\nThe property will be ignored";
                     logger.warning(message);
                 }
             }
+        }
+        catch (Ptolemy3DConfigurationException ex) {
+            // Abort the load process if some required parameter fails.
+            logger.severe(ex.getMessage());
+            return;
+        }
+        
+        // Load other optionals
+        try {
+            useTIN = getOptionalParameterBoolean(Optional.TIN, docelem);
+            follorDEM = getOptionalParameterBoolean(Optional.FollowDEM, docelem);
+            useSubtexturing = getOptionalParameterBoolean(Optional.SubTextures, docelem);
 
             // Other optional properties
-            flightFrameDelay = getOptionalParameterInt(FLIGHT_FRAME_DELAY, docelem);
+            flightFrameDelay = getOptionalParameterInt(Optional.FlightFrameDelay, docelem);
             if (flightFrameDelay == -1) {
                 flightFrameDelay = 1;
             }
 
-            int horizon = getOptionalParameterInt(HORIZON, docelem);
+            int horizon = getOptionalParameterInt(Optional.Horizon, docelem);
             if (horizon != -1) {
                 sky.horizonAlt = horizon;
             }
-            int maxalt = getOptionalParameterInt(MAX_ALT, docelem);
+            int maxalt = getOptionalParameterInt(Optional.MaxAltitude, docelem);
             if (maxalt != -1) {
                 CameraMovement.MAXIMUM_ALTITUDE = maxalt;
             }
 
-            useTIN = getOptionalParameterBoolean(TIN, docelem);
-            useSubtexturing = getOptionalParameterBoolean(SUBTEXTURES, docelem);
+            // Background image
+            backgroundImageUrl = getOptionalParameter(Optional.BackgroundImageUrl, docelem);
+            if (backgroundImageUrl != null && !backgroundImageUrl.endsWith("?")) {
+                backgroundImageUrl = backgroundImageUrl + "?";
+            }
 
             String s;
-            if ((s = getOptionalParameter(HUD_BG_RGBA, docelem)) != null) {
-                hudBackgroundColor = getAwtColor(s);
-            }
-
-            follorDEM = getOptionalParameterBoolean(FOLLOW_DEM, docelem);
-
-            if ((s = getOptionalParameter(HTSCALE, docelem)) != null) {
+            if ((s = getOptionalParameter(Optional.HeightScale, docelem)) != null) {
                 landScape.setMaxColorHeight(Short.parseShort(s));
             }
-            if ((s = getOptionalParameter(TILE_COLOR, docelem)) != null) {
+            if ((s = getOptionalParameter(Optional.TileColor, docelem)) != null) {
                 final StringTokenizer st = new StringTokenizer(s, ",");
                 if (st.countTokens() > 2) {
                     landScape.getTileColor()[0] = (Float.parseFloat(st.nextToken()) / 255);
@@ -293,7 +343,7 @@ public class Configuration {
                     landScape.getTileColor()[2] = (Float.parseFloat(st.nextToken()) / 255);
                 }
             }
-            if ((s = getOptionalParameter(BACKGROUND_COLOR, docelem)) != null) {
+            if ((s = getOptionalParameter(Optional.BackgroundColor, docelem)) != null) {
                 final StringTokenizer st = new StringTokenizer(s, ",");
                 if (st.countTokens() > 2) {
                     backgroundColor[0] = (Float.parseFloat(st.nextToken()) / 255);
@@ -301,13 +351,20 @@ public class Configuration {
                     backgroundColor[2] = (Float.parseFloat(st.nextToken()) / 255);
                 }
             }
+        }
+        catch (Ptolemy3DConfigurationException ex) {
+            // Abort the load process if some required parameter fails.
+            logger.severe(ex.getMessage());
+            return;
+        }
 
-            // Plugins
-            int numPlugins = getOptionalParameterInt(NUM_PLUGINS, docelem);
+        // Plugins
+        try {
+            int numPlugins = getOptionalParameterInt(Optional.NumPlugins, docelem);
             for (int p = 0; p < numPlugins; p++) {
                 try {
-                    plugins.addPlugin(getOptionalParameter(PLUGIN_TYPE + (p + 1), docelem), getOptionalParameter(
-                            PLUGIN_PARAM + (p + 1), docelem));
+                    plugins.addPlugin(getOptionalParameter(Optional.PluginType_ + (p + 1), docelem),
+                    		getOptionalParameter(Optional.PluginParam_ + (p + 1), docelem));
                 }
                 catch (Exception ex) {
                     logger.severe("Problem loading plugins: " + ex.toString());
@@ -320,60 +377,6 @@ public class Configuration {
             logger.severe(ex.getMessage());
             return;
         }
-
-        // //////////////////////////////////////////////////////////////////
-        // //////////////////////////////////////////////////////////////////
-        // //////////////////////////////////////////////////////////////////
-        // //////////////////////////////////////////////////////////////////
-        int nDataServers = getRequieredParameterInt(NUM_MAP_DATA_SERVER,
-                                                    docelem);
-        headerKeys = new String[nDataServers];
-        dataServers = new String[nDataServers];
-        locations = new String[nDataServers][];
-        DEMLocation = new String[nDataServers][];
-        keepAlives = new boolean[nDataServers];
-        urlAppends = new String[nDataServers];
-
-        for (int i = 1; i <= nDataServers; i++) {
-            dataServers[i - 1] = getRequieredParameter(MAP_DATA_SERVER + i,
-                                                       docelem);
-            headerKeys[i - 1] = getOptionalParameter(MHEADER_KEY + i, docelem);
-            urlAppends[i - 1] = getOptionalParameter(MURL_APPEND + i, docelem);
-
-            String temppm = getRequieredParameter(MAP_JP2_STORE + i, docelem);
-            if (temppm == null) {
-                locations[i - 1] = null;
-            }
-            else {
-                StringTokenizer ptok = new StringTokenizer(temppm, ",");
-                locations[i - 1] = new String[ptok.countTokens()];
-                for (int nfloc = 0; nfloc < locations[i - 1].length; nfloc++) {
-                    locations[i - 1][nfloc] = addTrailingChar(ptok.nextToken(),
-                                                              "/");
-                }
-            }
-
-            temppm = getRequieredParameter(MAP_DEM_STORE + i, docelem);
-            if (temppm == null) {
-                DEMLocation[i - 1] = null;
-            }
-            else {
-                StringTokenizer ptok = new StringTokenizer(temppm, ",");
-                DEMLocation[i - 1] = new String[ptok.countTokens()];
-                for (int nfloc = 0; nfloc < DEMLocation[i - 1].length; nfloc++) {
-                    DEMLocation[i - 1][nfloc] = addTrailingChar(ptok.nextToken(), "/");
-                }
-            }
-
-            temppm = getOptionalParameter(IS_KEEP_ALIVE + i, docelem);
-            if (temppm == null) {
-                keepAlives[i - 1] = true;
-            }
-            else {
-                keepAlives[i - 1] = (temppm.equals("0")) ? false : true;
-            }
-        }
-
     }
 
     /**
@@ -417,17 +420,13 @@ public class Configuration {
     private int getRequieredParameterInt(String name)
             throws Ptolemy3DConfigurationException {
 
-        int value = 0;
-        String strValue = getRequieredParameter(name);
         try {
-            value = Integer.parseInt(strValue);
+            return Integer.parseInt(getRequieredParameter(name));
         }
         catch (NumberFormatException e) {
             String message = "The requiered parameter '" + name + "' is not a valid integer value.";
             throw new Ptolemy3DConfigurationException(message);
         }
-
-        return value;
     }
 
     /**
@@ -444,17 +443,13 @@ public class Configuration {
     private float getRequieredParameterFloat(String name)
             throws Ptolemy3DConfigurationException {
 
-        float value = 0;
-        String strValue = getRequieredParameter(name);
         try {
-            value = Float.parseFloat(strValue);
+            return Float.parseFloat(getRequieredParameter(name));
         }
         catch (NumberFormatException e) {
             String message = "The requiered parameter '" + name + "' is not a valid float value.";
             throw new Ptolemy3DConfigurationException(message);
         }
-
-        return value;
     }
 
     /**
@@ -495,18 +490,14 @@ public class Configuration {
             return getRequieredParameter(name);
         }
 
-        String parameter;
         try {
             NodeList nodeList = elem.getElementsByTagName(name);
-            parameter = ((Element) nodeList.item(0)).getChildNodes().item(0).getNodeValue();
+            return  ((Element) nodeList.item(0)).getChildNodes().item(0).getNodeValue();
         }
         catch (Exception ex) {
-            parameter = null;
             String message = "The requiered parameter '" + name + "' is missing.\nException message: " + ex.getMessage();
             throw new Ptolemy3DConfigurationException(message);
         }
-
-        return parameter;
     }
 
     /**
@@ -532,17 +523,13 @@ public class Configuration {
             return getRequieredParameterInt(name);
         }
 
-        int value = 0;
-        String strValue = getRequieredParameter(name, elem);
         try {
-            value = Integer.parseInt(strValue);
+            return Integer.parseInt(getRequieredParameter(name, elem));
         }
         catch (NumberFormatException e) {
             String message = "The requiered parameter '" + name + "' is not a valid integer value.";
             throw new Ptolemy3DConfigurationException(message);
         }
-
-        return value;
     }
 
     /**
@@ -568,17 +555,13 @@ public class Configuration {
             return getRequieredParameterFloat(name);
         }
 
-        float value = 0;
-        String strValue = getRequieredParameter(name, elem);
         try {
-            value = Float.parseFloat(strValue);
+            return Float.parseFloat(getRequieredParameter(name, elem));
         }
         catch (NumberFormatException e) {
             String message = "The requiered parameter '" + name + "' is not a valid float value.";
             throw new Ptolemy3DConfigurationException(message);
         }
-
-        return value;
     }
 
     /**
@@ -686,26 +669,5 @@ public class Configuration {
         else {
             return s;
         }
-    }
-
-    /**
-     * Gets a color from the string representation.
-     *
-     * @param col
-     * @return
-     */
-    private Color getAwtColor(String col) {
-        final StringTokenizer st = new StringTokenizer(col, ",");
-        if (st.countTokens() > 2) {
-            int r = Integer.parseInt(st.nextToken());
-            int g = Integer.parseInt(st.nextToken());
-            int b = Integer.parseInt(st.nextToken());
-            int a = 255;
-            if (st.hasMoreTokens()) {
-                a = Integer.parseInt(st.nextToken());
-            }
-            return new Color(r, g, b, a);
-        }
-        return Color.BLACK;
     }
 }

@@ -52,18 +52,15 @@ class Timer
 	
 	/* Timer interface */
 	
-	public final long getTimeNanos()
-	{
+	public final long getTimeNanos() {
 		return System.nanoTime();
 	}
-	
-	public final long getTimeMicros()
-	{
+
+	public final long getTimeMicros() {
 		return getTimeNanos() / 1000;
 	}
-	
-	public final long getTimeMillis()
-	{
+
+	public final long getTimeMillis() {
 		return getTimeNanos() / 1000000;
 	}
 	
@@ -72,8 +69,7 @@ class Timer
 	/**
 	 * This method calculates the time that OpenGl takes to draw frames.
 	 */
-	public final void update()
-	{
+	public final void update() {
 		if(lastTime == -1) {
 			//Initialization of the counter
 			lastTime = getTimeNanos();
@@ -113,16 +109,15 @@ class Timer
 	 * Get the time to draw last frame
 	 * @return the time in milliseconds that the last frame takes to be drawn
 	 */
-	public final long getTimePassedMillis()
-	{
+	public final long getTimePassedMillis() {
 		return getTimePassedNanos() / 1000000;
 	}
-	public final long getTimePassedMicros()
-	{
+
+	public final long getTimePassedMicros() {
 		return getTimePassedNanos() / 1000;
 	}
-	public final long getTimePassedNanos()
-	{
+
+	public final long getTimePassedNanos() {
 		return timePassedNanos;
 	}
 
@@ -130,16 +125,14 @@ class Timer
 	 * @return the number of frames per seconds
 	 * @see #isFPSEnabled
 	 */
-	public final float getFPS()
-	{
+	public final float getFPS() {
 		return fps;
 	}
 
 	/**
 	 * Stop the counter and
 	 */
-	public void reset()
-	{
+	public void reset() {
 		//reset time
 
 		lastTime = -1;

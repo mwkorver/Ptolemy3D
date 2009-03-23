@@ -15,12 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.ptolemy3d.tile.jp2;
+package org.ptolemy3d.jp2;
 
 import java.io.IOException;
 
 import org.ptolemy3d.io.Communicator;
-import org.ptolemy3d.tile.Jp2Tile;
 
 /**
  * Internal to JP2 Decoder

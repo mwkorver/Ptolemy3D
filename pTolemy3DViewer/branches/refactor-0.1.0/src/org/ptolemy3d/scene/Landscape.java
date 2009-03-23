@@ -17,10 +17,8 @@
  */
 package org.ptolemy3d.scene;
 
-import java.awt.Color;
-import static org.ptolemy3d.debug.Config.DEBUG;
-import static org.ptolemy3d.tile.Level.LEVEL_NUMTILE_LON;
-import static org.ptolemy3d.tile.Level.LEVEL_NUMTILE_LAT;
+import static org.ptolemy3d.globe.Layer.LEVEL_NUMTILE_LAT;
+import static org.ptolemy3d.globe.Layer.LEVEL_NUMTILE_LON;
 
 import javax.media.opengl.GL;
 
@@ -28,9 +26,8 @@ import org.ptolemy3d.DrawContext;
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.Unit;
 import org.ptolemy3d.debug.IO;
-import org.ptolemy3d.debug.ProfilerInterface;
-import org.ptolemy3d.tile.Jp2TileLoader;
-import org.ptolemy3d.tile.Level;
+import org.ptolemy3d.globe.Layer;
+import org.ptolemy3d.manager.Jp2TileLoader;
 import org.ptolemy3d.view.Camera;
 import org.ptolemy3d.view.CameraMovement;
 
@@ -188,14 +185,12 @@ public class Landscape {
     public final static byte DISPLAY_TILEID = (byte) 4;
     // Tile color is the level id
     public final static byte DISPLAY_LEVELID = (byte) 5;
+    
     private final static int LANDSCAPE_MAXLONGITUDE_ANGLE = 180;
     private final static int LANDSCAPE_MAXLATITUDE_ANGLE = 90;
-    private final static int MAX_LAYERSTATUS = 3;
-    private float meshColor = 0.85f;
-    private float[] topColor = {0.47843137f, 0.34509804f, 0.117647f};
-    private float[] tileColor = {0.2196078f, 0.4627450980f, 0.235294f};
-    private float[] colorRatios;
-
+    
+    private final static int MAX_LAYERSTATUS = 3;	//FIXME To be removed
+    
     // Draw landscape
     public boolean drawLandscape = true;
     // Max longitude in DD
@@ -216,12 +211,14 @@ public class Landscape {
     private byte displayMode;
 
     // Landscape levels (resolution levels)
-    private Level[] levels;
+    private Layer[] layers;
+	protected transient int numVisibleJp2 = 0;
 
-    // Fog radius
-    private int fogRadius;
-    // Fog color
-    private float fogColor[] = {214.0f / 255, 235.0f / 255, 248.0f / 255, 1.0f};
+    // Geometry color
+    private float meshColor = 0.85f;
+    private float[] topColor = {0.47843137f, 0.34509804f, 0.117647f};
+    private float[] tileColor = {0.2196078f, 0.4627450980f, 0.235294f};
+    private float[] colorRatios;
 
     /**
      * Creates a new instance.
@@ -235,124 +232,16 @@ public class Landscape {
 
         initialize();
     }
-
-    // private final void setLevel(int lvl)
-    // {
-    // int squares = 1;
-    // int square_pos = 0;
-    // // use pitch and lr rotation to decide which tiles to get.
-    //
-    // // convert to degrees
-    // double pitch = CameraMovement.PITCH * Math3D.RADIAN_TO_DEGREE_FACTOR;
-    // double direction = ptolemy.camera.getDirectionDegrees();
-    //
-    // if (pitch > -30) {
-    // squares = 16;
-    // }
-    // else {
-    // int pinc = ((75 - 30) / ((LEVEL_NUMTILE_LON / 2) - 1));
-    // int tang = -75;
-    // for (int j = 0; j < (LEVEL_NUMTILE_LON / 2) - 1; j++) {
-    // if ((pitch > tang) && (pitch <= (tang + pinc))) {
-    // squares = 8 * (j + 1);
-    // if (squares > 16) {
-    // squares = 16; // a fix until i figure this mess out
-    // }
-    // break;
-    // }
-    // tang += pinc;
-    // }
-    // }
-    // // dimension defines how big our outer square is.
-    // square_pos = Math.round((float) ((squares * direction) / 360));
-    //
-    //
-    // int lrmove, udmove;
-    // // find how many tiles down/up we need to go.
-    // if (squares < 8) {
-    // lrmove = 0;
-    // udmove = 0;
-    // }
-    // else if (square_pos < (squares / 4)) {
-    // // how many tiles to the left?
-    // lrmove = -square_pos;
-    // if (lrmove < (-(squares / 8) + 1)) {
-    // lrmove = (-(squares / 8) + 1);
-    // // how many tiles up?
-    // }
-    // udmove = -((squares / 4) - square_pos);
-    // if (udmove < (-(squares / 8) + 1)) {
-    // udmove = (-(squares / 8) + 1);
-    // }
-    // }
-    // else if (square_pos < (squares / 2)) {
-    // // ll quad
-    // lrmove = -((squares / 2) - square_pos);
-    // if (lrmove < (-(squares / 8) + 1)) {
-    // lrmove = (-(squares / 8) + 1);
-    // }
-    // udmove = square_pos - (squares / 4);
-    // if (udmove > (squares / 8)) {
-    // udmove = (squares / 8) - 1;
-    // }
-    // }
-    // else if (square_pos < ((squares / 2) + (squares / 4))) {
-    // // lr quad
-    // lrmove = square_pos - (squares / 2);
-    // if (lrmove > (squares / 8)) {
-    // lrmove = (squares / 8) - 1;
-    // }
-    // udmove = (squares - (squares / 4)) - square_pos;
-    // if (udmove > (squares / 8)) {
-    // udmove = (squares / 8) - 1;
-    // }
-    // }
-    // else {
-    // // ur quad
-    // lrmove = squares - square_pos;
-    // if (lrmove > (squares / 8)) {
-    // lrmove = (squares / 8) - 1;
-    // }
-    // udmove = -(square_pos - (squares - (squares / 4)));
-    // if (udmove < (-(squares / 8) + 1)) {
-    // udmove = (-(squares / 8) + 1);
-    // }
-    // }
-    //
-    // //use zero meter x and y to compute which tile should be directly under
-    // us
-    //
-    // final Camera camera = ptolemy.camera;
-    // final Level level = levels[lvl];
-    // final int tileWidth = level.getTileWidth();
-    //
-    // int tileover = (int) (camera.getLongitudeDD() / tileWidth);
-    // int tiledown = (int) (camera.getLatitudeDD() / tileWidth);
-    //
-    // level.upLeftLon = (tileover - LEVEL_NUMTILE_LON / 2) * tileWidth +
-    // (lrmove * tileWidth);
-    // level.upLeftLat = (tiledown - LEVEL_NUMTILE_LAT / 2) * tileWidth +
-    // (udmove * tileWidth);
-    //
-    // level.lowRightLon = level.upLeftLon + (LEVEL_NUMTILE_LON * tileWidth);
-    // level.lowRightLat = level.upLeftLat + (LEVEL_NUMTILE_LAT * tileWidth);
-    // }
+    
     /** Landscape Initialization */
     private void initialize() {
         maxLatitude = Unit.degreesToDD(LANDSCAPE_MAXLATITUDE_ANGLE);
         maxLongitude = Unit.degreesToDD(LANDSCAPE_MAXLONGITUDE_ANGLE);
 
-        fogRadius = 20000; // this is the max
-        fogColor[0] = 164.f / 255;
-        fogColor[1] = 193.f / 255;
-        fogColor[2] = 232.f / 255;
-
         colorRatios = new float[]{
                     (topColor[0] - tileColor[0]) / maxColorHeight,
                     (topColor[1] - tileColor[1]) / maxColorHeight,
                     (topColor[2] - tileColor[2]) / maxColorHeight};
-
-    // setLevel(0);
     }
 
     /**
@@ -360,7 +249,7 @@ public class Landscape {
      */
     protected void initGL(DrawContext drawContext) {
 
-        GL gl = drawContext.getGl();
+        GL gl = drawContext.getGL();
 
         gl.glEnable(GL.GL_TEXTURE_2D);
         gl.glEnable(GL.GL_DEPTH_TEST);
@@ -371,66 +260,40 @@ public class Landscape {
 
         gl.glTexEnvf(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_DECAL);
         gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
-
-        gl.glEnable(GL.GL_FOG);
-        gl.glFogi(GL.GL_FOG_MODE, GL.GL_LINEAR);
-        gl.glFogfv(GL.GL_FOG_COLOR, fogColor, 0);
-        gl.glFogf(GL.GL_FOG_DENSITY, 0.4f);
-        gl.glFogf(GL.GL_FOG_START, 4000.0f);
-        gl.glFogf(GL.GL_FOG_END, fogRadius);
-
-        gl.glPolygonOffset(1.0f, 3.0f);
-        gl.glEnable(GL.GL_POLYGON_OFFSET_FILL);
-
-        // TODO - Must be get from settings
-        final float[] clearColor = Color.BLUE.getRGBComponents(null); //ptolemy.configuration.backgroundColor;
-        gl.glClearColor(clearColor[0], clearColor[1], clearColor[2], 1.0f);
     }
 
     /** Landscape Prepare */
     public void prepareFrame(DrawContext drawContext) {
 
-        GL gl = drawContext.getGl();
+        GL gl = drawContext.getGL();
 
         // Destroy unused textures
         Ptolemy3D.getTextureManager().destroyTrashTextures(gl);
 
         // Correct Tiles
-        if (DEBUG) {
-            if (!ProfilerInterface.freezeCorrectLevels) {
-                correctLevels(drawContext);
-            }
-        }
-        else {
-            correctLevels(drawContext);
-        }
-
+        correctLayers(drawContext);
         processVisibility(drawContext);
     }
 
     // TODO - Document what this method does.
-    // vpPos turns to lon , zoom , lat
-    private final void correctLevels(DrawContext drawContext) {
-        GL gl = drawContext.getGl();
+    // vpPos turns to lon, zoom, lat
+    private final void correctLayers(DrawContext drawContext) {
         final Camera camera = drawContext.getCanvas().getCamera();
 
-        for (int p = 0; p < levels.length; p++) {
-            final Level level = levels[p];
+        for (int p = 0; p < layers.length; p++) {
+            final Layer level = layers[p];
             final int tileWidth = level.getTileSize();
 
             int ysgn = -1;
-            // TODO - What???
             int lon_move = (maxLongitude / tileWidth) * tileWidth;
 
             int minlon, maxlon, minlat, maxlat;
 
-            // TODO - What???
             int leftmosttile = -((maxLongitude / tileWidth) * tileWidth);
             if (leftmosttile != maxLongitude) {
                 leftmosttile -= tileWidth;
             }
 
-            // TODO - What???
             minlon = ((int) (camera.getPosition().getLongitudeDD() / tileWidth) * tileWidth) - (tileWidth * 4);
             if (minlon < leftmosttile) {
                 minlon += ((maxLongitude * 2) / tileWidth) * tileWidth;
@@ -467,11 +330,7 @@ public class Landscape {
     }
 
     private void processVisibility(DrawContext drawContext) {
-        GL gl = drawContext.getGl();
-        if (!drawLandscape || Ptolemy3D.getTileLoader() == null) {
-            return;
-        }
-        if (DEBUG && ProfilerInterface.freezeVisibility) {
+        if (!drawLandscape) {
             return;
         }
 
@@ -479,18 +338,18 @@ public class Landscape {
         boolean hasVisLayer = false;
 
         int numStatus = 0; // Track the number of levels
-        for (int p = levels.length - 1; p >= 0; p--) {
+        for (int p = layers.length - 1; p >= 0; p--) {
             if (numStatus >= MAX_LAYERSTATUS) {
                 // Too many levels are in the altitude range
                 for (int hh = p; hh >= 0; hh--) {
-                    final Level level = levels[hh];
-                    level.setVisible(false);
-                    level.setStatus(false);
+                    final Layer layer = layers[hh];
+                    layer.setVisible(false);
+                    layer.setStatus(false);
                 }
                 break;
             }
 
-            final Level level = levels[p];
+            final Layer level = layers[p];
 
             // Altitude check: in layer range
             level.setStatus(((camera.getVerticalAltitudeMeters() > level.getMaxZoom()) || (camera.getVerticalAltitudeMeters() <= level.getMinZoom())) ? false
@@ -522,12 +381,13 @@ public class Landscape {
 
     /** Landscape Rendering */
     protected void draw(DrawContext drawContext) {
-        GL gl = drawContext.getGl();
+        GL gl = drawContext.getGL();
 
         if (!drawLandscape) {
             return;
         }
 
+        // Display mode states
         if (displayMode == DISPLAY_MESH) {
             gl.glColor3f(meshColor, meshColor, meshColor);
             gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE);
@@ -542,11 +402,13 @@ public class Landscape {
             gl.glDisable(GL.GL_TEXTURE_2D);
         }
 
-        for (int p = levels.length - 1; p >= 0; p--) {
-            final Level level = levels[p];
-            level.draw(drawContext);
+        // Render levels
+        for (int p = layers.length - 1; p >= 0; p--) {
+            final Layer layer = layers[p];
+            layer.draw(drawContext);
         }
 
+        // Restore defautl states
         if (displayMode == DISPLAY_MESH) {
             gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_FILL);
         }
@@ -556,18 +418,13 @@ public class Landscape {
         gl.glColor3f(1, 1, 1);
         gl.glEnable(GL.GL_TEXTURE_2D);
     }
-
-    // TODO - Remove. The return line was moved into the Level.draw method
-//    public final int load(byte[] datas, int width, int height, int res) {
-//        return Ptolemy3D.getTextureManager().load(gl, datas, width, height, GL.GL_RGB,
-//                                                true, res);
-//    }
+    
     /** Landscape Picking: Pick tiles */
     public final synchronized boolean pick(double[] intersectPoint,
                                            double[][] ray) {
-        for (int p = levels.length - 1; p >= 0; p--) {
-            final Level level = levels[p];
-            if (level.pick(intersectPoint, ray)) {
+        for (int p = layers.length - 1; p >= 0; p--) {
+            final Layer layer = layers[p];
+            if (layer.pick(intersectPoint, ray)) {
                 return true;
             }
         }
@@ -595,11 +452,11 @@ public class Landscape {
             {lon, CameraMovement.MAXIMUM_ALTITUDE - 1, lat}
         };
 
-        for (int i = levels.length - 1; (i >= minLevel); i--) {
-            final Level level = levels[i];
+        for (int i = layers.length - 1; (i >= minLevel); i--) {
+            final Layer layer = layers[i];
 
             try {
-                double[] pickArr = level.groundHeight(lon, lat, ray);
+                double[] pickArr = layer.groundHeight(lon, lat, ray);
                 if (pickArr != null) {
                     return pickArr[1] * terrainScaler;
                 }
@@ -766,32 +623,17 @@ public class Landscape {
     }
 
     /**
-     * @param levels
+     * @param layers
      *            the levels to set
      */
-    public void setLevels(Level[] levels) {
-        this.levels = levels;
+    public void setLevels(Layer[] layers) {
+        this.layers = layers;
     }
 
     /**
      * @return the levels
      */
-    public Level[] getLevels() {
-        return levels;
-    }
-
-    /**
-     * @param fogRadius
-     *            the fogRadius to set
-     */
-    public void setFogRadius(int fogRadius) {
-        this.fogRadius = fogRadius;
-    }
-
-    /**
-     * @return the fogRadius
-     */
-    public int getFogRadius() {
-        return fogRadius;
+    public Layer[] getLayers() {
+        return layers;
     }
 }

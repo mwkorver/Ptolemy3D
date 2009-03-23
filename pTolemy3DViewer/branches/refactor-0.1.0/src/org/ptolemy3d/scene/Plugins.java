@@ -104,7 +104,7 @@ public class Plugins {
     }
 
     protected void prepareFrame(DrawContext drawContext) {
-        GL gl = drawContext.getGl();
+        GL gl = drawContext.getGL();
         Ptolemy3DGLCanvas canvas = drawContext.getCanvas();
 
         running = true;

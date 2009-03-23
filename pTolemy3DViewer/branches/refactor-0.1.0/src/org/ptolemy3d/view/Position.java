@@ -40,9 +40,9 @@ public class Position {
      * @param alt
      */
     public Position(double lat, double lon, double alt) {
+        this.latitudeDD = lat;
         this.longitudeDD = lon;
         this.altitude = alt;
-        this.latitudeDD = lat;
     }
 
     public Position copy() {

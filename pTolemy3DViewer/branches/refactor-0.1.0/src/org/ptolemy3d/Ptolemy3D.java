@@ -18,10 +18,10 @@
 package org.ptolemy3d;
 
 import org.ptolemy3d.debug.IO;
-import org.ptolemy3d.font.FntFontRenderer;
+import org.ptolemy3d.manager.Jp2TileLoader;
+import org.ptolemy3d.manager.MapDataManager;
+import org.ptolemy3d.manager.TextureManager;
 import org.ptolemy3d.scene.Scene;
-import org.ptolemy3d.scene.TextureManager;
-import org.ptolemy3d.tile.Jp2TileLoader;
 import org.ptolemy3d.view.Camera;
 import org.ptolemy3d.view.CameraMovement;
 
@@ -79,35 +79,29 @@ import org.ptolemy3d.view.CameraMovement;
  * @author Antonio Santiago <asantiagop(at)gmail(dot)com>
  * @author Jerome Jouvie
  */
-public class Ptolemy3D {
-
-    // TODO - canvas variable is only here temporaly to solve a reference problem in Jp2TileLoader.
-    // We must remove from here.
+public final class Ptolemy3D {
+    // TODO - canvas variable is only here temporaly to solve a reference problem in Jp2TileLoader. We must remove from here.
     private static Ptolemy3DGLCanvas canvas = null;
     private static Configuration configuration = null;
     private static Scene scene = new Scene();
     private static TextureManager textureManager = null;
+    private static MapDataManager mapDataManager = null;
     private static Jp2TileLoader tileLoader = null;
     private static Thread tileLoaderThread = null;
-    private static FntFontRenderer fontTextRenderer = null;    // TODO - Needed? Why dont use JOGL?
-    private static FntFontRenderer fontNumericRenderer = null; // TODO - Needed? Why dont use JOGL?
 
-    public Ptolemy3D() {
+    private Ptolemy3D() {
         System.out.println("Ptolemy created");
     }
 
-
-
-    //    // Plugins args
-//    private static String[] plugargs = new String[3];
     /**
      * Initialized pTolemy3D system with the specified settings.
      *
      * @param config
      */
     public static void initialize(Configuration config) {
-        configuration = config;
-        textureManager = new TextureManager();
+    	configuration = config;
+    	textureManager = new TextureManager();
+    	mapDataManager = new MapDataManager();
     }
 
     /**
@@ -119,17 +113,40 @@ public class Ptolemy3D {
      * @param cnv
      */
     public static void registerCanvas(Ptolemy3DGLCanvas cnv) {
-        canvas = cnv;
+    	canvas = cnv;
 
         // If there is a configuration the apply them to the cameraMovement.
         if (configuration != null) {
-            canvas.getCameraMovement().setOrientation(configuration.initialCameraPosition,
-                                                      configuration.initialCameraDirection,
-                                                      configuration.initialCameraPitch);
-            canvas.getCameraMovement().setFollowDem(configuration.follorDEM);
+        	canvas.getCameraMovement().setOrientation(
+        			configuration.initialCameraPosition,
+        			configuration.initialCameraDirection,
+        			configuration.initialCameraPitch);
+        	canvas.getCameraMovement().setFollowDem(configuration.follorDEM);
         }
     }
+    
+    /**
+     * Start required threads.
+     */
+    public static void start() {
+    	startTileLoaderThread();
+    	canvas.startRenderingLoop();
+    }
 
+    /**
+     * Stop the pTolemy system: request data thread and other resources.
+     */
+    public static void shutDown() {
+        // Stop the tile loading first
+    	stopTileLoaderThread();
+
+//		// Stop and shutDown all the 3D
+//		if (canvas != null) {
+//			canvas.destroyGL();
+//			canvas = null;
+//		}
+    }
+    
     /**
      * @return the canvas
      */
@@ -165,6 +182,20 @@ public class Ptolemy3D {
     public static void setTextureManager(TextureManager aTextureManager) {
         textureManager = aTextureManager;
     }
+    
+    /**
+     * @return the textureManager
+     */
+    public static MapDataManager getMapDataManager() {
+        return mapDataManager;
+    }
+
+    /**
+     * @param mapDataManager the textureManager to set
+     */
+    public static void setMapDataManager(MapDataManager aMapDataManager) {
+        mapDataManager = aMapDataManager;
+    }
 
     /**
      * @return the tileLoader
@@ -186,35 +217,7 @@ public class Ptolemy3D {
     public static Thread getTileLoaderThread() {
         return tileLoaderThread;
     }
-
-    /**
-     * @return the fontTextRenderer
-     */
-    public static FntFontRenderer getFontTextRenderer() {
-        return fontTextRenderer;
-    }
-
-    /**
-     * @param aFontTextRenderer the fontTextRenderer to set
-     */
-    public static void setFontTextRenderer(FntFontRenderer aFontTextRenderer) {
-        fontTextRenderer = aFontTextRenderer;
-    }
-
-    /**
-     * @return the fontNumericRenderer
-     */
-    public static FntFontRenderer getFontNumericRenderer() {
-        return fontNumericRenderer;
-    }
-
-    /**
-     * @param aFontNumericRenderer the fontNumericRenderer to set
-     */
-    public static void setFontNumericRenderer(FntFontRenderer aFontNumericRenderer) {
-        fontNumericRenderer = aFontNumericRenderer;
-    }
-
+    
     /**
      * Start tile download thread.
      */
@@ -242,53 +245,35 @@ public class Ptolemy3D {
             }
         }
     }
-
-    /**
-     * Start required threads.
-     */
-    public static void start() {
-        startTileLoaderThread();
-    }
-
-    /**
-     * Stop the pTolemy system: request data thread and other resources.
-     */
-    public static void shutDown() {
-        // Stop the tile loading first
-        stopTileLoaderThread();
-
-//		// Stop and shutDown all the 3D
-//		if (canvas != null) {
-//			canvas.destroyGL();
+    
+//     /**
+//	* Call a javascript function
+//	* @param javascripFunction
+//	*/
+//	// Plugins args
+//	private String[] plugargs = new String[3];
+//	public void callJavascript(String javascripFunction, String param0, String param1, String param2) {
+//		plugargs[0] = param0;
+//		plugargs[1] = param1;
+//		plugargs[2] = param2;
+//
+//		if(javascript != null) {
+//			JSObject jsObject = javascript.getJSObject();
+//			if(jsObject != null) {
+//				try {
+//					jsObject.call(javascripFunction, plugargs);
+//				}
+//				catch(Exception ne) {
+//					IO.printStackRenderer(ne);
+//				}
+//			}
 //		}
-    }
-    // /**
-    // * Call a javascript function
-    // * @param javascripFunction
-    // */
-    // public void callJavascript(String javascripFunction, String param0,
-    // String param1, String param2)
-    // {
-    // plugargs[0] = param0;
-    // plugargs[1] = param1;
-    // plugargs[2] = param2;
-    //
-    // if (javascript != null) {
-    // JSObject jsObject = javascript.getJSObject();
-    // if (jsObject != null) {
-    // try {
-    // jsObject.call(javascripFunction, plugargs);
-    // } catch (Exception ne) {
-    // IO.printStackRenderer(ne);
-    // }
-    // }
-    // }
-    // }
-    // /**
-    // * Send an error message to javascript.
-    // */
-    // public final void sendErrorMessage(String msg)
-    // {
-    // callJavascript("alert", msg, null, null);
-    // }
+//	}
+//
+//	/**
+//	* Send an error message to javascript.
+//	*/
+//	public final void sendErrorMessage(String msg) {
+//		callJavascript("alert", msg, null, null);
+//	}
 }

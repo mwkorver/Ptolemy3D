@@ -15,11 +15,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.ptolemy3d.tile;
+package org.ptolemy3d.manager;
 
-import org.ptolemy3d.tile.Jp2Tile.Jp2TileRes;
+import org.ptolemy3d.globe.MapData;
+import org.ptolemy3d.globe.MapData.MapWavelet;
 
-class QuadBufferPool
+@Deprecated
+public class QuadBufferPool
 {
 	private static final int DATA_STORAGE_MULT = 3;
 
@@ -27,26 +29,26 @@ class QuadBufferPool
 	private byte[][][] pool;
 	private boolean filled[][];
 
-	public final void init(int[] quadtiles, int[] twidth)
+	public final void init(int[] quadtiles, int[] tileWidth)
 	{
 		full = -1;
 		// init pool to hold all of our data.
-		pool = new byte[Jp2Tile.NUM_RESOLUTION][][];
-		filled = new boolean[Jp2Tile.NUM_RESOLUTION][];
+		pool = new byte[MapData.MAX_NUM_RESOLUTION][][];
+		filled = new boolean[MapData.MAX_NUM_RESOLUTION][];
 
-		for (int i = 0; i < Jp2Tile.NUM_RESOLUTION; i++)
+		for (int i = 0; i < MapData.MAX_NUM_RESOLUTION; i++)
 		{
-			pool[i] = new byte[quadtiles[i] * DATA_STORAGE_MULT][twidth[i] * twidth[i] * 3];
+			pool[i] = new byte[quadtiles[i] * DATA_STORAGE_MULT][tileWidth[i] * tileWidth[i] * 3];
 			filled[i] = new boolean[quadtiles[i] * DATA_STORAGE_MULT];
 		}
 	}
 
-	public byte[] setArray(int res, Jp2TileRes[] levels)
+	public byte[] setArray(int res, MapWavelet[] levels)
 	{
 		// look for an open array
 		for (int i = 0; i < filled[res].length; i++) {
 			if (!filled[res][i]) {
-				levels[res].datakey = i;
+				levels[res].dataKey = i;
 				filled[res][i] = true;
 				return pool[res][i];
 			}

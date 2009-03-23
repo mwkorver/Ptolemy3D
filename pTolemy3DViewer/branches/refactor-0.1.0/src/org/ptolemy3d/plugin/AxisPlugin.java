@@ -24,7 +24,6 @@ import java.io.IOException;
 import javax.media.opengl.GL;
 import javax.media.opengl.glu.GLU;
 import org.ptolemy3d.DrawContext;
-import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.Unit;
 import org.ptolemy3d.io.Communicator;
 import org.ptolemy3d.scene.Plugin;
@@ -51,7 +50,7 @@ public class AxisPlugin implements Plugin {
      * Initialize all non OpenGL datas. This is called just after the object instanciation.
      * OpenGL Context is NOT current here, initialize all OpenGL related datas in <code>initGL</code>.
      */
-    public void init(Ptolemy3D ptolemy) {
+    public void init() {
     }
 
     /**
@@ -131,7 +130,7 @@ public class AxisPlugin implements Plugin {
      * Render OpenGL geometry.
      */
     public void draw(DrawContext drawContext) {
-        this.gl = drawContext.getGl();
+        this.gl = drawContext.getGL();
 
         if (!status) {
             return;
@@ -246,6 +245,5 @@ public class AxisPlugin implements Plugin {
      * Destroy all OpenGL Related Datas. OpenGL Context is current.
      */
     public void destroyGL(DrawContext drawContext) {
-        GL gl = drawContext.getGl();
     }
 }

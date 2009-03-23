@@ -16,14 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.ptolemy3d.tile.jp2;
+package org.ptolemy3d.jp2;
 
 import java.io.IOException;
 import java.util.Arrays;
 
-import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.debug.IO;
-import org.ptolemy3d.tile.Jp2TileLoader;
 
 /*
  * given a URL to a jpeg 2000 file, this class<BR>

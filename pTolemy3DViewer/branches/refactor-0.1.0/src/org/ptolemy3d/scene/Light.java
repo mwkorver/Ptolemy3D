@@ -40,7 +40,7 @@ public class Light {
     }
 
     public void initGL(DrawContext drawContext) {
-        GL gl = drawContext.getGl();
+        GL gl = drawContext.getGL();
 
         gl.glLightfv(GL.GL_LIGHT0, GL.GL_AMBIENT, lightAmbient, 0);
         gl.glLightfv(GL.GL_LIGHT0, GL.GL_DIFFUSE, light0Diffuse, 0);
@@ -50,7 +50,7 @@ public class Light {
     }
 
     public void draw(DrawContext drawContext) {
-        GL gl = drawContext.getGl();
+        GL gl = drawContext.getGL();
 
         gl.glLightfv(GL.GL_LIGHT0, GL.GL_POSITION, light0Position, 0);
         gl.glLightfv(GL.GL_LIGHT1, GL.GL_POSITION, light1Position, 0);

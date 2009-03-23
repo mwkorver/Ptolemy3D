@@ -15,17 +15,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.ptolemy3d.font;
+
+package org.ptolemy3d.globe;
 
 /**
- * FNT Font Character
+ *
  */
-class FntFontChar
+public class ElevationDem
 {
-    public float left;
-    public float top;
-    public float right;
-    public float bottom;
-    public boolean enabled;
-    public float widthFactor;
+	/** DEM Elevation raw datas */
+	public final byte[] demDatas;
+	/** */
+	public final int numRows;
+
+	public ElevationDem(byte[] datas) {
+		numRows = (int)Math.sqrt((datas.length / 2));
+		demDatas = datas;
+	}
 }

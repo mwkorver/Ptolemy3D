@@ -19,6 +19,8 @@
 package org.ptolemy3d.util;
 
 import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 
 import javax.imageio.ImageIO;
@@ -26,14 +28,13 @@ import javax.media.opengl.GL;
 
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.debug.IO;
-import org.ptolemy3d.math.Math3D;
 
 /**
  * Utilities to load texture on the GPU.
  */
 public class Texture
 {
-	public final byte[] data;
+	public byte[] data;
 	public final int width;
 	public final int height;
 	public final int format;
@@ -43,6 +44,10 @@ public class Texture
 		this.width = width;
 		this.height = height;
 		this.format = format;
+	}
+	
+	public void freeData() {
+		data = null;
 	}
 	
 	public final static int colorTypeToFormat(int colorType)
@@ -57,52 +62,38 @@ public class Texture
 		return format;
 	}
 	
-	public final static Texture loadRaster(float[] pms, byte[] data, byte[] img, short transparency, int[] tran_color)
+	public final static Texture load(InputStream is)
 	{
-		int[] meta = new int[10];
-		byte[] idata = PngDecoder.decode(data, meta);
+		try {
+			BufferedImage buffer = ImageIO.read(is);
+			boolean hasAlpha = buffer.getAlphaRaster() != null;
+			
+			int width = buffer.getWidth();
+			int height = buffer.getHeight();
+			int numChannel = hasAlpha ? 4 : 3;
+			byte[] pixels = new byte[width*height*numChannel];
 
-		int rasterWidth = Math3D.nextTwoPow(meta[0]);
-		int rasterHeight = Math3D.nextTwoPow(meta[1]);
-
-		if ((pms != null) && (pms.length >= 4)) {
-			pms[0] = (float) meta[0] / rasterWidth;
-			pms[1] = (float) meta[1] / rasterHeight;
-			pms[2] = meta[0];
-			pms[3] = meta[1];
-		}
-
-		if (img == null) {
-			img = new byte[rasterWidth * rasterHeight * 4];
-		}
-
-		int cty = meta[3];
-		for(int a = 0; a < rasterHeight; a++) {
-			for(int b = 0; b < rasterWidth; b++) {
-				int offset = (a * rasterWidth * 4) + (b * 4);
-				int rasterOffset = (a * meta[0] * cty) + (b * cty);
-				if((meta[0] > b) && (meta[1] > a)) {
-					img[offset] = idata[rasterOffset];
-					img[offset + 1] = idata[rasterOffset + 1];
-					img[offset + 2] = idata[rasterOffset + 2];
-					boolean hasAlpha = (tran_color != null) && ((img[offset] & 0xff) == tran_color[0]) && ((img[offset + 1] & 0xff) == tran_color[1]) && ((img[offset + 2] & 0xff) == tran_color[2]);
+			for(int y = 0; y < height; y++) {
+				for(int x = 0; x < width; x++) {
+					int i = (height-1-y)*width+x;
+					int color = buffer.getRGB(x, y);
+					pixels[numChannel*i  ] = (byte) ((color >> 16) & 0xFF);
+					pixels[numChannel*i+1] = (byte) ((color >>  8) & 0xFF);
+					pixels[numChannel*i+2] = (byte) ((color      ) & 0xFF);
 					if(hasAlpha) {
-						img[offset + 3] = (byte)0;
+					pixels[numChannel*i+3] = (byte) ((color >> 24) & 0xFF);
 					}
-					else {
-						img[offset + 3] = (byte)transparency;
-					}
-				}
-				else {
-					img[offset + 3] = (byte)0;
 				}
 			}
+			
+			return new Texture(pixels, width, height, hasAlpha ? GL.GL_RGBA : GL.GL_RGB);
 		}
-
-		return new Texture(img, rasterWidth, rasterHeight, GL.GL_RGBA);
+		catch(IOException e) {
+			return null;
+		}
 	}
 
-	public final static Texture setWebImage(String image_url, float[] meta, int transparency, String svr)
+	public final static Texture setWebImage(String url, float[] meta, int transparency, String svr)
 	{
 		if (svr == null) {
 			svr = Ptolemy3D.getConfiguration().server;
@@ -113,7 +104,7 @@ public class Texture
 		
 		BufferedImage input = null;
 		try {
-			input = ImageIO.read(new URL("http://" + svr + image_url.substring(0, image_url.lastIndexOf("/") + 1) + image_url.substring(image_url.lastIndexOf("/") + 1, image_url.length()).replaceAll(" ", "%20")));
+			input = ImageIO.read(new URL("http://" + svr + url.substring(0, url.lastIndexOf("/") + 1) + url.substring(url.lastIndexOf("/") + 1, url.length()).replaceAll(" ", "%20")));
 		} catch (Exception e) {
 			IO.printStackRenderer(e);
 			input = null;
@@ -148,14 +139,11 @@ public class Texture
 		int offset = 0;
 
 		int a, b;
-		for (a = 0; a < rasterHeight; a++)
-		{
-			for (b = 0; b < rasterWidth; b++)
-			{
-				offset = (a * (int) rasterWidth * 4) + (b * 4);
+		for(a = 0; a < rasterHeight; a++) {
+			for(b = 0; b < rasterWidth; b++) {
+				offset = (a * (int)rasterWidth * 4) + (b * 4);
 				raster_offset = (a * src_width) + (b);
-				if ((src_width > b) && (src_height > a))
-				{
+				if((src_width > b) && (src_height > a)) {
 					img[offset] = (byte) (dat[raster_offset] >> 16);
 					img[offset + 1] = (byte) (dat[raster_offset] >> 8);
 					img[offset + 2] = (byte) (dat[raster_offset] >> 0);

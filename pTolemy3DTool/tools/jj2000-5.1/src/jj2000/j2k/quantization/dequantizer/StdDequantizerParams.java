@@ -42,8 +42,8 @@
  */
 package jj2000.j2k.quantization.dequantizer;
 
-import jj2000.j2k.quantization.QuantizationType;
-import jj2000.j2k.wavelet.Subband;
+import jj2000.j2k.wavelet.*;
+import jj2000.j2k.quantization.*;
 
 /**
  * This class holds the parameters for the scalar deadzone dequantizer

@@ -42,11 +42,10 @@
  * */
 package jj2000.j2k.quantization.quantizer;
 
-import jj2000.j2k.encoder.EncoderSpecs;
-import jj2000.j2k.image.ImgDataAdapter;
-import jj2000.j2k.wavelet.Subband;
-import jj2000.j2k.wavelet.analysis.CBlkWTDataSrc;
-import jj2000.j2k.wavelet.analysis.SubbandAn;
+import jj2000.j2k.wavelet.analysis.*;
+import jj2000.j2k.wavelet.*;
+import jj2000.j2k.encoder.*;
+import jj2000.j2k.image.*;
 
 /**
  * This abstract class provides the general interface for quantizers. The

@@ -43,8 +43,8 @@
  * */
 package jj2000.j2k.wavelet.analysis;
 
-import jj2000.j2k.image.ImgData;
-import jj2000.j2k.wavelet.Subband;
+import jj2000.j2k.image.*;
+import jj2000.j2k.wavelet.*;
 
 /**
  * This interface extends the ImgData interface with methods that are

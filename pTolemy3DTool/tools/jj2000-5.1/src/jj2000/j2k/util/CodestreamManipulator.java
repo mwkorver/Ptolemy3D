@@ -42,13 +42,11 @@
  * */
 package jj2000.j2k.util;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.Vector;
+import jj2000.j2k.codestream.*;
+import jj2000.j2k.io.*;
 
-import jj2000.j2k.codestream.Markers;
-import jj2000.j2k.io.BEBufferedRandomAccessFile;
-import jj2000.j2k.io.BufferedRandomAccessFile;
+import java.util.*;
+import java.io.*;
 
 /**
  * This class takes a legal JPEG 2000 codestream and performs some

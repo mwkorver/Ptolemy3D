@@ -42,26 +42,9 @@
  * */
 package jj2000.disp;
 
-import java.awt.Adjustable;
-import java.awt.BorderLayout;
-import java.awt.Canvas;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.LayoutManager;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.ScrollPane;
-import java.awt.Scrollbar;
-import java.awt.event.FocusListener;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import java.awt.image.ImageObserver;
+import java.awt.event.*;
+import java.awt.image.*;
+import java.awt.*;
 
 /**
  * This class implements an image viewer that can display an image larger than

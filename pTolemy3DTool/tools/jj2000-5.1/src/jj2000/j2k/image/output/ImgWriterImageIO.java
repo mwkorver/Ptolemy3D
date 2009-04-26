@@ -2,16 +2,14 @@
 
 package jj2000.j2k.image.output;
 
-import java.io.File;
-import java.io.IOException;
+import jj2000.j2k.image.*;
+
+import java.io.*;
 
 import javax.imageio.ImageIO;
 
-import jj2000.j2k.image.BlkImgDataSrc;
-import jj2000.j2k.image.DataBlk;
-
 /**
- * @author Jerome JOUVIE
+ * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  */
 public class ImgWriterImageIO extends ImgWriterArrayByte
 {

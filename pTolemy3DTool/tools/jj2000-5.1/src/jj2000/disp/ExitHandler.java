@@ -45,10 +45,9 @@
  */
 package jj2000.disp;
 
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import jj2000.j2k.decoder.*;
 
-import jj2000.j2k.decoder.Decoder;
+import java.awt.event.*;
 
 
 /** This class implements the WindowHandler for the ImageFrames */

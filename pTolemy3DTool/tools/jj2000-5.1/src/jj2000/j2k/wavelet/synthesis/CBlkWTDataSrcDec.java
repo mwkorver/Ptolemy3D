@@ -43,9 +43,8 @@
  * */
 package jj2000.j2k.wavelet.synthesis;
 
-import jj2000.j2k.image.DataBlk;
-import jj2000.j2k.wavelet.Subband;
-import jj2000.j2k.wavelet.WaveletTransform;
+import jj2000.j2k.image.*;
+import jj2000.j2k.wavelet.*;
 
 /**
  * This abstract class defines methods to transfer wavelet data in a

@@ -8,16 +8,14 @@
 
 package icc.tags;
 
-import icc.ICCProfile;
-import icc.types.ICCProfileHeader;
-
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.Vector;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Vector;
-
-import colorspace.ColorSpace;
+import colorspace .ColorSpace;
+import icc .ICCProfile;
+import icc .types.ICCProfileHeader;
 
 /**
  * This class models an ICCTagTable as a HashTable which maps 

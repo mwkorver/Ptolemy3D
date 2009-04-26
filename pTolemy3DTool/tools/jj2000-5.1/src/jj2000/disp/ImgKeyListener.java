@@ -46,16 +46,10 @@
  */
 package jj2000.disp;
 
-import java.awt.Adjustable;
-import java.awt.Font;
-import java.awt.Frame;
-import java.awt.TextArea;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import jj2000.j2k.decoder.*;
 
-import jj2000.j2k.decoder.Decoder;
+import java.awt.event.*;
+import java.awt.*;
 
 /**
  * This class implements the listener for keyboard events for the JJ2000

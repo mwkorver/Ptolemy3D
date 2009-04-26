@@ -8,13 +8,12 @@
 
 package colorspace.boxes;
 
-import icc.ICCProfile;
+import colorspace .ColorSpaceException;
+import jj2000.j2k.fileformat.FileFormatBoxes;
+import icc .ICCProfile;
+import jj2000.j2k.io.RandomAccessIO;
 
 import java.io.IOException;
-
-import jj2000.j2k.fileformat.FileFormatBoxes;
-import jj2000.j2k.io.RandomAccessIO;
-import colorspace.ColorSpaceException;
 
 /**
  * The abstract super class modeling the aspects of

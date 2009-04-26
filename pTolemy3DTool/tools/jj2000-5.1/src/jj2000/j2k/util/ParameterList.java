@@ -42,8 +42,7 @@
  * */
 package jj2000.j2k.util;
 
-import java.util.Enumeration;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * This class holds modules options and parameters as they are provided to the

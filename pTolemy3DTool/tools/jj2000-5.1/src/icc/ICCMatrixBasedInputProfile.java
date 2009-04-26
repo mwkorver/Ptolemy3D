@@ -8,8 +8,8 @@
 
 package icc;
 
-import colorspace.ColorSpace;
-import colorspace.ColorSpaceException;
+import colorspace .ColorSpace;
+import colorspace .ColorSpaceException;
 
 /**
  * This class enables an application to construct an 3 component ICCProfile

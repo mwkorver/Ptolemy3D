@@ -47,7 +47,7 @@
 
 package jj2000.j2k.wavelet;
 
-import jj2000.j2k.NotImplementedError;
+import jj2000.j2k.*;
 
 /**
  * This class holds the decomposition type to be used in each part of the

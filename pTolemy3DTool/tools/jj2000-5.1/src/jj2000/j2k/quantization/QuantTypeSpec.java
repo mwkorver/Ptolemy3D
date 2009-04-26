@@ -42,10 +42,10 @@
  * */
 package jj2000.j2k.quantization;
 
-import java.util.StringTokenizer;
+import jj2000.j2k.util.*;
+import jj2000.j2k.*;
 
-import jj2000.j2k.ModuleSpec;
-import jj2000.j2k.util.ParameterList;
+import java.util.*;
 
 /**
  * This class extends ModuleSpec class in order to hold specifications about

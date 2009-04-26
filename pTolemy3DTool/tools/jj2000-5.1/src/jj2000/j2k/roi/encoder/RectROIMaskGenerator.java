@@ -42,8 +42,8 @@
  * */
 package jj2000.j2k.roi.encoder;
 
-import jj2000.j2k.image.DataBlkInt;
-import jj2000.j2k.wavelet.Subband;
+import jj2000.j2k.wavelet.*;
+import jj2000.j2k.image.*;
 
 /** 
  * This class generates the ROI masks when there are only rectangular ROIs in

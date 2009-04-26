@@ -43,9 +43,9 @@
  * */
 package jj2000.j2k.codestream;
 
-import java.util.Hashtable;
+import jj2000.j2k.wavelet.*;
 
-import jj2000.j2k.wavelet.FilterTypes;
+import java.util.*;
 
 /**
  * Classe that holds information found in the marker segments of the main and

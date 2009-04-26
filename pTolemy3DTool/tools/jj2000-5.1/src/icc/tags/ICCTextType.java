@@ -8,7 +8,7 @@
 
 package icc.tags;
 
-import icc.ICCProfile;
+import icc .ICCProfile;
 
 /**
  * A text based ICC tag

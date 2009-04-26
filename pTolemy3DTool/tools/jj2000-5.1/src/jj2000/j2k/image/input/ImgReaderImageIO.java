@@ -2,22 +2,17 @@
 
 package jj2000.j2k.image.input;
 
+import jj2000.j2k.image.*;
+import jj2000.j2k.*;
+
 import java.awt.image.BufferedImage;
-import java.io.EOFException;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 
 import javax.imageio.ImageIO;
 
-import jj2000.j2k.JJ2KExceptionHandler;
-import jj2000.j2k.image.DataBlk;
-import jj2000.j2k.image.DataBlkInt;
-
 /**
- * @author Jerome JOUVIE
- * */
+ * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
+ */
 public class ImgReaderImageIO extends ImgReader {
 	/** @return true if extension is supported */
 	public static boolean isSupported(String extension) {

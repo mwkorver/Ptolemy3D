@@ -42,11 +42,10 @@
  * */
 package jj2000.j2k.roi.encoder;
 
-import jj2000.j2k.image.DataBlkInt;
-import jj2000.j2k.image.input.ImgReaderPGM;
-import jj2000.j2k.quantization.quantizer.Quantizer;
-import jj2000.j2k.wavelet.Subband;
-import jj2000.j2k.wavelet.WaveletFilter;
+import jj2000.j2k.quantization.quantizer.*;
+import jj2000.j2k.image.input.*;
+import jj2000.j2k.wavelet.*;
+import jj2000.j2k.image.*;
 
 /** 
  * This class generates the ROI bit-mask when, at least, one ROI is not

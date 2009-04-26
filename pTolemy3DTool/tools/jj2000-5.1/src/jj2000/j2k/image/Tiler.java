@@ -43,9 +43,8 @@
  * */
 package jj2000.j2k.image;
 
-import jj2000.j2k.NoNextElementException;
-import jj2000.j2k.util.FacilityManager;
-import jj2000.j2k.util.MsgLogger;
+import jj2000.j2k.util.*;
+import jj2000.j2k.*;
 
 /**
  * This class places an image in the canvas coordinate system, tiles it, if so

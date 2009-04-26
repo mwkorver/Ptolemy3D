@@ -7,8 +7,7 @@
  *****************************************************************************/
 package colorspace;
 
-import jj2000.j2k.image.BlkImgDataSrc;
-import jj2000.j2k.image.DataBlk;
+import jj2000.j2k.image.*;
 
 /**
  * This class is responsible for the mapping between

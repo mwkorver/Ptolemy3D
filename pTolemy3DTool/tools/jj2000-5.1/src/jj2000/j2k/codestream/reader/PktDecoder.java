@@ -43,21 +43,16 @@
  * */
 package jj2000.j2k.codestream.reader;
 
-import java.io.ByteArrayInputStream;
-import java.io.EOFException;
-import java.io.IOException;
-import java.util.Vector;
+import jj2000.j2k.wavelet.synthesis.*;
+import jj2000.j2k.codestream.*;
+import jj2000.j2k.entropy.*;
+import jj2000.j2k.decoder.*;
+import jj2000.j2k.image.*;
+import jj2000.j2k.util.*;
+import jj2000.j2k.io.*;
 
-import jj2000.j2k.codestream.CBlkCoordInfo;
-import jj2000.j2k.codestream.Markers;
-import jj2000.j2k.codestream.PrecInfo;
-import jj2000.j2k.decoder.DecoderSpecs;
-import jj2000.j2k.entropy.StdEntropyCoderOptions;
-import jj2000.j2k.image.Coord;
-import jj2000.j2k.io.RandomAccessIO;
-import jj2000.j2k.util.ArrayUtil;
-import jj2000.j2k.util.MathUtil;
-import jj2000.j2k.wavelet.synthesis.SubbandSyn;
+import java.util.*;
+import java.io.*;
 
 /** 
  * This class is used to read packet's head and body. All the members must be

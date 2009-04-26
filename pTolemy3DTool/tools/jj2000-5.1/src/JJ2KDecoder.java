@@ -41,7 +41,7 @@
  * Copyright (c) 1999/2000 JJ2000 Partners.
  * */
 
-import jj2000.j2k.decoder.CmdLnDecoder;
+import jj2000.j2k.decoder.*;
 
 /**
  * This class is a wrapper for the CmdLnDecoder class in the

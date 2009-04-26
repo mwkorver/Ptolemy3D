@@ -7,15 +7,13 @@
  *****************************************************************************/
 package colorspace.boxes;
 
-import icc.ICCProfile;
+import jj2000.j2k.util.*;
+import jj2000.j2k.io.*;
 
-import java.io.IOException;
+import colorspace.*;
+import icc.*;
 
-import jj2000.j2k.io.RandomAccessIO;
-import jj2000.j2k.util.FacilityManager;
-import jj2000.j2k.util.MsgLogger;
-import colorspace.ColorSpace;
-import colorspace.ColorSpaceException;
+import java.io.*;
 
 /**
  * This class models the Color Specification Box in a JP2 image.

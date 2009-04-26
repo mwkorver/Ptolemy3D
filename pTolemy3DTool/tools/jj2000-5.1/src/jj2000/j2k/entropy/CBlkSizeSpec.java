@@ -42,12 +42,10 @@
  * */
 package jj2000.j2k.entropy;
 
-import java.util.NoSuchElementException;
-import java.util.StringTokenizer;
+import jj2000.j2k.util.*;
+import jj2000.j2k.*;
 
-import jj2000.j2k.ModuleSpec;
-import jj2000.j2k.util.MathUtil;
-import jj2000.j2k.util.ParameterList;
+import java.util.*;
 
 /**
  * This class extends ModuleSpec class for code-blocks sizes holding purposes.

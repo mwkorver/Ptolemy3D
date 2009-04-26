@@ -42,7 +42,7 @@
  * */
 package jj2000.j2k.codestream.writer;
 
-import jj2000.j2k.util.ArrayUtil;
+import jj2000.j2k.util.*;
 
 /**
  * This class implements the tag tree encoder. A tag tree codes a 2D matrix of

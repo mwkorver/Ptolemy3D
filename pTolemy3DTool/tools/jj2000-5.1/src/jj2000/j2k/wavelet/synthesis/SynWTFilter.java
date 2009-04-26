@@ -43,8 +43,8 @@
  * */
 package jj2000.j2k.wavelet.synthesis;
 
-import jj2000.j2k.codestream.Markers;
-import jj2000.j2k.wavelet.WaveletFilter;
+import jj2000.j2k.codestream.*;
+import jj2000.j2k.wavelet.*;
 
 /**
  * This abstract class defines the methods of all synthesis wavelet

@@ -42,9 +42,8 @@
  * */
 package jj2000.j2k;
 
-import java.util.StringTokenizer;
-
-import jj2000.j2k.util.ParameterList;
+import jj2000.j2k.util.*;
+import java.util.*;
 
 /**
  * This class extends ModuleSpec class in order to hold tile-component

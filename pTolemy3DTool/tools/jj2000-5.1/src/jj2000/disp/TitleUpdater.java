@@ -42,8 +42,7 @@
  * */
 package jj2000.disp;
 
-import java.awt.Frame;
-import java.awt.Point;
+import java.awt.*;
 
 /**
  * This class should run as an independent thread to update tha main

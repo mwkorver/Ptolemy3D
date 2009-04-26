@@ -42,7 +42,7 @@
  * */
 package jj2000.j2k.codestream;
 
-import jj2000.j2k.image.Coord;
+import jj2000.j2k.image.*;
 
 /**
  * This class is used to store the coordinates of code-blocks.

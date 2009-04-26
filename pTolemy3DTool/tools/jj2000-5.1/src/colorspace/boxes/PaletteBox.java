@@ -8,12 +8,11 @@
 
 package colorspace.boxes;
 
-import icc.ICCProfile;
+import colorspace .ColorSpaceException;
+import icc .ICCProfile;
+import jj2000.j2k.io.RandomAccessIO;
 
 import java.io.IOException;
-
-import jj2000.j2k.io.RandomAccessIO;
-import colorspace.ColorSpaceException;
 
 /**
  * This class models the palette box contained in a JP2

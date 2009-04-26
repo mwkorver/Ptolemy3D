@@ -8,8 +8,8 @@
 
 package icc;
 
-import colorspace.ColorSpace;
-import colorspace.ColorSpaceException;
+import colorspace .ColorSpace;
+import colorspace .ColorSpaceException;
 
 /**
  * The monochrome ICCProfile.

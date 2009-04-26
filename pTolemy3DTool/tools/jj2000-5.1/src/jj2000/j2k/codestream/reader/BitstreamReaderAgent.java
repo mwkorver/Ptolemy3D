@@ -43,19 +43,18 @@
  * */
 package jj2000.j2k.codestream.reader;
 
-import java.io.IOException;
+import jj2000.j2k.quantization.dequantizer.*;
+import jj2000.j2k.wavelet.synthesis.*;
+import jj2000.j2k.entropy.decoder.*;
+import jj2000.j2k.codestream.*;
+import jj2000.j2k.wavelet.*;
+import jj2000.j2k.decoder.*;
+import jj2000.j2k.image.*;
+import jj2000.j2k.util.*;
+import jj2000.j2k.io.*;
+import jj2000.j2k.*;
 
-import jj2000.j2k.ModuleSpec;
-import jj2000.j2k.codestream.HeaderInfo;
-import jj2000.j2k.decoder.DecoderSpecs;
-import jj2000.j2k.entropy.decoder.CodedCBlkDataSrcDec;
-import jj2000.j2k.image.Coord;
-import jj2000.j2k.io.RandomAccessIO;
-import jj2000.j2k.quantization.dequantizer.StdDequantizerParams;
-import jj2000.j2k.util.MathUtil;
-import jj2000.j2k.util.ParameterList;
-import jj2000.j2k.wavelet.Subband;
-import jj2000.j2k.wavelet.synthesis.SubbandSyn;
+import java.io.*;
 
 /**
  * This is the generic interface for bit stream reader agents. A bit stream

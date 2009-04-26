@@ -42,7 +42,7 @@
  */
 package jj2000.j2k.roi.encoder;
 
-import jj2000.j2k.image.input.ImgReaderPGM;
+import jj2000.j2k.image.input.*;
 
 /** 
  * This class contains the shape of a single ROI. In the current 

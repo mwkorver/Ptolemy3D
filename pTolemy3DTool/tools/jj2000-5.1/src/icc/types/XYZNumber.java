@@ -8,10 +8,9 @@
 
 package icc.types;
 
-import icc.ICCProfile;
-
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import icc .ICCProfile;
 
 /**
  * A convientient representation for the contents of the

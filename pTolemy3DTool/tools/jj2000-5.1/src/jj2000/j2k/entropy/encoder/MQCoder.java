@@ -44,8 +44,8 @@
  * */
 package jj2000.j2k.entropy.encoder;
 
-import jj2000.j2k.entropy.StdEntropyCoderOptions;
-import jj2000.j2k.util.ArrayUtil;
+import jj2000.j2k.entropy.*;
+import jj2000.j2k.util.*;
 
 /**
  * This class implements the MQ arithmetic coder. When initialized a specific

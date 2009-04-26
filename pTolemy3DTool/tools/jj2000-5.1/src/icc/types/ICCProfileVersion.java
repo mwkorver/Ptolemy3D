@@ -8,10 +8,9 @@
 
 package icc.types;
 
-import icc.ICCProfile;
-
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import icc .ICCProfile;
 
 /**
  * This class describes the ICCProfile Version as contained in

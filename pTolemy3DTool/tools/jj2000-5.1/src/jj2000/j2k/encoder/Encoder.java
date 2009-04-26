@@ -526,7 +526,7 @@ public class Encoder implements Runnable {
 	                        error("Use '-debug' option for more details",2);
 	                    }
 	                    return;
-	                } finally {
+		                } finally {
 	                    if (exitCode != 0) {
 	                        // Close the other files
 	                        while (imreadervec.size() > 0) {

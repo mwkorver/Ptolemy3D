@@ -43,7 +43,7 @@
  * */
 package jj2000.j2k.wavelet.synthesis;
 
-import jj2000.j2k.image.Coord;
+import jj2000.j2k.image.*;
 
 /**
  * This interface defines methods to access image attributes (width, height,

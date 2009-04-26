@@ -7,13 +7,10 @@
  *****************************************************************************/
 package colorspace;
 
-import jj2000.j2k.image.BlkImgDataSrc;
-import jj2000.j2k.image.DataBlk;
-import jj2000.j2k.image.DataBlkFloat;
-import jj2000.j2k.image.DataBlkInt;
-import jj2000.j2k.util.FacilityManager;
-import jj2000.j2k.util.MsgLogger;
-import colorspace.boxes.PaletteBox;
+import jj2000.j2k.image.*;
+import jj2000.j2k.util.*;
+
+import colorspace.boxes.*;
 
 /**
  * This class provides decoding of images with palettized colorspaces.

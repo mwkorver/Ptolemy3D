@@ -43,8 +43,7 @@
  * */
 package jj2000.j2k.io;
 
-import java.io.EOFException;
-import java.io.IOException;
+import java.io.*;
 
 /**
  * This interface defines the input of binary data from streams and/or files.

@@ -8,11 +8,12 @@
 
 package icc.lut;
 
-import icc.ICCProfile;
-import icc.RestrictedICCProfile;
-import jj2000.j2k.image.DataBlkFloat;
+import colorspace .ColorSpace;
+import icc .ICCProfile;
+import icc .RestrictedICCProfile;
+import icc .lut.LookUpTableFP;
 import jj2000.j2k.image.DataBlkInt;
-import colorspace.ColorSpace;
+import jj2000.j2k.image.DataBlkFloat;
 
 /**
  * 

@@ -42,13 +42,11 @@
  * */
 package jj2000.j2k.image.forwcomptransf;
 
-import java.util.StringTokenizer;
-
-import jj2000.j2k.image.CompTransfSpec;
-import jj2000.j2k.util.ParameterList;
-import jj2000.j2k.wavelet.FilterTypes;
-import jj2000.j2k.wavelet.analysis.AnWTFilter;
-import jj2000.j2k.wavelet.analysis.AnWTFilterSpec;
+import jj2000.j2k.wavelet.analysis.*;
+import jj2000.j2k.wavelet.*;
+import jj2000.j2k.image.*;
+import jj2000.j2k.util.*;
+import java.util.*;
 
 /**
  * This class extends CompTransfSpec class in order to hold encoder specific

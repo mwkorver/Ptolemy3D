@@ -44,7 +44,7 @@
  * */
 package jj2000.j2k.entropy.encoder;
 
-import jj2000.j2k.wavelet.analysis.ForwWTDataProps;
+import jj2000.j2k.wavelet.analysis.*;
 
 /**
  * This interface defines a source of entropy coded data and methods to

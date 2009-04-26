@@ -8,23 +8,21 @@
 
 package icc;
 
-import icc.tags.ICCCurveType;
-import icc.tags.ICCTagTable;
-import icc.tags.ICCXYZType;
-import icc.types.ICCDateTime;
-import icc.types.ICCProfileHeader;
-import icc.types.ICCProfileVersion;
-import icc.types.XYZNumber;
-
-import java.io.IOException;
 import java.io.RandomAccessFile;
-
+import java.io.IOException;
+import jj2000.j2k.util.ParameterList;
+import colorspace .ColorSpace;
+import colorspace .ColorSpaceException;
+import icc .types.ICCProfileHeader;
+import icc .tags.ICCTagTable;
+import icc .tags.ICCCurveType;
+import icc .tags.ICCXYZType;
+import icc .types.XYZNumber;
+import icc .types.ICCProfileVersion;
+import icc .types.ICCDateTime;
 import jj2000.j2k.fileformat.FileFormatBoxes;
 import jj2000.j2k.util.FacilityManager;
 import jj2000.j2k.util.MsgLogger;
-import jj2000.j2k.util.ParameterList;
-import colorspace.ColorSpace;
-import colorspace.ColorSpaceException;
 
 /**
  *  This class models the ICCProfile file.  This file is a binary file which is divided 

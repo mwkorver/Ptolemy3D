@@ -48,7 +48,7 @@
 
 package jj2000.j2k.util;
 
-import java.io.PrintWriter;
+import java.io.*;
 
 /**
  * This utility class formats messages to the specified line width, by

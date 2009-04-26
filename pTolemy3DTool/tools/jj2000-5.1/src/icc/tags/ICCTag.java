@@ -8,7 +8,7 @@
 
 package icc.tags;
 
-import icc.ICCProfile;
+import icc .ICCProfile;
 
 /**
  * An ICC profile contains a 128-byte header followed by a variable

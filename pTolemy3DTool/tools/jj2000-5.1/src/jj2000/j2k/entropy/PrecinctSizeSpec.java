@@ -42,16 +42,12 @@
  * */
 package jj2000.j2k.entropy;
 
-import java.util.NoSuchElementException;
-import java.util.StringTokenizer;
-import java.util.Vector;
+import jj2000.j2k.codestream.*;
+import jj2000.j2k.image.*;
+import jj2000.j2k.util.*;
+import jj2000.j2k.*;
 
-import jj2000.j2k.IntegerSpec;
-import jj2000.j2k.ModuleSpec;
-import jj2000.j2k.codestream.Markers;
-import jj2000.j2k.image.BlkImgDataSrc;
-import jj2000.j2k.util.MathUtil;
-import jj2000.j2k.util.ParameterList;
+import java.util.*;
 
 /**
  * This class extends ModuleSpec class for precinct partition sizes holding

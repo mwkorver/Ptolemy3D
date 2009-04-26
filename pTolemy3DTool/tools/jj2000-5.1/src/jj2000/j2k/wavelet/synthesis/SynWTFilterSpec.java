@@ -42,7 +42,7 @@
  * */
 package jj2000.j2k.wavelet.synthesis;
 
-import jj2000.j2k.ModuleSpec;
+import jj2000.j2k.*;
 
 /**
  * This class extends ModuleSpec class for synthesis filters specification

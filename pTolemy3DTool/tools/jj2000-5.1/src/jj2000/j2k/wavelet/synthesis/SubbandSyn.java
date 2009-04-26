@@ -43,8 +43,7 @@
  * */
 package jj2000.j2k.wavelet.synthesis;
 
-import jj2000.j2k.wavelet.Subband;
-import jj2000.j2k.wavelet.WaveletFilter;
+import jj2000.j2k.wavelet.*;
 
 /**
  * This class represents a subband in a tree structure that describes the

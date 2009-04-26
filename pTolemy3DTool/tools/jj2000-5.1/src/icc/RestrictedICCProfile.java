@@ -8,8 +8,8 @@
 
 package icc;
 
-import icc.tags.ICCCurveType;
-import icc.tags.ICCXYZType;
+import icc .tags.ICCCurveType;
+import icc .tags.ICCXYZType;
 
 /**
  * This profile is constructed by parsing an ICCProfile and

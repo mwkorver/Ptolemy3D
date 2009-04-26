@@ -43,12 +43,11 @@
  * */
 package jj2000.j2k.roi;
 
-import jj2000.j2k.decoder.DecoderSpecs;
-import jj2000.j2k.image.DataBlk;
-import jj2000.j2k.quantization.dequantizer.CBlkQuantDataSrcDec;
-import jj2000.j2k.util.ParameterList;
-import jj2000.j2k.wavelet.synthesis.MultiResImgDataAdapter;
-import jj2000.j2k.wavelet.synthesis.SubbandSyn;
+import jj2000.j2k.quantization.dequantizer.*;
+import jj2000.j2k.wavelet.synthesis.*;
+import jj2000.j2k.decoder.*;
+import jj2000.j2k.image.*;
+import jj2000.j2k.util.*;
 
 /**
  * This class takes care of the de-scaling of ROI coefficients. The de-scaler

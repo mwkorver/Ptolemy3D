@@ -41,13 +41,11 @@
  * */
 package jj2000.j2k.entropy;
 
-import java.util.StringTokenizer;
-import java.util.Vector;
+import java.util.*;
 
-import jj2000.j2k.IntegerSpec;
-import jj2000.j2k.ModuleSpec;
-import jj2000.j2k.codestream.ProgressionType;
-import jj2000.j2k.util.ParameterList;
+import jj2000.j2k.codestream.*;
+import jj2000.j2k.util.*;
+import jj2000.j2k.*;
 
 /**
  * This class extends ModuleSpec class for progression type(s) and progression

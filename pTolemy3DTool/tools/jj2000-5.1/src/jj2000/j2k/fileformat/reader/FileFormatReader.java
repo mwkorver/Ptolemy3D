@@ -42,15 +42,13 @@
  * */
 package jj2000.j2k.fileformat.reader;
 
-import java.io.EOFException;
-import java.io.IOException;
-import java.util.Vector;
+import jj2000.j2k.codestream.*;
+import jj2000.j2k.fileformat.*;
+import jj2000.j2k.util.*;
+import jj2000.j2k.io.*;
 
-import jj2000.j2k.codestream.Markers;
-import jj2000.j2k.fileformat.FileFormatBoxes;
-import jj2000.j2k.io.RandomAccessIO;
-import jj2000.j2k.util.FacilityManager;
-import jj2000.j2k.util.MsgLogger;
+import java.util.*;
+import java.io.*;
 
 /**
  * This class reads the file format wrapper that may or may not exist around a

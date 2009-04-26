@@ -42,8 +42,7 @@
  * */
 package jj2000.j2k.roi.encoder;
 
-import jj2000.j2k.wavelet.Subband;
-import jj2000.j2k.wavelet.WaveletFilter;
+import jj2000.j2k.wavelet.*;
 
 /** 
  * This class describes the ROI mask for a single subband. Each object of the

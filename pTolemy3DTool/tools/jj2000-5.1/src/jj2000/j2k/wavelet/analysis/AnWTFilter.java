@@ -42,8 +42,7 @@
  * */
 package jj2000.j2k.wavelet.analysis;
 
-import jj2000.j2k.wavelet.FilterTypes;
-import jj2000.j2k.wavelet.WaveletFilter;
+import jj2000.j2k.wavelet.*;
 
 /**
  * <p>This abstract class defines the methods of all analysis wavelet

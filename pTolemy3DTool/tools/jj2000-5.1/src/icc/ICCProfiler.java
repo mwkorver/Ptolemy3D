@@ -7,22 +7,12 @@
  *****************************************************************************/
 package icc;
 
-import icc.lut.MatrixBasedTransformException;
-import icc.lut.MatrixBasedTransformTosRGB;
-import icc.lut.MonochromeTransformException;
-import icc.lut.MonochromeTransformTosRGB;
+import java.io.*;
 
-import java.io.IOException;
-
-import jj2000.j2k.image.BlkImgDataSrc;
-import jj2000.j2k.image.DataBlk;
-import jj2000.j2k.image.DataBlkFloat;
-import jj2000.j2k.image.DataBlkInt;
-import jj2000.j2k.util.FacilityManager;
-import jj2000.j2k.util.MsgLogger;
-import colorspace.ColorSpace;
-import colorspace.ColorSpaceException;
-import colorspace.ColorSpaceMapper;
+import jj2000.j2k.image.*;
+import jj2000.j2k.util.*;
+import colorspace.*;
+import icc.lut.*;
 
 /**
  * This class provides ICC Profiling API for the jj2000.j2k imaging chain

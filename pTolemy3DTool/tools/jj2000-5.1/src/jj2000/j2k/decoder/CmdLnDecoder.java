@@ -42,15 +42,9 @@
  * */
 package jj2000.j2k.decoder;
 
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import jj2000.j2k.util.*;
 
-import jj2000.j2k.util.FacilityManager;
-import jj2000.j2k.util.ParameterList;
-import jj2000.j2k.util.StringFormatException;
+import java.io.*;
 
 /**
  * This class runs the JJ2000 decoder from the command line interface. It

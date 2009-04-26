@@ -43,7 +43,7 @@
  * */
 package jj2000.j2k.wavelet.analysis;
 
-import jj2000.j2k.wavelet.FilterTypes;
+import jj2000.j2k.wavelet.*;
 
 /**
  * This class inherits from the analysis wavelet filter definition for int

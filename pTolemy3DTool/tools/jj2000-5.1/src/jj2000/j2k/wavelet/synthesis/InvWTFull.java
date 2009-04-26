@@ -45,15 +45,10 @@
  * */
 package jj2000.j2k.wavelet.synthesis;
 
-import jj2000.j2k.decoder.DecoderSpecs;
-import jj2000.j2k.image.Coord;
-import jj2000.j2k.image.DataBlk;
-import jj2000.j2k.image.DataBlkFloat;
-import jj2000.j2k.image.DataBlkInt;
-import jj2000.j2k.util.FacilityManager;
-import jj2000.j2k.util.ProgressWatch;
-import jj2000.j2k.wavelet.Subband;
-import jj2000.j2k.wavelet.WaveletTransform;
+import jj2000.j2k.wavelet.*;
+import jj2000.j2k.decoder.*;
+import jj2000.j2k.image.*;
+import jj2000.j2k.util.*;
 
 /**
  * This class implements the InverseWT with the full-page approach for int and

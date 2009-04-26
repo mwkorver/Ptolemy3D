@@ -43,16 +43,11 @@
  * */
 package jj2000.j2k.wavelet.analysis;
 
-import java.io.StreamTokenizer;
-import java.util.StringTokenizer;
-
-import jj2000.j2k.encoder.EncoderSpecs;
-import jj2000.j2k.image.BlkImgDataSrc;
-import jj2000.j2k.image.ImgData;
-import jj2000.j2k.image.ImgDataAdapter;
-import jj2000.j2k.util.FacilityManager;
-import jj2000.j2k.util.MsgLogger;
-import jj2000.j2k.util.ParameterList;
+import jj2000.j2k.encoder.*;
+import jj2000.j2k.image.*;
+import jj2000.j2k.util.*;
+import java.util.*;
+import java.io.*;
 
 /**
  * This abstract class represents the forward wavelet transform functional

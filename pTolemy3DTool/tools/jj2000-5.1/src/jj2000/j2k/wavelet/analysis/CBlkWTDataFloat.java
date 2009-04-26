@@ -42,7 +42,7 @@
  * */
 package jj2000.j2k.wavelet.analysis;
 
-import jj2000.j2k.image.DataBlk;
+import jj2000.j2k.image.*;
 
 /**
  * This is an implementation of the 'CBlkWTData' abstract class for 32 bit

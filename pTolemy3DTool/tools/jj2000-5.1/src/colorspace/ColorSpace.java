@@ -8,19 +8,17 @@
 
 package colorspace;
 
-import icc.ICCProfile;
-
 import java.io.IOException;
-
-import jj2000.j2k.codestream.reader.HeaderDecoder;
 import jj2000.j2k.fileformat.FileFormatBoxes;
-import jj2000.j2k.io.RandomAccessIO;
 import jj2000.j2k.util.ParameterList;
-import colorspace.boxes.ChannelDefinitionBox;
-import colorspace.boxes.ColorSpecificationBox;
-import colorspace.boxes.ComponentMappingBox;
-import colorspace.boxes.ImageHeaderBox;
-import colorspace.boxes.PaletteBox;
+import jj2000.j2k.codestream.reader.HeaderDecoder;
+import jj2000.j2k.io.RandomAccessIO;
+import icc .ICCProfile;
+import colorspace .boxes.PaletteBox;
+import colorspace .boxes.ComponentMappingBox;
+import colorspace .boxes.ColorSpecificationBox;
+import colorspace .boxes.ChannelDefinitionBox;
+import colorspace .boxes.ImageHeaderBox;
 
 /**
  * This class analyzes the image to provide colorspace

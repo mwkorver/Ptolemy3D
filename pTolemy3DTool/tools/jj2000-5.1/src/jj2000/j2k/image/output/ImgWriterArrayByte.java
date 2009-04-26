@@ -2,15 +2,13 @@
 
 package jj2000.j2k.image.output;
 
-import java.awt.image.BufferedImage;
-import java.io.IOException;
+import jj2000.j2k.image.*;
 
-import jj2000.j2k.image.BlkImgDataSrc;
-import jj2000.j2k.image.DataBlk;
-import jj2000.j2k.image.DataBlkInt;
+import java.awt.image.BufferedImage;
+import java.io.*;
 
 /**
- * @author Jerome JOUVIE
+ * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  */
 public class ImgWriterArrayByte extends ImgWriter
 {

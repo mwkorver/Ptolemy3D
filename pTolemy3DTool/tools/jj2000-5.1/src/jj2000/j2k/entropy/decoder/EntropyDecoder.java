@@ -42,10 +42,8 @@
  * */
 package jj2000.j2k.entropy.decoder;
 
-import jj2000.j2k.quantization.dequantizer.CBlkQuantDataSrcDec;
-import jj2000.j2k.wavelet.synthesis.MultiResImgData;
-import jj2000.j2k.wavelet.synthesis.MultiResImgDataAdapter;
-import jj2000.j2k.wavelet.synthesis.SubbandSyn;
+import jj2000.j2k.quantization.dequantizer.*;
+import jj2000.j2k.wavelet.synthesis.*;
 
 /**
  * This is the abstract class from which all entropy decoders must

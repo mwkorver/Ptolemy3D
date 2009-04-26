@@ -8,7 +8,7 @@
 
 package icc;
 
-import icc.tags.ICCCurveType;
+import icc .tags.ICCCurveType;
 
 /**
  * This class is a 1 component RestrictedICCProfile

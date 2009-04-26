@@ -42,10 +42,10 @@
  *  */
 package jj2000.j2k.fileformat.writer;
 
-import java.io.IOException;
+import jj2000.j2k.fileformat.*;
+import jj2000.j2k.io.*;
 
-import jj2000.j2k.fileformat.FileFormatBoxes;
-import jj2000.j2k.io.BEBufferedRandomAccessFile;
+import java.io.*;
 
 /**
  * This class writes the file format wrapper that may or may not exist around

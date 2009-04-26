@@ -1,0 +1,45 @@
+<entity>
+	<Orientation>34386018,132457400,534.99620798371,48.9524780456691,-50.8786522076171</Orientation>
+
+	<CenterX>0</CenterX>
+	<CenterY>0</CenterY>
+
+	<Server>127.0.0.1:8080</Server>
+	<MapDataSvr1>127.0.0.1:8080</MapDataSvr1>
+	<MServerKey1></MServerKey1>
+	<MapJp2Store1>/</MapJp2Store1>
+	<MapDemStore1>/</MapDemStore1>
+	<NumMapDataServers>1</NumMapDataServers>
+
+	<TileColor>47,47,86</TileColor>
+	<Area>00</Area>
+	<Horizon>10000</Horizon>
+	<FlightFrameDelay>200</FlightFrameDelay>
+	<TIN>0</TIN>
+	<FollowDEM>0</FollowDEM>
+	<Units>DD</Units>
+	<BackgroundColor>0,0,0</BackgroundColor>
+	<SubTextures>1</SubTextures>
+
+	<NumLayers>2</NumLayers>
+
+	<LayerWidth_1>6553600</LayerWidth_1>
+	<LayerDEM_1>9</LayerDEM_1>
+	<LayerMin_1>50000</LayerMin_1>
+	<LayerMax_1>10000000</LayerMax_1>
+	<LayerDivider_1>0</LayerDivider_1>
+
+	<LayerWidth_2>819200</LayerWidth_2>
+	<LayerDEM_2>9</LayerDEM_2>
+	<LayerMin_2>1000</LayerMin_2>
+	<LayerMax_2>10000000</LayerMax_2>
+	<LayerDivider_2>0</LayerDivider_2>
+	
+	<NumPlugins>2</NumPlugins>
+
+	<PluginType_1>org.ptolemy3d.plugin.HudPlugin</PluginType_1>
+	<PluginParam_1>-hudPrefix1 Center: -hudPrefix2 Streaming%20Speed: -hudSuffix2 kb/sec -hudPrefix3 Altitude: -hudSuffix3 meters</PluginParam_1>
+
+	<PluginType_2>org.ptolemy3d.plugin.AxisPlugin</PluginType_2>
+    <PluginParam_2>1</PluginParam_2>
+</entity>

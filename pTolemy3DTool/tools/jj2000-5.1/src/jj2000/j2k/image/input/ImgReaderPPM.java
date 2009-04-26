@@ -40,10 +40,14 @@
  * */
 package jj2000.j2k.image.input;
 
-import jj2000.j2k.image.*;
-import jj2000.j2k.io.*;
-import jj2000.j2k.*;
-import java.io.*;
+import java.io.EOFException;
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+
+import jj2000.j2k.JJ2KExceptionHandler;
+import jj2000.j2k.image.DataBlk;
+import jj2000.j2k.image.DataBlkInt;
 
 /**
  * This class implements the ImgData interface for reading 8 bits unsigned

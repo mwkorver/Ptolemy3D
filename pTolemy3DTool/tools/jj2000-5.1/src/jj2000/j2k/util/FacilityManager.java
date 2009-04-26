@@ -42,8 +42,7 @@
  * */
 package jj2000.j2k.util;
 
-import java.util.*;
-import java.io.*;
+import java.util.Hashtable;
 
 /**
  * This class manages common facilities for multi-threaded

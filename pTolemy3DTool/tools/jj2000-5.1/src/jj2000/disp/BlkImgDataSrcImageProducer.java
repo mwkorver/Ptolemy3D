@@ -43,13 +43,17 @@
  * */
 package jj2000.disp;
 
-import jj2000.j2k.image.*;
-import jj2000.j2k.util.*;
-import jj2000.j2k.*;
+import java.awt.Component;
+import java.awt.Image;
+import java.awt.Toolkit;
+import java.awt.image.ColorModel;
+import java.awt.image.ImageConsumer;
+import java.awt.image.ImageProducer;
+import java.util.Vector;
 
-import java.awt.image.*;
-import java.util.*;
-import java.awt.*;
+import jj2000.j2k.image.BlkImgDataSrc;
+import jj2000.j2k.image.Coord;
+import jj2000.j2k.image.DataBlkInt;
 
 /**
  * This class provides an ImageProducer for the BlkImgDataSrc interface. It

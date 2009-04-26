@@ -8,13 +8,12 @@
 
 package icc.lut;
 
-import colorspace .ColorSpace;
-import icc .ICCProfile;
-import icc .RestrictedICCProfile;
-import icc .tags.ICCXYZType;
-import icc .lut.LookUpTableFP;
-import jj2000.j2k.image.DataBlkInt;
+import icc.ICCProfile;
+import icc.RestrictedICCProfile;
+import icc.tags.ICCXYZType;
 import jj2000.j2k.image.DataBlkFloat;
+import jj2000.j2k.image.DataBlkInt;
+import colorspace.ColorSpace;
 
 /**
  * Transform for applying ICCProfiling to an input DataBlk

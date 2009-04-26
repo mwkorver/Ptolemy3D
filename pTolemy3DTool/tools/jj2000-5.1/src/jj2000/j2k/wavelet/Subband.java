@@ -43,7 +43,7 @@
  * */
 package jj2000.j2k.wavelet;
 
-import jj2000.j2k.image.*;
+import jj2000.j2k.image.Coord;
 
 /**
  * This abstract class represents a subband in a bidirectional tree structure

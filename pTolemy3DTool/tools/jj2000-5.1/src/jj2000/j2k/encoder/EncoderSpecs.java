@@ -42,17 +42,22 @@
  * */
 package jj2000.j2k.encoder;
 
-import jj2000.j2k.quantization.quantizer.*;
-import jj2000.j2k.image.forwcomptransf.*;
-import jj2000.j2k.wavelet.analysis.*;
-import jj2000.j2k.entropy.encoder.*;
-import jj2000.j2k.quantization.*;
-import jj2000.j2k.wavelet.*;
-import jj2000.j2k.entropy.*;
-import jj2000.j2k.util.*;
-import jj2000.j2k.image.*;
-import jj2000.j2k.roi.*;
-import jj2000.j2k.*;
+import jj2000.j2k.IntegerSpec;
+import jj2000.j2k.ModuleSpec;
+import jj2000.j2k.StringSpec;
+import jj2000.j2k.entropy.CBlkSizeSpec;
+import jj2000.j2k.entropy.PrecinctSizeSpec;
+import jj2000.j2k.entropy.ProgressionSpec;
+import jj2000.j2k.image.BlkImgDataSrc;
+import jj2000.j2k.image.CompTransfSpec;
+import jj2000.j2k.image.forwcomptransf.ForwCompTransfSpec;
+import jj2000.j2k.quantization.GuardBitsSpec;
+import jj2000.j2k.quantization.QuantStepSizeSpec;
+import jj2000.j2k.quantization.QuantTypeSpec;
+import jj2000.j2k.quantization.quantizer.Quantizer;
+import jj2000.j2k.roi.MaxShiftSpec;
+import jj2000.j2k.util.ParameterList;
+import jj2000.j2k.wavelet.analysis.AnWTFilterSpec;
 
 /** 
  * This class holds references to each module specifications used in the

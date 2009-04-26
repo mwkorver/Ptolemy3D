@@ -44,7 +44,7 @@
  * */
 package jj2000.j2k.codestream;
 
-import java.io.*;
+import java.io.IOException;
 
 /**
  * This exception is thrown whenever an illegal value is read from a bit

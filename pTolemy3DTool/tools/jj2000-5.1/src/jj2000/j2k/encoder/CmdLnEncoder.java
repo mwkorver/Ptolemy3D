@@ -11,10 +11,10 @@
  *
  * COPYRIGHT:
  * 
- * This software module was originally developed by Raphaï¿½l Grosbois and
+ * This software module was originally developed by Raphaël Grosbois and
  * Diego Santa Cruz (Swiss Federal Institute of Technology-EPFL); Joel
- * Askelï¿½f (Ericsson Radio Systems AB); and Bertrand Berthelot, David
- * Bouchard, Fï¿½lix Henry, Gerard Mozelle and Patrice Onno (Canon Research
+ * Askelöf (Ericsson Radio Systems AB); and Bertrand Berthelot, David
+ * Bouchard, Félix Henry, Gerard Mozelle and Patrice Onno (Canon Research
  * Centre France S.A) in the course of development of the JPEG2000
  * standard as specified by ISO/IEC 15444 (JPEG 2000 Standard). This
  * software module is an implementation of a part of the JPEG 2000
@@ -56,8 +56,8 @@ import jj2000.j2k.util.StringFormatException;
 
 /**
  * This class runs JJ2000's encoder from the command line interface. It parses
- * command-line arguments to fill a ParameterList object which will be provided
- * to an Encoder object.
+ * command-line arguments to fill a ParameterList object which will be
+ * provided to an Encoder object.
  * */
 public class CmdLnEncoder {
 
@@ -73,18 +73,17 @@ public class CmdLnEncoder {
 	private Encoder enc;
 
 	/**
-	 * The starting point of the program. It creates a CmdLnEncoder object,
-	 * initializes it, and performs coding.
+     * The starting point of the program. It creates a CmdLnEncoder
+     * object, initializes it, and performs coding.
 	 * 
-	 * @param argv
-	 *            The command line arguments
+     * @param argv The command line arguments
 	 * */
 	public static void main(String argv[]) {
 		if (argv.length == 0) {
-			FacilityManager.getMsgLogger().println(
-					"CmdLnEncoder: JJ2000's JPEG 2000 Encoder\n"
-							+ "    use jj2000.j2k.encoder.CmdLnEncoder -u "
-							+ "to get help\n", 0, 0);
+            FacilityManager.getMsgLogger()
+                .println("CmdLnEncoder: JJ2000's JPEG 2000 Encoder\n"+
+                         "    use jj2000.j2k.encoder.CmdLnEncoder -u "+
+                         "to get help\n",0,0);
 			System.exit(1);
 		}
 
@@ -92,14 +91,13 @@ public class CmdLnEncoder {
 	}
 
 	/**
-	 * Instantiates a command line encoder object, with the 'argv' command line
-	 * arguments. It also initializes the default parameters. If the argument
-	 * list is empty an IllegalArgumentException is thrown. If an error occurs
-	 * while parsing the arguments error messages are written to stderr and the
-	 * run exit code is set to non-zero, see getExitCode()
+     * Instantiates a command line encoder object, with the 'argv' command
+     * line arguments. It also initializes the default parameters. If the
+     * argument list is empty an IllegalArgumentException is thrown. If an
+     * error occurs while parsing the arguments error messages are written to
+     * stderr and the run exit code is set to non-zero, see getExitCode()
 	 * 
-	 * @exception IllegalArgumentException
-	 *                If 'argv' is empty
+     * @exception IllegalArgumentException If 'argv' is empty
 	 * 
 	 * @see Encoder#getExitCode
 	 * */
@@ -124,9 +122,10 @@ public class CmdLnEncoder {
 		// Parse arguments from argv
 		try {
 			pl.parseArgs(argv);
-		} catch (StringFormatException e) {
-			System.err.println("An error occured while parsing the "
-					+ "arguments:\n" + e.getMessage());
+        }
+        catch (StringFormatException e) {
+            System.err.println("An error occured while parsing the "+
+                               "arguments:\n"+e.getMessage());
 			return;
 		}
 
@@ -139,22 +138,24 @@ public class CmdLnEncoder {
 				is = new FileInputStream(pl.getParameter("pfile"));
 				is = new BufferedInputStream(is);
 				tmpPl.load(is);
-			} catch (FileNotFoundException e) {
-				System.err.println("Could not load the argument file "
-						+ pl.getParameter("pfile"));
+            }
+            catch (FileNotFoundException e) {
+                System.err.println("Could not load the argument file " +
+				   pl.getParameter("pfile"));
 				return;
-			} catch (IOException e) {
-				System.err.println("An error ocurred while reading from the "
-						+ "argument file " + pl.getParameter("pfile"));
+            }
+            catch (IOException e) {
+                System.err.println("An error ocurred while reading from the "+
+                                   "argument file " + pl.getParameter("pfile"));
 				return;
 			}
 			try {
 				is.close();
-			} catch (IOException e) {
-				System.out
-						.println("[WARNING] Could not close the argument file"
-								+ " after reading");
 			}
+            catch (IOException e) {
+                System.out.println("[WARNING] Could not close the argument file"+
+				   " after reading");
+            }
 			Enumeration e = tmpPl.keys();
 			String str;
 

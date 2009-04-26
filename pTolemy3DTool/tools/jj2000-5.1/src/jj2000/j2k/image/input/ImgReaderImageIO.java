@@ -2,19 +2,28 @@
 
 package jj2000.j2k.image.input;
 
-import jj2000.j2k.image.*;
-import jj2000.j2k.*;
-
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.EOFException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 import javax.imageio.ImageIO;
+
+import jj2000.j2k.JJ2KExceptionHandler;
+import jj2000.j2k.image.DataBlk;
+import jj2000.j2k.image.DataBlkInt;
 
 /**
  * @author Jerome JOUVIE
  * */
-public class ImgReaderPNG extends ImgReader {
-
+public class ImgReaderImageIO extends ImgReader {
+	/** @return true if extension is supported */
+	public static boolean isSupported(String extension) {
+		return ImageIO.getImageReadersBySuffix(extension).hasNext();
+	}
+	
 	public final BufferedImage image;
 	
     /** DC offset value used when reading image */
@@ -40,7 +49,7 @@ public class ImgReaderPNG extends ImgReader {
 	 *
 	 * @param IOException If an error occurs while opening the file.
 	 * */
-	public ImgReaderPNG(String fname) throws IOException {
+	public ImgReaderImageIO(String fname) throws IOException {
 		this(new File(fname));
 	}
 
@@ -51,7 +60,7 @@ public class ImgReaderPNG extends ImgReader {
 	 *
 	 * @param IOException If an error occurs while opening the file.
 	 * */
-	public ImgReaderPNG(File file) throws IOException {
+	public ImgReaderImageIO(File file) throws IOException {
 		this(new FileInputStream(file));
 	}
 
@@ -64,7 +73,7 @@ public class ImgReaderPNG extends ImgReader {
 	 * @exception EOFException if an EOF is read
 	 * @exception IOException if an error occurs when opening the file
 	 * */
-	private ImgReaderPNG(InputStream in)throws EOFException,IOException {
+	private ImgReaderImageIO(InputStream in)throws EOFException,IOException {
 		this(ImageIO.read(in));
 	}
 	/**
@@ -76,7 +85,7 @@ public class ImgReaderPNG extends ImgReader {
 	 * @exception EOFException if an EOF is read
 	 * @exception IOException if an error occurs when opening the file
 	 * */
-	public ImgReaderPNG(BufferedImage bi) {
+	public ImgReaderImageIO(BufferedImage bi) {
 		image = bi;
 		w = image.getWidth();
 		h = image.getHeight();

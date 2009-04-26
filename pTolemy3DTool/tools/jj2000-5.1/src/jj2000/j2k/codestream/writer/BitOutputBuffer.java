@@ -42,7 +42,7 @@
  * */
 package jj2000.j2k.codestream.writer;
 
-import jj2000.j2k.util.*;
+import jj2000.j2k.util.ArrayUtil;
 
 /**
  * This class implements a buffer for writing bits, with the required bit

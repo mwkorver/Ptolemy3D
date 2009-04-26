@@ -8,33 +8,23 @@
 
 package icc;
 
-import java.io.File;
-import java.io.RandomAccessFile;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.FileInputStream;
-import java.io.InputStream;
+import icc.tags.ICCCurveType;
+import icc.tags.ICCTagTable;
+import icc.tags.ICCXYZType;
+import icc.types.ICCDateTime;
+import icc.types.ICCProfileHeader;
+import icc.types.ICCProfileVersion;
+import icc.types.XYZNumber;
+
 import java.io.IOException;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import jj2000.j2k.util.ParameterList;
-import jj2000.j2k.decoder.DecoderSpecs;
-import jj2000.j2k.codestream.reader.BitstreamReaderAgent;
-import colorspace .ColorSpace;
-import colorspace .ColorSpaceException;
-import icc .types.ICCProfileHeader;
-import icc .tags.ICCTag;
-import icc .tags.ICCTagTable;
-import icc .tags.ICCCurveType;
-import icc .tags.ICCXYZType;
-import icc .types.XYZNumber;
-import icc .types.ICCProfileVersion;
-import icc .types.ICCDateTime;
+import java.io.RandomAccessFile;
+
 import jj2000.j2k.fileformat.FileFormatBoxes;
-import jj2000.j2k.io.RandomAccessIO;
 import jj2000.j2k.util.FacilityManager;
 import jj2000.j2k.util.MsgLogger;
-import jj2000.j2k.fileformat.FileFormatBoxes;
+import jj2000.j2k.util.ParameterList;
+import colorspace.ColorSpace;
+import colorspace.ColorSpaceException;
 
 /**
  *  This class models the ICCProfile file.  This file is a binary file which is divided 

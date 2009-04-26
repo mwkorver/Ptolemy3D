@@ -42,19 +42,31 @@
  * */
 package jj2000.j2k.codestream.reader;
 
-import jj2000.j2k.quantization.dequantizer.*;
-import jj2000.j2k.wavelet.synthesis.*;
-import jj2000.j2k.entropy.decoder.*;
-import jj2000.j2k.codestream.*;
-import jj2000.j2k.decoder.*;
-import jj2000.j2k.entropy.*;
-import jj2000.j2k.image.*;
-import jj2000.j2k.util.*;
-import jj2000.j2k.io.*;
-import jj2000.j2k.*;
+import java.io.ByteArrayInputStream;
+import java.io.EOFException;
+import java.io.IOException;
+import java.util.Vector;
 
-import java.util.*;
-import java.io.*;
+import jj2000.j2k.JJ2KExceptionHandler;
+import jj2000.j2k.NoNextElementException;
+import jj2000.j2k.NotImplementedError;
+import jj2000.j2k.codestream.CorruptedCodestreamException;
+import jj2000.j2k.codestream.HeaderInfo;
+import jj2000.j2k.codestream.Markers;
+import jj2000.j2k.codestream.PrecInfo;
+import jj2000.j2k.codestream.ProgressionType;
+import jj2000.j2k.decoder.DecoderSpecs;
+import jj2000.j2k.entropy.StdEntropyCoderOptions;
+import jj2000.j2k.entropy.decoder.DecLyrdCBlk;
+import jj2000.j2k.image.Coord;
+import jj2000.j2k.io.RandomAccessIO;
+import jj2000.j2k.quantization.dequantizer.StdDequantizerParams;
+import jj2000.j2k.util.ArrayUtil;
+import jj2000.j2k.util.FacilityManager;
+import jj2000.j2k.util.MathUtil;
+import jj2000.j2k.util.MsgLogger;
+import jj2000.j2k.util.ParameterList;
+import jj2000.j2k.wavelet.synthesis.SubbandSyn;
 
 /**
  * This class reads the bit stream (with the help of HeaderDecoder for tile
@@ -75,7 +87,7 @@ import java.io.*;
  * */
 public class FileBitstreamReaderAgent extends BitstreamReaderAgent 
     implements Markers, ProgressionType, StdEntropyCoderOptions {
-
+	
     /** Whether or not the last read Psot value was zero. Only the Psot in the
      * last tile-part in the codestream can have such a value. */
     private boolean isPsotEqualsZero = true;

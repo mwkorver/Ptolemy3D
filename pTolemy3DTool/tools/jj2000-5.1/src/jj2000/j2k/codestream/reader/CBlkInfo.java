@@ -42,8 +42,6 @@
  * */
 package jj2000.j2k.codestream.reader;
 
-import java.util.*;
-
 /**
  * This class contains location of code-blocks' piece of codewords (there is
  * one piece per layer) and some other information.

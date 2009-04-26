@@ -13,20 +13,20 @@
     <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
         <javaElement handleIdentifier="=jj2000-5.1/src&lt;icc"/>
         <javaElement handleIdentifier="=jj2000-5.1/src&lt;jj2000.j2k.wavelet"/>
-        <javaElement handleIdentifier="=jj2000-5.1/src&lt;jj2000.j2k.codestream"/>
         <javaElement handleIdentifier="=jj2000-5.1/src&lt;jj2000.j2k.codestream.reader"/>
+        <javaElement handleIdentifier="=jj2000-5.1/src&lt;jj2000.j2k.codestream"/>
         <javaElement handleIdentifier="=jj2000-5.1/src&lt;jj2000.j2k.entropy.encoder"/>
         <javaElement handleIdentifier="=jj2000-5.1/src&lt;icc.lut"/>
         <javaElement handleIdentifier="=jj2000-5.1/src&lt;jj2000.j2k.fileformat.reader"/>
         <javaElement handleIdentifier="=jj2000-5.1/src&lt;colorspace.boxes"/>
-        <javaElement handleIdentifier="=jj2000-5.1/src&lt;jj2000.j2k.fileformat"/>
         <javaElement handleIdentifier="=jj2000-5.1/src&lt;jj2000.j2k.io"/>
         <javaElement handleIdentifier="=jj2000-5.1/src&lt;jj2000.j2k.wavelet.analysis"/>
         <javaElement handleIdentifier="=jj2000-5.1/src&lt;jj2000.j2k.wavelet.synthesis"/>
+        <javaElement handleIdentifier="=jj2000-5.1/src&lt;jj2000.j2k.fileformat"/>
         <javaElement handleIdentifier="=jj2000-5.1/src&lt;"/>
         <javaElement handleIdentifier="=jj2000-5.1/src&lt;colorspace"/>
-        <javaElement handleIdentifier="=jj2000-5.1/src&lt;jj2000.j2k"/>
         <javaElement handleIdentifier="=jj2000-5.1/src&lt;jj2000.j2k.fileformat.writer"/>
+        <javaElement handleIdentifier="=jj2000-5.1/src&lt;jj2000.j2k"/>
         <javaElement handleIdentifier="=jj2000-5.1/src&lt;jj2000.j2k.util"/>
         <javaElement handleIdentifier="=jj2000-5.1/src&lt;jj2000.disp"/>
         <javaElement handleIdentifier="=jj2000-5.1/src&lt;jj2000.j2k.decoder"/>
@@ -43,8 +43,8 @@
         <javaElement handleIdentifier="=jj2000-5.1/src&lt;icc.tags"/>
         <javaElement handleIdentifier="=jj2000-5.1/src&lt;jj2000.j2k.encoder"/>
         <javaElement handleIdentifier="=jj2000-5.1/src&lt;jj2000.j2k.image.output"/>
-        <javaElement handleIdentifier="=jj2000-5.1/src&lt;jj2000.j2k.image.forwcomptransf"/>
         <javaElement handleIdentifier="=jj2000-5.1/src&lt;jj2000.j2k.roi"/>
+        <javaElement handleIdentifier="=jj2000-5.1/src&lt;jj2000.j2k.image.forwcomptransf"/>
         <javaElement handleIdentifier="=jj2000-5.1/src&lt;jj2000.j2k.quantization.quantizer"/>
     </selectedElements>
 </jardesc>

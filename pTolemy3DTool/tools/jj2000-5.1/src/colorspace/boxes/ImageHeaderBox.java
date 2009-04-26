@@ -8,12 +8,12 @@
 
 package colorspace.boxes;
 
-import colorspace .ColorSpaceException;
-import jj2000.j2k.util.ParameterList;
-import jj2000.j2k.io.RandomAccessIO;
-import icc .ICCProfile;
+import icc.ICCProfile;
 
 import java.io.IOException;
+
+import jj2000.j2k.io.RandomAccessIO;
+import colorspace.ColorSpaceException;
 
 /**
  * This class models the Image Header box contained in a JP2

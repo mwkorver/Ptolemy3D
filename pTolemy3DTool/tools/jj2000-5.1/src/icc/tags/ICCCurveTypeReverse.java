@@ -8,9 +8,7 @@
 
 package icc.tags;
 
-import java.io.RandomAccessFile;
-import java.io.IOException;
-import icc .ICCProfile;
+import icc.ICCProfile;
 
 /**
  * The ICCCurveReverse tag

@@ -43,17 +43,23 @@
  * */
 package jj2000.j2k.entropy.encoder;
 
-import jj2000.j2k.codestream.writer.*;
-import jj2000.j2k.wavelet.analysis.*;
-import jj2000.j2k.entropy.encoder.*;
-import jj2000.j2k.codestream.*;
-import jj2000.j2k.entropy.*;
-import jj2000.j2k.encoder.*;
-import jj2000.j2k.image.*;
-import jj2000.j2k.util.*;
+import java.io.IOException;
 
-import java.util.*;
-import java.io.*;
+import jj2000.j2k.codestream.Markers;
+import jj2000.j2k.codestream.PrecInfo;
+import jj2000.j2k.codestream.ProgressionType;
+import jj2000.j2k.codestream.writer.BitOutputBuffer;
+import jj2000.j2k.codestream.writer.CodestreamWriter;
+import jj2000.j2k.codestream.writer.PktEncoder;
+import jj2000.j2k.encoder.EncoderSpecs;
+import jj2000.j2k.entropy.Progression;
+import jj2000.j2k.image.Coord;
+import jj2000.j2k.util.FacilityManager;
+import jj2000.j2k.util.MathUtil;
+import jj2000.j2k.util.MsgLogger;
+import jj2000.j2k.util.ParameterList;
+import jj2000.j2k.util.ProgressWatch;
+import jj2000.j2k.wavelet.analysis.SubbandAn;
 
 /**
  * This implements the EBCOT post compression rate allocation algorithm. This

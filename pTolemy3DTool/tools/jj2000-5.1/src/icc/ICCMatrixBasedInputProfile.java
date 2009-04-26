@@ -8,12 +8,8 @@
 
 package icc;
 
-import java.io.InputStream;
-import java.io.File;
-import java.io.IOException;
-import colorspace .ColorSpace;
-import colorspace .ColorSpaceException;
-import jj2000.j2k.io.RandomAccessIO;
+import colorspace.ColorSpace;
+import colorspace.ColorSpaceException;
 
 /**
  * This class enables an application to construct an 3 component ICCProfile

@@ -43,11 +43,11 @@
  *  */
 package jj2000.j2k.image.output;
 
-import jj2000.j2k.image.*;
-import jj2000.j2k.util.*;
-import jj2000.j2k.*;
+import java.io.IOException;
 
-import java.io.*;
+import jj2000.j2k.image.BlkImgDataSrc;
+import jj2000.j2k.image.Coord;
+import jj2000.j2k.image.DataBlk;
 
 /**
  * This is the generic interface to be implemented by all image file (or other

@@ -42,8 +42,6 @@
  * */
 package jj2000.j2k.codestream;
 
-import jj2000.j2k.image.Coord;
-
 /**
  * This class is used to store the coordinates of objects such as code-blocks
  * or precincts. As this is an abstract class, it cannot be used directly but

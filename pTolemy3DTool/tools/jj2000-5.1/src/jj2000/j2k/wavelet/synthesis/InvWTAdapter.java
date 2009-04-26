@@ -42,8 +42,8 @@
  * */
 package jj2000.j2k.wavelet.synthesis;
 
-import jj2000.j2k.decoder.*;
-import jj2000.j2k.image.*;
+import jj2000.j2k.decoder.DecoderSpecs;
+import jj2000.j2k.image.Coord;
 
 /**
  * This class provides default implementation of the methods in the 'InvWT'

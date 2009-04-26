@@ -8,7 +8,7 @@
 
 package icc.lut;
 
-import icc .tags.ICCCurveType;
+import icc.tags.ICCCurveType;
 
 /**
  * An interpolated 32 bit lut

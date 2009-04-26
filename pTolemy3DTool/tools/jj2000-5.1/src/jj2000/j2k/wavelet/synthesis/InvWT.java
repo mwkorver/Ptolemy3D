@@ -43,7 +43,7 @@
  * */
 package jj2000.j2k.wavelet.synthesis;
 
-import jj2000.j2k.wavelet.*;
+import jj2000.j2k.wavelet.WaveletTransform;
 
 /**
  * This interface extends the WaveletTransform with the specifics of inverse

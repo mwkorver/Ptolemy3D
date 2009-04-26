@@ -8,8 +8,7 @@
 
 package icc.tags;
 
-import java.util.Vector;
-import icc .ICCProfile;
+import icc.ICCProfile;
 
 /**
  * A text based ICC tag

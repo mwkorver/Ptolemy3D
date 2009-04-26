@@ -43,14 +43,18 @@
  *  */
 package jj2000.j2k.decoder;
 
-import jj2000.j2k.util.*;
-import jj2000.j2k.*;
-import jj2000.disp.*;
+import java.applet.Applet;
+import java.awt.BorderLayout;
+import java.awt.Image;
+import java.awt.image.ImageObserver;
+import java.net.MalformedURLException;
+import java.net.URL;
 
-import java.applet.*;
-import java.awt.*;
-import java.awt.image.*;
-import java.net.*;
+import jj2000.disp.ImgKeyListener;
+import jj2000.disp.ImgMouseListener;
+import jj2000.disp.ImgScrollPane;
+import jj2000.j2k.JJ2KInfo;
+import jj2000.j2k.util.ParameterList;
 
 /**
  * This applet implements a simple mean to embed the JJ2000 decoder in an HTML

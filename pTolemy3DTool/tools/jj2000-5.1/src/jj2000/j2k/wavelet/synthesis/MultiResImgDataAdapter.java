@@ -44,7 +44,7 @@
  * */
 package jj2000.j2k.wavelet.synthesis;
 
-import jj2000.j2k.image.*;
+import jj2000.j2k.image.Coord;
 
 /**
  * This class provides a default implementation for the methods of the

@@ -8,11 +8,7 @@
 
 package icc.tags;
 
-import java.io.IOException;
-import java.util.Vector;
-import java.io.RandomAccessFile;
-import icc .ICCProfile;
-import icc .types.XYZNumber;
+import icc.ICCProfile;
 
 /**
  * A tag containing a triplet.

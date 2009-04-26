@@ -43,10 +43,13 @@
  * */
 package jj2000.j2k.image.output;
 
-import jj2000.j2k.image.*;
-import jj2000.j2k.util.*;
-import jj2000.j2k.io.*;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+
+import jj2000.j2k.image.BlkImgDataSrc;
+import jj2000.j2k.image.DataBlk;
+import jj2000.j2k.image.DataBlkInt;
 
 /**
  * This class writes 3 components from an image in 8 bit unsigned data to a

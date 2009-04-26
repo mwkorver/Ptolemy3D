@@ -8,8 +8,6 @@
 
 package icc.lut;
 
-import icc .tags.ICCCurveType;
-
 /**
  * A Linear 32 bit SRGB to SRGB lut
  * 

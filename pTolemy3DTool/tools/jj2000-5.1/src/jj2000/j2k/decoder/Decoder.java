@@ -42,30 +42,60 @@
  * */
 package jj2000.j2k.decoder;
 
-import jj2000.j2k.quantization.dequantizer.*;
-import jj2000.j2k.image.invcomptransf.*;
-import jj2000.j2k.fileformat.reader.*;
-import jj2000.j2k.codestream.reader.*;
-import jj2000.j2k.wavelet.synthesis.*;
-import jj2000.j2k.entropy.decoder.*;
-import jj2000.j2k.image.output.*;
-import jj2000.j2k.codestream.*;
-import jj2000.j2k.image.*;
-import jj2000.j2k.util.*;
-import jj2000.j2k.roi.*;
-import jj2000.j2k.io.*;
-import jj2000.disp.*;
-import jj2000.j2k.*;
+import icc.ICCProfiler;
 
-import colorspace.*;
-import icc.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Frame;
+import java.awt.Image;
+import java.awt.Insets;
+import java.awt.image.ImageObserver;
+import java.io.EOFException;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.Enumeration;
+import java.util.Vector;
 
-import java.awt.image.*;
-import java.awt.event.*;
-import java.util.*;
-import java.awt.*;
-import java.net.*;
-import java.io.*;
+import jj2000.disp.BlkImgDataSrcImageProducer;
+import jj2000.disp.ExitHandler;
+import jj2000.disp.ImgKeyListener;
+import jj2000.disp.ImgMouseListener;
+import jj2000.disp.ImgScrollPane;
+import jj2000.disp.TitleUpdater;
+import jj2000.j2k.JJ2KInfo;
+import jj2000.j2k.ModuleSpec;
+import jj2000.j2k.codestream.HeaderInfo;
+import jj2000.j2k.codestream.reader.BitstreamReaderAgent;
+import jj2000.j2k.codestream.reader.HeaderDecoder;
+import jj2000.j2k.entropy.decoder.EntropyDecoder;
+import jj2000.j2k.fileformat.reader.FileFormatReader;
+import jj2000.j2k.image.BlkImgDataSrc;
+import jj2000.j2k.image.ImgDataConverter;
+import jj2000.j2k.image.invcomptransf.InvCompTransf;
+import jj2000.j2k.image.output.ImgWriter;
+import jj2000.j2k.image.output.ImgWriterImageIO;
+import jj2000.j2k.image.output.ImgWriterPGM;
+import jj2000.j2k.image.output.ImgWriterPGX;
+import jj2000.j2k.image.output.ImgWriterPPM;
+import jj2000.j2k.io.BEBufferedRandomAccessFile;
+import jj2000.j2k.io.RandomAccessIO;
+import jj2000.j2k.quantization.dequantizer.Dequantizer;
+import jj2000.j2k.roi.ROIDeScaler;
+import jj2000.j2k.util.FacilityManager;
+import jj2000.j2k.util.ISRandomAccessIO;
+import jj2000.j2k.util.MsgLogger;
+import jj2000.j2k.util.ParameterList;
+import jj2000.j2k.util.StringFormatException;
+import jj2000.j2k.wavelet.synthesis.InverseWT;
+import colorspace.ColorSpace;
+import colorspace.ColorSpaceException;
+import colorspace.ColorSpaceMapper;
 
 /**
  * This class is the main class of JJ2000's decoder. It instantiates all
@@ -805,6 +835,9 @@ public class Decoder implements Runnable {
                     out[i] = "";
                 }
 		if(nCompImg>1 &&
+/** START OF UPGRADE */
+		   !outext.equalsIgnoreCase(".PNG") &&
+/** END OF UPGRADE */
 		   !outext.equalsIgnoreCase(".PPM")) { // Multiple file output
                     // files 
 		    // If PGM verify bitdepth and if signed
@@ -837,9 +870,18 @@ public class Decoder implements Runnable {
 		    out[0] = outbase + outext;
 		}
 		// Now get the image writers
-		if(outext.equalsIgnoreCase(".PPM")) {
+		if(outext.equalsIgnoreCase(".PPM")
+/** START OF UPGRADE */
+				   || outext.equalsIgnoreCase(".PNG")
+/** END OF UPGRADE */
+				) {
 		    imwriter = new ImgWriter[1];
 		    try {
+/** START OF UPGRADE */
+	    	if(outext.equalsIgnoreCase(".PNG")) {
+				imwriter[0] = new ImgWriterImageIO(out[0],decodedImage, 0,1,2);
+	    	} else
+/** END OF UPGRADE */
 			imwriter[0] = new ImgWriterPPM(out[0],decodedImage,
 						       0,1,2);
 		    } catch (IOException e) {

@@ -46,10 +46,10 @@
  */
 package jj2000.disp;
 
-import jj2000.j2k.decoder.*;
-
-import java.awt.event.*;
-import java.awt.*;
+import java.awt.Cursor;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
 
 /**
  * This class handles the dragging of an image displayed in an

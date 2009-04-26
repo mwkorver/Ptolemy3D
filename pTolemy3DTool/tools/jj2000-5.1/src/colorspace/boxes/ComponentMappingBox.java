@@ -8,14 +8,14 @@
 
 package colorspace.boxes;
 
-import colorspace .ColorSpaceException;
-import icc .ICCProfile;
-import jj2000.j2k.util.ParameterList;
-import jj2000.j2k.io.RandomAccessIO;
+import icc.ICCProfile;
 
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Vector;
+
+import jj2000.j2k.io.RandomAccessIO;
+import colorspace.ColorSpaceException;
 
 /**
  * This class maps the components in the codestream

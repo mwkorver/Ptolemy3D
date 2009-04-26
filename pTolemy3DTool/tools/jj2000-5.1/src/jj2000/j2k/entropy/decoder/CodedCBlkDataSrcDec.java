@@ -44,8 +44,8 @@
  *  */
 package jj2000.j2k.entropy.decoder;
 
-import jj2000.j2k.wavelet.synthesis.*;
-import jj2000.j2k.image.*;
+import jj2000.j2k.wavelet.synthesis.InvWTData;
+import jj2000.j2k.wavelet.synthesis.SubbandSyn;
 
 /**
  * This interface defines a source of entropy coded data and methods to

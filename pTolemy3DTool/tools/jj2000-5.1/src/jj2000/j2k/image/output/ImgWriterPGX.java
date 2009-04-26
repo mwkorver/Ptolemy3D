@@ -43,10 +43,13 @@
  * */
 package jj2000.j2k.image.output;
 
-import jj2000.j2k.image.*;
-import jj2000.j2k.util.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 
-import java.io.*;
+import jj2000.j2k.image.BlkImgDataSrc;
+import jj2000.j2k.image.DataBlk;
+import jj2000.j2k.image.DataBlkInt;
 
 /**
  * This class extends the ImgWriter abstract class for writing PGX files.  PGX

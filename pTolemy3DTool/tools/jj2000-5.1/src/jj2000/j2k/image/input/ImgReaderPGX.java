@@ -43,12 +43,19 @@
  * */
 package jj2000.j2k.image.input;
 
-import jj2000.j2k.image.*;
-import jj2000.j2k.io.*;
-import jj2000.j2k.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.util.NoSuchElementException;
+import java.util.StringTokenizer;
 
-import java.util.*;
-import java.io.*;
+import jj2000.j2k.JJ2KExceptionHandler;
+import jj2000.j2k.image.DataBlk;
+import jj2000.j2k.image.DataBlkInt;
+import jj2000.j2k.io.BEBufferedRandomAccessFile;
+import jj2000.j2k.io.BufferedRandomAccessFile;
+import jj2000.j2k.io.EndianType;
+import jj2000.j2k.io.RandomAccessIO;
 
 /**
  * This class extends the ImgReader abstract class for reading PGX files. PGX

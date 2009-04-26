@@ -42,10 +42,10 @@
  * */
 package jj2000.j2k.codestream.reader;
 
-import jj2000.j2k.util.*;
-import jj2000.j2k.io.*;
+import java.io.EOFException;
+import java.io.IOException;
 
-import java.io.*;
+import jj2000.j2k.util.ArrayUtil;
 
 /**
  * This class implements the tag tree decoder. A tag tree codes a 2D matrix of

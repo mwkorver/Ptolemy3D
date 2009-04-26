@@ -8,13 +8,17 @@
 
 package colorspace;
 
-import java.io.*;
+import icc.ICCProfileException;
+import icc.ICCProfiler;
 
-import jj2000.j2k.image.*;
-import jj2000.j2k.util.*;
-import jj2000.j2k.util.*;
+import java.io.IOException;
 
-import icc.*;
+import jj2000.j2k.image.BlkImgDataSrc;
+import jj2000.j2k.image.DataBlk;
+import jj2000.j2k.image.DataBlkFloat;
+import jj2000.j2k.image.DataBlkInt;
+import jj2000.j2k.image.ImgDataAdapter;
+import jj2000.j2k.util.ParameterList;
 
 /**
  * This is the base class for all modules in the colorspace and icc

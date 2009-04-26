@@ -42,9 +42,10 @@
  * */
 package jj2000.j2k;
 
-import jj2000.j2k.image.*;
+import java.util.Enumeration;
+import java.util.Hashtable;
 
-import java.util.*;
+import jj2000.j2k.image.Coord;
 
 /**
  * This generic class is used to handle values to be used by a module for each

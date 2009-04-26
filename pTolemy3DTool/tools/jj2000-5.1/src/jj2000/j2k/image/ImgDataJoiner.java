@@ -42,7 +42,7 @@
  * */
 package jj2000.j2k.image;
 
-import jj2000.j2k.*;
+import jj2000.j2k.NoNextElementException;
 
 /**
  * This class implements the ImgData interface and allows to obtain data from

@@ -8,9 +8,10 @@
 
 package icc.types;
 
-import java.io.RandomAccessFile;
+import icc.ICCProfile;
+
 import java.io.IOException;
-import icc .ICCProfile;
+import java.io.RandomAccessFile;
 
 
 /**

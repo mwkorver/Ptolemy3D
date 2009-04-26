@@ -8,7 +8,7 @@
 
 package icc.lut;
 
-import icc .tags.ICCCurveType;
+import icc.tags.ICCCurveType;
 
 /**
  * Toplevel class for a int [] lut.

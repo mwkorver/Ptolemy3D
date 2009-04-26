@@ -35,11 +35,11 @@ public class MapDataManager {
 	/** Keep reference of all MapData */
 	private final HashMap<MapDataKey, MapData> mapDatas;
 	/** Map decoder queue */
-	private final MapDecoderQueue decoderQueue;
+	private final MapDataDecoder decoderQueue;
 	
 	public MapDataManager() {
 		mapDatas = new HashMap<MapDataKey, MapData>();
-		decoderQueue = new MapDecoderQueue();
+		decoderQueue = new MapDataDecoder();
 	}
 	
 	public MapData get(int level, int mapSize, int lon, int lat) {

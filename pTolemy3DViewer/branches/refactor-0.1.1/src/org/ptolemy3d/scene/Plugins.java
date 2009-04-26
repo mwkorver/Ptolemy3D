@@ -24,7 +24,7 @@ import javax.media.opengl.GL;
 import org.ptolemy3d.DrawContext;
 import org.ptolemy3d.Ptolemy3DGLCanvas;
 import org.ptolemy3d.debug.IO;
-import org.ptolemy3d.io.Communicator;
+import org.ptolemy3d.deprecated.Communicator;
 
 /**
  * <H1>Overview</H1>

@@ -25,7 +25,7 @@ import javax.media.opengl.GL;
 import javax.media.opengl.glu.GLU;
 import org.ptolemy3d.DrawContext;
 import org.ptolemy3d.Unit;
-import org.ptolemy3d.io.Communicator;
+import org.ptolemy3d.deprecated.Communicator;
 import org.ptolemy3d.scene.Plugin;
 import org.ptolemy3d.view.Camera;
 

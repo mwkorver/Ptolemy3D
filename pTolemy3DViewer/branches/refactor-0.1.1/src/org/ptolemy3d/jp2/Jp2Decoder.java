@@ -64,4 +64,12 @@ public class Jp2Decoder {
 		}
 		return wavelets[resolution];
 	}
+	
+	public Jp2Wavelet getWavelet(int resolution) {
+		return wavelets[resolution];
+	}
+	
+	public boolean hasWavelet(int resolution) {
+		return (wavelets[resolution] != null);
+	}
 }

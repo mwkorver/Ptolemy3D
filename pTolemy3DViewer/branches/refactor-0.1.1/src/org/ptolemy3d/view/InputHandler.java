@@ -34,7 +34,7 @@ import java.util.Arrays;
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.Ptolemy3DGLCanvas;
 import org.ptolemy3d.debug.IO;
-import org.ptolemy3d.manager.Jp2TileLoader;
+import org.ptolemy3d.deprecated.Jp2TileLoader;
 import org.ptolemy3d.view.InputHandler.InputConfig.Input;
 
 /**

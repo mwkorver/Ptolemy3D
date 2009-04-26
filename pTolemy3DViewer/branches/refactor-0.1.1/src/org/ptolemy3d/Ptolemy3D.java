@@ -18,7 +18,7 @@
 package org.ptolemy3d;
 
 import org.ptolemy3d.debug.IO;
-import org.ptolemy3d.manager.Jp2TileLoader;
+import org.ptolemy3d.deprecated.Jp2TileLoader;
 import org.ptolemy3d.manager.MapDataManager;
 import org.ptolemy3d.manager.TextureManager;
 import org.ptolemy3d.scene.Scene;

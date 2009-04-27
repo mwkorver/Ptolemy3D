@@ -154,23 +154,23 @@ public class Plugins {
     }
 
     /** Call by the tile loader to let the plugin request data. */
-    public final void tileLoaderAction(Communicator JC) {
-        if (!running) {
-            return;
-        }
-        boolean hasPlugins = plugins.size() > 0;
-        if (hasPlugins) {
-            try {
-                plugins.get(tl_rotation++).tileLoaderAction(JC);
-            }
-            catch (Exception e) {
-                IO.printStackPlugin(e);
-            }
-            if (tl_rotation >= plugins.size()) {
-                tl_rotation = 0;
-            }
-        }
-    }
+//    public final void tileLoaderAction(Communicator JC) {
+//        if (!running) {
+//            return;
+//        }
+//        boolean hasPlugins = plugins.size() > 0;
+//        if (hasPlugins) {
+//            try {
+//                plugins.get(tl_rotation++).tileLoaderAction(JC);
+//            }
+//            catch (Exception e) {
+//                IO.printStackPlugin(e);
+//            }
+//            if (tl_rotation >= plugins.size()) {
+//                tl_rotation = 0;
+//            }
+//        }
+//    }
 
     /** Execute a plugin command.
      * @param commandName command type

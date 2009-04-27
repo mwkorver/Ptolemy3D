@@ -42,15 +42,12 @@ public class MapDataManager {
 		decoderQueue = new MapDataDecoder();
 	}
 	
-	public MapData get(int level, int mapSize, int lon, int lat) {
-		final MapDataKey key = new MapDataKey(level, mapSize, lon, lat);
-		return get(key);
-	}
 	public MapData get(MapDataKey key) {
 		MapData mapData = mapDatas.get(key);
 		if (mapData == null) {
 			mapData = new MapData(key);
 			mapDatas.put(mapData.key, mapData);
+			IO.printfManager("MapData: %s\n", mapData.key);
 		}
 		return mapData;
 	}
@@ -66,18 +63,26 @@ public class MapDataManager {
 		}
 	}
 
-	// FIXME rename
-	public final MapData getMapDataHeader(int level, double lon, double lat) {
-		final Iterator<Entry<MapDataKey,MapData>> i = mapDatas.entrySet().iterator();
-		while (i.hasNext()) {
-			final Entry<MapDataKey,MapData> entry = i.next();
-			final MapDataKey key = entry.getKey();
-			if ((key.lon <= lon) && ((key.lon + key.mapSize) > lon) &&
-				(key.lat >= lat) && ((key.lat - key.mapSize) < lat)) {
-				return entry.getValue();
+	public final MapData getMapDataHeader(int levelID, int mapSize, int lon, int lat) {
+		final MapDataKey exactKey = new MapDataKey(levelID, mapSize, lon, lat);
+		final MapData mapData = mapDatas.get(exactKey);
+		if (mapData != null) {
+			return mapData;
+		}
+		
+		for (int level = levelID - 1; level >= 0; level--) {
+			final Iterator<Entry<MapDataKey,MapData>> i = mapDatas.entrySet().iterator();
+			while (i.hasNext()) {
+				final Entry<MapDataKey,MapData> entry = i.next();
+				final MapDataKey key = entry.getKey();
+				if ((key.lon <= lon) && ((key.lon + key.mapSize) > lon) &&
+					(key.lat >= lat) && ((key.lat - key.mapSize) < lat)) {
+					return entry.getValue();
+				}
 			}
 		}
-		return null;
+		
+		return get(exactKey);
 	}
 	
 	public int getTextureID(GL gl, MapData mapData) {

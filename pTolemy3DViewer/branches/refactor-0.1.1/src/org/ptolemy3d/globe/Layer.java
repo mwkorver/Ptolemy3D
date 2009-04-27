@@ -31,42 +31,42 @@ import org.ptolemy3d.scene.Landscape;
  * A resolution level.
  * 
  * @author Antonio Santiago <asantiagop(at)gmail(dot)com>
- * @author Jerome Jouvie
+ * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  */
 public class Layer {
-    // Number of tiles in longitude direction
-
+    /** Number of tiles in longitude direction */
     public final static int LEVEL_NUMTILE_LON = 8;
-    // Number of tiles in latitude direction
+    /** Number of tiles in latitude direction */
     public final static int LEVEL_NUMTILE_LAT = 8;
-    // Total number of tiles in the level.
+    /** Total number of tiles in the level. */
     public final static int LEVEL_NUMTILES = LEVEL_NUMTILE_LON * LEVEL_NUMTILE_LAT;
 
-    // Level id
+    /** Level id */
     private final int levelID;
 
-    // List of tiles.
+    /** List of tiles */
     private Tile[/* LEVEL_NUMTILES */] tiles;
 
-    // Upper left corner latitude
+    /** Upper left corner latitude */
     private int upLeftLon;
-    // Upper left corner longitude
+    /** Upper left corner longitude */
     private int upLeftLat;
-    // Upper right corner longitude
+    /** Upper right corner longitude */
     private int lowRightLon;
-    // Upper right corner latitude
+    /** Upper right corner latitude */
     private int lowRightLat;
-    // Tile's size
+    /** Tile's size */
     private final int tileSize;
-    // Layer visibility
+    /** Layer visibility */
     private boolean visible;
-    // Altitude is in the range minZoom/maxZoom
+    /** Altitude is in the range minZoom/maxZoom */
     private boolean status;
-    // Maximum altitude to render the level
+    /** Maximum altitude to render the level */
     private final int maxZoom;
-    // Minimum altitude to render the level
+    /** Minimum altitude to render the level */
     private final int minZoom;
-    @Deprecated private final int divider;
+    /** Use for server efficiency storage and speed of map datas */
+    private final int divider;
 
     /**
      * Creates a new instance.
@@ -227,7 +227,7 @@ public class Layer {
         }
 
         final MapDataManager mapDataManager = Ptolemy3D.getMapDataManager();
-        final MapData mapData = mapDataManager.getMapDataHeader(levelID, lon, lat);
+        final MapData mapData = null;//mapDataManager.getMapDataHeader(levelID, tileSize, (int)lon, (int)lat);
         if (mapData == null) {
             return null;
         }
@@ -446,7 +446,7 @@ public class Layer {
     }
 
     /** @return the divider */
-    @Deprecated  public int getDivider() {
+    public int getDivider() {
         return divider;
     }
 }

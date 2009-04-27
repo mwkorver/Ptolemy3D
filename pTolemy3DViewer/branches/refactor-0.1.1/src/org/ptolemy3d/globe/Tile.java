@@ -76,7 +76,7 @@ public class Tile {
         this.status = true;
         
         final MapDataManager mapDataManager = Ptolemy3D.getMapDataManager();
-    	mapData = mapDataManager.getMapDataHeader(getLevelID(), getFmx(), getFmz());
+    	this.mapData = mapDataManager.getMapDataHeader(level.getLevelID(), level.getTileSize(), fmx, fmz);
     }
 
     protected void processVisibility() {
@@ -97,7 +97,6 @@ public class Tile {
             ProfilerUtil.tileCounter++;
         }
 
-        // Bind texture - FIXME Move
     	final MapDataManager mapDataManager = Ptolemy3D.getMapDataManager();
     	int textureID = mapDataManager.getTextureID(gl, mapData);
         gl.glBindTexture(GL.GL_TEXTURE_2D, textureID);

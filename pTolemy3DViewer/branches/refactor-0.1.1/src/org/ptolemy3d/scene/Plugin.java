@@ -62,8 +62,8 @@ public interface Plugin {
      * @param intersectPoint picking intersection point. */
     public boolean onPick(double[] intersectPoint);
 
-    /** Call by the tile loader to let the plugin request data. */
-    public void tileLoaderAction(Communicator JC) throws IOException;
+//    /** Call by the tile loader to let the plugin request data. */
+//    public void tileLoaderAction(Communicator JC) throws IOException;
 
     /** Execute a plugin command.
      * @param commandName command type

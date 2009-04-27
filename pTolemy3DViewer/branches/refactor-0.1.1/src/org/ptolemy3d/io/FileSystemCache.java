@@ -33,10 +33,10 @@ public class FileSystemCache {
 		cacheDirectory.mkdirs();
 	}
 	
-	//FIXME
 	public URI getCacheFileFor(URL url) {
 		final String fileInCache = url.getPath();
-		final File cache = new File("file://" + new File(cacheDirectory, fileInCache));
+		final File cache = new File(cacheDirectory, fileInCache);
+		cache.getParentFile().mkdirs();
 		return cache.toURI();
 	}
 }

@@ -22,7 +22,7 @@ package org.ptolemy3d;
  * used in Ptolemy3D.
  *
  * @author Antonio Santiago <asantiagop(at)gmail(dot)com>
- * @author Jerome Jouvie
+ * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  */
 public class Unit {
 

@@ -168,7 +168,7 @@ import org.ptolemy3d.view.CameraMovement;
  * 
  * @see #groundHeight(double, double, int)
  * 
- * @author Jerome Jouvie
+ * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  * @author Antonio Santiago <asantiagop(at)gmail(dot)com>
  */
 public class Landscape {

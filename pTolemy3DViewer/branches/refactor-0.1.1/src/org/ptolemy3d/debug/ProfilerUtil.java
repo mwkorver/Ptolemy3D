@@ -49,7 +49,7 @@ public class ProfilerUtil
 	private static Timer counter = null;
 
 	/** Enable Profiler Prints */
-	public static boolean enablePrintProfiler = false;
+	public static boolean printProfiler = true;
 	/** Tile counter */
 	public static int tileCounter = 0;
 	/** Tile counter */
@@ -128,7 +128,7 @@ public class ProfilerUtil
 	}
 
 	private static Vector<String> generateReport() {
-		if(enablePrintProfiler) {
+		if(printProfiler) {
 			Vector<String> report = new Vector<String>(4);
 			int count = 0;
 			while(true) {
@@ -200,7 +200,7 @@ public class ProfilerUtil
 	}
 
 	public static void drawProfiler(GL gl) {
-		if(enablePrintProfiler) {
+		if(printProfiler) {
 			FontRenderer font = getFont(gl);
 			font.start();
 			drawGUI(font);

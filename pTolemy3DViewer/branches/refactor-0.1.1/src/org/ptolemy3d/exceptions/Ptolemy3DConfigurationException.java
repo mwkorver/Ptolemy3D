@@ -21,7 +21,7 @@ package org.ptolemy3d.exceptions;
 /**
  * A pTolemy exception related to configuration settings.
  * 
- * @author Antonio Santiago
+ * @author Antonio Santiago <asantiagop(at)gmail(dot)com>
  */
 public class Ptolemy3DConfigurationException extends Ptolemy3DException {
 	private static final long serialVersionUID = 1L;

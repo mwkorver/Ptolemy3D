@@ -32,7 +32,7 @@ import org.ptolemy3d.view.Camera;
  * Basic demonstration of plugin creating. Shows the cartesian axis used in
  * ptolemy3D: RED - X, GREEN - Y, BLUE - Z.
  *
- * @author Antonio Santiago <asantiagop@gmail.com>
+ * @author Antonio Santiago <asantiagop(at)gmail(dot)com> <asantiagop@gmail.com>
  */
 public class AxisPlugin implements Plugin {
 
@@ -90,11 +90,11 @@ public class AxisPlugin implements Plugin {
         return false;
     }
 
-    /**
-     * Call by the tile loader to let the plugin request data.
-     */
-    public void tileLoaderAction(Communicator com) throws IOException {
-    }
+//    /**
+//     * Call by the tile loader to let the plugin request data.
+//     */
+//    public void tileLoaderAction(Communicator com) throws IOException {
+//    }
 
     /**
      * Execute a plugin command.

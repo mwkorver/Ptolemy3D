@@ -53,7 +53,7 @@ import org.ptolemy3d.view.Camera;
  * <BR>
  *
  * @author Antonio Santiago <asantiagop(at)gmail(dot)com>
- * @author Jerome Jouvie
+ * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  */
 public class Scene implements Transferable {
 

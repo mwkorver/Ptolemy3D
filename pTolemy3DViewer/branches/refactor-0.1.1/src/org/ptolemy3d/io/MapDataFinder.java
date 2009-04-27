@@ -30,12 +30,15 @@ import org.ptolemy3d.globe.MapData;
  */
 public class MapDataFinder {
 	/** List of servers */
-	private final String server;
+	private final String host;
+	/** List of servers */
+	private final int port;
 	/** List of servers */
 	private final Vector<ServerConfig> servers;
 	
 	public MapDataFinder(String server, ServerConfig[] initialServerConfig) {
-		this.server = server;
+		this.host = parseHost(server);
+		this.port = parsePort(server);
 		if(initialServerConfig != null) {
 			servers = new Vector<ServerConfig>(initialServerConfig.length);
 			for(ServerConfig serverConfig : initialServerConfig) {
@@ -46,14 +49,33 @@ public class MapDataFinder {
 			servers = new Vector<ServerConfig>(1);
 		}
 	}
+	private String parseHost(String server) {
+		int index = server.lastIndexOf(":");
+		if(index >= 0) {
+			try {
+				return server.substring(0, index);
+			} catch (NumberFormatException t) { }
+		}
+		return server;
+	}
+	private int parsePort(String server) {
+		int index = server.lastIndexOf(":");
+		if(index >= 0) {
+			try {
+				return Integer.parseInt(server.substring(index+1));
+			} catch (NumberFormatException t) { }
+		}
+		return 80;
+	}
 	
 	public void addServer(ServerConfig server) {
 		servers.add(server);
 	}
 	
-	
-	public URL findMapData(MapData mapData) {
-		final String fileBase = getMapDataFileBase(mapData);
+	/** Search map data texture on the available servers.
+	 *  @return the map data texture url */
+	public URL findMapDataTexture(MapData mapData) {
+		final String fileBase = getTextureFileBase(mapData);
 		
 		for(ServerConfig serverConfig : servers) {
 			if(serverConfig.jp2Locations == null) {
@@ -61,21 +83,23 @@ public class MapDataFinder {
 			}
 			
 			for(String location : serverConfig.jp2Locations) {
+				final String s = location + fileBase + ".jp2" + serverConfig.getUrlAppender();
 				try {
-					final URL url = new URL("http", server, location + fileBase + ".jp2" + serverConfig.getUrlAppender());
-					url.openConnection();
+					final URL url = new URL("http", host, port, s);
+					url.openStream();
+					IO.printfConnection("Map found: %s [http://%s:%d%s]\n", mapData, host, port, s);
 					return url;
 				}
 				catch(Exception e) {
-					IO.printStackConnection(e);
+					IO.printfConnection("Map not found: %s [http://%s:%d%s]\n", mapData, host, port, s);
 					continue;
 				}
 			}
 		}
+		IO.printfConnection("Map not found: %s\n", mapData);
 		return null;
 	}
-	
-	private final String getMapDataFileBase(MapData mapData) {
+	private final String getTextureFileBase(MapData mapData) {
 		final Layer[] levels = Ptolemy3D.getScene().landscape.getLayers();
 
 		String fileBase = String.valueOf(mapData.key.mapSize) + "/";

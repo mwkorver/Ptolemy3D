@@ -121,7 +121,10 @@ public class TextureManager {
 	}
 	
 	public int get(MapData mapData) {
-		return mapDataTextures.get(mapData.key);
+//		System.out.println(mapData.key);
+//		System.out.println(mapDataTextures);
+//		return mapDataTextures.get(mapData.key);
+		return 0;
 	}
 	
 	/**

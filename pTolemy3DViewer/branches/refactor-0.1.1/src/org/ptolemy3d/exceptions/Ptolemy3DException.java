@@ -21,8 +21,8 @@ package org.ptolemy3d.exceptions;
 /**
  * A general pTolemy exception.
  * 
- * @author Jerome Jouvie
- * @author Antonio Santiago
+ * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
+ * @author Antonio Santiago <asantiagop(at)gmail(dot)com>
  */
 public class Ptolemy3DException extends RuntimeException {
 	private static final long serialVersionUID = 1L;

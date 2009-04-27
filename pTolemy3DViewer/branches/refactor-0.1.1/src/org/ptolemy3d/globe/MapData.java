@@ -57,6 +57,10 @@ public class MapData {
 	public int hashCode() {
 		return key.hashCode();
 	}
+	@Override
+	public String toString() {
+		return super.toString()+"["+key.toString()+"]";
+	}
 
 	/** @return true if the map has elevation data */
 	public boolean hasElevation() {

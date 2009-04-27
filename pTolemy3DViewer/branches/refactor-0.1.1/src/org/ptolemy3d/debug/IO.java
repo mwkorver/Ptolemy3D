@@ -90,6 +90,28 @@ public class IO {
 		}
 	}
 
+	/* Output for error informations */
+	public final static void printManager(String format) {
+		if (Config.enablePrintManager) {
+			System.out.print(format);
+		}
+	}
+	public final static void printlnManager(String format) {
+		if (Config.enablePrintManager) {
+			System.out.println(format);
+		}
+	}
+	public final static void printfManager(String format, Object... args) {
+		if (Config.enablePrintManager) {
+			System.out.printf(format, args);
+		}
+	}
+	public final static void printStackManager(Exception e) {
+		if (Config.enablePrintManager) {
+			e.printStackTrace();
+		}
+	}
+	
 	/* Output for renderer informations */
 	public final static void printRenderer(String format) {
 		if (Config.enablePrintRender) {
@@ -204,7 +226,7 @@ public class IO {
 					ProfilerUtil.renderTiles = !ProfilerUtil.renderTiles;
 					break;
 				case KeyEvent.VK_F3:
-					ProfilerUtil.enablePrintProfiler = !ProfilerUtil.enablePrintProfiler;
+					ProfilerUtil.printProfiler = !ProfilerUtil.printProfiler;
 					break;
 				case KeyEvent.VK_F5:
 					switch (landscape.getDisplayMode()) {

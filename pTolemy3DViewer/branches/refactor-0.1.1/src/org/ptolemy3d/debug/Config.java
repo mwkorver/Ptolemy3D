@@ -39,6 +39,8 @@ public class Config
 	/** Standard output for error */
 	protected final static boolean enablePrintError      = DEBUG && true;
 	/** Connection output */
+	protected final static boolean enablePrintManager    = DEBUG && true;
+	/** Connection output */
 	protected final static boolean enablePrintConnection = DEBUG && true;
 	/** Javascript output */
 	protected final static boolean enablePrintJavascript = DEBUG && true;

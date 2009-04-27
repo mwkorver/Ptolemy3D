@@ -77,7 +77,7 @@ import org.ptolemy3d.view.CameraMovement;
  * @see Scene
  *
  * @author Antonio Santiago <asantiagop(at)gmail(dot)com>
- * @author Jerome Jouvie
+ * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  */
 public final class Ptolemy3D {
     // TODO - canvas variable is only here temporaly to solve a reference problem in Jp2TileLoader. We must remove from here.

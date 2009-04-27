@@ -44,7 +44,7 @@ import org.w3c.dom.NodeList;
  * This is used for example to specify the map server date, globe geometry settings
  * (number of levels)), the initial view position, etc.
  * 
- * @author Jerome Jouvie
+ * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  * @author Antonio Santiago <asantiagop(at)gmail(dot)com>
  */
 public class Configuration {

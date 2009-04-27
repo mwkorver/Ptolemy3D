@@ -18,6 +18,7 @@
 package org.ptolemy3d.manager;
 
 import java.io.IOException;
+import java.net.URL;
 
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.debug.IO;
@@ -63,7 +64,12 @@ class MapDecoderEntry {
 		
 		if(stream == null) {
 			final MapDataFinder mapDataFinder = Ptolemy3D.getMapDataFinder();
-			stream = new Stream(mapDataFinder.findMapData(mapData));
+			final URL url = mapDataFinder.findMapDataTexture(mapData);
+			if(url == null) {
+				IO.printManager("Map not found.");
+				return false;
+			}
+			stream = new Stream(url);
 		}
 		try {
 			return stream.download();

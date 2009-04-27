@@ -20,7 +20,7 @@ package org.ptolemy3d.view;
 /**
  * Position represented by lat/lon/altitude.
  * 
- * @author Jerome Jouvie
+ * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  * @author Antonio Santiago <asantiagop(at)gmail(dot)com>
  */
 public class Position {

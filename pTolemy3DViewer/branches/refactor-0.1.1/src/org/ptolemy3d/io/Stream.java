@@ -28,6 +28,7 @@ import java.net.URI;
 import java.net.URL;
 
 import org.ptolemy3d.Ptolemy3D;
+import org.ptolemy3d.debug.IO;
 
 /**
  * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
@@ -69,7 +70,8 @@ public class Stream {
 		return (local != null);
 	}
 	private HttpURLConnection open() throws IOException {
-		HttpURLConnection connection = (HttpURLConnection) distant.openConnection();
+		IO.printfConnection("Requesting: %s\n", distant);
+		final HttpURLConnection connection = (HttpURLConnection)distant.openConnection();
 		if (key != null)  {
 			connection.addRequestProperty("Authorization", "Basic " + key);
 		}
@@ -79,13 +81,16 @@ public class Stream {
 		final int length = connection.getContentLength();
 		
 		final URI cachedURI = Ptolemy3D.getFileSystemCache().getCacheFileFor(distant);
-		
+        IO.printfConnection("Local cache: %s\n", cachedURI);
+
         final InputStream in = connection.getInputStream();
         final FileOutputStream os = new FileOutputStream(new File(cachedURI));
         
         byte[] buffer = new byte[BUFFER_SIZE];
         int remaining = length;
         while (remaining > 0)  {
+//        int remaining = 0;
+//        while ((remaining = in.available()) > 0)  {
         	int read = in.read(buffer, 0, (remaining > buffer.length) ? buffer.length : remaining);
         	os.write(buffer, 0, read);
         	remaining -= read;
@@ -95,7 +100,7 @@ public class Stream {
         os.close();
         connection = null;
         
-        local = cachedURI;
+		local = cachedURI;
 	}
 
 	/** @return true if the file has been downloaded */

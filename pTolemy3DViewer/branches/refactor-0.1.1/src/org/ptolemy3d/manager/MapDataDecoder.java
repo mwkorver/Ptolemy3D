@@ -64,6 +64,7 @@ class MapDataDecoder {
 		public void run() {
 			while (true) {
 				if (!download()) {
+					//wait();
 					try {
 						Thread.sleep(50);
 					} catch(InterruptedException e) { }
@@ -99,6 +100,7 @@ class MapDataDecoder {
 		public void run() {
 			while (true) {
 				if (!decode()) {
+					//wait();
 					try {
 						Thread.sleep(50);
 					} catch(InterruptedException e) { }

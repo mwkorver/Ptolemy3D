@@ -22,6 +22,7 @@ import java.io.IOException;
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.debug.IO;
 import org.ptolemy3d.globe.MapData;
+import org.ptolemy3d.io.MapDataFinder;
 import org.ptolemy3d.io.Stream;
 import org.ptolemy3d.jp2.Jp2Decoder;
 

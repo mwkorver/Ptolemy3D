@@ -66,7 +66,7 @@ public class Layer {
     private final int maxZoom;
     // Minimum altitude to render the level
     private final int minZoom;
-    private final int divider;
+    @Deprecated private final int divider;
 
     /**
      * Creates a new instance.
@@ -446,7 +446,7 @@ public class Layer {
     }
 
     /** @return the divider */
-    public int getDivider() {
+    @Deprecated  public int getDivider() {
         return divider;
     }
 }

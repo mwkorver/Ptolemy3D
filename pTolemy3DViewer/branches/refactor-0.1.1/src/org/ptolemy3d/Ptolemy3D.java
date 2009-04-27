@@ -18,8 +18,8 @@
 package org.ptolemy3d;
 
 import org.ptolemy3d.io.FileSystemCache;
+import org.ptolemy3d.io.MapDataFinder;
 import org.ptolemy3d.manager.MapDataManager;
-import org.ptolemy3d.manager.MapDataFinder;
 import org.ptolemy3d.manager.TextureManager;
 import org.ptolemy3d.scene.Scene;
 import org.ptolemy3d.view.Camera;
@@ -102,7 +102,7 @@ public final class Ptolemy3D {
     public static void initialize(Configuration config) {
     	configuration = config;
     	textureManager = new TextureManager();
-    	mapDataFinder = new MapDataFinder();
+    	mapDataFinder = new MapDataFinder(configuration.server, configuration.servers);
     	mapDataManager = new MapDataManager();
     	cache = new FileSystemCache();
     }

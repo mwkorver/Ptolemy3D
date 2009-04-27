@@ -28,6 +28,7 @@ import org.ptolemy3d.debug.IO;
 import org.ptolemy3d.exceptions.Ptolemy3DConfigurationException;
 import org.ptolemy3d.exceptions.Ptolemy3DException;
 import org.ptolemy3d.globe.Layer;
+import org.ptolemy3d.io.ServerConfig;
 import org.ptolemy3d.plugin.Sky;
 import org.ptolemy3d.scene.Landscape;
 import org.ptolemy3d.scene.Plugins;
@@ -93,9 +94,6 @@ public class Configuration {
 		public final static String BackgroundColor = "BackgroundColor";
 		public final static String FlightFrameDelay = "FlightFrameDelay";
 	}
-	private static interface Deprecated {
-		
-	}
 
 	// Logger instance.
 	private static final Logger logger = Logger.getLogger(Configuration.class.getName());
@@ -106,14 +104,9 @@ public class Configuration {
     public double initialCameraDirection = 0;
     public double initialCameraPitch = 0;
 
-	public String server = "";
-	public String[] dataServers;
-	public String[] urlAppends;
-	public String[] headerKeys;
-	public boolean[] keepAlives;
-	public String[][] locations;
+    protected ServerConfig[] servers = null;
+    protected String server = "";
 	public String area = "";
-	public String DEMLocation[][];
 	public int flightFrameDelay = 1;
 	public boolean useTIN = false;
 	public String backgroundImageUrl = null;
@@ -197,51 +190,51 @@ public class Configuration {
 		// Area
         area = getRequieredParameter(Requiered.Area, docelem);
 
+        // MapDataServer
 		int nDataServers = getRequieredParameterInt(Requiered.NumMapDataServer, docelem);
-		headerKeys = new String[nDataServers];
-		dataServers = new String[nDataServers];
-		locations = new String[nDataServers][];
-		DEMLocation = new String[nDataServers][];
-		keepAlives = new boolean[nDataServers];
-		urlAppends = new String[nDataServers];
-
+		servers = new ServerConfig[nDataServers];
 		for (int i = 1; i <= nDataServers; i++) {
-			dataServers[i - 1] = getRequieredParameter(Requiered.MapDataSvr + i, docelem);
-			headerKeys[i - 1] = getOptionalParameter(Optional.MHeaderKey + i, docelem);
-			urlAppends[i - 1] = getOptionalParameter(Optional.MUrlAppend + i, docelem);
+			String dataServers = getRequieredParameter(Requiered.MapDataSvr + i, docelem);
+			String headerKeys = getOptionalParameter(Optional.MHeaderKey + i, docelem);
+			String urlAppends = getOptionalParameter(Optional.MUrlAppend + i, docelem);
 
+			String[] locations;
 			String temppm = getRequieredParameter(Requiered.MapJp2Store + i, docelem);
 			if (temppm == null) {
-				locations[i - 1] = null;
+				locations = null;
 			}
 			else {
 				StringTokenizer ptok = new StringTokenizer(temppm, ",");
-				locations[i - 1] = new String[ptok.countTokens()];
-				for (int nfloc = 0; nfloc < locations[i - 1].length; nfloc++) {
-					locations[i - 1][nfloc] = addTrailingChar(ptok.nextToken(),
+				locations = new String[ptok.countTokens()];
+				for (int nfloc = 0; nfloc < locations.length; nfloc++) {
+					locations[nfloc] = addTrailingChar(ptok.nextToken(),
 					"/");
 				}
 			}
 
+			String[] DEMLocation;
 			temppm = getRequieredParameter(Requiered.MapDemStore + i, docelem);
 			if (temppm == null) {
-				DEMLocation[i - 1] = null;
+				DEMLocation = null;
 			}
 			else {
 				StringTokenizer ptok = new StringTokenizer(temppm, ",");
-				DEMLocation[i - 1] = new String[ptok.countTokens()];
-				for (int nfloc = 0; nfloc < DEMLocation[i - 1].length; nfloc++) {
-					DEMLocation[i - 1][nfloc] = addTrailingChar(ptok.nextToken(), "/");
+				DEMLocation = new String[ptok.countTokens()];
+				for (int nfloc = 0; nfloc < DEMLocation.length; nfloc++) {
+					DEMLocation[nfloc] = addTrailingChar(ptok.nextToken(), "/");
 				}
 			}
 
+			boolean keepAlives;
 			temppm = getOptionalParameter(Optional.isKeepAlive + i, docelem);
 			if (temppm == null) {
-				keepAlives[i - 1] = true;
+				keepAlives = true;
 			}
 			else {
-				keepAlives[i - 1] = (temppm.equals("0")) ? false : true;
+				keepAlives = (temppm.equals("0")) ? false : true;
 			}
+			
+			servers[i - 1] = new ServerConfig(headerKeys, dataServers, locations, DEMLocation, keepAlives, urlAppends);
 		}
 
         try {

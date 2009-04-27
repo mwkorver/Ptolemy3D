@@ -1,0 +1,123 @@
+/**
+ * Ptolemy3D - a Java-based 3D Viewer for GeoWeb applications.
+ * Copyright (C) 2008 Mark W. Korver
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package org.ptolemy3d.io;
+
+import java.net.URL;
+import java.util.Vector;
+
+import org.ptolemy3d.Ptolemy3D;
+import org.ptolemy3d.debug.IO;
+import org.ptolemy3d.globe.Layer;
+import org.ptolemy3d.globe.MapData;
+
+/**
+ * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
+ */
+public class MapDataFinder {
+	/** List of servers */
+	private final String server;
+	/** List of servers */
+	private final Vector<ServerConfig> servers;
+	
+	public MapDataFinder(String server, ServerConfig[] initialServerConfig) {
+		this.server = server;
+		if(initialServerConfig != null) {
+			servers = new Vector<ServerConfig>(initialServerConfig.length);
+			for(ServerConfig serverConfig : initialServerConfig) {
+				servers.add(serverConfig);
+			}
+		}
+		else {
+			servers = new Vector<ServerConfig>(1);
+		}
+	}
+	
+	public void addServer(ServerConfig server) {
+		servers.add(server);
+	}
+	
+	
+	public URL findMapData(MapData mapData) {
+		final String fileBase = getMapDataFileBase(mapData);
+		
+		for(ServerConfig serverConfig : servers) {
+			if(serverConfig.jp2Locations == null) {
+				continue;
+			}
+			
+			for(String location : serverConfig.jp2Locations) {
+				try {
+					final URL url = new URL("http", server, location + fileBase + ".jp2" + serverConfig.getUrlAppender());
+					url.openConnection();
+					return url;
+				}
+				catch(Exception e) {
+					IO.printStackConnection(e);
+					continue;
+				}
+			}
+		}
+		return null;
+	}
+	
+	private final String getMapDataFileBase(MapData mapData) {
+		final Layer[] levels = Ptolemy3D.getScene().landscape.getLayers();
+
+		String fileBase = String.valueOf(mapData.key.mapSize) + "/";
+		if (levels != null) {
+			final int divider = levels[mapData.key.level].getDivider();
+			if (divider > 0) {	//as usual
+				fileBase += "D" + divider + "/x";
+				int div_ = (mapData.key.lon / divider);
+				fileBase += String.valueOf((div_ > 0) ? String.valueOf(div_) : "n" + (-div_));
+				div_ = (mapData.key.lat / divider);
+				fileBase += "y" + ((div_ > 0) ? String.valueOf(div_) : ("n" + (-div_))) + "/";
+			}
+			else if (divider < 0) {	//super funky style
+				fileBase += mapData.key.lon < 0 ? "n" : "p";
+				fileBase += mapData.key.lat < 0 ? "n" : "p";
+				int absx = Math.abs(mapData.key.lon);
+				int absz = Math.abs(mapData.key.lat);
+				//pad x and y to 9 digits
+				String xStr = padWithZeros(absx, 9);
+				String yStr = padWithZeros(absz, 9);
+				for (int k = 0; k < 4; k++) {
+					fileBase += xStr.charAt(k);
+					fileBase += yStr.charAt(k);
+					fileBase += "/";
+				}
+			}
+		}
+		fileBase += Ptolemy3D.getConfiguration().area + "x" + mapData.key.lon + "y" + mapData.key.lat;
+
+		return fileBase;
+	}
+	// converts integer to left-zero padded string, len  chars long.
+	private static String padWithZeros(int i, int len) {
+		String s = Integer.toString(i);
+		if (s.length() > len) {
+			return s.substring(0, len);
+		}
+		else if (s.length() < len) {	// pad on left with zeros
+			return "000000000000000000000000000".substring(0, len - s.length()) + s;
+		}
+		else {
+			return s;
+		}
+	}
+}

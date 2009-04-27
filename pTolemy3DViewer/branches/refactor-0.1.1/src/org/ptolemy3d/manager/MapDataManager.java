@@ -49,7 +49,7 @@ public class MapDataManager {
 	public MapData get(MapDataKey key) {
 		MapData mapData = mapDatas.get(key);
 		if (mapData == null) {
-			mapData = new MapData(key.level, key.mapSize, key.lon, key.lat);
+			mapData = new MapData(key);
 			mapDatas.put(mapData.key, mapData);
 		}
 		return mapData;

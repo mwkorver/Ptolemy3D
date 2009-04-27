@@ -17,43 +17,19 @@
  */
 package org.ptolemy3d.manager;
 
-import java.util.HashMap;
-
+import java.net.URL;
 import org.ptolemy3d.globe.MapData;
-import org.ptolemy3d.globe.MapDataKey;
-import org.ptolemy3d.jp2.Jp2Decoder;
 
 /**
  * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  */
-class MapDecoderQueue {
-	static class MapDecoderEntry {
-		public final MapData mapData;
-		Jp2Decoder decoder;
-		Texture texture;
-		int lastRequest;
-		public MapDecoderEntry(MapData mapData) {
-			this.mapData = mapData;
-		}
+public class MapDataFinder {
+	public MapDataFinder() {
+		// Initialize servers ...
 	}
 	
-	/** Keep reference of all MapData */
-	private final HashMap<MapDataKey, MapDecoderEntry> decoders;
 	
-	public MapDecoderQueue() {
-		decoders = new HashMap<MapDataKey, MapDecoderEntry>();
+	public URL findMapData(MapData mapData) {
+		return null;
 	}
-	
-	public Texture request(MapData mapData, int resolution) {
-		final MapDecoderEntry decoder = decoders.get(mapData.key);
-		if (decoder == null) {
-			decoders.put(mapData.key, new MapDecoderEntry(mapData));
-			return null;
-		}
-		else {
-//			decoder.lastRequest = ;
-			return decoder.texture;
-		}
-	}
-	
 }

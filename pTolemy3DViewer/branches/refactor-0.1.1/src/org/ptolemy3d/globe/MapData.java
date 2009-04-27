@@ -18,7 +18,7 @@
 package org.ptolemy3d.globe;
 
 import org.ptolemy3d.Ptolemy3D;
-import org.ptolemy3d.jp2.Jp2Wavelet;
+import org.ptolemy3d.manager.Texture;
 
 /**
  * This class holds info for our tile data
@@ -30,7 +30,7 @@ public class MapData {
 	/** Longitude in DD. */
 	public final MapDataKey key;
 	/** Jp2 resolutions */
-	public final Jp2Wavelet[] wavelets;
+	public final Texture[] wavelets;
 	/** Current resolution */
 	public int curRes = 0;
 	/** TIN Elevation */
@@ -55,16 +55,11 @@ public class MapData {
 	public boolean inScene;
 
 	/** We must go through manager to create a MapData, to avoid duplication.
-	 * @deprecated Should only be called in MapDataManager.get */
-	public MapData(int level, int mapSize, int lon, int lat) {
-		key = new MapDataKey(level, mapSize, lon, lat);
-		wavelets = new Jp2Wavelet[MAX_NUM_RESOLUTION];
-		initialize();
-	}
-
-	/** We must go through manager to create a MapData, to avoid duplication.
-	 * @deprecated Should only be called in MapDataManager.get */
-	private void initialize() {
+	 * @deprecated Use MapDataManager instead */
+	public MapData(MapDataKey mapDataKey) {
+		key = mapDataKey;
+		wavelets = new Texture[MAX_NUM_RESOLUTION];
+		
 		dataServerID = 0;
 		dataLocID = 0;
 		fileBase = createFileBaseName();
@@ -150,5 +145,5 @@ public class MapData {
 	/** */
 	public int getMapSize() { return key.mapSize; }
 	/** */
-	public Jp2Wavelet getWavelet(int res) { return wavelets[res]; }
+	public Texture getWavelet(int res) { return wavelets[res]; }
 }

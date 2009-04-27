@@ -31,10 +31,8 @@ import java.awt.event.MouseWheelListener;
 import java.security.InvalidParameterException;
 import java.util.Arrays;
 
-import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.Ptolemy3DGLCanvas;
 import org.ptolemy3d.debug.IO;
-import org.ptolemy3d.deprecated.Jp2TileLoader;
 import org.ptolemy3d.view.InputHandler.InputConfig.Input;
 
 /**
@@ -211,14 +209,7 @@ public class InputHandler implements KeyListener, MouseListener, MouseMotionList
 	public void keyPressed(KeyEvent e)
 	{
 		final CameraMovement cameraMovement = canvas.getCameraMovement();
-		final Jp2TileLoader tileLoader = Ptolemy3D.getTileLoader();
-		final Thread tileLoaderThread = Ptolemy3D.getTileLoaderThread();
-		
 		cameraMovement.inAutoPilot = 0;
-		if (tileLoader.isSleeping) {
-			tileLoaderThread.interrupt();
-		}
-
 		inputState.keyPressed(inputConfig, e.getKeyCode());
 	}
 	public void keyReleased(KeyEvent e)
@@ -286,12 +277,6 @@ public class InputHandler implements KeyListener, MouseListener, MouseMotionList
 	{
 		if (mouseMoveFlag == true) {
 			final CameraMovement cameraMovement = canvas.getCameraMovement();
-			final Jp2TileLoader tileLoader = Ptolemy3D.getTileLoader();
-			final Thread tileLoaderThread = Ptolemy3D.getTileLoaderThread();
-			
-			if (tileLoader.isSleeping) {
-				tileLoaderThread.interrupt();
-			}
 
 			Point oldMousePoint = mousePoint;
 			mousePoint = e.getPoint();

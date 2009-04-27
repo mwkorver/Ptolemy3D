@@ -15,19 +15,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.ptolemy3d.jp2;
+package org.ptolemy3d.io;
 
-import org.ptolemy3d.manager.Texture;
+import java.io.File;
+import java.net.URI;
+import java.net.URL;
 
 /**
  * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  */
-public class Jp2Wavelet extends Texture {
-	/** Resolution ID */
-	public final int resolution;
+public class FileSystemCache {
+	private final File cacheDirectory;
 	
-	public Jp2Wavelet(int resolution, byte[] pixels, int width, int height) {
-		super(pixels, width, height);
-		this.resolution = resolution;
+	public FileSystemCache() {
+		final String userHome = System.getProperty("user.home");
+		cacheDirectory = new File(userHome, ".ptolemy");
+		cacheDirectory.mkdirs();
+	}
+	
+	//FIXME
+	public URI getCacheFileFor(URL url) {
+		final String fileInCache = url.getPath();
+		final File cache = new File("file://" + new File(cacheDirectory, fileInCache));
+		return cache.toURI();
 	}
 }

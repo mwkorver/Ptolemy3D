@@ -26,7 +26,6 @@ import org.ptolemy3d.DrawContext;
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.Unit;
 import org.ptolemy3d.debug.IO;
-import org.ptolemy3d.deprecated.Jp2TileLoader;
 import org.ptolemy3d.globe.Layer;
 import org.ptolemy3d.manager.TextureManager;
 import org.ptolemy3d.view.Camera;
@@ -377,17 +376,15 @@ public class Landscape {
             }
 
             // Image datas available ?
-            final Jp2TileLoader tileLoader = Ptolemy3D.getTileLoader();
-            if (!tileLoader.levelHasImageData(p)) {
-                level.setVisible(false);
-                continue;
-            }
+//            if (!tileLoader.levelHasImageData(p)) {
+//                level.setVisible(false);
+//                continue;
+//            }
 
             hasVisLayer = true; // Now at least one level has image data
             level.setVisible(true);
 
             // Acquire tile image data
-            tileLoader.acquireTile(level, p == 0);
             level.processVisibility();
         }
     }

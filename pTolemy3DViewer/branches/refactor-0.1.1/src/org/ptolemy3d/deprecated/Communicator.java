@@ -20,7 +20,8 @@ package org.ptolemy3d.deprecated;
 import java.io.IOException;
 import java.io.InputStream;
 
-public interface Communicator
+@Deprecated
+interface Communicator
 {
     /*
      *  this times out and refreshes the socket as well

@@ -17,9 +17,9 @@
  */
 package org.ptolemy3d;
 
-import org.ptolemy3d.debug.IO;
-import org.ptolemy3d.deprecated.Jp2TileLoader;
+import org.ptolemy3d.io.FileSystemCache;
 import org.ptolemy3d.manager.MapDataManager;
+import org.ptolemy3d.manager.MapDataFinder;
 import org.ptolemy3d.manager.TextureManager;
 import org.ptolemy3d.scene.Scene;
 import org.ptolemy3d.view.Camera;
@@ -86,9 +86,10 @@ public final class Ptolemy3D {
     private static Scene scene = new Scene();
     private static TextureManager textureManager = null;
     private static MapDataManager mapDataManager = null;
-    private static Jp2TileLoader tileLoader = null;
-    private static Thread tileLoaderThread = null;
-
+    private static MapDataFinder mapDataFinder = null;
+    private static FileSystemCache cache = null;
+    
+    
     private Ptolemy3D() {
         System.out.println("Ptolemy created");
     }
@@ -101,7 +102,9 @@ public final class Ptolemy3D {
     public static void initialize(Configuration config) {
     	configuration = config;
     	textureManager = new TextureManager();
+    	mapDataFinder = new MapDataFinder();
     	mapDataManager = new MapDataManager();
+    	cache = new FileSystemCache();
     }
 
     /**
@@ -129,7 +132,6 @@ public final class Ptolemy3D {
      * Start required threads.
      */
     public static void start() {
-    	startTileLoaderThread();
     	canvas.startRenderingLoop();
     }
 
@@ -137,9 +139,6 @@ public final class Ptolemy3D {
      * Stop the pTolemy system: request data thread and other resources.
      */
     public static void shutDown() {
-        // Stop the tile loading first
-    	stopTileLoaderThread();
-
 //		// Stop and shutDown all the 3D
 //		if (canvas != null) {
 //			canvas.destroyGL();
@@ -184,10 +183,17 @@ public final class Ptolemy3D {
     }
     
     /**
-     * @return the textureManager
+     * @return the map data manager
      */
     public static MapDataManager getMapDataManager() {
         return mapDataManager;
+    }
+    
+    /**
+     * @return the map data manager finder
+     */
+    public static MapDataFinder getMapDataFinder() {
+        return mapDataFinder;
     }
 
     /**
@@ -196,54 +202,9 @@ public final class Ptolemy3D {
     public static void setMapDataManager(MapDataManager aMapDataManager) {
         mapDataManager = aMapDataManager;
     }
-
-    /**
-     * @return the tileLoader
-     */
-    public static Jp2TileLoader getTileLoader() {
-        return tileLoader;
-    }
-
-    /**
-     * @param aTileLoader the tileLoader to set
-     */
-    public static void setTileLoader(Jp2TileLoader aTileLoader) {
-        tileLoader = aTileLoader;
-    }
-
-    /**
-     * @return the tileLoaderThread
-     */
-    public static Thread getTileLoaderThread() {
-        return tileLoaderThread;
-    }
     
-    /**
-     * Start tile download thread.
-     */
-    private static void startTileLoaderThread() {
-        if (tileLoader == null) {
-            tileLoader = new Jp2TileLoader();
-        }
-        if (tileLoaderThread == null) {
-            tileLoaderThread = new Thread(tileLoader, "TileLoaderThread");
-        }
-        tileLoaderThread.start();
-    }
-
-    /** 
-     * Stop tile download thread.
-     */
-    private static void stopTileLoaderThread() {
-        if (tileLoaderThread != null) {
-            tileLoader.on = false;
-            try {
-                tileLoaderThread.interrupt();
-            }
-            catch (Exception e) {
-                IO.printStack(e);
-            }
-        }
+    public static FileSystemCache getFileSystemCache() {
+    	return cache;
     }
     
 //     /**

@@ -23,7 +23,6 @@ import javax.media.opengl.GL;
 
 import org.ptolemy3d.DrawContext;
 import org.ptolemy3d.Ptolemy3D;
-import org.ptolemy3d.deprecated.Communicator;
 
 /**
  * <H1>Overview</H1>

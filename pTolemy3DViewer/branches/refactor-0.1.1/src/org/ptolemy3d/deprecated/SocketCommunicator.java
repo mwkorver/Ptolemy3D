@@ -24,7 +24,8 @@ import java.net.Socket;
 
 import org.ptolemy3d.debug.IO;
 
-public class SocketCommunicator implements Communicator
+@Deprecated
+class SocketCommunicator implements Communicator
 {
 	private static final int[] ContentLength = {67, 111, 110, 116, 101, 110, 116, 45, 76, 101, 110, 103, 116, 104, 58, 32};
 

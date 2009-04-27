@@ -29,7 +29,7 @@ import org.ptolemy3d.debug.IO;
 import org.ptolemy3d.manager.Texture;
 
 @Deprecated
-public class TextureUtils {
+class TextureUtils {
 	private TextureUtils() {}
 
 	@Deprecated

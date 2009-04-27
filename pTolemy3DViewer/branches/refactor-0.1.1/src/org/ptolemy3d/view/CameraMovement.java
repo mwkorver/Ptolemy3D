@@ -597,12 +597,6 @@ public class CameraMovement {
         }
 
         updatecounter = UPDATE_INC + 1;
-
-        if (Ptolemy3D.getTileLoader() != null) {
-            if (Ptolemy3D.getTileLoader().isSleeping) {
-                Ptolemy3D.getTileLoaderThread().interrupt();
-            }
-        }
     }
 
     /**
@@ -704,9 +698,6 @@ public class CameraMovement {
     private double start_y,  stopangle;
 
     private final void initAutopilot() {
-        if (Ptolemy3D.getTileLoader().isSleeping) {
-            Ptolemy3D.getTileLoaderThread().interrupt();
-        }
         setFollowDem(false);
         current_speed = dist_trav = brake_dist = current_lr_rot = rot_lr_trav = rot_lr_brake = current_ud_rot = rot_ud_trav = rot_ud_brake = 0.0;
         stopMovement();

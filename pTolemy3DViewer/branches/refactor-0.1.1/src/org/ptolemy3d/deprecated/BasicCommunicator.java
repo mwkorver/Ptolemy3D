@@ -25,7 +25,8 @@ import java.net.URL;
 
 import org.ptolemy3d.debug.IO;
 
-public class BasicCommunicator implements Communicator
+@Deprecated
+class BasicCommunicator implements Communicator
 {
 	private InputStream in;
     private URL url;

@@ -24,6 +24,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 import org.ptolemy3d.io.Stream;
+import org.ptolemy3d.manager.Texture;
 
 import jj2000.j2k.codestream.HeaderInfo;
 import jj2000.j2k.codestream.reader.BitstreamReaderAgent;
@@ -49,10 +50,10 @@ import jj2000.j2k.wavelet.synthesis.InverseWT;
 class DecoderContext {
 	// ========================== TEST ================================
 	public static void main(String argv[]) throws Throwable {
-		final Jp2Decoder decoder = new Jp2Decoder(new Stream(new File(argv[0] + ".jp2").toURI()));
+		final Jp2Decoder decoder = new Jp2Decoder(new Stream(new File(argv[0] + ".jp2")));
 		for(int res = 0; res < 4; res++) {
 			long start = System.nanoTime();
-			Jp2Wavelet wavelet = decoder.parseWavelet(res);
+			Texture wavelet = decoder.parseWavelet(res);
 			System.out.println("[Wavelet:"+res+"] Time spent: "+(System.nanoTime() - start)/10e9);
 			
 			BufferedImage bi = ImgWriterArrayByte.createBufferedImage(wavelet.width, wavelet.height, wavelet.pixels);
@@ -134,7 +135,7 @@ class DecoderContext {
 		invWT = InverseWT.createInstance(deq, decSpec);
 	}
 	
-	public Jp2Wavelet parseWavelet(int res) throws IOException {
+	public Texture parseWavelet(int res) throws IOException {
 		if(invWT == null) {
 			parseHeader();
 		}
@@ -152,7 +153,7 @@ class DecoderContext {
 		img.writeAll();
 		img.close();
 		
-		return new Jp2Wavelet(res, img.getPixels(), img.getWidth(), img.getHeight());
+		return new Texture(img.getPixels(), img.getWidth(), img.getHeight());
 	}
 	
 	public void delete() {

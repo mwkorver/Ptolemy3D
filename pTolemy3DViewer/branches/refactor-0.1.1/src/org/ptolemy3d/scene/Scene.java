@@ -110,7 +110,6 @@ public class Scene implements Transferable {
     public void draw(DrawContext drawContext) {
 
     	final GL gl = drawContext.getGL();
-        final boolean tileLoaderStarted = (Ptolemy3D.getTileLoader() != null);
         
         if (DEBUG) {
             ProfilerUtil.start(ProfilerEventInterface.Frame);
@@ -122,12 +121,10 @@ public class Scene implements Transferable {
         camera.update();
 
         /* Prepare frame */
-        if (tileLoaderStarted) {
-            landscape.prepareFrame(drawContext);
-            plugins.prepareFrame(drawContext);
-            if (DEBUG) {
-                ProfilerUtil.stop(ProfilerEventInterface.Prepare);
-            }
+        landscape.prepareFrame(drawContext);
+        plugins.prepareFrame(drawContext);
+        if (DEBUG) {
+            ProfilerUtil.stop(ProfilerEventInterface.Prepare);
         }
 
         // Standard OpenGL Init: Clear frame buffer color and Z
@@ -146,46 +143,44 @@ public class Scene implements Transferable {
         gl.glMatrixMode(GL.GL_MODELVIEW);
         gl.glLoadMatrixd(camera.modelview.m, 0);
 
-        if (tileLoaderStarted) {
-            // Rendering
-            if (DEBUG) {
-                ProfilerUtil.start(ProfilerEventInterface.Sky);
-            }
-            sky.draw(drawContext);
-            if (DEBUG) {
-                ProfilerUtil.stop(ProfilerEventInterface.Sky);
-            }
+        // Rendering
+        if (DEBUG) {
+            ProfilerUtil.start(ProfilerEventInterface.Sky);
+        }
+        sky.draw(drawContext);
+        if (DEBUG) {
+            ProfilerUtil.stop(ProfilerEventInterface.Sky);
+        }
 
-            if (DEBUG) {
-                ProfilerUtil.start(ProfilerEventInterface.Landscape);
-            }
-            landscape.draw(drawContext);
-            if (DEBUG) {
-                ProfilerUtil.stop(ProfilerEventInterface.Landscape);
-            }
+        if (DEBUG) {
+            ProfilerUtil.start(ProfilerEventInterface.Landscape);
+        }
+        landscape.draw(drawContext);
+        if (DEBUG) {
+            ProfilerUtil.stop(ProfilerEventInterface.Landscape);
+        }
 
-            if (DEBUG) {
-                ProfilerUtil.start(ProfilerEventInterface.Plugins);
-            }
-            plugins.draw(drawContext);
-            if (DEBUG) {
-                ProfilerUtil.stop(ProfilerEventInterface.Plugins);
-            }
+        if (DEBUG) {
+            ProfilerUtil.start(ProfilerEventInterface.Plugins);
+        }
+        plugins.draw(drawContext);
+        if (DEBUG) {
+            ProfilerUtil.stop(ProfilerEventInterface.Plugins);
+        }
 
-            // Screenshot
-            if (DEBUG) {
-                ProfilerUtil.start(ProfilerEventInterface.Screenshot);
-            }
-            if (screenshot) {
-                getSceneImage(drawContext);
-            }
-            if (DEBUG) {
-                ProfilerUtil.stop(ProfilerEventInterface.Screenshot);
-            }
+        // Screenshot
+        if (DEBUG) {
+            ProfilerUtil.start(ProfilerEventInterface.Screenshot);
+        }
+        if (screenshot) {
+            getSceneImage(drawContext);
+        }
+        if (DEBUG) {
+            ProfilerUtil.stop(ProfilerEventInterface.Screenshot);
+        }
 
-            if (DEBUG) {
-                ProfilerUtil.stop(ProfilerEventInterface.Frame);
-            }
+        if (DEBUG) {
+            ProfilerUtil.stop(ProfilerEventInterface.Frame);
         }
         if (DEBUG) {
         	ProfilerUtil.drawProfiler(gl);

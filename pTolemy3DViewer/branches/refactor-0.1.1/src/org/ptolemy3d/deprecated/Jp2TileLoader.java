@@ -38,7 +38,7 @@ import org.ptolemy3d.view.CameraMovement;
 import org.ptolemy3d.view.Position;
 
 @Deprecated
-public class Jp2TileLoader implements Runnable {
+class Jp2TileLoader implements Runnable {
 
 	private final static int NUMCOMPS = 3;
 	public int[] tileSize;

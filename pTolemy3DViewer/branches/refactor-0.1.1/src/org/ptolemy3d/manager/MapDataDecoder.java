@@ -21,64 +21,23 @@ import java.util.HashMap;
 import java.util.Iterator;
 import org.ptolemy3d.globe.MapData;
 import org.ptolemy3d.globe.MapDataKey;
-import org.ptolemy3d.io.Stream;
-import org.ptolemy3d.jp2.Jp2Decoder;
+
+/*
+ * FIXME
+ *  - Handle ressource that fails to download
+ *  - Move to multiple download unit
+ */
 
 /**
  * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  */
 class MapDataDecoder {
-	private static class MapDecoderEntry {
-		/** */
-		public final MapData mapData;
-		/** */
-		public int resolution;
-		
-		/** */
-		private Stream stream;
-		/** */
-		private Jp2Decoder decoder;
-		/** */
-		private long lastRequest;
-		
-		public MapDecoderEntry(MapData mapData) {
-			this.mapData = mapData;
-		}
-		
-		protected void onRequest() {
-			lastRequest = System.currentTimeMillis();
-		}
-		
-		public boolean isDownloaded() {
-			return (stream != null);
-		}
-		
-		public Jp2Decoder getDecoder() {
-			if ((decoder == null) && (stream != null)) {
-				decoder = new Jp2Decoder(stream);
-			}
-			return decoder;
-		}
-		
-		public boolean isDecoded(int resolution) {
-			return (decoder != null) && (decoder.hasWavelet(resolution));
-		}
-		
-		public Texture getWavelet(int resolution) {
-			final Jp2Decoder decoder = getDecoder();
-			if (decoder != null) {
-				return decoder.getWavelet(resolution);
-			}
-			return null;
-		}
-	}
-	
 	/** Keep reference of all MapData */
 	private final HashMap<MapDataKey, MapDecoderEntry> decoders;
 	
 	public MapDataDecoder() {
 		decoders = new HashMap<MapDataKey, MapDecoderEntry>();
-		new DownloadThread().start();
+		new DownloadDispatcherThread().start();
 		new DecoderThread().start();
 	}
 	
@@ -94,6 +53,43 @@ class MapDataDecoder {
 		}
 	}
 
+	/** */
+	//FIXME Implemented as a single unit, but to be moved with multiple download units
+	class DownloadDispatcherThread extends Thread {
+		public DownloadDispatcherThread() {
+			super();
+			setDaemon(true);
+		}
+		
+		public void run() {
+			while (true) {
+				if (!download()) {
+					try {
+						Thread.sleep(50);
+					} catch(InterruptedException e) { }
+				}
+			}
+		}
+		private boolean download() {
+			final MapDecoderEntry entry = findEntryToDownload();
+			if (entry != null) {
+				return entry.download();
+			}
+			return false;
+		}
+		private MapDecoderEntry findEntryToDownload() {
+			final Iterator<MapDecoderEntry> i = decoders.values().iterator();
+			while (i.hasNext()) {
+				final MapDecoderEntry entry = i.next();
+				if (!entry.isDownloaded()) {
+					return entry;
+				}
+			}
+			return null;
+		}
+	}
+	
+	/** */
 	class DecoderThread extends Thread {
 		public DecoderThread() {
 			super();
@@ -113,45 +109,7 @@ class MapDataDecoder {
 			for(int resolution = 0; resolution < MapData.MAX_NUM_RESOLUTION; resolution++) {
 				final MapDecoderEntry entry = findEntryToDecode(resolution);
 				if (entry != null) {
-					entry.getDecoder();
-					return true;
-				}
-			}
-			return false;
-		}
-		private MapDecoderEntry findEntryToDecode(int resolution) {
-			final Iterator<MapDecoderEntry> i = decoders.values().iterator();
-			while (i.hasNext()) {
-				final MapDecoderEntry entry = i.next();
-				if (!entry.isDecoded(resolution)) {
-					return entry;
-				}
-			}
-			return null;
-		}
-	}
-	
-	class DownloadThread extends Thread {
-		public DownloadThread() {
-			super();
-			setDaemon(true);
-		}
-		
-		public void run() {
-			while (true) {
-				if (!decode()) {
-					try {
-						Thread.sleep(50);
-					} catch(InterruptedException e) { }
-				}
-			}
-		}
-		private boolean decode() {
-			for(int resolution = 0; resolution < MapData.MAX_NUM_RESOLUTION; resolution++) {
-				final MapDecoderEntry entry = findEntryToDecode(resolution);
-				if (entry != null) {
-					entry.getDecoder();
-					return true;
+					return entry.decode(resolution);
 				}
 			}
 			return false;

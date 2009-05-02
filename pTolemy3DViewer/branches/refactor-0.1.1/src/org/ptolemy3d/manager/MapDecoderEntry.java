@@ -25,6 +25,7 @@ import org.ptolemy3d.debug.IO;
 import org.ptolemy3d.globe.MapData;
 import org.ptolemy3d.io.MapDataFinder;
 import org.ptolemy3d.io.Stream;
+import org.ptolemy3d.jp2.Decoder;
 import org.ptolemy3d.jp2.Jp2Decoder;
 
 /**
@@ -40,8 +41,13 @@ class MapDecoderEntry {
 	public int streamNotFound;
 	/** Track number of file download fail */
 	public int downloadFail;
-	/** JP2 Decoder */
-	private Jp2Decoder decoder;
+	
+	/** Decoder */
+	private Decoder decoder;
+	/** Number of wavelets to decode */
+	private int numWavelets;
+	/** Decoder texture wavelet */
+	private Texture wavelet;
 	/** Resolution decoded */
 	private int nextResolution;
 	
@@ -54,6 +60,8 @@ class MapDecoderEntry {
 		streamNotFound = 0;
 		downloadFail = 0;
 		nextResolution = 0;
+		
+		numWavelets = -1;
 	}
 	
 	protected void onRequest() {
@@ -66,7 +74,7 @@ class MapDecoderEntry {
 	}
 	
 	/** @return true if the map has been downloaded */
-	public boolean isFailed() {
+	public boolean isDownloadFailed() {
 		return (streamNotFound > 0) || (downloadFail > 0);
 	}
 	
@@ -100,9 +108,15 @@ class MapDecoderEntry {
 		}
 	}
 	
-	/** @return the current resolution ID, -1 if no resolution decoded */
+	/** @return the current resolution ID, -1 if no resolution decoded.
+	 *  @see #getCurrentWavelet() */
 	public int getCurrentResolution() {
 		return nextResolution - 1;
+	}
+	/** @return the current wavelet.
+	 *  @see #getCurrentResolution() */
+	public Texture getCurrentWavelet() {
+		return wavelet;
 	}
 	
 	/** @return the next resolution ID to decode */
@@ -110,42 +124,30 @@ class MapDecoderEntry {
 		return nextResolution;
 	}
 	
-	/** @return true if the resolution has already been decoded */
-	private boolean isDecoded(int resolution) {
-		return (decoder != null) && (decoder.hasWavelet(resolution));
-	}
-	
 	/** @return true if the resolution is or has been decoded */
-	public boolean decode(int resolution) {
+	public boolean decode() {
 		if(!isDownloaded()) {
 			return false;
 		}
-		if(isDecoded(resolution)) {
+		if((numWavelets >= 0) && (nextResolution >= numWavelets)) {
 			return true;
 		}
 		if(decoder == null) {
 			decoder = new Jp2Decoder(stream);
+			numWavelets = decoder.getNumWavelets();
 		}
 		
-		boolean decoded = (decoder.parseWavelet(resolution) != null);
+		final Texture texture = decoder.parseWavelet(nextResolution);
+		boolean decoded = (texture != null);
 		if(decoded) {
-			nextResolution = resolution + 1;
-			freePreviousResolution();
+			nextResolution++;
+			wavelet = texture;
+		}
+		// Check if the decoded has more map
+		if(nextResolution >= numWavelets) {
+			IO.printlnParser("Decoding finished ...");
+			decoder = null;
 		}
 		return decoded;
-	}
-	
-	private void freePreviousResolution() {
-		for(int i = 0; i < getCurrentResolution(); i++) {
-			decoder.freeWavelet(i);
-		}
-	}
-	
-	/** @return the resolution, null if not yet decoded. */
-	public Texture getWavelet(int resolution) {
-		if(decoder != null) {
-			return decoder.getWavelet(resolution);
-		}
-		return null;
 	}
 }

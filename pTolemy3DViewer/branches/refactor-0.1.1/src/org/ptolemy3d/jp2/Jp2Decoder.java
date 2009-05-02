@@ -17,10 +17,9 @@
  */
 package org.ptolemy3d.jp2;
 
+import org.ptolemy3d.debug.IO;
 import org.ptolemy3d.io.Stream;
 import org.ptolemy3d.manager.Texture;
-
-//FIXME 4 -> ask jj200 the number of wavelet (so array to list)
 
 /**
  * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
@@ -28,55 +27,42 @@ import org.ptolemy3d.manager.Texture;
 public class Jp2Decoder implements Decoder {
 	/** */
 	private final Stream stream;
-	/** JP2 wavelets */
-	private final Texture[] wavelets;
 	/** */
 	private DecoderContext decoder;
 
 	public Jp2Decoder(Stream stream) {
-		this.wavelets = new Texture[4];
 		this.stream = stream;
+	}
+	
+	/** @return the number of wavelets in the jp2 */
+	public synchronized int getNumWavelets() {
+		try {
+			final int numWavelets = getDecoder().getNumWavelets();
+			IO.printfParser("Number of wavelets: %s@%d\n", stream, numWavelets);
+			return numWavelets;
+		} catch(Exception e) {
+			e.printStackTrace();
+			return 0;
+		}
+	
 	}
 	
 	/** @param resolution resolution ID starting from 0 (smallest size) */
 	public synchronized Texture parseWavelet(int resolution) {
-		if (wavelets[resolution] == null) {
-			//Alloc
-			if(decoder == null) {
-				decoder = new DecoderContext(stream);
-			}
-			
-			//Parse
-			try {
-				wavelets[resolution] = decoder.parseWavelet(resolution);
-			} catch(Exception e) {
-				e.printStackTrace();
-			}
-			
-			// Free
-			boolean empty = false;
-			for(int i = 0; i < wavelets.length; i++) {
-				if(wavelets[i] == null) {
-					empty = true;
-				}
-			}
-			if(!empty) {
-				decoder.delete();
-				decoder = null;
-			}
+		try {
+			IO.printfParser("Parse wavelet: %s@%d\n", stream, resolution);
+			final Texture texture = getDecoder().parseWavelet(resolution);
+			return texture;
+		} catch(Exception e) {
+			e.printStackTrace();
+			return null;
 		}
-		return wavelets[resolution];
 	}
 	
-	public boolean hasWavelet(int resolution) {
-		return (wavelets[resolution] != null);
-	}
-	
-	public Texture getWavelet(int resolution) {
-		return wavelets[resolution];
-	}
-	
-	public void freeWavelet(int resolution) {
-		wavelets[resolution] = null;
+	private final DecoderContext getDecoder() {
+		if(decoder == null) {
+			decoder = new DecoderContext(stream);
+		}
+		return decoder;
 	}
 }

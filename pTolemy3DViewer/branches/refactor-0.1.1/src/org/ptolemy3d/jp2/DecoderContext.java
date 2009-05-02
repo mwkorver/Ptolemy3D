@@ -138,9 +138,16 @@ class DecoderContext {
 		invWT = InverseWT.createInstance(deq, decSpec);
 	}
 	
-	public Texture parseWavelet(int res) throws IOException {
-		IO.printfParser("Parse wavelet: %s@%d\n", stream, res);
+	public synchronized int getNumWavelets() throws IOException {
+		if(invWT == null) {
+			parseHeader();
+		}
 		
+		final int numWavelets = decSpec.dls.getMin() + 1;
+		return numWavelets;
+	}
+	
+	public Texture parseWavelet(int res) throws IOException {
 		if(invWT == null) {
 			parseHeader();
 		}

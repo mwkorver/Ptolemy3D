@@ -86,7 +86,7 @@ public class Stream {
         final InputStream in = connection.getInputStream();
         final FileOutputStream os = new FileOutputStream(new File(cachedURI));
         
-        byte[] buffer = new byte[BUFFER_SIZE];
+        final byte[] buffer = new byte[BUFFER_SIZE];
         int remaining = length;
         while (remaining > 0)  {
 //        int remaining = 0;

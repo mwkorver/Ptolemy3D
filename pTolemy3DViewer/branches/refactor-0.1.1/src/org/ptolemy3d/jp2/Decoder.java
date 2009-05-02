@@ -23,12 +23,9 @@ import org.ptolemy3d.manager.Texture;
  * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  */
 public interface Decoder {
+	/** @return the number of wavelets */
+	public int getNumWavelets();
+	
 	/** @param resolution resolution ID starting from 0 (smallest size) */
 	public Texture parseWavelet(int resolution);
-	/** */
-	public boolean hasWavelet(int resolution);
-	/** */
-	public Texture getWavelet(int resolution);
-	/** */
-	public void freeWavelet(int resolution);
 }

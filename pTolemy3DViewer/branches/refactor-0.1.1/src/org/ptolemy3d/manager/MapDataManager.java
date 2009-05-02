@@ -47,7 +47,7 @@ public class MapDataManager {
 		if (mapData == null) {
 			mapData = new MapData(key);
 			mapDatas.put(mapData.key, mapData);
-			IO.printfManager("MapData: %s\n", mapData.key);
+			IO.printfManager("New MapData: %s\n", mapData.key);
 		}
 		return mapData;
 	}
@@ -95,7 +95,7 @@ public class MapDataManager {
 		if(resolution > mapData.mapResolution) {
 			IO.printfRenderer("Loading texture: %s@%d\n", mapData.key, resolution);
 			// Load resolution
-			final Texture texture = decoderQueue.request(mapData, resolution);
+			final Texture texture = decoderQueue.getCurrentWavelet(mapData, resolution);
 			textureID = textureManager.load(gl, mapData, texture, true);
 			mapData.mapResolution = resolution;
 		}

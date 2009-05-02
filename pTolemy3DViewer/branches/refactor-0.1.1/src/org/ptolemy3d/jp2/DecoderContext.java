@@ -23,6 +23,7 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
+import org.ptolemy3d.debug.IO;
 import org.ptolemy3d.io.Stream;
 import org.ptolemy3d.manager.Texture;
 
@@ -76,6 +77,8 @@ class DecoderContext {
 	 * value indicates that an error ocurred.
 	 */
 	public void parseHeader() throws IOException {
+		IO.printfParser("Parse header: %s\n", stream);
+		
 		// Default decoder parameters
 		final ParameterList defaultParams = new ParameterList();
 		for(String[] param : Decoder.getAllParameters()) {
@@ -136,6 +139,8 @@ class DecoderContext {
 	}
 	
 	public Texture parseWavelet(int res) throws IOException {
+		IO.printfParser("Parse wavelet: %s@%d\n", stream, res);
+		
 		if(invWT == null) {
 			parseHeader();
 		}

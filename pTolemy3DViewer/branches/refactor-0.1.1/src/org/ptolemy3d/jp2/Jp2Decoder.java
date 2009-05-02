@@ -20,10 +20,12 @@ package org.ptolemy3d.jp2;
 import org.ptolemy3d.io.Stream;
 import org.ptolemy3d.manager.Texture;
 
+//FIXME 4 -> ask jj200 the number of wavelet (so array to list)
+
 /**
  * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  */
-public class Jp2Decoder {
+public class Jp2Decoder implements Decoder {
 	/** */
 	private final Stream stream;
 	/** JP2 wavelets */
@@ -32,7 +34,6 @@ public class Jp2Decoder {
 	private DecoderContext decoder;
 
 	public Jp2Decoder(Stream stream) {
-		//FIXME 4 -> ask jj200 the number of wavelet (so array to list)
 		this.wavelets = new Texture[4];
 		this.stream = stream;
 	}
@@ -67,11 +68,15 @@ public class Jp2Decoder {
 		return wavelets[resolution];
 	}
 	
+	public boolean hasWavelet(int resolution) {
+		return (wavelets[resolution] != null);
+	}
+	
 	public Texture getWavelet(int resolution) {
 		return wavelets[resolution];
 	}
 	
-	public boolean hasWavelet(int resolution) {
-		return (wavelets[resolution] != null);
+	public void freeWavelet(int resolution) {
+		wavelets[resolution] = null;
 	}
 }

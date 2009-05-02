@@ -33,18 +33,27 @@ import org.ptolemy3d.jp2.Jp2Decoder;
 class MapDecoderEntry {
 	/** */
 	public final MapData mapData;
-	/** */
-	public int resolution;
 	
-	/** */
+	/** Stream downloaded */
 	private Stream stream;
-	/** */
+	/** Track the number of file request fails */
+	public int streamNotFound;
+	/** Track number of file download fail */
+	public int downloadFail;
+	/** JP2 Decoder */
 	private Jp2Decoder decoder;
+	/** Resolution decoded */
+	private int nextResolution;
+	
 	/** */
 	private long lastRequest;
 	
 	public MapDecoderEntry(MapData mapData) {
 		this.mapData = mapData;
+		
+		streamNotFound = 0;
+		downloadFail = 0;
+		nextResolution = 0;
 	}
 	
 	protected void onRequest() {
@@ -54,6 +63,11 @@ class MapDecoderEntry {
 	/** @return true if the map has been downloaded */
 	public boolean isDownloaded() {
 		return (stream != null) && (stream.isDownloaded());
+	}
+	
+	/** @return true if the map has been downloaded */
+	public boolean isFailed() {
+		return (streamNotFound > 0) || (downloadFail > 0);
 	}
 	
 	/** @return true if the data has been downloaded */
@@ -66,23 +80,38 @@ class MapDecoderEntry {
 			final MapDataFinder mapDataFinder = Ptolemy3D.getMapDataFinder();
 			final URL url = mapDataFinder.findMapDataTexture(mapData);
 			if(url == null) {
-				IO.printManager("Map not found.");
+				streamNotFound++;
 				return false;
 			}
 			stream = new Stream(url);
+			streamNotFound = 0;
 		}
 		try {
-			return stream.download();
+			final boolean downloaded = stream.download();
+			if(downloaded) {
+				downloadFail = 0;
+			}
+			return downloaded;
 		}
 		catch(IOException e) {
+			downloadFail++;
 			IO.printStackConnection(e);
-			//FIXME handle download fail
 			return false;
 		}
 	}
 	
+	/** @return the current resolution ID, -1 if no resolution decoded */
+	public int getCurrentResolution() {
+		return nextResolution - 1;
+	}
+	
+	/** @return the next resolution ID to decode */
+	public int getNextResolution() {
+		return nextResolution;
+	}
+	
 	/** @return true if the resolution has already been decoded */
-	public boolean isDecoded(int resolution) {
+	private boolean isDecoded(int resolution) {
 		return (decoder != null) && (decoder.hasWavelet(resolution));
 	}
 	
@@ -97,7 +126,19 @@ class MapDecoderEntry {
 		if(decoder == null) {
 			decoder = new Jp2Decoder(stream);
 		}
-		return (decoder.parseWavelet(resolution) != null);
+		
+		boolean decoded = (decoder.parseWavelet(resolution) != null);
+		if(decoded) {
+			nextResolution = resolution + 1;
+			freePreviousResolution();
+		}
+		return decoded;
+	}
+	
+	private void freePreviousResolution() {
+		for(int i = 0; i < getCurrentResolution(); i++) {
+			decoder.freeWavelet(i);
+		}
 	}
 	
 	/** @return the resolution, null if not yet decoded. */

@@ -25,7 +25,8 @@ import org.ptolemy3d.globe.MapDataKey;
 /*
  * FIXME
  *  - Handle ressource that fails to download
- *  - Move to multiple download unit
+ *  - Implemented as a single unit, but to be moved with multiple download units
+ *  - Download retry
  */
 
 /**
@@ -34,40 +35,56 @@ import org.ptolemy3d.globe.MapDataKey;
 class MapDataDecoder {
 	/** Keep reference of all MapData */
 	private final HashMap<MapDataKey, MapDecoderEntry> decoders;
+	private final DownloadDispatcherThread downloadDispatcher;
+	private final DecoderThread decoderThread;
 	
 	public MapDataDecoder() {
 		decoders = new HashMap<MapDataKey, MapDecoderEntry>();
-		new DownloadDispatcherThread().start();
-		new DecoderThread().start();
+		downloadDispatcher = new DownloadDispatcherThread();
+		decoderThread = new DecoderThread();
+		
+		//Let's start now, if nothing is to be done,
+		//thread will be in wait state and will wake-up when entry will be added
+		downloadDispatcher.start();
+		decoderThread.start();
 	}
 	
+	public int getCurrentResolution(MapData mapData) {
+		final MapDecoderEntry decoder = getDecoderEntry(mapData);
+		return decoder.getCurrentResolution();
+	}
 	public Texture request(MapData mapData, int resolution) {
-		final MapDecoderEntry decoder = decoders.get(mapData.key);
+		final MapDecoderEntry decoder = getDecoderEntry(mapData);
+		return decoder.getWavelet(resolution);
+	}
+	private MapDecoderEntry getDecoderEntry(MapData mapData) {
+		MapDecoderEntry decoder = decoders.get(mapData.key);
 		if (decoder == null) {
-			decoders.put(mapData.key, new MapDecoderEntry(mapData));
-			return null;
+			decoder = new MapDecoderEntry(mapData);
+			synchronized(decoders) {	//Accessed from multiple threads
+				decoders.put(mapData.key, decoder);
+			}
+			try {
+				downloadDispatcher.notify();
+			} catch(Exception e) {}
 		}
-		else {
-			decoder.onRequest();
-			return decoder.getWavelet(resolution);
-		}
+		decoder.onRequest();
+		return decoder;
 	}
 
 	/** */
-	//FIXME Implemented as a single unit, but to be moved with multiple download units
 	class DownloadDispatcherThread extends Thread {
 		public DownloadDispatcherThread() {
-			super();
+			super("DownloadDispatcher");
 			setDaemon(true);
 		}
 		
 		public void run() {
 			while (true) {
-				if (!download()) {
-					//wait();
+				if(download()) {
 					try {
-						Thread.sleep(50);
-					} catch(InterruptedException e) { }
+						decoderThread.notify();
+					} catch(Exception e) {}
 				}
 			}
 		}
@@ -76,14 +93,19 @@ class MapDataDecoder {
 			if (entry != null) {
 				return entry.download();
 			}
+			try {
+				wait();
+			} catch(Exception e) { }
 			return false;
 		}
 		private MapDecoderEntry findEntryToDownload() {
-			final Iterator<MapDecoderEntry> i = decoders.values().iterator();
-			while (i.hasNext()) {
-				final MapDecoderEntry entry = i.next();
-				if (!entry.isDownloaded()) {
-					return entry;
+			synchronized(decoders) {	//Accessed from multiple threads
+				final Iterator<MapDecoderEntry> i = decoders.values().iterator();
+				while (i.hasNext()) {
+					final MapDecoderEntry entry = i.next();
+					if (!entry.isDownloaded() && !entry.isFailed()) {
+						return entry;
+					}
 				}
 			}
 			return null;
@@ -93,14 +115,14 @@ class MapDataDecoder {
 	/** */
 	class DecoderThread extends Thread {
 		public DecoderThread() {
-			super();
+			super("Decoder");
 			setDaemon(true);
+			setPriority(Thread.MIN_PRIORITY);
 		}
 		
 		public void run() {
 			while (true) {
 				if (!decode()) {
-					//wait();
 					try {
 						Thread.sleep(50);
 					} catch(InterruptedException e) { }
@@ -114,14 +136,19 @@ class MapDataDecoder {
 					return entry.decode(resolution);
 				}
 			}
+			try {
+				wait();
+			} catch(Exception e) { }
 			return false;
 		}
 		private MapDecoderEntry findEntryToDecode(int resolution) {
-			final Iterator<MapDecoderEntry> i = decoders.values().iterator();
-			while (i.hasNext()) {
-				final MapDecoderEntry entry = i.next();
-				if (!entry.isDecoded(resolution)) {
-					return entry;
+			synchronized(decoders) {	//Accessed from multiple threads
+				final Iterator<MapDecoderEntry> i = decoders.values().iterator();
+				while (i.hasNext()) {
+					final MapDecoderEntry entry = i.next();
+					if (entry.getNextResolution() == resolution) {
+						return entry;
+					}
 				}
 			}
 			return null;

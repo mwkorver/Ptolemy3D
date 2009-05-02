@@ -86,18 +86,30 @@ public class MapDataManager {
 	}
 	
 	public int getTextureID(GL gl, MapData mapData) {
+		//Request map data
+		final int resolution = decoderQueue.getCurrentResolution(mapData);
+		
+		//Texture: acquire or loading
 		final TextureManager textureManager = Ptolemy3D.getTextureManager();
-		int textureID = textureManager.get(mapData);
-		if (textureID == 0) {
-			final Texture texture = decoderQueue.request(mapData, 0);	//FIXME resolution
-			if(texture != null) {
-				textureID = textureManager.load(gl, mapData, texture, true);
-			}
+		final int textureID;
+		if(resolution > mapData.mapResolution) {
+			IO.printfRenderer("Loading texture: %s@%d\n", mapData.key, resolution);
+			// Load resolution
+			final Texture texture = decoderQueue.request(mapData, resolution);
+			textureID = textureManager.load(gl, mapData, texture, true);
+			mapData.mapResolution = resolution;
 		}
+		else {
+			textureID = textureManager.get(mapData);
+		}
+		
+		//Alternate texture if not loaded
 		if(textureID == 0) {
 			return getAlternateTextureID(gl);
 		}
-		return textureID;
+		else {
+			return textureID;
+		}
 	}
 	public int getAlternateTextureID(GL gl) {
 		return 0;

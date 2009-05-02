@@ -17,8 +17,6 @@
  */
 package org.ptolemy3d.globe;
 
-import org.ptolemy3d.manager.Texture;
-
 /**
  * This class holds info for our tile data
  */
@@ -28,10 +26,8 @@ public class MapData {
 
 	/** Longitude in DD. */
 	public final MapDataKey key;
-	/** Jp2 resolutions */
-	public final Texture[] wavelets;
-	/** Current resolution */
-	public int curRes = 0;
+	/** Current texture resolution (wavelet ID) */
+	public int mapResolution;
 	/** TIN Elevation */
 	public ElevationTin tin;
 	/** DEM Elevation */
@@ -41,12 +37,11 @@ public class MapData {
 	 * @deprecated Use MapDataManager instead */
 	public MapData(MapDataKey mapDataKey) {
 		key = mapDataKey;
-		wavelets = new Texture[MAX_NUM_RESOLUTION];
+		
+		mapResolution = -1;
 		
 		tin = null;
 		dem = null;
-		
-		curRes = 0;
 	}
 
 	@Override
@@ -75,6 +70,4 @@ public class MapData {
 	public int getLevel() { return key.level; }
 	/** */
 	public int getMapSize() { return key.mapSize; }
-	/** */
-	public Texture getWavelet(int res) { return wavelets[res]; }
 }

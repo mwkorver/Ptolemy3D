@@ -872,7 +872,7 @@ class TileDirectModeRenderer implements TileRenderer {
 
 	protected final void setJP2ResolutionColor() {
 		if (DEBUG) {
-			int tileRes = (jtile == null) ? -1 : jtile.curRes;
+			int tileRes = (jtile == null) ? -1 : jtile.mapResolution;
 			switch (tileRes) {
 				case 0:
 					gl.glColor3f(1.0f, 0.0f, 0.0f);

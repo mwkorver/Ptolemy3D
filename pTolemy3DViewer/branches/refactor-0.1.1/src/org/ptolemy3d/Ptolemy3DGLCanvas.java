@@ -134,7 +134,6 @@ public class Ptolemy3DGLCanvas extends GLCanvas implements GLEventListener {
 
     /* GLEventListener */
     public void init(GLAutoDrawable glDrawable) {
-
         initializeDrawContext(glDrawable);
 
         // Enable V-Sync

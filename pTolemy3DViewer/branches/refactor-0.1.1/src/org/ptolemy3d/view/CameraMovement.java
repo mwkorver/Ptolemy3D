@@ -17,6 +17,8 @@
  */
 package org.ptolemy3d.view;
 
+import static org.ptolemy3d.Unit.EARTH_RADIUS;
+
 import java.awt.event.MouseEvent;
 
 import org.ptolemy3d.Ptolemy3D;
@@ -132,12 +134,12 @@ public class CameraMovement {
 
         // end 2 feb 06 changes
         MAXIMUM_ALTITUDE = 750000;
-        landscape.setFarClip(MAXIMUM_ALTITUDE + (Unit.EARTH_RADIUS * 2));
+        landscape.setFarClip(MAXIMUM_ALTITUDE + (EARTH_RADIUS * 2));
 
         stopMovement();
     }
 
-    protected final void setCamera(Matrix16d modelView) throws Exception {
+    protected final void setCamera(Matrix16d modelView) {
         final Landscape landscape = Ptolemy3D.getScene().landscape;
         final Camera camera = canvas.getCamera();
 
@@ -433,7 +435,7 @@ public class CameraMovement {
             modelView.identityMatrix();
             modelView.translate(0, 0, -camera.getPosition().getAltitudeDD());
             modelView.rotateX(camera.getTilt());
-            modelView.translate(0, 0, -Unit.EARTH_RADIUS - ((followDemOn) ? ground_ht : 0));
+            modelView.translate(0, 0, -EARTH_RADIUS - ((followDemOn) ? ground_ht : 0));
             modelView.multiply(camera.vpMat);
 
             /*** set coordinate information using current matrices ****/
@@ -500,11 +502,11 @@ public class CameraMovement {
         rotMat.rotX(-camera.getTilt());
         Matrix9d.multiply(camera.vpMat, rotMat, camera.cameraMat);
 
-        camera.cameraPos[0] = (camera.vpMat.m[0][2] * (Unit.EARTH_RADIUS + groundH)) + (camera.cameraMat.m[0][2] * camera.getPosition().getAltitudeDD());
-        camera.cameraPos[1] = (camera.vpMat.m[1][2] * (Unit.EARTH_RADIUS + groundH)) + (camera.cameraMat.m[1][2] * camera.getPosition().getAltitudeDD());
-        camera.cameraPos[2] = (camera.vpMat.m[2][2] * (Unit.EARTH_RADIUS + groundH)) + (camera.cameraMat.m[2][2] * camera.getPosition().getAltitudeDD());
+        camera.cameraPos[0] = (camera.vpMat.m[0][2] * (EARTH_RADIUS + groundH)) + (camera.cameraMat.m[0][2] * camera.getPosition().getAltitudeDD());
+        camera.cameraPos[1] = (camera.vpMat.m[1][2] * (EARTH_RADIUS + groundH)) + (camera.cameraMat.m[1][2] * camera.getPosition().getAltitudeDD());
+        camera.cameraPos[2] = (camera.vpMat.m[2][2] * (EARTH_RADIUS + groundH)) + (camera.cameraMat.m[2][2] * camera.getPosition().getAltitudeDD());
 
-        camera.setVertAltDD(Math.sqrt((camera.cameraPos[0] * camera.cameraPos[0]) + (camera.cameraPos[1] * camera.cameraPos[1]) + (camera.cameraPos[2] * camera.cameraPos[2])) - Unit.EARTH_RADIUS);
+        camera.setVertAltDD(Math.sqrt((camera.cameraPos[0] * camera.cameraPos[0]) + (camera.cameraPos[1] * camera.cameraPos[1]) + (camera.cameraPos[2] * camera.cameraPos[2])) - EARTH_RADIUS);
         camera.setVertAlt(camera.getVertAltDD() / Unit.getCoordSystemRatio());
 
         camera.cameraMatInv.copyFrom(camera.cameraMat);
@@ -516,14 +518,14 @@ public class CameraMovement {
         final Camera camera = canvas.getCamera();
 
         {
-            double mag = camera.getVertAltDD() + Unit.EARTH_RADIUS;
+            double mag = camera.getVertAltDD() + EARTH_RADIUS;
             camera.setCameraY(Math.asin(camera.cameraPos[1] / mag) * Math3D.RADIAN_TO_DEGREE * Unit.getDDFactor());
             camera.setCameraX(Math3D.angle2dvec(-1, 0, camera.cameraPos[2] / mag, camera.cameraPos[0] / mag, true) * Unit.getDDFactor());
             if ((camera.cameraPos[0] / mag) >= 0) {
                 camera.setCameraX(camera.getCameraX() * (-1));
             }
             double calt = landscape.groundHeight(camera.getCameraX(), camera.getCameraY(), 0);
-            if ((mag - Unit.EARTH_RADIUS) < (calt + 25 * Unit.getCoordSystemRatio())) {
+            if ((mag - EARTH_RADIUS) < (calt + 25 * Unit.getCoordSystemRatio())) {
                 return false;
             }
         }
@@ -719,7 +721,7 @@ public class CameraMovement {
 
             camera.getPosition().setAltitudeDD(camera.getPosition().getAltitudeDD() + (ht / Math.cos(-camera.getTilt())));
 
-            rotMat.rotX(-Math.atan((ht * Math.tan(-camera.getTilt())) / Unit.EARTH_RADIUS));
+            rotMat.rotX(-Math.atan((ht * Math.tan(-camera.getTilt())) / EARTH_RADIUS));
             camera.vpMat.copyTo(evtclnMat);
             Matrix9d.multiply(evtclnMat, rotMat, camera.vpMat);
         }
@@ -728,7 +730,7 @@ public class CameraMovement {
 
             camera.getPosition().setAltitudeDD(camera.getPosition().getAltitudeDD() - (ht / Math.cos(-camera.getTilt())));
 
-            rotMat.rotX(Math.atan((ht * Math.tan(-camera.getTilt())) / Unit.EARTH_RADIUS));
+            rotMat.rotX(Math.atan((ht * Math.tan(-camera.getTilt())) / EARTH_RADIUS));
             camera.vpMat.copyTo(evtclnMat);
             Matrix9d.multiply(evtclnMat, rotMat, camera.vpMat);
         }
@@ -754,7 +756,7 @@ public class CameraMovement {
                                          double cruise_tilt, double speed) {
         flyToPositionDD(latLonAlt, s_direction, s_tilt, flight_arc, cruise_tilt);
         // 1 km is approx 2.0 * Math.atan(/EARTH_RADIUS)
-        max_rate = (2.0 * Math.atan(500.0 / Unit.EARTH_RADIUS) * speed * (0.05)) * scaler;
+        max_rate = (2.0 * Math.atan(500.0 / EARTH_RADIUS) * speed * (0.05)) * scaler;
         ud_accel = max_rate / 20;
 
         inAutoPilot = 1;
@@ -856,7 +858,7 @@ public class CameraMovement {
         if (flight_arc < 1) {
             flight_arc = 1;
         }
-        cruise_alt = (((Unit.EARTH_RADIUS * angle) * Math.atan(flight_arc * Math3D.DEGREE_TO_RADIAN)) + auto_y);
+        cruise_alt = (((EARTH_RADIUS * angle) * Math.atan(flight_arc * Math3D.DEGREE_TO_RADIAN)) + auto_y);
         if (cruise_alt > 7000000) {
             cruise_alt = 7000000;
         }
@@ -1053,7 +1055,7 @@ public class CameraMovement {
         max_rate = 0.2;
 
         halfway = angle / 2.0;
-        cruise_alt = auto_y + ((type == 0) ? (Unit.EARTH_RADIUS * angle) * (Math.atan(arc_angle * Math3D.DEGREE_TO_RADIAN)) : 0);
+        cruise_alt = auto_y + ((type == 0) ? (EARTH_RADIUS * angle) * (Math.atan(arc_angle * Math3D.DEGREE_TO_RADIAN)) : 0);
         if (cruise_alt > 7000000) {
             cruise_alt = 7000000;
         }
@@ -1075,7 +1077,7 @@ public class CameraMovement {
 
         Matrix9d pointerMat = new Matrix9d();
 
-        Math3D.setSphericalCoord(auto_x, auto_z, endpoint);
+        Math3D.setSphericalCoord(auto_x, auto_z, 1, endpoint);
 
         camera.vpMat.copyTo(pointerMat);
         pointerMat.invert(evtclnMat);
@@ -1108,8 +1110,8 @@ public class CameraMovement {
 
         {
             setCameraMatrix(false);
-            halfway = (Math.sqrt((camera.cameraPos[0] * camera.cameraPos[0]) + (camera.cameraPos[1] * camera.cameraPos[1]) + (camera.cameraPos[2] * camera.cameraPos[2])) - Unit.EARTH_RADIUS);
-            cruise_alt = Math.atan((halfway * Math.tan(setang * Math3D.DEGREE_TO_RADIAN)) / Unit.EARTH_RADIUS);
+            halfway = (Math.sqrt((camera.cameraPos[0] * camera.cameraPos[0]) + (camera.cameraPos[1] * camera.cameraPos[1]) + (camera.cameraPos[2] * camera.cameraPos[2])) - EARTH_RADIUS);
+            cruise_alt = Math.atan((halfway * Math.tan(setang * Math3D.DEGREE_TO_RADIAN)) / EARTH_RADIUS);
             // move forward to center camera over point.
             rotMat.rotX(cruise_alt);
             camera.vpMat.copyTo(evtclnMat);

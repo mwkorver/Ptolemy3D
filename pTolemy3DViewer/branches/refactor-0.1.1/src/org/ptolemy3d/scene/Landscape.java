@@ -259,12 +259,6 @@ public class Landscape {
 
     /** Landscape Prepare */
     public void prepareFrame(DrawContext drawContext) {
-        GL gl = drawContext.getGL();
-
-        // Destroy unused textures
-        final TextureManager textureManager = Ptolemy3D.getTextureManager();
-        textureManager.freeUnusedTextures(gl);
-
         // Correct Tiles
         if (drawLandscape) {
         	if (!DEBUG || (DEBUG && !ProfilerUtil.freezeVisibility)) {

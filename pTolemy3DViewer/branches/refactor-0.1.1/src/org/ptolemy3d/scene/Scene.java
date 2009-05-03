@@ -35,6 +35,7 @@ import org.ptolemy3d.Ptolemy3DGLCanvas;
 import org.ptolemy3d.debug.ProfilerUtil;
 import org.ptolemy3d.debug.ProfilerUtil.ProfilerEventInterface;
 import org.ptolemy3d.manager.MapDataManager;
+import org.ptolemy3d.manager.TextureManager;
 import org.ptolemy3d.plugin.Sky;
 import org.ptolemy3d.view.Camera;
 
@@ -187,6 +188,11 @@ public class Scene implements Transferable {
         	ProfilerUtil.drawProfiler(gl);
         }
         
+        // Destroy unused textures
+        final TextureManager textureManager = Ptolemy3D.getTextureManager();
+        textureManager.freeUnusedTextures(drawContext.getGL());
+
+        // Destroy unused map
         final MapDataManager mapDataManager = Ptolemy3D.getMapDataManager();
         mapDataManager.freeUnused();
     }

@@ -106,6 +106,10 @@ public class Matrix16d
 		m[ 9] = src.m[2][1];
 		m[10] = src.m[2][2];
 	}
+	public final void copyFrom(Matrix16d src)
+	{
+		System.arraycopy(m, 0, src.m, 0, m.length);
+	}
 	
 	public final void identityMatrix()
 	{

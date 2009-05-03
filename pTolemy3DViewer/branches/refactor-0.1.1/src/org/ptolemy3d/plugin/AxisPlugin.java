@@ -17,13 +17,14 @@
  */
 package org.ptolemy3d.plugin;
 
+import static org.ptolemy3d.Unit.EARTH_RADIUS;
+
 import com.sun.opengl.util.j2d.TextRenderer;
 import java.awt.Color;
 import java.awt.Font;
 import javax.media.opengl.GL;
 import javax.media.opengl.glu.GLU;
 import org.ptolemy3d.DrawContext;
-import org.ptolemy3d.Unit;
 import org.ptolemy3d.scene.Plugin;
 import org.ptolemy3d.view.Camera;
 
@@ -134,7 +135,7 @@ public class AxisPlugin implements Plugin {
             return;
         }
 
-        double rad = Unit.EARTH_RADIUS * 1.1;
+        double rad = EARTH_RADIUS * 1.1;
         double x_axis[] = {
             rad, 0, 0
         };

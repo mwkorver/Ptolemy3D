@@ -23,7 +23,6 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-import org.ptolemy3d.debug.IO;
 import org.ptolemy3d.io.Stream;
 import org.ptolemy3d.manager.Texture;
 

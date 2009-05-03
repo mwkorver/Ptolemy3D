@@ -18,6 +18,7 @@
 package org.ptolemy3d.globe;
 
 import static org.ptolemy3d.debug.Config.DEBUG;
+import static org.ptolemy3d.Unit.EARTH_RADIUS;
 
 import javax.media.opengl.GL;
 
@@ -381,8 +382,8 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 
 				double cx1, cy1, cz1, cx2, cy2, cz2;
 				{
-					final double dy1E = (dy1 * dyScaler) + Unit.EARTH_RADIUS;
-					final double dy2E = (dy2 * dyScaler) + Unit.EARTH_RADIUS;
+					final double dy1E = (dy1 * dyScaler) + EARTH_RADIUS;
+					final double dy2E = (dy2 * dyScaler) + EARTH_RADIUS;
 
 					final double cosX = lookUpCos(lon);
 					final double sinX = lookUpCos(angle90 - lon);
@@ -599,8 +600,8 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 
 				double cx1, cy1, cz1, cx2, cy2, cz2;
 				{
-					final double dy1E = dy1 + Unit.EARTH_RADIUS;
-					final double dy2E = dy2 + Unit.EARTH_RADIUS;
+					final double dy1E = dy1 + EARTH_RADIUS;
+					final double dy2E = dy2 + EARTH_RADIUS;
 
 					final double cosX = lookUpCos(lon);
 					final double sinX = lookUpCos(angle90 - lon);
@@ -681,13 +682,13 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 
 //		gl.glBegin(GL.GL_TRIANGLE_STRIP);
 		int lat1 = zStart;
-		double cosY1 = lookUpCos(lat1) * Unit.EARTH_RADIUS;
-		double sinY1 = -lookUpCos(angle90 - lat1) * Unit.EARTH_RADIUS;
+		double cosY1 = lookUpCos(lat1) * EARTH_RADIUS;
+		double sinY1 = -lookUpCos(angle90 - lat1) * EARTH_RADIUS;
 		float ty1 = tzStart;
 		for (int j = 0; j < n; j++) {
 			final int lat2 = lat1 + zIncr;
-			double cosY2 = lookUpCos(lat2) * Unit.EARTH_RADIUS;
-			double sinY2 = -lookUpCos(angle90 - lat2) * Unit.EARTH_RADIUS;
+			double cosY2 = lookUpCos(lat2) * EARTH_RADIUS;
+			double sinY2 = -lookUpCos(angle90 - lat2) * EARTH_RADIUS;
 
 			final float ty2 = ty1 + tzIncr;
 
@@ -766,12 +767,12 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 
 //		gl.glBegin(GL.GL_TRIANGLE_STRIP);
 		int lat1 = zStart;
-		double cosY1 = lookUpCos(lat1) * Unit.EARTH_RADIUS;
-		double sinY1 = -lookUpCos(angle90 - lat1) * Unit.EARTH_RADIUS;
+		double cosY1 = lookUpCos(lat1) * EARTH_RADIUS;
+		double sinY1 = -lookUpCos(angle90 - lat1) * EARTH_RADIUS;
 		for (int j = 0; j < n; j++) {
 			final int lat2 = lat1 + zIncr;
-			double cosY2 = lookUpCos(lat2) * Unit.EARTH_RADIUS;
-			double sinY2 = -lookUpCos(angle90 - lat2) * Unit.EARTH_RADIUS;
+			double cosY2 = lookUpCos(lat2) * EARTH_RADIUS;
+			double sinY2 = -lookUpCos(angle90 - lat2) * EARTH_RADIUS;
 
 			int lon = xStart;
 

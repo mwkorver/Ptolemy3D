@@ -18,6 +18,7 @@
 package org.ptolemy3d.globe;
 
 import static org.ptolemy3d.debug.Config.DEBUG;
+import static org.ptolemy3d.Unit.EARTH_RADIUS;
 
 import javax.media.opengl.GL;
 
@@ -54,9 +55,9 @@ class TileDefaultRenderer implements TileRenderer {
 	private double terrainScaler;
 	private float meshColor;
 
-	private final void fillTemporaryVariables(Tile tile, MapData mapData) {
+	private final void fillTemporaryVariables(Tile tile) {
 		gl = tile.gl;
-		jtile = mapData;
+		jtile = tile.mapData;
 		drawZlevel = tile.drawZlevel;
 		texture = tile.texture;
 		leftTile = tile.left;
@@ -77,7 +78,7 @@ class TileDefaultRenderer implements TileRenderer {
 		meshColor = landscape.getMeshColor();
 	}
 
-	public void drawSubsection(Tile tile, MapData mapData, int x1, int z1, int x2, int z2) {
+	public void drawSubsection(Tile tile, int x1, int z1, int x2, int z2) {
 		if ((x1 == x2) || (z1 == z2)) {
 			return;
 		}
@@ -88,7 +89,7 @@ class TileDefaultRenderer implements TileRenderer {
 			}
 			ProfilerUtil.tileSectionCounter++;
 		}
-		fillTemporaryVariables(tile, mapData);
+		fillTemporaryVariables(tile);
 
 		boolean useDem = ((jtile != null) && (jtile.dem != null) && (landscape.isTerrainEnabled())) ? true : false;
 		boolean useTin = ((jtile != null) && (jtile.tin != null) && (landscape.isTerrainEnabled())) ? true : false;
@@ -160,9 +161,9 @@ class TileDefaultRenderer implements TileRenderer {
 					dx = theta1 + jtile.tin.p[v][0] * (theta2 - theta1) / jtile.tin.w;
 					dz = phi1 + jtile.tin.p[v][2] * (phi2 - phi1) / jtile.tin.w;
 
-					tx = (Unit.EARTH_RADIUS + dy) * Math.cos(dz) * Math.sin(dx);
-					ty = -(Unit.EARTH_RADIUS + dy) * Math.sin(dz);
-					tz = (Unit.EARTH_RADIUS + dy) * Math.cos(dz) * Math.cos(dx);
+					tx =  (EARTH_RADIUS + dy) * Math.cos(dz) * Math.sin(dx);
+					ty = -(EARTH_RADIUS + dy) * Math.sin(dz);
+					tz =  (EARTH_RADIUS + dy) * Math.cos(dz) * Math.cos(dx);
 				}
 
 				if (texture) {
@@ -353,12 +354,12 @@ class TileDefaultRenderer implements TileRenderer {
 				dy2 *= Unit.getCoordSystemRatio() * terrainScaler;
 
 				{
-					cx1 = (Unit.EARTH_RADIUS + dy1) * Math.cos(dz) * Math.sin(dx);
-					cx2 = (Unit.EARTH_RADIUS + dy2) * Math.cos(d2z) * Math.sin(dx);
-					cy1 = -(Unit.EARTH_RADIUS + dy1) * Math.sin(dz);
-					cy2 = -(Unit.EARTH_RADIUS + dy2) * Math.sin(d2z);
-					cz1 = (Unit.EARTH_RADIUS + dy1) * Math.cos(dz) * Math.cos(dx);
-					cz2 = (Unit.EARTH_RADIUS + dy2) * Math.cos(d2z) * Math.cos(dx);
+					cx1 = (EARTH_RADIUS + dy1) * Math.cos(dz) * Math.sin(dx);
+					cx2 = (EARTH_RADIUS + dy2) * Math.cos(d2z) * Math.sin(dx);
+					cy1 = -(EARTH_RADIUS + dy1) * Math.sin(dz);
+					cy2 = -(EARTH_RADIUS + dy2) * Math.sin(d2z);
+					cz1 = (EARTH_RADIUS + dy1) * Math.cos(dz) * Math.cos(dx);
+					cz2 = (EARTH_RADIUS + dy2) * Math.cos(d2z) * Math.cos(dx);
 				}
 
 
@@ -453,12 +454,12 @@ class TileDefaultRenderer implements TileRenderer {
 				t3 = (theta1 + i * (theta2 - theta1) / n);
 				tx = tx_start + i * tx_w; //(float)i/n;
 
-				cx1 = Unit.EARTH_RADIUS * Math.cos(t1) * Math.sin(t3);
-				cx2 = Unit.EARTH_RADIUS * Math.cos(t2) * Math.sin(t3);
-				cy1 = -Unit.EARTH_RADIUS * Math.sin(t1);
-				cy2 = -Unit.EARTH_RADIUS * Math.sin(t2);
-				cz1 = Unit.EARTH_RADIUS * Math.cos(t1) * Math.cos(t3);
-				cz2 = Unit.EARTH_RADIUS * Math.cos(t2) * Math.cos(t3);
+				cx1 = EARTH_RADIUS * Math.cos(t1) * Math.sin(t3);
+				cx2 = EARTH_RADIUS * Math.cos(t2) * Math.sin(t3);
+				cy1 = -EARTH_RADIUS * Math.sin(t1);
+				cy2 = -EARTH_RADIUS * Math.sin(t2);
+				cz1 = EARTH_RADIUS * Math.cos(t1) * Math.cos(t3);
+				cz2 = EARTH_RADIUS * Math.cos(t2) * Math.cos(t3);
 
 				if (texture) {
 					gl.glTexCoord2f(tx, ty1);

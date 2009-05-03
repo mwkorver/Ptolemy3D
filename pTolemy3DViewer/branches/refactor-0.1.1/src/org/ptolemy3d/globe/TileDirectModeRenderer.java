@@ -18,6 +18,7 @@
 package org.ptolemy3d.globe;
 
 import static org.ptolemy3d.debug.Config.DEBUG;
+import static org.ptolemy3d.Unit.EARTH_RADIUS;
 
 import javax.media.opengl.GL;
 
@@ -70,7 +71,7 @@ class TileDirectModeRenderer implements TileRenderer {
 		terrainScaler = landscape.getTerrainScaler();
 	}
 
-	public void drawSubsection(Tile tile, MapData mapData, int x1, int z1, int x2, int z2) {
+	public void drawSubsection(Tile tile, int x1, int z1, int x2, int z2) {
 		if ((x1 == x2) || (z1 == z2)) {
 			return;
 		}
@@ -308,8 +309,8 @@ class TileDirectModeRenderer implements TileRenderer {
 
 				double cx1, cy1, cz1, cx2, cy2, cz2;
 				{
-					final double dy1E = (dy1 * dyScaler) + Unit.EARTH_RADIUS;
-					final double dy2E = (dy2 * dyScaler) + Unit.EARTH_RADIUS;
+					final double dy1E = (dy1 * dyScaler) + EARTH_RADIUS;
+					final double dy2E = (dy2 * dyScaler) + EARTH_RADIUS;
 
 					final double cosX = Math.cos(dx);
 					final double sinX = Math.sin(dx);
@@ -533,8 +534,8 @@ class TileDirectModeRenderer implements TileRenderer {
 
 				double cx1, cy1, cz1, cx2, cy2, cz2;
 				{
-					final double dy1E = dy1 + Unit.EARTH_RADIUS;
-					final double dy2E = dy2 + Unit.EARTH_RADIUS;
+					final double dy1E = dy1 + EARTH_RADIUS;
+					final double dy2E = dy2 + EARTH_RADIUS;
 
 					final double cosX = Math.cos(dx);
 					final double sinX = Math.sin(dx);
@@ -622,8 +623,8 @@ class TileDirectModeRenderer implements TileRenderer {
 
 		double t1 = phi1;
 		double cosT2_E, sinT2_E;
-		double cosT1_E = Math.cos(t1) * Unit.EARTH_RADIUS;
-		double sinT1_E = -Math.sin(t1) * Unit.EARTH_RADIUS;
+		double cosT1_E = Math.cos(t1) * EARTH_RADIUS;
+		double sinT1_E = -Math.sin(t1) * EARTH_RADIUS;
 
 //		gl.glBegin(GL.GL_TRIANGLE_STRIP);
 		float ty1 = tz_start;
@@ -631,8 +632,8 @@ class TileDirectModeRenderer implements TileRenderer {
 			final double t2 = t1 + dPhiOverN;
 			final float ty2 = ty1 + tz_w;
 
-			cosT2_E = Math.cos(t2) * Unit.EARTH_RADIUS;
-			sinT2_E = -Math.sin(t2) * Unit.EARTH_RADIUS;
+			cosT2_E = Math.cos(t2) * EARTH_RADIUS;
+			sinT2_E = -Math.sin(t2) * EARTH_RADIUS;
 
 			gl.glBegin(GL.GL_TRIANGLE_STRIP);
 			double t3 = theta1;
@@ -713,8 +714,8 @@ class TileDirectModeRenderer implements TileRenderer {
 
 		double t1 = phi1;
 		double cosT1_E, sinT1_E;
-		double cosT2_E = Math.cos(t1) * Unit.EARTH_RADIUS;
-		double sinT2_E = -Math.sin(t1) * Unit.EARTH_RADIUS;
+		double cosT2_E = Math.cos(t1) * EARTH_RADIUS;
+		double sinT2_E = -Math.sin(t1) * EARTH_RADIUS;
 
 //		gl.glBegin(GL.GL_TRIANGLE_STRIP);
 		for (int j = 0; j < n; j++) {
@@ -722,8 +723,8 @@ class TileDirectModeRenderer implements TileRenderer {
 
 			cosT1_E = cosT2_E;
 			sinT1_E = sinT2_E;
-			cosT2_E = Math.cos(t2) * Unit.EARTH_RADIUS;
-			sinT2_E = -Math.sin(t2) * Unit.EARTH_RADIUS;
+			cosT2_E = Math.cos(t2) * EARTH_RADIUS;
+			sinT2_E = -Math.sin(t2) * EARTH_RADIUS;
 
 			double t3 = theta1;
 
@@ -823,7 +824,7 @@ class TileDirectModeRenderer implements TileRenderer {
 
 				double tx, ty, tz;
 				{
-					double dyE = Unit.EARTH_RADIUS + dy;
+					double dyE = EARTH_RADIUS + dy;
 					double sinZ = Math.sin(dz);
 					double cosZ = Math.cos(dz);
 					double sinX = Math.sin(dx);

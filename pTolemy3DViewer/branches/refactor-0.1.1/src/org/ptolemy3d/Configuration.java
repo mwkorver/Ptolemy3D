@@ -17,6 +17,7 @@
  */
 package org.ptolemy3d;
 
+import java.applet.Applet;
 import java.io.File;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
@@ -112,6 +113,10 @@ public class Configuration {
 	public String backgroundImageUrl = null;
     public boolean follorDEM = true;
 
+    public Configuration() {
+    	loadSettings(null);
+    }
+    
     /**
      * Creates a new configuration instance given the specified file.
      *
@@ -119,7 +124,7 @@ public class Configuration {
      * @param xmlFile
      */
     public Configuration(String xmlFile) {
-        loadSettings(xmlFile);
+        loadSettings(buildXMLDocument(xmlFile));
     }
 
     /**
@@ -157,10 +162,7 @@ public class Configuration {
      *
      * @param docelem
      */
-    public void loadSettings(String xmlFile) throws Ptolemy3DException {
-
-        Element docelem = buildXMLDocument(xmlFile);
-
+    public void loadSettings(Element docelem) throws Ptolemy3DException {
         final Scene scene = Ptolemy3D.getScene();
         final Landscape landScape = scene.landscape;
         final Sky sky = scene.sky;
@@ -382,18 +384,14 @@ public class Configuration {
      */
     private String getRequieredParameter(String name)
             throws Ptolemy3DConfigurationException {
+    	
+		final Applet applet = Ptolemy3D.getJavascript().getApplet();
+		String parameter = applet.getParameter(name);
 
-        String parameter = null;
-
-//		final Applet applet = ptolemy.javascript.getApplet();
-//		parameter = applet.getParameter(name);
-//
-//		if (parameter == null) {
-//			parameter = null;
-//			String message = "The requiered parameter '" + name
-//					+ "' is missing.";
-//			throw new Ptolemy3DConfigurationException(message);
-//		}
+		if (parameter == null) {
+			String message = "The requiered parameter '" + name + "' is missing.";
+			throw new Ptolemy3DConfigurationException(message);
+		}
         return parameter;
     }
 

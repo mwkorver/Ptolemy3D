@@ -17,6 +17,8 @@
  */
 package org.ptolemy3d.plugin;
 
+import static org.ptolemy3d.Unit.EARTH_RADIUS;
+
 import java.util.Random;
 
 import javax.media.opengl.GL;
@@ -24,7 +26,6 @@ import javax.media.opengl.GL;
 import org.ptolemy3d.DrawContext;
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.Ptolemy3DGLCanvas;
-import org.ptolemy3d.Unit;
 import org.ptolemy3d.manager.Texture;
 import org.ptolemy3d.math.Math3D;
 import org.ptolemy3d.math.Matrix16d;
@@ -173,7 +174,7 @@ public class Sky {
         gl.glPushMatrix();
         {
             gl.glLoadIdentity();
-            gl.glTranslated(0, -(Unit.EARTH_RADIUS / 500), -camera.getPosition().getAltitudeDD());
+            gl.glTranslated(0, -(EARTH_RADIUS / 500), -camera.getPosition().getAltitudeDD());
             gl.glRotatef((float) (90 + canvas.getCamera().getPitchDegrees()), 1.0f, 0.0f, 0.0f);
         }
 
@@ -196,7 +197,7 @@ public class Sky {
         final Camera camera = drawContext.getCanvas().getCamera();
 
         int i;
-        double r = Unit.EARTH_RADIUS;
+        double r = EARTH_RADIUS;
         double cz = -camera.getPosition().getAltitudeDD() - (Math.cos(camera.getPitchRadians()) * r);
         double cy = (Math.sin(camera.getPitchRadians()) * r);
 

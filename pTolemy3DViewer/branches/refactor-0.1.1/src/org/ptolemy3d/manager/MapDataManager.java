@@ -44,24 +44,17 @@ public class MapDataManager {
 		decoderQueue = new MapDataDecoder();
 	}
 	
-	public MapData get(MapDataKey key) {
+	private MapData request(MapDataKey key) {
 		return decoderQueue.getDecoder(key).mapData;
 	}
 	
-	public void remove(MapData mapData) {
-		// Remove from table
-		final MapData removed = decoderQueue.remove(mapData.key);
-		if (removed == mapData) {
-			// Unload texture
-		}
-		else {
-			IO.println("ERROR: fail to remove MapData ("+removed+")");
-		}
+	public void freeUnused() {
+		decoderQueue.freeUnused();
 	}
-
+	
 	public final MapData getMapDataHeader(int levelID, int lon, int lat) {
 		final MapDataKey exactKey = new MapDataKey(levelID, lon, lat);
-		final MapData mapData = get(exactKey);
+		final MapData mapData = request(exactKey);
 		if(mapData.hasTexture()) {
 			return mapData;
 		}
@@ -91,10 +84,7 @@ public class MapDataManager {
 		return mapData;
 	}
 	
-	public void freeUnused() {
-		decoderQueue.freeUnused();
-	}
-	
+	/** Acquire texture ID */
 	public int getTextureID(GL gl, MapData mapData) {
 		//Acquire texture ID, and update if necessary
 		final int textureID;

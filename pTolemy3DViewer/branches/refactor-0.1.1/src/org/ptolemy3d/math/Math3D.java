@@ -17,6 +17,8 @@
  */
 package org.ptolemy3d.math;
 
+import static org.ptolemy3d.Unit.EARTH_RADIUS;
+
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.Unit;
 import org.ptolemy3d.scene.Landscape;
@@ -42,11 +44,12 @@ public class Math3D {
      * @param lat
      *            latitude, unit is degree multiplied by
      *            <code>unit.DDBuffer</code> (default is 1000000).
+     * @param radius 
      * @param dest
      *            destination
      * @see Unit#DD
      */
-    public static final void setSphericalCoord(double lon, double lat, double[] dest) {
+    public static final void setSphericalCoord(double lon, double lat, double radius, double[] dest) {
         final Landscape landscape = Ptolemy3D.getScene().landscape;
 
         double toRadiansOverDDBuffer = Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor();
@@ -59,9 +62,9 @@ public class Math3D {
         double cosY = Math.cos(thy);
         double sinY = Math.sin(thy);
 
-        dest[0] = cosY * sinX;
-        dest[1] = sinY;
-        dest[2] = cosY * cosX;
+        dest[0] = cosY * sinX * radius;
+        dest[1] = sinY        * radius;
+        dest[2] = cosY * cosX * radius;
     }
 
     // ====================================================================================
@@ -303,7 +306,7 @@ public class Math3D {
         out[0] = Math.asin(intvec[1]) * RADIAN_TO_DEGREE;
         out[1] = o_lon;
 
-        double alt = (Math.sqrt(in[0] * in[0]) + (in[1] * in[1]) + (in[2] * in[2]) - Unit.EARTH_RADIUS) / Unit.getCoordSystemRatio();
+        double alt = (Math.sqrt(in[0] * in[0]) + (in[1] * in[1]) + (in[2] * in[2]) - EARTH_RADIUS) / Unit.getCoordSystemRatio();
         if (alt < 0) {
             alt = 0;
         }

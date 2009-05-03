@@ -71,7 +71,7 @@ class MapDecoderEntry {
 		return System.currentTimeMillis();
 	}
 	protected static long getMaxTime() {
-		return 1000;
+		return 5000;
 	}
 	
 	/** @return true if the map has been downloaded */

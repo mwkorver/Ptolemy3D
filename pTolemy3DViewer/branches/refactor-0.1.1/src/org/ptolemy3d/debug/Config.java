@@ -50,7 +50,7 @@ public class Config
 	/** Plugin output */
 	protected final static boolean enablePrintPlugin     = DEBUG && false;
 	/** Parser output */
-	protected final static boolean enablePrintParser     = DEBUG && false;
+	protected final static boolean enablePrintParser     = DEBUG && true;
 	/** Debug output */
 	protected final static boolean enablePrintDebug      = DEBUG && false;
 

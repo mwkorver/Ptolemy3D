@@ -82,6 +82,7 @@ import org.ptolemy3d.view.CameraMovement;
 public final class Ptolemy3D {
     // TODO - canvas variable is only here temporaly to solve a reference problem in Jp2TileLoader. We must remove from here.
     private static Ptolemy3DGLCanvas canvas = null;
+    private static Ptolemy3DJavascript javascript = null;
     private static Configuration configuration = null;
     private static Scene scene = new Scene();
     private static TextureManager textureManager = null;
@@ -126,6 +127,10 @@ public final class Ptolemy3D {
         			configuration.initialCameraPitch);
         	canvas.getCameraMovement().setFollowDem(configuration.follorDEM);
         }
+    }
+    
+    public static void registerApplet(Ptolemy3DJavascript javascript_) {
+    	javascript = javascript_;
     }
     
     /**
@@ -206,6 +211,10 @@ public final class Ptolemy3D {
     public static FileSystemCache getFileSystemCache() {
     	return cache;
     }
+
+	public static Ptolemy3DJavascript getJavascript() {
+		return javascript;
+	}
     
 //     /**
 //	* Call a javascript function

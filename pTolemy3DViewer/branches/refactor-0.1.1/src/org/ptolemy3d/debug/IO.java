@@ -33,17 +33,18 @@ import org.ptolemy3d.view.Camera;
  * <BR>Debug Keyboard:<pre>
  * F1 : Show/Hide Landscape
  * F2 : Show/Hide Landscape Tiles
- * F3 : Show/Hide Profiler/Debug Hud
+ * F3 : Show/Hide Profiler Hud
  * F4 :
  * F5 : Enable/Disable Wireframe rendering for Landscape.
  * F6 :
  * F7 :
- * F8 :
- * F9 : Freeze tile correction
- * F10: Freeze visibility
- * F11:
+ * F8 : Camera position
+ * F9 : Force level ++
+ * F10: Force level --
+ * F11: Freeze visibility
  * F12:
  * </pre>
+ * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  */
 public class IO {
 	/* Output for standard informations */
@@ -62,7 +63,7 @@ public class IO {
 			System.out.printf(format, args);
 		}
 	}
-	public final static void printStack(Exception e) {
+	public final static void printStack(Throwable e) {
 		if (Config.enablePrint) {
 			e.printStackTrace();
 		}
@@ -84,7 +85,7 @@ public class IO {
 			System.err.printf(format, args);
 		}
 	}
-	public final static void printStackError(Exception e) {
+	public final static void printStackError(Throwable e) {
 		if (Config.enablePrintError) {
 			e.printStackTrace();
 		}
@@ -93,20 +94,20 @@ public class IO {
 	/* Output for error informations */
 	public final static void printManager(String format) {
 		if (Config.enablePrintManager) {
-			System.out.print(format);
+			print(format);
 		}
 	}
 	public final static void printlnManager(String format) {
 		if (Config.enablePrintManager) {
-			System.out.println(format);
+			println(format);
 		}
 	}
 	public final static void printfManager(String format, Object... args) {
 		if (Config.enablePrintManager) {
-			System.out.printf(format, args);
+			printf(format, args);
 		}
 	}
-	public final static void printStackManager(Exception e) {
+	public final static void printStackManager(Throwable e) {
 		if (Config.enablePrintManager) {
 			e.printStackTrace();
 		}
@@ -128,7 +129,7 @@ public class IO {
 			printf(format, args);
 		}
 	}
-	public final static void printStackRenderer(Exception e) {
+	public final static void printStackRenderer(Throwable e) {
 		if (Config.enablePrintRender) {
 			e.printStackTrace();
 		}
@@ -150,14 +151,14 @@ public class IO {
 			printf(format, args);
 		}
 	}
-	public final static void printStackParser(Exception e) {
+	public final static void printStackParser(Throwable e) {
 		if (Config.enablePrintParser) {
 			e.printStackTrace();
 		}
 	}
 	
 	/* Output for plugin informations */
-	public final static void printStackPlugin(Exception e) {
+	public final static void printStackPlugin(Throwable e) {
 		if (Config.enablePrintPlugin) {
 			e.printStackTrace();
 		}
@@ -179,14 +180,14 @@ public class IO {
 			printf(format, args);
 		}
 	}
-	public final static void printStackConnection(Exception e) {
+	public final static void printStackConnection(Throwable e) {
 		if (Config.enablePrintConnection) {
 			e.printStackTrace();
 		}
 	}
 	
 	/* Output for javascript informations */
-	public final static void printStackJavascript(Exception e) {
+	public final static void printStackJavascript(Throwable e) {
 		if (Config.enablePrintJavascript) {
 			e.printStackTrace();
 		}
@@ -216,7 +217,6 @@ public class IO {
 			Scene scene = Ptolemy3D.getScene();
 			Landscape landscape = scene.landscape;
 
-			ProfilerUtil.forceLevel = -1;
 			switch (keyCode) {
 				case KeyEvent.VK_F1:
 					//Hide/Show landscape
@@ -256,9 +256,15 @@ public class IO {
 					break;
 				case KeyEvent.VK_F9:
 					ProfilerUtil.forceLevel++;
+					printlnRenderer("Force level: "+ProfilerUtil.forceLevel);
 					break;
 				case KeyEvent.VK_F10:
 					ProfilerUtil.forceLevel = -1;
+					printlnRenderer("Force level: "+ProfilerUtil.forceLevel);
+					break;
+				case KeyEvent.VK_F11:
+					ProfilerUtil.freezeVisibility = !ProfilerUtil.freezeVisibility;
+					printlnRenderer("Freeze visibility: "+ProfilerUtil.freezeVisibility);
 					break;
 			}
 		}

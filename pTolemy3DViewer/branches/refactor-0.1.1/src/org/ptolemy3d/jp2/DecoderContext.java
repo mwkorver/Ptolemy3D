@@ -77,8 +77,6 @@ class DecoderContext {
 	 * value indicates that an error ocurred.
 	 */
 	public void parseHeader() throws IOException {
-		IO.printfParser("Parse header: %s\n", stream);
-		
 		// Default decoder parameters
 		final ParameterList defaultParams = new ParameterList();
 		for(String[] param : Decoder.getAllParameters()) {

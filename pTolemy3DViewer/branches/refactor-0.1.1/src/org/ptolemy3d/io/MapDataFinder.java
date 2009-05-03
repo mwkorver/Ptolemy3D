@@ -22,6 +22,7 @@ import java.util.Vector;
 
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.debug.IO;
+import org.ptolemy3d.globe.Globe;
 import org.ptolemy3d.globe.Layer;
 import org.ptolemy3d.globe.MapData;
 
@@ -100,31 +101,30 @@ public class MapDataFinder {
 		return null;
 	}
 	private final String getTextureFileBase(MapData mapData) {
-		final Layer[] levels = Ptolemy3D.getScene().landscape.getLayers();
-
-		String fileBase = String.valueOf(mapData.key.mapSize) + "/";
-		if (levels != null) {
-			final int divider = levels[mapData.key.level].getDivider();
-			if (divider > 0) {	//as usual
-				fileBase += "D" + divider + "/x";
-				int div_ = (mapData.key.lon / divider);
-				fileBase += String.valueOf((div_ > 0) ? String.valueOf(div_) : "n" + (-div_));
-				div_ = (mapData.key.lat / divider);
-				fileBase += "y" + ((div_ > 0) ? String.valueOf(div_) : ("n" + (-div_))) + "/";
-			}
-			else if (divider < 0) {	//super funky style
-				fileBase += mapData.key.lon < 0 ? "n" : "p";
-				fileBase += mapData.key.lat < 0 ? "n" : "p";
-				int absx = Math.abs(mapData.key.lon);
-				int absz = Math.abs(mapData.key.lat);
-				//pad x and y to 9 digits
-				String xStr = padWithZeros(absx, 9);
-				String yStr = padWithZeros(absz, 9);
-				for (int k = 0; k < 4; k++) {
-					fileBase += xStr.charAt(k);
-					fileBase += yStr.charAt(k);
-					fileBase += "/";
-				}
+		final Globe globe = Ptolemy3D.getScene().landscape.globe;
+		final Layer layer = globe.getLayer(mapData.key.layer);
+		
+		String fileBase = layer.getTileSize() + "/";
+		final int divider = layer.getDivider();
+		if (divider > 0) {	//as usual
+			fileBase += "D" + divider + "/x";
+			int div_ = (mapData.key.lon / divider);
+			fileBase += String.valueOf((div_ > 0) ? String.valueOf(div_) : "n" + (-div_));
+			div_ = (mapData.key.lat / divider);
+			fileBase += "y" + ((div_ > 0) ? String.valueOf(div_) : ("n" + (-div_))) + "/";
+		}
+		else if (divider < 0) {	//super funky style
+			fileBase += mapData.key.lon < 0 ? "n" : "p";
+			fileBase += mapData.key.lat < 0 ? "n" : "p";
+			int absx = Math.abs(mapData.key.lon);
+			int absz = Math.abs(mapData.key.lat);
+			//pad x and y to 9 digits
+			String xStr = padWithZeros(absx, 9);
+			String yStr = padWithZeros(absz, 9);
+			for (int k = 0; k < 4; k++) {
+				fileBase += xStr.charAt(k);
+				fileBase += yStr.charAt(k);
+				fileBase += "/";
 			}
 		}
 		fileBase += Ptolemy3D.getConfiguration().area + "x" + mapData.key.lon + "y" + mapData.key.lat;

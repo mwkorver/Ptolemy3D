@@ -28,33 +28,29 @@ import org.ptolemy3d.debug.IO;
 import org.ptolemy3d.globe.MapData;
 import org.ptolemy3d.globe.MapDataKey;
 
+/*
+ * FIXME
+ *  - getMapDataHeader: from level 0 to max
+ */
+
 /**
  * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  */
 public class MapDataManager {
-	/** Keep reference of all MapData */
-	private final HashMap<MapDataKey, MapData> mapDatas;
 	/** Map decoder queue */
 	private final MapDataDecoder decoderQueue;
 	
 	public MapDataManager() {
-		mapDatas = new HashMap<MapDataKey, MapData>();
 		decoderQueue = new MapDataDecoder();
 	}
 	
 	public MapData get(MapDataKey key) {
-		MapData mapData = mapDatas.get(key);
-		if (mapData == null) {
-			mapData = new MapData(key);
-			mapDatas.put(mapData.key, mapData);
-			IO.printfManager("New MapData: %s\n", mapData.key);
-		}
-		return mapData;
+		return decoderQueue.getDecoder(key).mapData;
 	}
 	
 	public void remove(MapData mapData) {
 		// Remove from table
-		final MapData removed = mapDatas.remove(mapData.key);
+		final MapData removed = decoderQueue.remove(mapData.key);
 		if (removed == mapData) {
 			// Unload texture
 		}
@@ -63,41 +59,51 @@ public class MapDataManager {
 		}
 	}
 
-	public final MapData getMapDataHeader(int levelID, int mapSize, int lon, int lat) {
-		final MapDataKey exactKey = new MapDataKey(levelID, mapSize, lon, lat);
-		final MapData mapData = mapDatas.get(exactKey);
-		if (mapData != null) {
+	public final MapData getMapDataHeader(int levelID, int lon, int lat) {
+		final MapDataKey exactKey = new MapDataKey(levelID, lon, lat);
+		final MapData mapData = get(exactKey);
+		if(mapData.hasTexture()) {
 			return mapData;
 		}
 		
-		for (int level = levelID - 1; level >= 0; level--) {
-			final Iterator<Entry<MapDataKey,MapData>> i = mapDatas.entrySet().iterator();
-			while (i.hasNext()) {
-				final Entry<MapDataKey,MapData> entry = i.next();
-				final MapDataKey key = entry.getKey();
-				if ((key.lon <= lon) && ((key.lon + key.mapSize) > lon) &&
-					(key.lat >= lat) && ((key.lat - key.mapSize) < lat)) {
-					return entry.getValue();
+		for (int l = levelID - 1; l >= 0; l--) {
+			final int mapSize = Ptolemy3D.getScene().landscape.globe.getTileSize(l);
+			final HashMap<MapDataKey,MapDecoderEntry> map = decoderQueue.getHashMap(l);
+			synchronized(map) {
+				final Iterator<Entry<MapDataKey,MapDecoderEntry>> i = map.entrySet().iterator();
+				while (i.hasNext()) {
+					final Entry<MapDataKey,MapDecoderEntry> entry = i.next();
+					final MapDataKey key = entry.getKey();
+					if((key.lon <= lon) && ((key.lon + mapSize) > lon) &&
+					   (key.lat >= lat) && ((key.lat - mapSize) < lat)) {
+						final MapDecoderEntry decoderEntry = entry.getValue();
+						decoderEntry.onRequest();
+						
+						final MapData curMapData = decoderEntry.mapData;
+						if(curMapData.hasTexture()) {
+							return curMapData;
+						}
+					}
 				}
 			}
 		}
 		
-		return get(exactKey);
+		return mapData;
+	}
+	
+	public void freeUnused() {
+		decoderQueue.freeUnused();
 	}
 	
 	public int getTextureID(GL gl, MapData mapData) {
-		//Request map data
-		final int resolution = decoderQueue.getCurrentResolution(mapData);
-		
-		//Texture: acquire or loading
-		final TextureManager textureManager = Ptolemy3D.getTextureManager();
+		//Acquire texture ID, and update if necessary
 		final int textureID;
-		if(resolution > mapData.mapResolution) {
-			IO.printfRenderer("Loading texture: %s@%d\n", mapData.key, resolution);
-			// Load resolution
-			final Texture texture = decoderQueue.getCurrentWavelet(mapData, resolution);
+		final TextureManager textureManager = Ptolemy3D.getTextureManager();
+		if(mapData.newTexture != null) {
+			final Texture texture = mapData.newTexture;
+			mapData.newTexture = null;
 			textureID = textureManager.load(gl, mapData, texture, true);
-			mapData.mapResolution = resolution;
+			IO.printfRenderer("Loading texture: %s@%d\n", mapData.key, mapData.mapResolution);
 		}
 		else {
 			textureID = textureManager.get(mapData);

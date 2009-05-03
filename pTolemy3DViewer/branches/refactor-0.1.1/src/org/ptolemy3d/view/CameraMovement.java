@@ -1157,7 +1157,7 @@ public class CameraMovement {
     protected final synchronized void outputCoordinates(MouseEvent e) {
         setRays(e);
         if (!Ptolemy3D.getScene().plugins.pick(intersectPoint, pickray)) {
-            if (Ptolemy3D.getScene().landscape.pick(intersectPoint, pickray)) {
+            if (Ptolemy3D.getScene().landscape.globe.pick(intersectPoint, pickray)) {
                 if (!Ptolemy3D.getScene().plugins.onPick(intersectPoint)) {
                     displayCoords();
                 }
@@ -1167,7 +1167,7 @@ public class CameraMovement {
 
     protected final void zoomToSelected(MouseEvent e, boolean zoomin) {
         setRays(e);
-        if (!Ptolemy3D.getScene().landscape.pick(intersectPoint, pickray)) {
+        if (!Ptolemy3D.getScene().landscape.globe.pick(intersectPoint, pickray)) {
             return;
         }
 

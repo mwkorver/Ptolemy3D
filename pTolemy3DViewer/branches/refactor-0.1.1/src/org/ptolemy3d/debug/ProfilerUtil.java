@@ -42,6 +42,7 @@ import org.ptolemy3d.view.Position;
  *     //Code to be compiled only on debug build
  * }
  * </pre>
+ * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  */
 public class ProfilerUtil
 {
@@ -62,6 +63,8 @@ public class ProfilerUtil
 	public static boolean renderTiles = true;
 	/** Force Level */
 	public static int forceLevel = -1;
+	/** Freeze visibility */
+	public static boolean freezeVisibility = false;
 
 	/** Font */
 	private static FontRenderer font;

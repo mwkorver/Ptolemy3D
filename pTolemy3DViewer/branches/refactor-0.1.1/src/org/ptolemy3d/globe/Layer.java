@@ -22,10 +22,10 @@ import javax.media.opengl.GL;
 import org.ptolemy3d.DrawContext;
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.Unit;
-import org.ptolemy3d.debug.IO;
 import org.ptolemy3d.manager.MapDataManager;
 import org.ptolemy3d.math.Math3D;
 import org.ptolemy3d.scene.Landscape;
+import org.ptolemy3d.view.Camera;
 
 /**
  * A resolution level.
@@ -34,419 +34,455 @@ import org.ptolemy3d.scene.Landscape;
  * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  */
 public class Layer {
-    /** Number of tiles in longitude direction */
-    public final static int LEVEL_NUMTILE_LON = 8;
-    /** Number of tiles in latitude direction */
-    public final static int LEVEL_NUMTILE_LAT = 8;
-    /** Total number of tiles in the level. */
-    public final static int LEVEL_NUMTILES = LEVEL_NUMTILE_LON * LEVEL_NUMTILE_LAT;
+	/** Number of tiles in longitude direction */
+	public final static int LEVEL_NUMTILE_LON = 8;
+	/** Number of tiles in latitude direction */
+	public final static int LEVEL_NUMTILE_LAT = 8;
+	/** Total number of tiles in the level. */
+	public final static int LEVEL_NUMTILES = LEVEL_NUMTILE_LON * LEVEL_NUMTILE_LAT;
 
-    /** Level id */
-    private final int levelID;
+	/** Level id */
+	private final int levelID;
 
-    /** List of tiles */
-    private Tile[/* LEVEL_NUMTILES */] tiles;
+	/** List of tiles */
+	private Tile[/* LEVEL_NUMTILES */] tiles;
 
-    /** Upper left corner latitude */
-    private int upLeftLon;
-    /** Upper left corner longitude */
-    private int upLeftLat;
-    /** Upper right corner longitude */
-    private int lowRightLon;
-    /** Upper right corner latitude */
-    private int lowRightLat;
-    /** Tile's size */
-    private final int tileSize;
-    /** Layer visibility */
-    private boolean visible;
-    /** Altitude is in the range minZoom/maxZoom */
-    private boolean status;
-    /** Maximum altitude to render the level */
-    private final int maxZoom;
-    /** Minimum altitude to render the level */
-    private final int minZoom;
-    /** Use for server efficiency storage and speed of map datas */
-    private final int divider;
+	/** Upper left corner latitude */
+	private int upLeftLon;
+	/** Upper left corner longitude */
+	private int upLeftLat;
+	/** Upper right corner longitude */
+	private int lowRightLon;
+	/** Upper right corner latitude */
+	private int lowRightLat;
+	/** Tile's size */
+	private final int tileSize;
+	/** Layer visibility */
+	private boolean visible;
+	/** Maximum altitude to render the level */
+	private final int maxZoom;
+	/** Minimum altitude to render the level */
+	private final int minZoom;
+	/** Use for server efficiency storage and speed of map datas */
+	private final int divider;
 
-    /**
-     * Creates a new instance.
-     *
-     * @param levelId
-     * @param minZoom
-     * @param maxZoom
-     * @param tileSize
-     * @param divider
-     */
-    public Layer(int levelId, int minZoom, int maxZoom, int tileSize, int divider) {
-        this.levelID = levelId;
-        this.minZoom = minZoom;
-        this.maxZoom = maxZoom;
-        this.tileSize = tileSize;
-        this.divider = divider;
+	/**
+	 * Creates a new instance.
+	 *
+	 * @param levelId
+	 * @param tileSize
+	 * @param minZoom
+	 * @param maxZoom
+	 * @param divider
+	 */
+	public Layer(int levelId, int tileSize, int minZoom, int maxZoom, int divider) {
+		this.levelID = levelId;
+		this.minZoom = minZoom;
+		this.maxZoom = maxZoom;
+		this.tileSize = tileSize;
+		this.divider = divider;
 
-        this.upLeftLon = 0;
-        this.upLeftLat = 0;
-        this.lowRightLon = 0;
-        this.lowRightLat = 0;
+		this.upLeftLon = 0;
+		this.upLeftLat = 0;
+		this.lowRightLon = 0;
+		this.lowRightLat = 0;
 
-        visible = false;
-        status = false;
+		visible = false;
 
-        tiles = new Tile[LEVEL_NUMTILES];
-        for (int i = 0; i < LEVEL_NUMTILES; i++) {
-            tiles[i] = new Tile(i);
-        }
-    }
+		tiles = new Tile[LEVEL_NUMTILES];
+		for (int i = 0; i < LEVEL_NUMTILES; i++) {
+			tiles[i] = new Tile(i);
+		}
+	}
 
-    /** Used internally */
-    public void correctTiles(int toptile, int minlat, int maxlat, int minlon,
-                             int maxlon, int lon_move, int ysgn, boolean wraps) {
-        final Landscape landscape = Ptolemy3D.getScene().landscape;
+	@Override
+	public String toString() {
+		return super.toString()+"("+levelID+","+tileSize+","+minZoom+","+maxZoom+","+divider+")";
+	}
 
-        upLeftLon = minlon;
-        upLeftLat = -minlat;
-        lowRightLon = maxlon;
-        lowRightLat = -maxlat;
+	/**
+	 * Take as input the camera position and assign tiles for each layers.<BR>
+	 * <BR>
+	 * The center of all tiles is the camera (lon,lat). Surrounding this position are a
+	 * square of 8 x 8 tiles. So, (minLon, maxLon) = (lon - 4tile, lon + 4 tile). And the
+	 * same with (minLat, maxLat).<BR>
+	 * <BR>
+	 * The first layer will have 64 tile covering all the earth area. The second layer will have
+	 * 64 tiles covering 1/4 of the earth area. Etc ...
+	 * <BR>
+	 * This is how has been designed the rendering of the earth on the original version of viewer.<BR>
+	 * This model can be discussed as lot of parameters are not taken into account (tilt, direction ...).
+	 */
+	protected void processVisibility(DrawContext drawContext) {
+		final Camera camera = drawContext.getCanvas().getCamera();
+		final Landscape landscape = Ptolemy3D.getScene().landscape;
+		final int maxLongitude = landscape.getMaxLongitude();
+		final int maxLatitude = landscape.getMaxLatitude();
 
-        int k = 0;
-        int row = 0;
-        int vlat = minlat;
-        while (row < LEVEL_NUMTILE_LAT) {
-            int vlon = minlon;
+		// Find bounds
+		int ySign = -1;
+		int lonIncr = (maxLongitude / tileSize) * tileSize;
 
-            int col = 0;
-            while (col < LEVEL_NUMTILE_LON) {
-                if (vlon >= landscape.getMaxLongitude()) {
-                    vlon = (-landscape.getMaxLongitude() / tileSize) * tileSize;
-                    if (vlon != landscape.getMaxLongitude()) {
-                        vlon -= tileSize;
-                    }
-                }
+		int leftMostTile = -((maxLongitude / tileSize) * tileSize);
+		if (leftMostTile != maxLongitude) {
+			leftMostTile -= tileSize;
+		}
 
-                if ((vlon == minlon) && (col != 0)) {
-                    for (; col < LEVEL_NUMTILE_LON; col++) {
-                        tiles[k++].status = false;
-                    }
-                }
-                else {
-                    tiles[k++].setTile(this, vlon, -vlat);
-                    vlon += tileSize;
-                    col++;
-                }
-            }
-            vlat += tileSize * ysgn;
+		int minLon, maxLon;
+		minLon = ((int) (camera.getPosition().getLongitudeDD() / tileSize) * tileSize) - (tileSize * 4);
+		if (minLon < leftMostTile) {
+			minLon += ((maxLongitude * 2) / tileSize) * tileSize;
+		}
+		maxLon = minLon + (tileSize * LEVEL_NUMTILE_LON);
 
-            if (vlat <= -landscape.getMaxLatitude()) {
-                if (!wraps) {
-                    vlat += tileSize;
-                    if (minlon > 0) {
-                        minlon -= lon_move;
-                    }
-                    else {
-                        minlon += lon_move;
-                    }
-                    ysgn *= -1;
-                }
-                else {
-                    for (; k < LEVEL_NUMTILE_LON * LEVEL_NUMTILE_LAT; k++) {
-                        tiles[k].status = false;
-                    }
-                    break;
-                }
-            }
+		int topTile = (maxLatitude / tileSize) * tileSize;
+		if (topTile != maxLatitude) {
+			topTile += tileSize;
+		}
 
-            if (vlat > toptile) {
-                vlat = toptile;
-                if (minlon > 0) {
-                    minlon -= lon_move;
-                }
-                else {
-                    minlon += lon_move;
-                }
-                ysgn *= -1;
-            }
-            row++;
-        }
-    }
+		int minLat, maxLat;
+		boolean wraps = false;
+		if ((tileSize * LEVEL_NUMTILE_LAT) > (maxLatitude * 2)) {
+			wraps = true;
+			minLat = topTile;
+		}
+		else {
+			minLat = ((int) (camera.getPosition().getLatitudeDD() / tileSize) * tileSize) + (tileSize * 4);
+			if (minLat > topTile) {
+				minLat = topTile - (((minLat - maxLatitude) / tileSize) * tileSize);
+				if (minLon > 0) {
+					minLon -= lonIncr;
+				}
+				else {
+					minLon += lonIncr;
+				}
+				ySign *= -1;
+			}
+		}
+		maxLat = minLat + (tileSize * LEVEL_NUMTILE_LAT) * ySign;
 
-    /**
-     * Process level visibility.
-     */
-    public void processVisibility() {
-        for (int i = 0; i < LEVEL_NUMTILES; i++) {
-            final Tile tile = tiles[i];
-            tile.processVisibility();
-        }
-    }
+		// Level bounds
+		upLeftLon = minLon;
+		upLeftLat = -minLat;
+		lowRightLon = maxLon;
+		lowRightLat = -maxLat;
 
-    /**
-     * Draw Level geometry
-     */
-    public void draw(DrawContext drawContext) {
-        GL gl = drawContext.getGL();
+		//Correct tiles
+		int k = 0;
+		int row = 0;
+		int vlat = minLat;
+		while (row < LEVEL_NUMTILE_LAT) {
+			int col = 0;
+			int vlon = minLon;
+			while (col < LEVEL_NUMTILE_LON) {
+				final int landscapeMaxAlt = landscape.getMaxLongitude();
+				if (vlon >= landscapeMaxAlt) {
+					vlon = (-landscapeMaxAlt / tileSize) * tileSize;
+					if (vlon != landscapeMaxAlt) {
+						vlon -= tileSize;
+					}
+				}
 
-        if (!visible) {
-            return;
-        }
+				if ((vlon == minLon) && (col != 0)) {
+					for (; col < LEVEL_NUMTILE_LON; col++) {
+						tiles[k++].visible = false;
+					}
+				}
+				else {
+					tiles[k++].processVisibility(camera, this, vlon, -vlat);
+					vlon += tileSize;
+					col++;
+				}
+			}
+			vlat += tileSize * ySign;
 
-        // Render layer tiles
-        for (int i = 0; i < LEVEL_NUMTILE_LAT; i++) {
-            for (int j = 0; j < LEVEL_NUMTILE_LON; j++) {
-                final int tileID = (i * LEVEL_NUMTILE_LON) + j;
-                final Tile tile = tiles[tileID];
+			if (vlat <= -landscape.getMaxLatitude()) {
+				if (!wraps) {
+					vlat += tileSize;
+					if (minLon > 0) {
+						minLon -= lonIncr;
+					}
+					else {
+						minLon += lonIncr;
+					}
+					ySign *= -1;
+				}
+				else {
+					for (; k < LEVEL_NUMTILE_LON * LEVEL_NUMTILE_LAT; k++) {
+						tiles[k].visible = false;
+					}
+					break;
+				}
+			}
 
-                // Display
-                try {
-                	tile.display(gl,
-                		(j == (LEVEL_NUMTILE_LON - 1)) ? null : tiles[(i * LEVEL_NUMTILE_LON) + j + 1],
-                		(i == (LEVEL_NUMTILE_LAT - 1)) ? null : tiles[((i + 1) * LEVEL_NUMTILE_LON) + j],
-                		(j == 0) ? null : tiles[(i * LEVEL_NUMTILE_LON) + j - 1], (i == 0) ? null : tiles[((i - 1) * LEVEL_NUMTILE_LON) + j]);
-                }
-                catch (Exception e) {
-                    IO.printStackRenderer(e);
-                }
-            }
-        }
-    }
+			if (vlat > topTile) {
+				vlat = topTile;
+				if (minLon > 0) {
+					minLon -= lonIncr;
+				}
+				else {
+					minLon += lonIncr;
+				}
+				ySign *= -1;
+			}
+			row++;
+		}
+	}
 
-    /** Level Picking */
-    public boolean pick(double[] intersectPoint, double[][] ray) {
-        // Start with highest res tiles
-        for (int i = 0; i < tiles.length; i++) {
-            if (tiles[i].pick(intersectPoint, ray)) {
-                return true;
-            }
-        }
-        return false;
-    }
 
-    /** @return true if found */
-    public double[] groundHeight(final double lon, final double lat, final double[][] ray) {
-        if (!visible) {
-            return null;
-        }
+	/**
+	 * Draw Level geometry
+	 */
+	public void draw(DrawContext drawContext) {
+		GL gl = drawContext.getGL();
 
-        final MapDataManager mapDataManager = Ptolemy3D.getMapDataManager();
-        final MapData mapData = null;//mapDataManager.getMapDataHeader(levelID, tileSize, (int)lon, (int)lat);
-        if (mapData == null) {
-            return null;
-        }
+		if (!visible) {
+			return;
+		}
 
-        final double[] pickArr = {-999, -999, -999};
-        if (mapData.dem != null) {
-            /*
-             * DEM Elevation
-             */
-            final byte[] dem = mapData.dem.demDatas;
-            final int numRows = mapData.dem.numRows;
-            final int rowWidth = numRows * 2; // assuming we have a square tile
+		// Render layer tiles
+		for (int i = 0; i < LEVEL_NUMTILE_LAT; i++) {
+			for (int j = 0; j < LEVEL_NUMTILE_LON; j++) {
+				final int tileID = (i * LEVEL_NUMTILE_LON) + j;
+				final Tile tile = tiles[tileID];
 
-            float dw = (float) (numRows - 1) / tileSize;
-            int xpos = (int) ((lon - mapData.getLon()) * (dw));
-            int ypos = (int) ((mapData.getLat() - lat) * (dw));
-            float sw = (float) tileSize / (numRows - 1);
-            double gminx = mapData.getLon() + xpos * sw;
-            double gmaxx = mapData.getLon() + (xpos + 1) * sw;
-            double gminy = mapData.getLat() - ypos * sw;
-            double gmaxy = mapData.getLat() - (ypos + 1) * sw;
+				// Display
+				tile.display(gl,
+						(j == (LEVEL_NUMTILE_LON - 1)) ? null : tiles[(i * LEVEL_NUMTILE_LON) + j + 1],
+								(i == (LEVEL_NUMTILE_LAT - 1)) ? null : tiles[((i + 1) * LEVEL_NUMTILE_LON) + j],
+										(j == 0) ? null : tiles[(i * LEVEL_NUMTILE_LON) + j - 1], (i == 0) ? null : tiles[((i - 1) * LEVEL_NUMTILE_LON) + j]);
+			}
+		}
+	}
 
-            if (lon <= gminx) {
-                gminx = lon - 1;
-            }
-            if (lon >= gmaxx) {
-                gminx = lon + 1;
-            }
-            if (lat <= gminy) {
-                gminy = lat - 1;
-            }
-            if (lat >= gmaxy) {
-                gmaxy = lat + 1;
-            }
+	/** Level Picking */
+	public boolean pick(double[] intersectPoint, double[][] ray) {
+		// Start with highest res tiles
+		for (int i = 0; i < tiles.length; i++) {
+			if (tiles[i].pick(intersectPoint, ray)) {
+				return true;
+			}
+		}
+		return false;
+	}
 
-            Math3D.setTriVert(
-                    0,
-                    gminx,
-                    (dem[(ypos * rowWidth) + (xpos * 2)] << 8) + (dem[((ypos * rowWidth) + (xpos * 2)) + 1] & 0xFF),
-                    gminy);
-            Math3D.setTriVert(1, gmaxx, (dem[(ypos * rowWidth) + ((xpos + 1) * 2)] << 8) + (dem[((ypos * rowWidth) + ((xpos + 1) * 2)) + 1] & 0xFF),
-                              gminy);
-            Math3D.setTriVert(2, gminx, (dem[((ypos + 1) * rowWidth) + (xpos * 2)] << 8) + (dem[(((ypos + 1) * rowWidth) + (xpos * 2)) + 1] & 0xFF),
-                              gmaxy);
-            if (Math3D.rayIntersectTri(pickArr, ray) != 1) {
-                // to avoid overlap for ray through tri...
-                Math3D.setTriVert(
-                        0,
-                        gmaxx,
-                        (dem[(ypos * rowWidth) + ((xpos + 1) * 2)] << 8) + (dem[((ypos * rowWidth) + ((xpos + 1) * 2)) + 1] & 0xFF),
-                        gminy);
-                Math3D.setTriVert(
-                        1,
-                        gminx,
-                        (dem[((ypos + 1) * rowWidth) + (xpos * 2)] << 8) + (dem[(((ypos + 1) * rowWidth) + (xpos * 2)) + 1] & 0xFF),
-                        gmaxy);
-                Math3D.setTriVert(
-                        2,
-                        gmaxx,
-                        (dem[((ypos + 1) * rowWidth) + ((xpos + 1) * 2)] << 8) + (dem[(((ypos + 1) * rowWidth) + ((xpos + 1) * 2)) + 1] & 0xFF),
-                        gmaxy);
-                if (Math3D.rayIntersectTri(pickArr, ray) != 1) {
-                    pickArr[1] = 0;
-                }
-            }
+	/** @return true if found */
+	public double[] groundHeight(final double lon, final double lat, final double[][] ray) {
+		if (!visible) {
+			return null;
+		}
 
-            pickArr[1] *= Unit.getCoordSystemRatio();
-            return pickArr; // FIXME Must be just over ?
-        }
-        else if (mapData.tin != null) {
-            /*
-             * TIN Elevation
-             */
-            for (int k = 0; (k < mapData.tin.nSt.length); k++) {
-                if (mapData.tin.nSt[k] == null) {
-                    continue;
-                }
-                for (int j = 2; (j < mapData.tin.nSt[k].length); j++) {
-                    Math3D.setTriVert(0, mapData.getLon() + (mapData.tin.p[mapData.tin.nSt[k][j - 2]][0]),
-                                      mapData.tin.p[mapData.tin.nSt[k][j - 2]][1], mapData.getLat() - (mapData.tin.p[mapData.tin.nSt[k][j - 2]][2]));
-                    Math3D.setTriVert(1, mapData.getLon() + (mapData.tin.p[mapData.tin.nSt[k][j - 1]][0]),
-                                      mapData.tin.p[mapData.tin.nSt[k][j - 1]][1], mapData.getLat() - (mapData.tin.p[mapData.tin.nSt[k][j - 1]][2]));
-                    Math3D.setTriVert(2, mapData.getLon() + (mapData.tin.p[mapData.tin.nSt[k][j]][0]),
-                                      mapData.tin.p[mapData.tin.nSt[k][j]][1], mapData.getLat() - (mapData.tin.p[mapData.tin.nSt[k][j]][2]));
-                    if (Math3D.rayIntersectTri(pickArr, ray) == 1) {
-                        pickArr[1] *= Unit.getCoordSystemRatio();
-                        return pickArr;
-                    }
-                }
-            }
-        }
-        return null;
-    }
+		final MapDataManager mapDataManager = Ptolemy3D.getMapDataManager();
+		final MapData mapData = null;//mapDataManager.getMapDataHeader(levelID, tileSize, (int)lon, (int)lat);
+		if (mapData == null) {
+			return null;
+		}
 
-    // Getters
-    /**
-     * Level ID
-     * @return the level id (first is 0)
-     */
-    public int getLevelID() {
-        return levelID;
-    }
+		final double[] pickArr = {-999, -999, -999};
+		if (mapData.dem != null) {
+			/*
+			 * DEM Elevation
+			 */
+			final byte[] dem = mapData.dem.demDatas;
+			final int numRows = mapData.dem.numRows;
+			final int rowWidth = numRows * 2; // assuming we have a square tile
 
-    /**
-     * Upper left corner longitude
-     * @return the upper left longitude
-     */
-    public int getUpLeftLon() {
-        return upLeftLon;
-    }
+			float dw = (float) (numRows - 1) / tileSize;
+			int xpos = (int) ((lon - mapData.getLon()) * (dw));
+			int ypos = (int) ((mapData.getLat() - lat) * (dw));
+			float sw = (float) tileSize / (numRows - 1);
+			double gminx = mapData.getLon() + xpos * sw;
+			double gmaxx = mapData.getLon() + (xpos + 1) * sw;
+			double gminy = mapData.getLat() - ypos * sw;
+			double gmaxy = mapData.getLat() - (ypos + 1) * sw;
 
-    /**
-     * Upper left corner latitude
-     * @return the upper left latitude
-     */
-    public int getUpLeftLat() {
-        return upLeftLat;
-    }
+			if (lon <= gminx) {
+				gminx = lon - 1;
+			}
+			if (lon >= gmaxx) {
+				gminx = lon + 1;
+			}
+			if (lat <= gminy) {
+				gminy = lat - 1;
+			}
+			if (lat >= gmaxy) {
+				gmaxy = lat + 1;
+			}
 
-    /**
-     * Lower right corner longitude
-     * @return the lower right longitude
-     */
-    public int getLowRightLon() {
-        return lowRightLon;
-    }
+			Math3D.setTriVert(
+					0,
+					gminx,
+					(dem[(ypos * rowWidth) + (xpos * 2)] << 8) + (dem[((ypos * rowWidth) + (xpos * 2)) + 1] & 0xFF),
+					gminy);
+			Math3D.setTriVert(1, gmaxx, (dem[(ypos * rowWidth) + ((xpos + 1) * 2)] << 8) + (dem[((ypos * rowWidth) + ((xpos + 1) * 2)) + 1] & 0xFF),
+					gminy);
+			Math3D.setTriVert(2, gminx, (dem[((ypos + 1) * rowWidth) + (xpos * 2)] << 8) + (dem[(((ypos + 1) * rowWidth) + (xpos * 2)) + 1] & 0xFF),
+					gmaxy);
+			if (Math3D.rayIntersectTri(pickArr, ray) != 1) {
+				// to avoid overlap for ray through tri...
+				Math3D.setTriVert(
+						0,
+						gmaxx,
+						(dem[(ypos * rowWidth) + ((xpos + 1) * 2)] << 8) + (dem[((ypos * rowWidth) + ((xpos + 1) * 2)) + 1] & 0xFF),
+						gminy);
+				Math3D.setTriVert(
+						1,
+						gminx,
+						(dem[((ypos + 1) * rowWidth) + (xpos * 2)] << 8) + (dem[(((ypos + 1) * rowWidth) + (xpos * 2)) + 1] & 0xFF),
+						gmaxy);
+				Math3D.setTriVert(
+						2,
+						gmaxx,
+						(dem[((ypos + 1) * rowWidth) + ((xpos + 1) * 2)] << 8) + (dem[(((ypos + 1) * rowWidth) + ((xpos + 1) * 2)) + 1] & 0xFF),
+						gmaxy);
+				if (Math3D.rayIntersectTri(pickArr, ray) != 1) {
+					pickArr[1] = 0;
+				}
+			}
 
-    /**
-     * Lower right corner latitude
-     * @return the lower right latitude
-     */
-    public int getLowRightLat() {
-        return lowRightLat;
-    }
+			pickArr[1] *= Unit.getCoordSystemRatio();
+			return pickArr; // FIXME Must be just over ?
+		}
+		else if (mapData.tin != null) {
+			/*
+			 * TIN Elevation
+			 */
+			for (int k = 0; (k < mapData.tin.nSt.length); k++) {
+				if (mapData.tin.nSt[k] == null) {
+					continue;
+				}
+				for (int j = 2; (j < mapData.tin.nSt[k].length); j++) {
+					Math3D.setTriVert(0, mapData.getLon() + (mapData.tin.p[mapData.tin.nSt[k][j - 2]][0]),
+							mapData.tin.p[mapData.tin.nSt[k][j - 2]][1], mapData.getLat() - (mapData.tin.p[mapData.tin.nSt[k][j - 2]][2]));
+					Math3D.setTriVert(1, mapData.getLon() + (mapData.tin.p[mapData.tin.nSt[k][j - 1]][0]),
+							mapData.tin.p[mapData.tin.nSt[k][j - 1]][1], mapData.getLat() - (mapData.tin.p[mapData.tin.nSt[k][j - 1]][2]));
+					Math3D.setTriVert(2, mapData.getLon() + (mapData.tin.p[mapData.tin.nSt[k][j]][0]),
+							mapData.tin.p[mapData.tin.nSt[k][j]][1], mapData.getLat() - (mapData.tin.p[mapData.tin.nSt[k][j]][2]));
+					if (Math3D.rayIntersectTri(pickArr, ray) == 1) {
+						pickArr[1] *= Unit.getCoordSystemRatio();
+						return pickArr;
+					}
+				}
+			}
+		}
+		return null;
+	}
 
-    /**
-     * Get the Tile at a specified index.
-     * @return the Tile at the specified index
-     */
-    public Tile getTiles(int index) {
-        return tiles[index];
-    }
+	// Getters
+	/**
+	 * Level ID
+	 * @return the level id (first is 0)
+	 */
+	public int getLevelID() {
+		return levelID;
+	}
 
-    /**
-     * Tile size.
-     * @return tile width and height
-     */
-    public int getTileSize() {
-        return tileSize;
-    }
+	/**
+	 * Upper left corner longitude
+	 * @return the upper left longitude
+	 */
+	public int getUpLeftLon() {
+		return upLeftLon;
+	}
 
-    /**
-     * @param tiles the tiles to set
-     */
-    public void setTiles(Tile[/* LEVEL_NUMTILES */] tiles) {
-        this.tiles = tiles;
-    }
+	/**
+	 * Upper left corner latitude
+	 * @return the upper left latitude
+	 */
+	public int getUpLeftLat() {
+		return upLeftLat;
+	}
 
-    /**
-     * @return the tiles
-     */
-    public Tile[/* LEVEL_NUMTILES */] getTiles() {
-        return tiles;
-    }
+	/**
+	 * Lower right corner longitude
+	 * @return the lower right longitude
+	 */
+	public int getLowRightLon() {
+		return lowRightLon;
+	}
 
-    /**
-     * @param upLeftLon the upLeftLon to set
-     */
-    public void setUpLeftLon(int upLeftLon) {
-        this.upLeftLon = upLeftLon;
-    }
+	/**
+	 * Lower right corner latitude
+	 * @return the lower right latitude
+	 */
+	public int getLowRightLat() {
+		return lowRightLat;
+	}
 
-    /** @param upLeftLat the upLeftLat to set */
-    public void setUpLeftLat(int upLeftLat) {
-        this.upLeftLat = upLeftLat;
-    }
+	/**
+	 * Get the Tile at a specified index.
+	 * @return the Tile at the specified index
+	 */
+	public Tile getTiles(int index) {
+		return tiles[index];
+	}
 
-    /** @param lowRightLon the lowRightLon to set */
-    public void setLowRightLon(int lowRightLon) {
-        this.lowRightLon = lowRightLon;
-    }
+	/**
+	 * Tile size.
+	 * @return tile width and height
+	 */
+	public int getTileSize() {
+		return tileSize;
+	}
 
-    /** @param lowRightLat the lowRightLat to set */
-    public void setLowRightLat(int lowRightLat) {
-        this.lowRightLat = lowRightLat;
-    }
+	/**
+	 * @param tiles the tiles to set
+	 */
+	public void setTiles(Tile[/* LEVEL_NUMTILES */] tiles) {
+		this.tiles = tiles;
+	}
 
-    /** @param visible the visible to set */
-    public void setVisible(boolean visible) {
-        this.visible = visible;
-    }
+	/**
+	 * @return the tiles
+	 */
+	public Tile[/* LEVEL_NUMTILES */] getTiles() {
+		return tiles;
+	}
 
-    /** @return the visible */
-    public boolean isVisible() {
-        return visible;
-    }
+	/**
+	 * @param upLeftLon the upLeftLon to set
+	 */
+	public void setUpLeftLon(int upLeftLon) {
+		this.upLeftLon = upLeftLon;
+	}
 
-    /** @param status the status to set */
-    public void setStatus(boolean status) {
-        this.status = status;
-    }
+	/** @param upLeftLat the upLeftLat to set */
+	public void setUpLeftLat(int upLeftLat) {
+		this.upLeftLat = upLeftLat;
+	}
 
-    /** @return the status */
-    public boolean isStatus() {
-        return status;
-    }
+	/** @param lowRightLon the lowRightLon to set */
+	public void setLowRightLon(int lowRightLon) {
+		this.lowRightLon = lowRightLon;
+	}
 
-    /** @return the maxZoom */
-    public int getMaxZoom() {
-        return maxZoom;
-    }
+	/** @param lowRightLat the lowRightLat to set */
+	public void setLowRightLat(int lowRightLat) {
+		this.lowRightLat = lowRightLat;
+	}
 
-    /** @return the minZoom */
-    public int getMinZoom() {
-        return minZoom;
-    }
+	/** @param visible the visible to set */
+	public void setVisible(boolean visible) {
+		this.visible = visible;
+	}
 
-    /** @return the divider */
-    public int getDivider() {
-        return divider;
-    }
+	/** @return the visible */
+	public boolean isVisible() {
+		return visible;
+	}
+
+	/** @return the maxZoom */
+	public int getMaxZoom() {
+		return maxZoom;
+	}
+
+	/** @return the minZoom */
+	public int getMinZoom() {
+		return minZoom;
+	}
+
+	/** @return the divider */
+	public int getDivider() {
+		return divider;
+	}
 }

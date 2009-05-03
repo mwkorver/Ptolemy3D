@@ -154,7 +154,7 @@ public class Ptolemy3DGLCanvas extends GLCanvas implements GLEventListener {
 
     public void display(GLAutoDrawable glDrawable) {
         initializeDrawContext(glDrawable);
-
+        
         Ptolemy3D.getScene().draw(drawContext);
     }
 

@@ -20,7 +20,6 @@ package org.ptolemy3d.plugin;
 import com.sun.opengl.util.j2d.TextRenderer;
 import java.awt.Color;
 import java.awt.Font;
-import java.io.IOException;
 import javax.media.opengl.GL;
 import javax.media.opengl.glu.GLU;
 import org.ptolemy3d.DrawContext;
@@ -32,7 +31,7 @@ import org.ptolemy3d.view.Camera;
  * Basic demonstration of plugin creating. Shows the cartesian axis used in
  * ptolemy3D: RED - X, GREEN - Y, BLUE - Z.
  *
- * @author Antonio Santiago <asantiagop(at)gmail(dot)com> <asantiagop@gmail.com>
+ * @author Antonio Santiago <asantiagop(at)gmail(dot)com>
  */
 public class AxisPlugin implements Plugin {
 

@@ -17,19 +17,16 @@
  */
 package org.ptolemy3d.scene;
 
-import static org.ptolemy3d.globe.Layer.LEVEL_NUMTILE_LAT;
-import static org.ptolemy3d.globe.Layer.LEVEL_NUMTILE_LON;
+import static org.ptolemy3d.debug.Config.DEBUG;
 
 import javax.media.opengl.GL;
 
 import org.ptolemy3d.DrawContext;
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.Unit;
-import org.ptolemy3d.debug.IO;
-import org.ptolemy3d.globe.Layer;
+import org.ptolemy3d.debug.ProfilerUtil;
+import org.ptolemy3d.globe.Globe;
 import org.ptolemy3d.manager.TextureManager;
-import org.ptolemy3d.view.Camera;
-import org.ptolemy3d.view.CameraMovement;
 
 /**
  * <H1>Overview</H1> <BR>
@@ -189,8 +186,6 @@ public class Landscape {
     private final static int LANDSCAPE_MAXLONGITUDE_ANGLE = 180;
     private final static int LANDSCAPE_MAXLATITUDE_ANGLE = 90;
     
-    private final static int MAX_LAYERSTATUS = 3;	//FIXME To be removed
-    
     // Draw landscape
     public boolean drawLandscape = true;
     // Max longitude in DD
@@ -211,7 +206,7 @@ public class Landscape {
     private byte displayMode;
 
     // Landscape levels (resolution levels)
-    private Layer[] layers;
+    public final Globe globe;
 	protected transient int numVisibleJp2 = 0;
 
     // Geometry color
@@ -226,7 +221,8 @@ public class Landscape {
      * @param ptolemy
      */
     public Landscape() {
-
+    	this.globe = new Globe();
+    	
         this.displayMode = DISPLAY_STANDARD;
         this.terrainEnabled = true;
 
@@ -248,7 +244,6 @@ public class Landscape {
      * Init landscape OpenGL States.
      */
     protected void initGL(DrawContext drawContext) {
-
         GL gl = drawContext.getGL();
 
         gl.glEnable(GL.GL_TEXTURE_2D);
@@ -264,7 +259,6 @@ public class Landscape {
 
     /** Landscape Prepare */
     public void prepareFrame(DrawContext drawContext) {
-
         GL gl = drawContext.getGL();
 
         // Destroy unused textures
@@ -272,120 +266,10 @@ public class Landscape {
         textureManager.freeUnusedTextures(gl);
 
         // Correct Tiles
-        correctLayers(drawContext);
-        processVisibility(drawContext);
-    }
-
-    /**
-     * Take as input the camera position and assign tiles for each layers.<BR>
-     * <BR>
-     * The center of all tiles is the camera (lon,lat). Surrounding this position are a
-     * square of 8 x 8 tiles. So, (minLon, maxLon) = (lon - 4tile, lon + 4 tile). And the
-     * same with (minLat, maxLat).<BR>
-     * <BR>
-     * The first layer will have 64 tile covering all the earth area. The second layer will have
-     * 64 tiles covering 1/4 of the earth area. Etc ...
-     * <BR>
-     * This is how has been designed the rendering of the earth on the original version of viewer.<BR>
-     * This model can be discussed as lot of parameters are not taken into account (tilt, direction ...).
-     */
-    private final void correctLayers(DrawContext drawContext) {
-        final Camera camera = drawContext.getCanvas().getCamera();
-
-        for (int p = 0; p < layers.length; p++) {
-            final Layer level = layers[p];
-            final int tileWidth = level.getTileSize();
-
-            int ySign = -1;
-            int lonIncr = (maxLongitude / tileWidth) * tileWidth;
-
-            int leftMostTile = -((maxLongitude / tileWidth) * tileWidth);
-            if (leftMostTile != maxLongitude) {
-                leftMostTile -= tileWidth;
-            }
-
-            int minLon, maxLon;
-            minLon = ((int) (camera.getPosition().getLongitudeDD() / tileWidth) * tileWidth) - (tileWidth * 4);
-            if (minLon < leftMostTile) {
-                minLon += ((maxLongitude * 2) / tileWidth) * tileWidth;
-            }
-            maxLon = minLon + (tileWidth * LEVEL_NUMTILE_LON);
-
-            int topTile = (maxLatitude / tileWidth) * tileWidth;
-            if (topTile != maxLatitude) {
-                topTile += tileWidth;
-            }
-            
-            int minLat, maxLat;
-            boolean wraps = false;
-            if ((tileWidth * LEVEL_NUMTILE_LAT) > (maxLatitude * 2)) {
-                wraps = true;
-                minLat = topTile;
-            }
-            else {
-                minLat = ((int) (camera.getPosition().getLatitudeDD() / tileWidth) * tileWidth) + (tileWidth * 4);
-                if (minLat > topTile) {
-                    minLat = topTile - (((minLat - maxLatitude) / tileWidth) * tileWidth);
-                    if (minLon > 0) {
-                        minLon -= lonIncr;
-                    }
-                    else {
-                        minLon += lonIncr;
-                    }
-                    ySign *= -1;
-                }
-            }
-            maxLat = minLat + (tileWidth * LEVEL_NUMTILE_LAT) * ySign;
-
-            level.correctTiles(topTile, minLat, maxLat, minLon, maxLon, lonIncr, ySign, wraps);
-        }
-    }
-
-    private void processVisibility(DrawContext drawContext) {
-        if (!drawLandscape) {
-            return;
-        }
-
-        final Camera camera = drawContext.getCanvas().getCamera();
-        boolean hasVisLayer = false;
-
-        int numStatus = 0; // Track the number of levels
-        for (int p = layers.length - 1; p >= 0; p--) {
-            if (numStatus >= MAX_LAYERSTATUS) {
-                // Too many levels are in the altitude range
-                for (int hh = p; hh >= 0; hh--) {
-                    final Layer layer = layers[hh];
-                    layer.setVisible(false);
-                    layer.setStatus(false);
-                }
-                break;
-            }
-
-            final Layer level = layers[p];
-
-            // Altitude check: in layer range
-            level.setStatus(((camera.getVerticalAltitudeMeters() > level.getMaxZoom()) || (camera.getVerticalAltitudeMeters() <= level.getMinZoom())) ? false
-                    : true);
-            if (level.isStatus()) {
-                numStatus++; // Track the number of level in the altitude range
-            }
-
-            if (!level.isStatus() && (hasVisLayer || (camera.getVerticalAltitudeMeters() > level.getMaxZoom()))) {
-                level.setVisible(false);
-                continue;
-            }
-
-            // Image datas available ?
-//            if (!tileLoader.levelHasImageData(p)) {
-//                level.setVisible(false);
-//                continue;
-//            }
-
-            hasVisLayer = true; // Now at least one level has image data
-            level.setVisible(true);
-
-            // Acquire tile image data
-            level.processVisibility();
+        if (drawLandscape) {
+        	if (!DEBUG || (DEBUG && !ProfilerUtil.freezeVisibility)) {
+            	globe.processVisibility(drawContext);
+        	}
         }
     }
 
@@ -413,10 +297,7 @@ public class Landscape {
         }
 
         // Render levels
-        for (int p = layers.length - 1; p >= 0; p--) {
-            final Layer layer = layers[p];
-            layer.draw(drawContext);
-        }
+        globe.draw(drawContext);
 
         // Restore defautl states
         if (displayMode == DISPLAY_MESH) {
@@ -428,56 +309,14 @@ public class Landscape {
         gl.glColor3f(1, 1, 1);
         gl.glEnable(GL.GL_TEXTURE_2D);
     }
-    
-    /** Landscape Picking: Pick tiles */
-    public final synchronized boolean pick(double[] intersectPoint,
-                                           double[][] ray) {
-        for (int p = layers.length - 1; p >= 0; p--) {
-            final Layer layer = layers[p];
-            if (layer.pick(intersectPoint, ray)) {
-                return true;
-            }
-        }
-        return false;
-    }
 
-    /**
-     * Retrieve the ground height.
-     *
-     * @param lon
-     *            longitude in DD
-     * @param lat
-     *            latitude in DD
-     * @param minLevel
-     *            minimum level
-     * @return the ground height, 0 is the reference value (no elevation).
-     */
     public double groundHeight(double lon, double lat, int minLevel) {
         if (!terrainEnabled) {
             return 0;
         }
-
-        double[][] ray = {
-            {lon, CameraMovement.MAXIMUM_ALTITUDE, lat},
-            {lon, CameraMovement.MAXIMUM_ALTITUDE - 1, lat}
-        };
-
-        for (int i = layers.length - 1; (i >= minLevel); i--) {
-            final Layer layer = layers[i];
-
-            try {
-                double[] pickArr = layer.groundHeight(lon, lat, ray);
-                if (pickArr != null) {
-                    return pickArr[1] * terrainScaler;
-                }
-            }
-            catch (RuntimeException e) {
-                IO.printStackRenderer(e);
-            }
-        }
-        return 0;
+        return globe.groundHeight(lon, lat, minLevel) * terrainScaler;
     }
-
+    
     /** Landscape Destruction */
     protected void destroyGL(DrawContext drawContext) {
     }
@@ -630,20 +469,5 @@ public class Landscape {
      */
     public byte getDisplayMode() {
         return displayMode;
-    }
-
-    /**
-     * @param layers
-     *            the levels to set
-     */
-    public void setLevels(Layer[] layers) {
-        this.layers = layers;
-    }
-
-    /**
-     * @return the levels
-     */
-    public Layer[] getLayers() {
-        return layers;
     }
 }

@@ -27,13 +27,15 @@ import org.ptolemy3d.debug.ProfilerUtil;
 import org.ptolemy3d.manager.MapDataManager;
 import org.ptolemy3d.math.Math3D;
 import org.ptolemy3d.scene.Landscape;
+import org.ptolemy3d.view.Camera;
 
 /**
  * A tile.
  */
 public class Tile {
-    /* Variable updated by setTile */
     private final int tileID;
+    
+    /* Tile.processVisibility */
 	private int levelID;
     private int upLeftLat;
     private int upLeftLon;
@@ -41,55 +43,51 @@ public class Tile {
     private int lowRightLon;
     private int fmz;
     private int fmx;
+    protected boolean visible;
+    protected MapData mapData;
 
-	/* TexTile renderer */
-//	private static final TileRenderer renderer = new TileDefaultRenderer();					//First clean version
-//	private static final TileRenderer renderer = new TileDirectModeRenderer();				//CPU Optimizations
-	private static final TileRenderer renderer = new TileDirectModeRenderer_MathLookUp();	//Cos/Sin table lookup
-	protected interface TileRenderer { public void drawSubsection(Tile tile, MapData mapData, int x1, int z1, int x2, int z2) throws Exception; }
-	
-    /* Variable updated by Landscape */
-    /** Tile status (for visibility, ...) */
-    public boolean status;
-    public MapData mapData;
-
-    /* Temporary datas for display */
+    /* Tile.display */
     protected GL gl;
     protected int drawZlevel;
     protected boolean texture;
     protected Tile left, above, right, below;
 
+	/* TexTile renderer */
+//	private static final TileRenderer renderer = new TileDefaultRenderer();					//First clean version
+//	private static final TileRenderer renderer = new TileDirectModeRenderer();				//CPU Optimizations
+	private static final TileRenderer renderer = new TileDirectModeRenderer_MathLookUp();	//Cos/Sin table lookup
+	protected interface TileRenderer { public void drawSubsection(Tile tile, MapData mapData, int x1, int z1, int x2, int z2); }
+
 	protected Tile(int tileID) {
 		this.tileID = tileID;
 	}
 
-    public void setTile(Layer level, int lon, int lat) {
-        this.upLeftLon = lon;
-        this.upLeftLat = lat;
-        this.lowRightLon = lon + level.getTileSize();
-        this.lowRightLat = lat + level.getTileSize();
-        this.levelID = level.getLevelID();
+	protected void processVisibility(Camera camera, Layer layer, int lon, int lat) {
+		final int tileSize = layer.getTileSize();
+		
+        levelID = layer.getLevelID();
+        upLeftLon = lon;
+        upLeftLat = lat;
+        lowRightLon = lon + tileSize;
+        lowRightLat = lat + tileSize;
 
-        this.fmx = lon;
-        this.fmz = -lat;
+        fmx = lon;
+        fmz = -lat;
 
-        this.status = true;
+        visible =
+        	camera.isPointInView(upLeftLon, fmz) ||
+        	camera.isPointInView(upLeftLon, fmz - tileSize) ||
+        	camera.isPointInView(lowRightLon, fmz - tileSize) ||
+        	camera.isPointInView(lowRightLon, fmz);
         
-        final MapDataManager mapDataManager = Ptolemy3D.getMapDataManager();
-    	this.mapData = mapDataManager.getMapDataHeader(level.getLevelID(), level.getTileSize(), fmx, fmz);
+        if (visible) {
+            final MapDataManager mapDataManager = Ptolemy3D.getMapDataManager();
+        	this.mapData = mapDataManager.getMapDataHeader(levelID, fmx, fmz);
+        }
     }
 
-    protected void processVisibility() {
-        // status =
-        // Math3D.isPointInView(upLeftLon, upLeftLat) &&
-        // Math3D.isPointInView(lowRightLon, upLeftLat) &&
-        // Math3D.isPointInView(upLeftLon, lowRightLat) &&
-        // Math3D.isPointInView(lowRightLon, lowRightLat);
-    }
-
-    protected void display(GL gl, Tile rightTile,
-                           Tile belowTile, Tile leftTile, Tile aboveTile) throws Exception {
-        if (!status) {
+    protected void display(GL gl, Tile rightTile, Tile belowTile, Tile leftTile, Tile aboveTile) {
+        if (!visible) {
             return;
         }
 
@@ -102,7 +100,7 @@ public class Tile {
         gl.glBindTexture(GL.GL_TEXTURE_2D, textureID);
     	
         final Landscape landscape = Ptolemy3D.getScene().landscape;
-        final Layer[] levels = landscape.getLayers();
+        final Globe globe = landscape.globe;
 
         this.gl = gl;
         this.texture = (textureID != 0);
@@ -138,14 +136,14 @@ public class Tile {
         }
 
         drawZlevel = levelID;
-        if (mapData.key.level != levelID) {
-            final int tileWidth = levels[mapData.key.level].getTileSize();
+        if (mapData.key.layer != levelID) {
+            final int tileWidth = globe.getTileSize(mapData.key.layer);
 
             upLeftLon = mapData.getLon() - Unit.getMeterX();
             upLeftLat = Unit.getMeterZ() - mapData.getLat();
             lowRightLon = upLeftLon + tileWidth;
             lowRightLat = upLeftLat + tileWidth;
-            drawZlevel = mapData.key.level;
+            drawZlevel = mapData.key.layer;
         }
         if (DEBUG) {
             if (ProfilerUtil.forceLevel != -1 && ProfilerUtil.forceLevel != drawZlevel) {
@@ -153,9 +151,9 @@ public class Tile {
             }
         }
 
-        if (levelID < /* != */ (levels.length - 1)) {
+        if (levelID < /* != */ (globe.getNumLayers() - 1)) {
             final int below = levelID + 1;
-            final Layer levelBelow = levels[below];
+            final Layer levelBelow = globe.getLayer(below);
 
             if (levelBelow.isVisible()) {
                 int c_ulx = levelBelow.getUpLeftLon();
@@ -196,7 +194,7 @@ public class Tile {
     }
 
     private void displayClipped(MapData mapData, int ulx, int ulz, int lrx, int lrz, int c_ulx,
-                                int c_ulz, int c_lrx, int c_lrz) throws Exception {
+                                int c_ulz, int c_lrx, int c_lrz) {
         boolean ul, ur, ll, lr;
 
         ul = inBounds(ulx, ulz, c_ulx, c_ulz, c_lrx, c_lrz);
@@ -242,7 +240,6 @@ public class Tile {
             renderer.drawSubsection(this, mapData, c_lrx, c_ulz, lrx, c_lrz);
         }
     }
-
     private final boolean inBounds(int x, int z, int c_ulx, int c_ulz,
                                    int c_lrx, int c_lrz) {
         if ((x >= c_ulx) && (x <= c_lrx) && (z >= c_ulz) && (z <= c_lrz)) {
@@ -255,7 +252,7 @@ public class Tile {
 
     /** Tile Picking */
     protected boolean pick(double[] intersectPoint, double[][] ray) {
-        if (mapData.key.level != levelID) {
+        if (mapData == null || mapData.key.layer != levelID) {
             return false;
         }
 

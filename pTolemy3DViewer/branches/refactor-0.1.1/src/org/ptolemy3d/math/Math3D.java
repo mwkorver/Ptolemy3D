@@ -51,14 +51,7 @@ public class Math3D {
 
         double toRadiansOverDDBuffer = Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor();
 
-        double thx = (lon - landscape.getMaxLongitude()) * toRadiansOverDDBuffer; // +
-        // or
-        // -
-        // is
-        // equivalent
-        // (laxLon
-        // is
-        // 180)
+        double thx = (lon - landscape.getMaxLongitude()) * toRadiansOverDDBuffer; // + or - is equivalent (maxLon is 180)
         double thy = lat * toRadiansOverDDBuffer;
 
         double cosX = Math.cos(thx);

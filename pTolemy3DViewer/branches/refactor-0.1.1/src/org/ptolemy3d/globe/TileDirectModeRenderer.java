@@ -33,7 +33,7 @@ class TileDirectModeRenderer implements TileRenderer {
 	 * They must be restore in each entering */
 
 	protected GL gl;
-	protected MapData jtile;
+	protected MapData mapData;
 
 	//From the Tile
 	protected int drawZlevel;
@@ -49,9 +49,9 @@ class TileDirectModeRenderer implements TileRenderer {
 	protected float[] colratios;
 	protected double terrainScaler;
 
-	protected void fillLocalVariables(Tile tile, MapData mapData) {
+	protected void fillLocalVariables(Tile tile, MapData mapData_) {
 		gl = tile.gl;
-		jtile = mapData;
+		mapData = mapData_;
 
 		drawZlevel = tile.drawZlevel;
 		leftTile = tile.left;
@@ -83,9 +83,9 @@ class TileDirectModeRenderer implements TileRenderer {
 		}
 		fillLocalVariables(tile, mapData);
 
-		boolean lookForElevation = (jtile != null) && (landscape.isTerrainEnabled());
-		boolean useDem = lookForElevation && (jtile.dem != null);
-		boolean useTin = lookForElevation && (jtile.tin != null);
+		boolean lookForElevation = (mapData != null) && (landscape.isTerrainEnabled());
+		boolean useDem = lookForElevation && (mapData.dem != null);
+		boolean useTin = lookForElevation && (mapData.tin != null);
 
 		boolean texture = loadGLState(tile.texture);
 		if (texture) {
@@ -113,9 +113,9 @@ class TileDirectModeRenderer implements TileRenderer {
 	}
 
 	protected void drawDemSubsection_Textured(int x1, int z1, int x2, int z2) {
-		final Layer drawLevel = landscape.getLayers()[drawZlevel];
-		final byte[] dem = jtile.dem.demDatas;
-		final int numRows = jtile.dem.numRows;
+		final Layer drawLevel = landscape.globe.getLayer(drawZlevel);
+		final byte[] dem = mapData.dem.demDatas;
+		final int numRows = mapData.dem.numRows;
 
 		final int rowWidth = numRows * 2;	// assuming we have a square tile
 		final float tex_inc = 1.0f / (numRows - 1);
@@ -165,16 +165,16 @@ class TileDirectModeRenderer implements TileRenderer {
 			ll_corner = (dem[i1] << 8) + (dem[i1 + 1] & 0xFF);
 			lr_corner = (dem[i1 + rowWidthMinusTwo] << 8) + (dem[i1 + rowWidthMinusOne] & 0xFF);
 
-			if ((leftTile == null) || (leftTile.mapData.key.level != drawZlevel)) {
+			if ((leftTile == null) || (leftTile.mapData.key.layer != drawZlevel)) {
 				left_dem_slope = (ll_corner - ul_corner) * oneOverNrowsZ;
 			}
-			if ((rightTile == null) || (rightTile.mapData.key.level != drawZlevel)) {
+			if ((rightTile == null) || (rightTile.mapData.key.layer != drawZlevel)) {
 				right_dem_slope = (lr_corner - ur_corner) * oneOverNrowsZ;
 			}
-			if ((aboveTile == null) || (aboveTile.mapData.key.level != drawZlevel)) {
+			if ((aboveTile == null) || (aboveTile.mapData.key.layer != drawZlevel)) {
 				top_dem_slope = (ur_corner - ul_corner) * oneOverNrowsX;
 			}
-			if ((belowTile == null) || (belowTile.mapData.key.level != drawZlevel)) {
+			if ((belowTile == null) || (belowTile.mapData.key.layer != drawZlevel)) {
 				bottom_dem_slope = (lr_corner - ll_corner) * oneOverNrowsX;
 			}
 		}
@@ -348,9 +348,9 @@ class TileDirectModeRenderer implements TileRenderer {
 	}
 
 	protected void drawDemSubsection(int x1, int z1, int x2, int z2) {
-		final Layer drawLevel = landscape.getLayers()[drawZlevel];
-		final byte[] dem = jtile.dem.demDatas;
-		final int numRows = jtile.dem.numRows;
+		final Layer drawLevel = landscape.globe.getLayer(drawZlevel);
+		final byte[] dem = mapData.dem.demDatas;
+		final int numRows = mapData.dem.numRows;
 		final boolean useColor = (landscape.getDisplayMode() == Landscape.DISPLAY_SHADEDDEM);
 
 		final int rowWidth = numRows * 2;	// assuming we have a square tile
@@ -400,16 +400,16 @@ class TileDirectModeRenderer implements TileRenderer {
 			ll_corner = (dem[i1] << 8) + (dem[i1 + 1] & 0xFF);
 			lr_corner = (dem[i1 + rowWidthMinusTwo] << 8) + (dem[i1 + rowWidthMinusOne] & 0xFF);
 
-			if ((leftTile == null) || (leftTile.mapData.key.level != drawZlevel)) {
+			if ((leftTile == null) || (leftTile.mapData.key.layer != drawZlevel)) {
 				left_dem_slope = (ll_corner - ul_corner) * oneOverNrowsZ;
 			}
-			if ((rightTile == null) || (rightTile.mapData.key.level != drawZlevel)) {
+			if ((rightTile == null) || (rightTile.mapData.key.layer != drawZlevel)) {
 				right_dem_slope = (lr_corner - ur_corner) * oneOverNrowsZ;
 			}
-			if ((aboveTile == null) || (aboveTile.mapData.key.level != drawZlevel)) {
+			if ((aboveTile == null) || (aboveTile.mapData.key.layer != drawZlevel)) {
 				top_dem_slope = (ur_corner - ul_corner) * oneOverNrowsX;
 			}
-			if ((belowTile == null) || (belowTile.mapData.key.level != drawZlevel)) {
+			if ((belowTile == null) || (belowTile.mapData.key.layer != drawZlevel)) {
 				bottom_dem_slope = (lr_corner - ll_corner) * oneOverNrowsX;
 			}
 		}
@@ -577,7 +577,7 @@ class TileDirectModeRenderer implements TileRenderer {
 	}
 
 	protected void drawSubsection_Textured(int x1, int z1, int x2, int z2) {
-		final Layer drawLevel = landscape.getLayers()[drawZlevel];
+		final Layer drawLevel = landscape.globe.getLayer(drawZlevel);
 		final float oneOverTileWidth = 1.0f / drawLevel.getTileSize();
 
 		int x_w = (x2 - x1);
@@ -762,17 +762,17 @@ class TileDirectModeRenderer implements TileRenderer {
 		double left_dem_slope = -1, right_dem_slope = -1, top_dem_slope = -1, bottom_dem_slope = -1;
 
 		// corners clockwise, from ul
-		if ((leftTile == null) || (leftTile.mapData.key.level != drawZlevel)) {
-			left_dem_slope = (double) (jtile.tin.p[3][1] - jtile.tin.p[0][1]) / jtile.tin.w;
+		if ((leftTile == null) || (leftTile.mapData.key.layer != drawZlevel)) {
+			left_dem_slope = (double) (mapData.tin.p[3][1] - mapData.tin.p[0][1]) / mapData.tin.w;
 		}
-		if ((rightTile == null) || (rightTile.mapData.key.level != drawZlevel)) {
-			right_dem_slope = (double) (jtile.tin.p[2][1] - jtile.tin.p[1][1]) / jtile.tin.w;
+		if ((rightTile == null) || (rightTile.mapData.key.layer != drawZlevel)) {
+			right_dem_slope = (double) (mapData.tin.p[2][1] - mapData.tin.p[1][1]) / mapData.tin.w;
 		}
-		if ((aboveTile == null) || (aboveTile.mapData.key.level != drawZlevel)) {
-			top_dem_slope = (double) (jtile.tin.p[1][1] - jtile.tin.p[0][1]) / jtile.tin.w;
+		if ((aboveTile == null) || (aboveTile.mapData.key.layer != drawZlevel)) {
+			top_dem_slope = (double) (mapData.tin.p[1][1] - mapData.tin.p[0][1]) / mapData.tin.w;
 		}
-		if ((belowTile == null) || (belowTile.mapData.key.level != drawZlevel)) {
-			bottom_dem_slope = (double) (jtile.tin.p[2][1] - jtile.tin.p[3][1]) / jtile.tin.w;
+		if ((belowTile == null) || (belowTile.mapData.key.layer != drawZlevel)) {
+			bottom_dem_slope = (double) (mapData.tin.p[2][1] - mapData.tin.p[3][1]) / mapData.tin.w;
 		}
 
 		double theta1, dThetaOverW;
@@ -786,34 +786,34 @@ class TileDirectModeRenderer implements TileRenderer {
 			phi1 = (z1) * Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor(); //starty
 			phi2 = (z2) * Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor();  //endy
 
-			double oneOverW = 1.0 / jtile.tin.w;
+			double oneOverW = 1.0 / mapData.tin.w;
 			dThetaOverW = (theta2 - theta1) * oneOverW;
 			dPhiOverW = (phi2 - phi1) * oneOverW;
 		}
 
-		float oneOverW = 1.0f / jtile.tin.w;
-		for (int i = 0; i < jtile.tin.nSt.length; i++) {
+		float oneOverW = 1.0f / mapData.tin.w;
+		for (int i = 0; i < mapData.tin.nSt.length; i++) {
 			gl.glBegin(GL.GL_TRIANGLE_STRIP);
-			for (int j = 0; j < jtile.tin.nSt[i].length; j++) {
-				int v = jtile.tin.nSt[i][j];
+			for (int j = 0; j < mapData.tin.nSt[i].length; j++) {
+				int v = mapData.tin.nSt[i][j];
 
 				double dx, dy, dz;
 				{
-					final float[] p = jtile.tin.p[v];
-					final float tinW = jtile.tin.w;
+					final float[] p = mapData.tin.p[v];
+					final float tinW = mapData.tin.w;
 
 					dy = p[1];
 					if ((left_dem_slope != -1) && (p[0] == 0)) {
-						dy = jtile.tin.p[0][1] + (p[2] * left_dem_slope);
+						dy = mapData.tin.p[0][1] + (p[2] * left_dem_slope);
 					}
 					if ((right_dem_slope != -1) && (p[0] == tinW)) {
-						dy = jtile.tin.p[1][1] + (p[2] * right_dem_slope);
+						dy = mapData.tin.p[1][1] + (p[2] * right_dem_slope);
 					}
 					if ((top_dem_slope != -1) && (p[2] == 0)) {
-						dy = jtile.tin.p[0][1] + (p[0] * top_dem_slope);
+						dy = mapData.tin.p[0][1] + (p[0] * top_dem_slope);
 					}
 					if ((bottom_dem_slope != -1) && (p[2] == tinW)) {
-						dy = jtile.tin.p[3][1] + (p[0] * bottom_dem_slope);
+						dy = mapData.tin.p[3][1] + (p[0] * bottom_dem_slope);
 					}
 					dy *= terrainScaler;
 
@@ -835,7 +835,7 @@ class TileDirectModeRenderer implements TileRenderer {
 				}
 
 				if (texture) {
-					gl.glTexCoord2f((jtile.tin.p[v][0] * oneOverW), (jtile.tin.p[v][2] * oneOverW));
+					gl.glTexCoord2f((mapData.tin.p[v][0] * oneOverW), (mapData.tin.p[v][2] * oneOverW));
 				}
 				else if (landscape.getDisplayMode() == Landscape.DISPLAY_SHADEDDEM) {
 					setColor((float) dy);
@@ -845,7 +845,7 @@ class TileDirectModeRenderer implements TileRenderer {
 			gl.glEnd();
 
 			if (DEBUG) {
-				int numVertices = jtile.tin.nSt[i].length;
+				int numVertices = mapData.tin.nSt[i].length;
 				ProfilerUtil.vertexCounter += numVertices;
 				if (texture) {
 					ProfilerUtil.vertexMemoryUsage += numVertices * (2 * 4 + 3 * 8);
@@ -872,7 +872,7 @@ class TileDirectModeRenderer implements TileRenderer {
 
 	protected final void setJP2ResolutionColor() {
 		if (DEBUG) {
-			int tileRes = (jtile == null) ? -1 : jtile.mapResolution;
+			int tileRes = (mapData == null) ? -1 : mapData.mapResolution;
 			switch (tileRes) {
 				case 0:
 					gl.glColor3f(1.0f, 0.0f, 0.0f);
@@ -895,7 +895,7 @@ class TileDirectModeRenderer implements TileRenderer {
 
 	protected final void setLevelIDColor() {
 		if (DEBUG) {
-			int levelID = (jtile == null) ? 0 : jtile.getLevel();
+			int levelID = (mapData == null) ? 0 : mapData.getLevel();
 			float scaler = 1 - (levelID / 3) / 3.0f;
 			switch (1 + levelID % 3) {
 				default:

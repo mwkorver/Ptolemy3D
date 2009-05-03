@@ -23,6 +23,7 @@ import java.net.URL;
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.debug.IO;
 import org.ptolemy3d.globe.MapData;
+import org.ptolemy3d.globe.MapDataKey;
 import org.ptolemy3d.io.MapDataFinder;
 import org.ptolemy3d.io.Stream;
 import org.ptolemy3d.jp2.Decoder;
@@ -46,26 +47,31 @@ class MapDecoderEntry {
 	private Decoder decoder;
 	/** Number of wavelets to decode */
 	private int numWavelets;
-	/** Decoder texture wavelet */
-	private Texture wavelet;
-	/** Resolution decoded */
-	private int nextResolution;
 	
 	/** */
 	private long lastRequest;
 	
-	public MapDecoderEntry(MapData mapData) {
-		this.mapData = mapData;
+	public MapDecoderEntry(MapDataKey key) {
+		this.mapData = new MapData(key);
 		
 		streamNotFound = 0;
 		downloadFail = 0;
-		nextResolution = 0;
 		
 		numWavelets = -1;
 	}
 	
 	protected void onRequest() {
-		lastRequest = System.currentTimeMillis();
+		lastRequest = getTime();
+	}
+	
+	protected long getLastRequestTime() {
+		return lastRequest;
+	}
+	protected static long getTime() {
+		return System.currentTimeMillis();
+	}
+	protected static long getMaxTime() {
+		return 1000;
 	}
 	
 	/** @return true if the map has been downloaded */
@@ -108,20 +114,9 @@ class MapDecoderEntry {
 		}
 	}
 	
-	/** @return the current resolution ID, -1 if no resolution decoded.
-	 *  @see #getCurrentWavelet() */
-	public int getCurrentResolution() {
-		return nextResolution - 1;
-	}
-	/** @return the current wavelet.
-	 *  @see #getCurrentResolution() */
-	public Texture getCurrentWavelet() {
-		return wavelet;
-	}
-	
 	/** @return the next resolution ID to decode */
 	public int getNextResolution() {
-		return nextResolution;
+		return mapData.mapResolution + 1;
 	}
 	
 	/** @return true if the resolution is or has been decoded */
@@ -129,6 +124,8 @@ class MapDecoderEntry {
 		if(!isDownloaded()) {
 			return false;
 		}
+		
+		final int nextResolution = getNextResolution();
 		if((numWavelets >= 0) && (nextResolution >= numWavelets)) {
 			return true;
 		}
@@ -137,17 +134,23 @@ class MapDecoderEntry {
 			numWavelets = decoder.getNumWavelets();
 		}
 		
+		IO.printfParser("Parse wavelet: %s@%d/%d\n", mapData.key, (nextResolution + 1), numWavelets);
 		final Texture texture = decoder.parseWavelet(nextResolution);
+		freeDecoder();
 		boolean decoded = (texture != null);
 		if(decoded) {
-			nextResolution++;
-			wavelet = texture;
+			mapData.newTexture = texture;
+			mapData.mapResolution = nextResolution;
 		}
 		// Check if the decoded has more map
 		if(nextResolution >= numWavelets) {
 			IO.printlnParser("Decoding finished ...");
-			decoder = null;
+			freeDecoder();
 		}
 		return decoded;
+	}
+	
+	protected void freeDecoder() {
+		decoder = null;
 	}
 }

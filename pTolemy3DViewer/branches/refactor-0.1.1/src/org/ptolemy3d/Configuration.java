@@ -64,8 +64,8 @@ public class Configuration {
 		/* Layers */
 		public final static String NumLayers = "NumLayers";
 		public final static String LayerWidth_ = "LayerWidth_";
-		public final static String LayerMIN_ = "LayerMin_";
-		public final static String LayerMAX_ = "LayerMax_";
+		public final static String LayerMin_ = "LayerMin_";
+		public final static String LayerMax_ = "LayerMax_";
 	}
 	private static interface Optional {
 		/* Server */
@@ -78,7 +78,7 @@ public class Configuration {
 		/* Initial position */
 		public final static String Orientation = "Orientation";
 		/* Layer */
-		public final static String LayerDIVIDER_ = "LayerDivider_";
+		public final static String LayerDivider_ = "LayerDivider_";
 		/* Plugin */
 		public final static String NumPlugins = "NumPlugins";
 		public final static String PluginType_ = "PluginType_";
@@ -240,20 +240,21 @@ public class Configuration {
         try {
             // Layers: Landscape levels (resolution levels) and layers
             // properties
-            int numLayers = getRequieredParameterInt(Requiered.NumLayers, docelem);
-            landScape.setLevels(new Layer[numLayers]);
+        	final int numLayers = getRequieredParameterInt(Requiered.NumLayers, docelem);
+            final Layer[] layers = new Layer[numLayers];
+            landScape.globe.setLevels(layers);
 
             for (int i = 0; i < numLayers; i++) {
                 int tilePixel = getRequieredParameterInt(Requiered.LayerWidth_ + (i + 1), docelem);
-                int minZoom = getRequieredParameterInt(Requiered.LayerMIN_ + (i + 1), docelem);
-                int maxZoom = getRequieredParameterInt(Requiered.LayerMAX_ + (i + 1), docelem);
-                int divider = getOptionalParameterInt(Optional.LayerDIVIDER_ + (i + 1), docelem);
+                int minZoom = getRequieredParameterInt(Requiered.LayerMin_ + (i + 1), docelem);
+                int maxZoom = getRequieredParameterInt(Requiered.LayerMax_ + (i + 1), docelem);
+                int divider = getOptionalParameterInt(Optional.LayerDivider_ + (i + 1), docelem);
                 if (divider == -1) {
                     divider = 0;
                 }
 
-                Layer level = new Layer(i, minZoom, maxZoom, tilePixel, divider);
-                landScape.getLayers()[i] = level;
+                final Layer level = new Layer(i, tilePixel, minZoom, maxZoom, divider);
+                layers[i] = level;
             }
         }
         catch (Ptolemy3DConfigurationException ex) {

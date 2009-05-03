@@ -199,9 +199,9 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 			return;
 		}
 
-		final Layer drawLevel = landscape.getLayers()[drawZlevel];
-		final byte[] dem = jtile.dem.demDatas;
-		final int numRows = jtile.dem.numRows;
+		final Layer drawLevel = landscape.globe.getLayer(drawZlevel);
+		final byte[] dem = mapData.dem.demDatas;
+		final int numRows = mapData.dem.numRows;
 
 		final int rowWidth = numRows * 2;	// assuming we have a square tile
 		final float tex_inc = 1.0f / (numRows - 1);
@@ -251,16 +251,16 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 			ll_corner = (dem[i1] << 8) + (dem[i1 + 1] & 0xFF);
 			lr_corner = (dem[i1 + rowWidthMinusTwo] << 8) + (dem[i1 + rowWidthMinusOne] & 0xFF);
 
-			if ((leftTile == null) || (leftTile.mapData.key.level != drawZlevel)) {
+			if ((leftTile == null) || (leftTile.mapData.key.layer != drawZlevel)) {
 				left_dem_slope = (ll_corner - ul_corner) * oneOverNrowsZ;
 			}
-			if ((rightTile == null) || (rightTile.mapData.key.level != drawZlevel)) {
+			if ((rightTile == null) || (rightTile.mapData.key.layer != drawZlevel)) {
 				right_dem_slope = (lr_corner - ur_corner) * oneOverNrowsZ;
 			}
-			if ((aboveTile == null) || (aboveTile.mapData.key.level != drawZlevel)) {
+			if ((aboveTile == null) || (aboveTile.mapData.key.layer != drawZlevel)) {
 				top_dem_slope = (ur_corner - ul_corner) * oneOverNrowsX;
 			}
-			if ((belowTile == null) || (belowTile.mapData.key.level != drawZlevel)) {
+			if ((belowTile == null) || (belowTile.mapData.key.layer != drawZlevel)) {
 				bottom_dem_slope = (lr_corner - ll_corner) * oneOverNrowsX;
 			}
 		}
@@ -426,9 +426,9 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 			return;
 		}
 
-		final Layer drawLevel = landscape.getLayers()[drawZlevel];
-		final byte[] dem = jtile.dem.demDatas;
-		final int numRows = jtile.dem.numRows;
+		final Layer drawLevel = landscape.globe.getLayer(drawZlevel);
+		final byte[] dem = mapData.dem.demDatas;
+		final int numRows = mapData.dem.numRows;
 		final boolean useColor = (landscape.getDisplayMode() == Landscape.DISPLAY_SHADEDDEM);
 
 		final int rowWidth = numRows * 2;	// assuming we have a square tile
@@ -478,16 +478,16 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 			ll_corner = (dem[i1] << 8) + (dem[i1 + 1] & 0xFF);
 			lr_corner = (dem[i1 + rowWidthMinusTwo] << 8) + (dem[i1 + rowWidthMinusOne] & 0xFF);
 
-			if ((leftTile == null) || (leftTile.mapData.key.level != drawZlevel)) {
+			if ((leftTile == null) || (leftTile.mapData.key.layer != drawZlevel)) {
 				left_dem_slope = (ll_corner - ul_corner) * oneOverNrowsZ;
 			}
-			if ((rightTile == null) || (rightTile.mapData.key.level != drawZlevel)) {
+			if ((rightTile == null) || (rightTile.mapData.key.layer != drawZlevel)) {
 				right_dem_slope = (lr_corner - ur_corner) * oneOverNrowsZ;
 			}
-			if ((aboveTile == null) || (aboveTile.mapData.key.level != drawZlevel)) {
+			if ((aboveTile == null) || (aboveTile.mapData.key.layer != drawZlevel)) {
 				top_dem_slope = (ur_corner - ul_corner) * oneOverNrowsX;
 			}
-			if ((belowTile == null) || (belowTile.mapData.key.level != drawZlevel)) {
+			if ((belowTile == null) || (belowTile.mapData.key.layer != drawZlevel)) {
 				bottom_dem_slope = (lr_corner - ll_corner) * oneOverNrowsX;
 			}
 		}
@@ -648,7 +648,7 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 			return;
 		}
 
-		final Layer drawLevel = landscape.getLayers()[drawZlevel];
+		final Layer drawLevel = landscape.globe.getLayer(drawZlevel);
 
 		int sizeX = (xEnd - xStart);
 		int sizeZ = (zEnd - zStart);

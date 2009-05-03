@@ -28,6 +28,7 @@ package org.ptolemy3d.debug;
  *     //Code to be compiled only on debug build
  * }
  * </pre>
+ * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  */
 public class Config
 {
@@ -37,21 +38,21 @@ public class Config
 	/** Standard output */
 	protected final static boolean enablePrint           = DEBUG && true;
 	/** Standard output for error */
-	protected final static boolean enablePrintError      = DEBUG && true;
+	protected final static boolean enablePrintError      = DEBUG && false;
 	/** Connection output */
-	protected final static boolean enablePrintManager    = DEBUG && true;
+	protected final static boolean enablePrintManager    = DEBUG && false;
 	/** Connection output */
-	protected final static boolean enablePrintConnection = DEBUG && true;
+	protected final static boolean enablePrintConnection = DEBUG && false;
 	/** Javascript output */
-	protected final static boolean enablePrintJavascript = DEBUG && true;
+	protected final static boolean enablePrintJavascript = DEBUG && false;
 	/** Renderer output */
-	protected final static boolean enablePrintRender     = DEBUG && true;
+	protected final static boolean enablePrintRender     = DEBUG && false;
 	/** Plugin output */
-	protected final static boolean enablePrintPlugin     = DEBUG && true;
+	protected final static boolean enablePrintPlugin     = DEBUG && false;
 	/** Parser output */
-	protected final static boolean enablePrintParser     = DEBUG && true;
+	protected final static boolean enablePrintParser     = DEBUG && false;
 	/** Debug output */
-	protected final static boolean enablePrintDebug      = DEBUG && true;
+	protected final static boolean enablePrintDebug      = DEBUG && false;
 
 	/** Enable Profiler*/
 	protected final static boolean enableProfiler        = DEBUG && true;

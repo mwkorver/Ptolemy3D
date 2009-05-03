@@ -21,36 +21,38 @@ package org.ptolemy3d.globe;
  * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  */
 public class MapDataKey {
+	/** Tile level */
+	public final int layer;
 	/** Longitude in DD. */
 	public final int lon;
 	/** Latitude in DD. */
 	public final int lat;
-	/** Tile level */
-	public final int level;
-	/** Map size */
-	public final int mapSize;
+	/* Hash code generated */
+	private final int hashCode;
 	
 	/**
-	 * @param levelID level
-	 * @param mapSize mapSize
+	 * @param layer level
 	 * @param lon longitude
 	 * @param lat latitude
 	 */
-	public MapDataKey(int levelID, int mapSize, int lon, int lat) {
-		this.level = levelID;
-		this.mapSize = mapSize;
+	public MapDataKey(int layer, int lon, int lat) {
+		this.layer = layer;
 		this.lon = lon;
 		this.lat = lat;
+		this.hashCode = generateHashCode();
+	}
+	
+	private int generateHashCode() {
+		long hash;
+		hash = 31L        + layer;
+		hash = 31L * hash + lon;
+		hash = 31L * hash + lat;
+		return (int)(hash ^ (hash>>32));
 	}
 
 	@Override
 	public int hashCode() {
-		long hash;
-		hash = 31L        + lat;
-		hash = 31L * hash + lon;
-		hash = 31L * hash + level;
-		hash = 31L * hash + mapSize;
-		return (int)(hash ^ (hash>>32));
+		return hashCode;
 	}
 
 	@Override
@@ -60,8 +62,9 @@ public class MapDataKey {
 		}
 		else if(obj instanceof MapDataKey) {
 			final MapDataKey that = (MapDataKey)obj;
-			return  (that.lon == this.lon) && (that.lat == this.lat) &&
-					(that.level == this.level) && (that.mapSize == that.mapSize);
+			return (that.lon == this.lon) &&
+				   (that.lat == this.lat) &&
+				   (that.layer == this.layer);
 		}
 		else {
 			return false;
@@ -70,6 +73,6 @@ public class MapDataKey {
 	
 	@Override
 	public String toString() {
-		return super.toString() + "("+lon+", "+lat+", "+level+", "+mapSize+")";
+		return super.toString() + "("+layer+", "+lon+", "+lat+")";
 	}
 }

@@ -17,8 +17,6 @@
  */
 package org.ptolemy3d.scene;
 
-import java.io.IOException;
-
 import javax.media.opengl.GL;
 
 import org.ptolemy3d.DrawContext;

@@ -17,7 +17,6 @@
  */
 package org.ptolemy3d.jp2;
 
-import org.ptolemy3d.debug.IO;
 import org.ptolemy3d.io.Stream;
 import org.ptolemy3d.manager.Texture;
 
@@ -37,9 +36,7 @@ public class Jp2Decoder implements Decoder {
 	/** @return the number of wavelets in the jp2 */
 	public synchronized int getNumWavelets() {
 		try {
-			final int numWavelets = getDecoder().getNumWavelets();
-			IO.printfParser("Number of wavelets: %s@%d\n", stream, numWavelets);
-			return numWavelets;
+			return getDecoder().getNumWavelets();
 		} catch(Exception e) {
 			e.printStackTrace();
 			return 0;
@@ -50,9 +47,7 @@ public class Jp2Decoder implements Decoder {
 	/** @param resolution resolution ID starting from 0 (smallest size) */
 	public synchronized Texture parseWavelet(int resolution) {
 		try {
-			IO.printfParser("Parse wavelet: %s@%d\n", stream, resolution);
-			final Texture texture = getDecoder().parseWavelet(resolution);
-			return texture;
+			return getDecoder().parseWavelet(resolution);
 		} catch(Exception e) {
 			e.printStackTrace();
 			return null;

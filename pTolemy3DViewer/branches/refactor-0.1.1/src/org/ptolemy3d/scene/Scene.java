@@ -34,6 +34,7 @@ import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.Ptolemy3DGLCanvas;
 import org.ptolemy3d.debug.ProfilerUtil;
 import org.ptolemy3d.debug.ProfilerUtil.ProfilerEventInterface;
+import org.ptolemy3d.manager.MapDataManager;
 import org.ptolemy3d.plugin.Sky;
 import org.ptolemy3d.view.Camera;
 
@@ -185,6 +186,9 @@ public class Scene implements Transferable {
         if (DEBUG) {
         	ProfilerUtil.drawProfiler(gl);
         }
+        
+        final MapDataManager mapDataManager = Ptolemy3D.getMapDataManager();
+        mapDataManager.freeUnused();
     }
 
     protected void getSceneImage(DrawContext drawContext) {

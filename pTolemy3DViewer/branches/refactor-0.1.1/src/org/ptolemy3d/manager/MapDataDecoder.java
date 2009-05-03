@@ -55,11 +55,18 @@ class MapDataDecoder {
 		decoderThread.start();
 	}
 	
-	/** Request a map data */
-	public void request(MapDataKey key) {
-		getDecoder(key);
+	/** @return the <code>MapDecoderEntry</code> for the <code>key</code>, null if it did not exists */
+	public MapDecoderEntry getIfExist(MapDataKey key) {
+		final HashMap<MapDataKey, MapDecoderEntry> map = getHashMap(key.layer);
+		final MapDecoderEntry decoder = map.get(key);
+		if(decoder != null) {
+			decoder.onRequest();
+		}
+		return decoder;
 	}
-	protected MapDecoderEntry getDecoder(MapDataKey key) {
+	/** @return the <code>MapDecoderEntry</code> for the <code>key</code>.<BR>
+	 *  A new <code>MapDecoderEntry</code> is created if it did not exists for the given <code>key</code>. */
+	public MapDecoderEntry get(MapDataKey key) {
 		final HashMap<MapDataKey, MapDecoderEntry> map = getHashMap(key.layer);
 		MapDecoderEntry decoder = map.get(key);
 		if (decoder == null) {

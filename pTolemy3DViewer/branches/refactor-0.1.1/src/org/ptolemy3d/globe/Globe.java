@@ -18,7 +18,9 @@
 package org.ptolemy3d.globe;
 
 import org.ptolemy3d.DrawContext;
+import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.debug.IO;
+import org.ptolemy3d.scene.Landscape;
 import org.ptolemy3d.view.Camera;
 import org.ptolemy3d.view.CameraMovement;
 
@@ -112,6 +114,32 @@ public class Globe {
 			}
 		}
 		return 0;
+	}
+	
+	/** */
+	public MapDataKey getCloserTile(int layerID, int lon, int lat) {
+		final int tileSize = getLayer(layerID).getTileSize();
+		
+		final int refLon = (lon / tileSize) * tileSize;
+		final int refLat = (lat / tileSize) * tileSize;
+		
+		final int closeLon;
+		if((lon >= refLon) && (lon < refLon+tileSize)) {
+			closeLon = refLon;
+		}
+		else {
+			closeLon = refLon - tileSize;
+		}
+		
+		final int closeLat;
+		if((lat <= refLat) && (lat > refLat-tileSize)) {
+			closeLat = refLat;
+		}
+		else {
+			closeLat = refLat + tileSize;
+		}
+		
+		return new MapDataKey(layerID, closeLon, closeLat);
 	}
 
 	public int getTileSize(int layerID) {

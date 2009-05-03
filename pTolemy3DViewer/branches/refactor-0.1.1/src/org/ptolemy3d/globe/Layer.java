@@ -99,7 +99,7 @@ public class Layer {
 	public String toString() {
 		return super.toString()+"("+levelID+","+tileSize+","+minZoom+","+maxZoom+","+divider+")";
 	}
-
+	
 	/**
 	 * Take as input the camera position and assign tiles for each layers.<BR>
 	 * <BR>

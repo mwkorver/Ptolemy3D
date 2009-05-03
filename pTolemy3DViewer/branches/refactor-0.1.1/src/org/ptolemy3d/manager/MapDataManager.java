@@ -17,6 +17,8 @@
  */
 package org.ptolemy3d.manager;
 
+import static org.ptolemy3d.debug.Config.DEBUG;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
@@ -25,13 +27,9 @@ import javax.media.opengl.GL;
 
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.debug.IO;
+import org.ptolemy3d.globe.Globe;
 import org.ptolemy3d.globe.MapData;
 import org.ptolemy3d.globe.MapDataKey;
-
-/*
- * FIXME
- *  - getMapDataHeader: from level 0 to max
- */
 
 /**
  * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
@@ -44,47 +42,51 @@ public class MapDataManager {
 		decoderQueue = new MapDataDecoder();
 	}
 	
-	private MapData request(MapDataKey key) {
-		return decoderQueue.getDecoder(key).mapData;
-	}
-	
-	public void freeUnused() {
-		decoderQueue.freeUnused();
-	}
-	
-	public final MapData getMapDataHeader(int levelID, int lon, int lat) {
-		final MapDataKey exactKey = new MapDataKey(levelID, lon, lat);
-		final MapData mapData = request(exactKey);
-		if(mapData.hasTexture()) {
-			return mapData;
+	/** Request a <code>MapData</code> for the given (<code>layer</code>,<code>lon</code>,<code>lat</code>)*/
+	public final MapData request(int layer, int lon, int lat) {
+		//Request exact layer
+		final MapDataKey exactKey = new MapDataKey(layer, lon, lat);
+		final MapDecoderEntry exactEntry = decoderQueue.getIfExist(exactKey);
+		if((exactEntry != null) && (exactEntry.mapData.hasTexture())) {
+			return exactEntry.mapData;
 		}
 		
-		for (int l = levelID - 1; l >= 0; l--) {
-			final int mapSize = Ptolemy3D.getScene().landscape.globe.getTileSize(l);
-			final HashMap<MapDataKey,MapDecoderEntry> map = decoderQueue.getHashMap(l);
-			synchronized(map) {
-				final Iterator<Entry<MapDataKey,MapDecoderEntry>> i = map.entrySet().iterator();
-				while (i.hasNext()) {
-					final Entry<MapDataKey,MapDecoderEntry> entry = i.next();
-					final MapDataKey key = entry.getKey();
-					if((key.lon <= lon) && ((key.lon + mapSize) > lon) &&
-					   (key.lat >= lat) && ((key.lat - mapSize) < lat)) {
-						final MapDecoderEntry decoderEntry = entry.getValue();
-						decoderEntry.onRequest();
-						
-						final MapData curMapData = decoderEntry.mapData;
-						if(curMapData.hasTexture()) {
-							return curMapData;
-						}
-					}
+		//Request closest layer
+		MapDataKey prevKey = exactKey;
+		final Globe globe = Ptolemy3D.getScene().landscape.globe;
+		for (int i = layer - 1; i > 0; i--) {
+			final MapDataKey closeKey = globe.getCloserTile(i, lon, lat);
+			if(DEBUG) {	//Keep this code to be sure we got the good key
+				final int tileSize = Ptolemy3D.getScene().landscape.globe.getLayer(i).getTileSize();
+				if((closeKey.lon <= lon) && ((closeKey.lon + tileSize) > lon) &&
+				   (closeKey.lat >= lat) && ((closeKey.lat - tileSize) < lat)) {
+					//OK
+				}
+				else {
+					throw new RuntimeException();
 				}
 			}
+			
+			final MapDecoderEntry entry = decoderQueue.getIfExist(closeKey);
+			if(entry != null) {
+				final MapData curMapData = entry.mapData;
+				if(curMapData.hasTexture()) {
+					//Request level below
+					decoderQueue.get(prevKey);
+					return curMapData;
+				}
+			}
+			
+			prevKey = closeKey;
 		}
 		
-		return mapData;
+		//Request first layer
+		final MapDataKey firstKey = globe.getCloserTile(0, lon, lat);
+		final MapDecoderEntry firstEntry = decoderQueue.get(firstKey);
+		return firstEntry.mapData;
 	}
 	
-	/** Acquire texture ID */
+	/** @return the texture ID for the <code>MapData</code>. */
 	public int getTextureID(GL gl, MapData mapData) {
 		//Acquire texture ID, and update if necessary
 		final int textureID;
@@ -101,13 +103,18 @@ public class MapDataManager {
 		
 		//Alternate texture if not loaded
 		if(textureID == 0) {
-			return getAlternateTextureID(gl);
+			return getAlternateTextureID(gl, mapData.key);
 		}
 		else {
 			return textureID;
 		}
 	}
-	public int getAlternateTextureID(GL gl) {
+	/** @return alternate texture for the <code>key</code> */
+	public int getAlternateTextureID(GL gl, MapDataKey key) {
 		return 0;
+	}
+	
+	public void freeUnused() {
+		decoderQueue.freeUnused();
 	}
 }

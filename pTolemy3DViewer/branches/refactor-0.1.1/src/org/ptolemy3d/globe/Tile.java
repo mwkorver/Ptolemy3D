@@ -72,7 +72,7 @@ public class Tile {
 		
 		if (visible) {
 			final MapDataManager mapDataManager = Ptolemy3D.getMapDataManager();
-			this.mapData = mapDataManager.getMapDataHeader(levelID, lon, -lat);
+			this.mapData = mapDataManager.request(levelID, lon, -lat);
 			drawZlevel = mapData.key.layer;
 		}
 	}

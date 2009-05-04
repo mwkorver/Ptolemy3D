@@ -79,11 +79,11 @@ public class MapDataFinder {
 		final String fileBase = getTextureFileBase(mapData);
 		
 		for(ServerConfig serverConfig : servers) {
-			if(serverConfig.jp2Locations == null) {
+			if(serverConfig.getJp2Locations() == null) {
 				continue;
 			}
 			
-			for(String location : serverConfig.jp2Locations) {
+			for(String location : serverConfig.getJp2Locations()) {
 				final String s = location + fileBase + ".jp2" + serverConfig.getUrlAppender();
 				try {
 					final URL url = new URL("http", host, port, s);

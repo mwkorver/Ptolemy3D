@@ -23,17 +23,17 @@ package org.ptolemy3d.io;
  */
 public class ServerConfig {
 	/** */
-	public final String headerKeys;
+	private final String headerKeys;
 	/** */
-	public final String dataServers;
+	private final String dataServers;
 	/** */
-	public final String[] jp2Locations;
+	private final String[] jp2Locations;
 	/** */
-	public final String[] DEMLocation;
+	private final String[] DEMLocation;
 	/** */
-	public final boolean keepAlives;
+	private final boolean keepAlives;
 	/** */
-	public final String urlAppends;
+	private final String urlAppends;
 	
 	public ServerConfig(String headerKeys, String dataServers,
 			String[] locations, String[] DEMLocation,
@@ -55,4 +55,41 @@ public class ServerConfig {
         }
         return "";
     }
+
+	/**
+	 * @return the headerKeys
+	 */
+	public String getHeaderKeys() {
+		return headerKeys;
+	}
+
+	/**
+	 * @return the dataServers
+	 */
+	public String getDataServers() {
+		return dataServers;
+	}
+
+	/**
+	 * @return the jp2Locations
+	 */
+	public String[] getJp2Locations() {
+		return jp2Locations;
+	}
+
+	/**
+	 * @return the dEMLocation
+	 */
+	public String[] getDEMLocation() {
+		return DEMLocation;
+	}
+
+	/**
+	 * @return the keepAlives
+	 */
+	public boolean isKeepAlives() {
+		return keepAlives;
+	}
+
+
 }

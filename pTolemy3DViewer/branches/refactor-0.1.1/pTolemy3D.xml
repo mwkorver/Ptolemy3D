@@ -15,46 +15,39 @@
 	<Area>00</Area>
 	<Horizon>10000</Horizon>
 	<FlightFrameDelay>200</FlightFrameDelay>
-	<TIN>1</TIN>
+	<TIN>0</TIN>
 	<FollowDEM>0</FollowDEM>
-	<Units>DD</Units>
 	<BackgroundColor>0,0,0</BackgroundColor>
 
-	<NumLayers>6</NumLayers>
+	<NumLayers>5</NumLayers>
 
 	<LayerWidth_1>52428800</LayerWidth_1>
 	<LayerDEM_1>9</LayerDEM_1>
-	<LayerMin_1>50000</LayerMin_1>
+	<LayerMin_1>400000</LayerMin_1>
 	<LayerMax_1>10000000</LayerMax_1>
 	<LayerDivider_1>0</LayerDivider_1>
 
 	<LayerWidth_2>6553600</LayerWidth_2>
 	<LayerDEM_2>9</LayerDEM_2>
-	<LayerMin_2>10000</LayerMin_2>
+	<LayerMin_2>200000</LayerMin_2>
 	<LayerMax_2>5000000</LayerMax_2>
 	<LayerDivider_2>0</LayerDivider_2>
 
 	<LayerWidth_3>819200</LayerWidth_3>
 	<LayerDEM_3>9</LayerDEM_3>
-	<LayerMin_3>2000</LayerMin_3>
-	<LayerMax_3>500000</LayerMax_3>
+	<LayerMin_3>100000</LayerMin_3>
+	<LayerMax_3>250000</LayerMax_3>
 	<LayerDivider_3>0</LayerDivider_3>
 	
 	<LayerWidth_4>102400</LayerWidth_4>
 	<LayerDEM_4>9</LayerDEM_4>
-	<LayerMin_4>0</LayerMin_4>
-	<LayerMax_4>50000</LayerMax_4>
+	<LayerMin_4>20000</LayerMin_4>
+	<LayerMax_4>100000</LayerMax_4>
 	<LayerDivider_4>0</LayerDivider_4>
 
 	<LayerWidth_5>12800</LayerWidth_5>
 	<LayerDEM_5>9</LayerDEM_5>
 	<LayerMin_5>0</LayerMin_5>
 	<LayerMax_5>10000</LayerMax_5>
-	<LayerDivider_5>1000000</LayerDivider_5>
-
-	<LayerWidth_6>1600</LayerWidth_6>
-	<LayerDEM_6>9</LayerDEM_6>
-	<LayerMin_6>0</LayerMin_6>
-	<LayerMax_6>2000</LayerMax_6>
-	<LayerDivider_6>100000</LayerDivider_6>
+	<LayerDivider_5>0</LayerDivider_5>
 </entity>

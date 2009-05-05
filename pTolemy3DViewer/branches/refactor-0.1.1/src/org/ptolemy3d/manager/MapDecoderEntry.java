@@ -142,6 +142,10 @@ class MapDecoderEntry {
 			mapData.newTexture = texture;
 			mapData.mapResolution = nextResolution;
 		}
+		else {
+			//Invalidate cache
+			stream.invalidateCache();
+		}
 		// Check if the decoded has more map
 		if(nextResolution >= numWavelets) {
 			IO.printlnParser("Decoding finished ...");

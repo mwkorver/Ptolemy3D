@@ -33,10 +33,23 @@ public class FileSystemCache {
 		cacheDirectory.mkdirs();
 	}
 	
+	public URI getFromCache(URL url) {
+		final String fileInCache = url.getPath();
+		final File cache = new File(cacheDirectory, fileInCache);
+		if (cache.exists()) {
+			return cache.toURI();
+		}
+		return null;
+	}
+	
 	public URI getCacheFileFor(URL url) {
 		final String fileInCache = url.getPath();
 		final File cache = new File(cacheDirectory, fileInCache);
 		cache.getParentFile().mkdirs();
 		return cache.toURI();
+	}
+	
+	public void invalidateCache(File file) {
+		file.delete();
 	}
 }

@@ -38,11 +38,11 @@ public class Config
 	/** Standard output */
 	protected final static boolean enablePrint           = DEBUG && true;
 	/** Standard output for error */
-	protected final static boolean enablePrintError      = DEBUG && false;
+	protected final static boolean enablePrintError      = DEBUG && true;
 	/** Connection output */
-	protected final static boolean enablePrintManager    = DEBUG && false;
+	protected final static boolean enablePrintManager    = DEBUG && true;
 	/** Connection output */
-	protected final static boolean enablePrintConnection = DEBUG && false;
+	protected final static boolean enablePrintConnection = DEBUG && true;
 	/** Javascript output */
 	protected final static boolean enablePrintJavascript = DEBUG && false;
 	/** Renderer output */
@@ -52,7 +52,7 @@ public class Config
 	/** Parser output */
 	protected final static boolean enablePrintParser     = DEBUG && true;
 	/** Debug output */
-	protected final static boolean enablePrintDebug      = DEBUG && false;
+	protected final static boolean enablePrintDebug      = DEBUG && true;
 
 	/** Enable Profiler*/
 	protected final static boolean enableProfiler        = DEBUG && true;

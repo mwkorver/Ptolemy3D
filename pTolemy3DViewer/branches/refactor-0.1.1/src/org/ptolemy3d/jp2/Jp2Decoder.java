@@ -48,7 +48,7 @@ public class Jp2Decoder implements Decoder {
 	public synchronized Texture parseWavelet(int resolution) {
 		try {
 			return getDecoder().parseWavelet(resolution);
-		} catch(Exception e) {
+		} catch(Throwable e) {
 			e.printStackTrace();
 			return null;
 		}

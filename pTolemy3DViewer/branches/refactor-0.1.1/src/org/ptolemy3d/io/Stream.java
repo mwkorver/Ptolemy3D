@@ -64,8 +64,14 @@ public class Stream {
 	/** @return true if the file is or has been downloaded */
 	public boolean download() throws IOException {
 		if (!isDownloaded()) {
-			final HttpURLConnection connection = open();
-			read(connection);
+			final URI fromCache = Ptolemy3D.getFileSystemCache().getFromCache(distant);
+			if (fromCache != null) {
+				local = fromCache;
+			}
+			else {
+				final HttpURLConnection connection = open();
+				read(connection);
+			}
 		}
 		return (local != null);
 	}
@@ -81,10 +87,12 @@ public class Stream {
 		final int length = connection.getContentLength();
 		
 		final URI cachedURI = Ptolemy3D.getFileSystemCache().getCacheFileFor(distant);
+		final File cacheFile = new File(cachedURI);
+		final File cacheTmpFile = new File(cachedURI.getPath()+".tmp");
         IO.printfConnection("Local cache: %s\n", cachedURI);
 
         final InputStream in = connection.getInputStream();
-        final FileOutputStream os = new FileOutputStream(new File(cachedURI));
+        final FileOutputStream os = new FileOutputStream(cacheTmpFile);
         
         final byte[] buffer = new byte[BUFFER_SIZE];
         int remaining = length;
@@ -99,6 +107,8 @@ public class Stream {
         in.close();
         os.close();
         connection = null;
+        
+        cacheTmpFile.renameTo(cacheFile);
         
 		local = cachedURI;
 	}
@@ -142,5 +152,11 @@ public class Stream {
 		else {
 			throw new RuntimeException();
 		}
+	}
+	
+	public void invalidateCache() {
+		final File localFile = createFile();
+		local = null;
+		Ptolemy3D.getFileSystemCache().invalidateCache(localFile);
 	}
 }

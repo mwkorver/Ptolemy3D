@@ -25,7 +25,9 @@ public class ServerConfig {
 	/** */
 	private final String headerKeys;
 	/** */
-	private final String dataServers;
+	private final String host;
+	/** */
+	private final int port;
 	/** */
 	private final String[] jp2Locations;
 	/** */
@@ -39,7 +41,8 @@ public class ServerConfig {
 			String[] locations, String[] DEMLocation,
 			boolean keepAlives, String urlAppends) {
 		this.headerKeys = headerKeys;
-		this.dataServers = dataServers;
+		this.host = MapDataFinder.parseHost(dataServers);
+		this.port = MapDataFinder.parsePort(dataServers);
 		this.jp2Locations = locations;
 		this.DEMLocation = DEMLocation;
 		this.keepAlives = keepAlives;
@@ -66,8 +69,15 @@ public class ServerConfig {
 	/**
 	 * @return the dataServers
 	 */
-	public String getDataServers() {
-		return dataServers;
+	public int getPort() {
+		return port;
+	}
+	
+	/**
+	 * @return the dataServers
+	 */
+	public String getHost() {
+		return host;
 	}
 
 	/**

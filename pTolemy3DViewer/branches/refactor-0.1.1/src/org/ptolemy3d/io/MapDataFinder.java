@@ -50,7 +50,8 @@ public class MapDataFinder {
 			servers = new Vector<ServerConfig>(1);
 		}
 	}
-	private String parseHost(String server) {
+	
+	public static String parseHost(String server) {
 		int index = server.lastIndexOf(":");
 		if(index >= 0) {
 			try {
@@ -59,7 +60,7 @@ public class MapDataFinder {
 		}
 		return server;
 	}
-	private int parsePort(String server) {
+	public static int parsePort(String server) {
 		int index = server.lastIndexOf(":");
 		if(index >= 0) {
 			try {
@@ -86,7 +87,7 @@ public class MapDataFinder {
 			for(String location : serverConfig.getJp2Locations()) {
 				final String s = location + fileBase + ".jp2" + serverConfig.getUrlAppender();
 				try {
-					final URL url = new URL("http", host, port, s);
+					final URL url = new URL("http", serverConfig.getHost(), serverConfig.getPort(), s);
 					url.openStream();
 					IO.printfConnection("Map found: %s [http://%s:%d%s]\n", mapData, host, port, s);
 					return url;

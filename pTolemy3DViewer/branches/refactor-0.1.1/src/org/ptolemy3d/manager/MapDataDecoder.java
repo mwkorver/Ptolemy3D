@@ -127,6 +127,7 @@ class MapDataDecoder {
 						try {
 							IO.printlnConnection("Download thread waiting ...");
 							wait(timeOut);
+							resetDownloadStates();
 							IO.printlnConnection("Download thread wake-up.");
 						} catch(IllegalMonitorStateException e) {
 							e.printStackTrace();
@@ -152,6 +153,19 @@ class MapDataDecoder {
 				}
 			}
 			return null;
+		}
+		private void resetDownloadStates() {
+			final int numLevels = Ptolemy3D.getScene().landscape.globe.getNumLayers();
+			for(int layer = 0; layer < numLevels; layer++) {
+				final HashMap<MapDataKey, MapDecoderEntry> map = getHashMap(layer);
+				synchronized(map) {	//Accessed from multiple threads
+					final Iterator<MapDecoderEntry> j = map.values().iterator();
+					while (j.hasNext()) {
+						final MapDecoderEntry entry = j.next();
+						entry.resetDownloadFails();
+					}
+				}
+			}
 		}
 	}
 	

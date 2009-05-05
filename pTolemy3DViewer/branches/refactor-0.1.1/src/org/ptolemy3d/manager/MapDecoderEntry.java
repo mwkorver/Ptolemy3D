@@ -89,6 +89,12 @@ class MapDecoderEntry {
 		return (streamNotFound > 0) || (downloadFail > 0);
 	}
 	
+	/** Marked as not failed */
+	public void resetDownloadFails() {
+		streamNotFound = 0;
+		downloadFail = 0;
+	}
+	
 	/** @return true if the data has been downloaded */
 	public boolean download() {
 		if(isDownloaded()) {

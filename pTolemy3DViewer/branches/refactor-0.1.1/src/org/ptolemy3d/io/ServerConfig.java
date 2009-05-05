@@ -47,6 +47,10 @@ public class ServerConfig {
 		this.DEMLocation = DEMLocation;
 		this.keepAlives = keepAlives;
 		this.urlAppends = urlAppends;
+		
+		// TODO Make connection time out a parameter
+		System.setProperty("sun.net.client.defaultConnectTimeout", "5000");
+		//System.setProperty("sun.net.client.defaultReadTimeout", "5000");
 	}
 	
     public String getUrlAppender() {

@@ -111,6 +111,7 @@ public class Stream {
 
         in.close();
         os.close();
+        connection.disconnect();
         connection = null;
         
         cacheTmpFile.renameTo(cacheFile);

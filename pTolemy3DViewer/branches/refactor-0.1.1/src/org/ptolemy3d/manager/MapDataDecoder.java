@@ -39,6 +39,8 @@ import org.ptolemy3d.globe.MapDataKey;
  * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  */
 class MapDataDecoder {
+	private final static int timeOut = 10 * 1000;
+	
 	/** Keep reference of all MapData */
 	private final HashMap<Integer, HashMap<MapDataKey, MapDecoderEntry>> decoders;
 	private final DownloadDispatcherThread downloadDispatcher;
@@ -122,7 +124,7 @@ class MapDataDecoder {
 					synchronized(this) {	//Wait / notify events
 						try {
 							IO.printlnConnection("Download thread waiting ...");
-							wait();
+							wait(timeOut);
 							IO.printlnConnection("Download thread wake-up.");
 						} catch(IllegalMonitorStateException e) {
 							e.printStackTrace();
@@ -182,7 +184,7 @@ class MapDataDecoder {
 				synchronized(this) {	//Wait / notify events
 					try {
 						IO.printlnParser("Decoder thread waiting ...");
-						wait();
+						wait(timeOut);
 						IO.printlnParser("Decoder thread wake-up.");
 					} catch(IllegalMonitorStateException e) {
 					} catch(InterruptedException e) {}

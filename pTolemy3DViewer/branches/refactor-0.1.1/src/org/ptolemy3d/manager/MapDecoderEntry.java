@@ -71,11 +71,16 @@ class MapDecoderEntry {
 		return System.currentTimeMillis();
 	}
 	protected static long getMaxTime() {
-		return 5000;
+		return 5 * 1000;
 	}
 	
 	/** @return true if the map has been downloaded */
 	public boolean isDownloaded() {
+		if (stream == null) {
+			// Attempt to get from cache
+			final MapDataFinder mapDataFinder = Ptolemy3D.getMapDataFinder();
+			stream = mapDataFinder.findMapDataTextureFromCache(mapData);
+		}
 		return (stream != null) && (stream.isDownloaded());
 	}
 	
@@ -135,7 +140,13 @@ class MapDecoderEntry {
 		}
 		
 		IO.printfParser("Parse wavelet: %s@%d/%d\n", mapData.key, (nextResolution + 1), numWavelets);
-		final Texture texture = decoder.parseWavelet(nextResolution);
+		final Texture texture;
+		try {
+			texture = decoder.parseWavelet(nextResolution);
+		}
+		catch(OutOfMemoryError e) {
+			throw e;
+		}
 		freeDecoder();
 		boolean decoded = (texture != null);
 		if(decoded) {

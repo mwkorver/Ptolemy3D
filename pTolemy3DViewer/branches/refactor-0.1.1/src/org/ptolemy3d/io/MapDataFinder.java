@@ -17,6 +17,7 @@
  */
 package org.ptolemy3d.io;
 
+import java.net.URI;
 import java.net.URL;
 import java.util.Vector;
 
@@ -77,7 +78,7 @@ public class MapDataFinder {
 	/** Search map data texture on the available servers.
 	 *  @return the map data texture url */
 	public URL findMapDataTexture(MapData mapData) {
-		final String fileBase = getTextureFileBase(mapData);
+		final String fileBase = getTextureFileBase(mapData) + ".jp2";
 		
 		for(ServerConfig serverConfig : servers) {
 			if(serverConfig.getJp2Locations() == null) {
@@ -85,7 +86,7 @@ public class MapDataFinder {
 			}
 			
 			for(String location : serverConfig.getJp2Locations()) {
-				final String s = location + fileBase + ".jp2" + serverConfig.getUrlAppender();
+				final String s = location + fileBase + serverConfig.getUrlAppender();
 				try {
 					final URL url = new URL("http", serverConfig.getHost(), serverConfig.getPort(), s);
 					url.openStream();
@@ -144,5 +145,23 @@ public class MapDataFinder {
 		else {
 			return s;
 		}
+	}
+	
+	public Stream findMapDataTextureFromCache(MapData mapData) {
+		final String fileBase = getTextureFileBase(mapData) + ".jp2";
+		for(ServerConfig serverConfig : servers) {
+			if(serverConfig.getJp2Locations() == null) {
+				continue;
+			}
+			
+			for(String location : serverConfig.getJp2Locations()) {
+				final URI fromCache = Ptolemy3D.getFileSystemCache().getFromCache(location + fileBase);
+				if (fromCache != null) {
+					IO.printfConnection("Found from cache: %s [%s]\n", mapData.key, fromCache);
+					return new Stream(Stream.uriToFile(fromCache));
+				}
+			}
+		}
+		return null;
 	}
 }

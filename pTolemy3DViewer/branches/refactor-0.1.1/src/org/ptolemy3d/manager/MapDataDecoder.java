@@ -17,6 +17,8 @@
  */
 package org.ptolemy3d.manager;
 
+import static org.ptolemy3d.debug.Config.DEBUG;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Vector;
@@ -186,6 +188,9 @@ class MapDataDecoder {
 						IO.printlnParser("Decoder thread waiting ...");
 						wait(timeOut);
 						IO.printlnParser("Decoder thread wake-up.");
+						if (DEBUG) {
+							dumpMap();
+						}
 					} catch(IllegalMonitorStateException e) {
 					} catch(InterruptedException e) {}
 				}
@@ -217,6 +222,24 @@ class MapDataDecoder {
 				}
 			}
 			return null;
+		}
+		
+		private void dumpMap() {
+			final int numLayers = Ptolemy3D.getScene().landscape.globe.getNumLayers();
+			for(int layer = 0; layer < numLayers; layer++) {
+				dumpMap(layer);
+			}
+		}
+		private void dumpMap(int layer) {
+			final HashMap<MapDataKey, MapDecoderEntry> map = getHashMap(layer);
+			synchronized(map) {	//Accessed from multiple threads
+				final Iterator<MapDecoderEntry> j = map.values().iterator();
+				while (j.hasNext()) {
+					final MapDecoderEntry entry = j.next();
+					IO.printfManager("Layer: %d, Res: %d, DL: %s\n",
+							entry.mapData.key.layer, entry.mapData.mapResolution, entry.isDownloaded());
+				}
+			}
 		}
 	}
 	

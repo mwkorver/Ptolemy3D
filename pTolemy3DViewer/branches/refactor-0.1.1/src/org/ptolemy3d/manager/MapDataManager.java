@@ -80,6 +80,9 @@ public class MapDataManager {
 			prevKey = closeKey;
 		}
 		
+		//Request layer below
+		decoderQueue.get(prevKey);
+		
 		//Request first layer
 		final MapDataKey firstKey = globe.getCloserTile(0, lon, lat);
 		final MapDecoderEntry firstEntry = decoderQueue.get(firstKey);

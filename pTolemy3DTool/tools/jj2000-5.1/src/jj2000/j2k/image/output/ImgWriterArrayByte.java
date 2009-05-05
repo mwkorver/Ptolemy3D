@@ -134,9 +134,8 @@ public class ImgWriterArrayByte extends ImgWriter
 	 *
 	 * @param height The height of the area to write.
 	 * */
-	public void write(int ulx, int uly, int w, int h) {
-		// Active tiles in all components have same offset since they are at
-		// same resolution (PPM does not support anything else)
+	public void write_1(int ulx, int uly, int w, int h) {
+		// Active tiles in all components have same offset since they are at same resolution
 		int tOffx = src.getCompULX(cps[0]) - (int)Math.ceil(src.getImgULX() / (double)src.getCompSubsX(cps[0]));
 		int tOffy = src.getCompULY(cps[0]) - (int)Math.ceil(src.getImgULY() / (double)src.getCompSubsY(cps[0]));
 
@@ -157,8 +156,7 @@ public class ImgWriterArrayByte extends ImgWriter
 				db.h = 1;
 				do {
 					db = (DataBlkInt)src.getInternCompData(db, cps[c]);
-				}
-				while(db.progressive);
+				} while(db.progressive);
 				
 				// Local variables for faster access
 				int maxVal = (1 << src.getNomRangeBits(cps[c])) - 1;
@@ -175,7 +173,101 @@ public class ImgWriterArrayByte extends ImgWriter
 			}
 		}
 	}
+	public void write_v2(int ulx, int uly, int w, int h) {
+		for(int c = 0; c < numChannels; c++) {
+			// In local variable for faster access
+			int fracBits = fb[c];
+			int shift = levShift[c];
+			
+			// Initialize db
+			db.ulx = ulx;
+			db.uly = uly;
+			db.w = w;
+			db.h = h;
+			
+			// Get the current active tile offset
+			int tOffx = src.getCompULX(c) - (int)Math.ceil(src.getImgULX() / (double)src.getCompSubsX(c));
+			int tOffy = src.getCompULY(c) - (int)Math.ceil(src.getImgULY() / (double)src.getCompSubsY(c));
+			
+			// Tile size
+			final int ulxOff = ulx + tOffx;
+			final int ulyOff = uly + tOffy;
+			final int tileW = Math.min(w, width-ulxOff);
+			final int tileH = Math.min(h, height-ulyOff);
+			
+			// Check the array size
+			if(db.data != null && db.data.length < w * h) {
+				// A new one will be allocated by getInternCompData()
+				db.data = null;
+			}
+			// Request the data and make sure it is not progressive
+			do {
+				db = (DataBlkInt)src.getInternCompData(db, c);
+			} while(db.progressive);
 
+			// variables used during coeff saturation
+			int nomRange = src.getNomRangeBits(c);
+			int maxVal = (1 << nomRange) - 1;
+			// If nominal bitdepth greater than 8, calculate down shift
+			int downShift = nomRange - 8;
+			if(downShift < 0) {
+				downShift = 0;
+			}
+
+			// Write line by line
+			for(int i = 0; i < tileH; i++) {
+				// 
+				final int index = numChannels * ((ulyOff+i) * width + ulxOff) + c;
+				int k = db.offset + i * db.scanw + ulxOff;
+				
+				// Write all bytes in the line
+				for(int j = 0; j < tileW; j++, k++) {
+					int val = (db.data[k] >>> fracBits) + shift;
+					byte valInRange = (byte)(((val < 0) ? 0 : ((val > maxVal) ? maxVal : val)) >>> downShift);
+					pixels[index + numChannels * j] = valInRange;
+				}
+			}
+		}
+	}
+	public void write(int ulx, int uly, int w, int h) {
+		// Check the array size
+		if(db.data != null && db.data.length < width * height) {
+			// A new one will be allocated by getInternCompData()
+			db.data = null;
+		}
+		
+		for(int c = 0; c < numChannels; c++) {
+			// Initialize db
+			db.ulx = 0;
+			db.uly = 0;
+			db.w = width;
+			db.h = height;
+			// Request the data and make sure it is not progressive
+			do {
+				db = (DataBlkInt)src.getInternCompData(db, c);
+			} while(db.progressive);
+
+			// In local variable for faster access
+			int maxVal = (1 << src.getNomRangeBits(c)) - 1;
+			int fracBits = fb[c];
+			int shift = levShift[c];
+
+			// Write line by line
+			for(int i = 0; i < height; i++) {
+				// Indices
+				final int index = numChannels * (i * width) + c;
+				int k = db.offset + i * db.scanw;
+				// Write all bytes in the line
+				for(int j = 0; j < width; j++, k++) {
+					int val = (db.data[k] >>> fracBits) + shift;
+					byte valInRange = (byte)((val < 0) ? 0 : ((val > maxVal) ? maxVal : val));
+					pixels[index + numChannels * j] = valInRange;
+				}
+			}
+		}
+	}
+
+	
 	/**
 	 * Writes the source's current tile to the output. The requests of data
 	 * issued to the source BlkImgDataSrc object are done by strips, in order
@@ -186,14 +278,7 @@ public class ImgWriterArrayByte extends ImgWriter
 	 * more.
 	 * */
 	public void write() {
-		int i;
-		int tIdx = src.getTileIdx();
-		int tw = src.getTileCompWidth(tIdx, 0); // Tile width 
-		int th = src.getTileCompHeight(tIdx, 0); // Tile height
-		// Write in strips
-		for(i = 0; i < th; i += DEF_STRIP_HEIGHT) {
-			write(0, i, tw, ((th - i) < DEF_STRIP_HEIGHT) ? th - i : DEF_STRIP_HEIGHT);
-		}
+		write(0, 0, width, height);
 	}
 
 	/**

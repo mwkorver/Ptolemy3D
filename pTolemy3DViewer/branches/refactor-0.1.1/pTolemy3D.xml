@@ -8,7 +8,7 @@
 	<MapDataSvr1>ptolemy3d.s3.amazonaws.com</MapDataSvr1>
 	<MapJp2Store1>/demo-data/jp2/</MapJp2Store1>
 	<MapDemStore1>/demo-data/dem/</MapDemStore1>
-	<offMUrlAppend1>&amp;streamID=class64</offMUrlAppend1>
+	<MUrlAppend1>&amp;streamID=class64</MUrlAppend1>
 	<MServerKey1></MServerKey1>
 
 	<TileColor>47,47,86</TileColor>

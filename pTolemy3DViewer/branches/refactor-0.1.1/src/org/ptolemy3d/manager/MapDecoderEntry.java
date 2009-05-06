@@ -27,7 +27,8 @@ import org.ptolemy3d.globe.MapDataKey;
 import org.ptolemy3d.io.MapDataFinder;
 import org.ptolemy3d.io.Stream;
 import org.ptolemy3d.jp2.Decoder;
-import org.ptolemy3d.jp2.Jp2Decoder;
+import org.ptolemy3d.jp2.JJ2000Decoder;
+import org.ptolemy3d.jp2.fast.JJ2000FastDecoder;
 
 /**
  * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
@@ -141,7 +142,8 @@ class MapDecoderEntry {
 			return true;
 		}
 		if(decoder == null) {
-			decoder = new Jp2Decoder(stream);
+			decoder = new JJ2000FastDecoder(stream);	//A lighter / faster version of JJ200 Decoder
+//			decoder = new JJ2000Decoder(stream);		//JJ200 Decoder
 			numWavelets = decoder.getNumWavelets();
 		}
 		

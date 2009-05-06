@@ -46,7 +46,7 @@ public class Config
 	/** Javascript output */
 	protected final static boolean enablePrintJavascript = DEBUG && false;
 	/** Renderer output */
-	protected final static boolean enablePrintRender     = DEBUG && false;
+	protected final static boolean enablePrintRender     = DEBUG && true;
 	/** Plugin output */
 	protected final static boolean enablePrintPlugin     = DEBUG && false;
 	/** Parser output */

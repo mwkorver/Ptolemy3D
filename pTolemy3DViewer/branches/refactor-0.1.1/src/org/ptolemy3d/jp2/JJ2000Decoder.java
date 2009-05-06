@@ -45,13 +45,17 @@ import jj2000.j2k.util.ParameterList;
 import jj2000.j2k.wavelet.synthesis.InverseWT;
 
 /**
+ * A clean use of JJ200 decoder.<BR>
+ * Any JP2 file are supported. Disadvantages is the decoder is slow.<BR>
+ * <BR>
+ * Based on JJ2000 decoder implementation
  * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  */
-class DecoderContext {
+public class JJ2000Decoder implements org.ptolemy3d.jp2.Decoder {
 	// ========================== TEST ================================
 	public static void main(String argv[]) throws Throwable {
-		final Jp2Decoder decoder = new Jp2Decoder(new Stream(new File(argv[0] + ".jp2")));
-		for(int res = 0; res < 4; res++) {
+		final JJ2000Decoder decoder = new JJ2000Decoder(new Stream(new File(argv[0] + ".jp2")));
+		for(int res = 0; res < decoder.getNumWavelets(); res++) {
 			long start = System.nanoTime();
 			Texture wavelet = decoder.parseWavelet(res);
 			System.out.println("[Wavelet:"+res+"] Time spent: "+(System.nanoTime() - start)/10e9);
@@ -60,6 +64,7 @@ class DecoderContext {
 			ImageIO.write(bi, "PNG", new File(argv[0] + "-" + res + ".png"));
 		}
 	}
+	// ========================== TEST ================================
 	
 	public final Stream stream;
 	public ParameterList pl;
@@ -67,7 +72,7 @@ class DecoderContext {
 	public InverseWT invWT;
 	public int[] depth;
 	
-	public DecoderContext(Stream stream) {
+	public JJ2000Decoder(Stream stream) {
 		this.stream = stream;
 	}
 	
@@ -135,34 +140,43 @@ class DecoderContext {
 		invWT = InverseWT.createInstance(deq, decSpec);
 	}
 	
-	public synchronized int getNumWavelets() throws IOException {
-		if(invWT == null) {
-			parseHeader();
+	public synchronized int getNumWavelets() {
+		try {
+			if(invWT == null) {
+				parseHeader();
+			}
+			final int numWavelets = decSpec.dls.getMin() + 1;
+			return numWavelets;
+		} catch(Exception e) {
+			e.printStackTrace();
+			return 0;
 		}
-		
-		final int numWavelets = decSpec.dls.getMin() + 1;
-		return numWavelets;
 	}
 	
-	public Texture parseWavelet(int res) throws IOException {
-		if(invWT == null) {
-			parseHeader();
+	public Texture parseWavelet(int res) {
+		try {
+			if(invWT == null) {
+				parseHeader();
+			}
+			
+			invWT.setImgResLevel(res);
+
+			// **** Data converter **** (after inverse transform module)
+			ImgDataConverter converter = new ImgDataConverter(invWT, 0);
+
+			// **** Inverse component transformation **** 
+			InvCompTransf decodedImage = new InvCompTransf(converter, decSpec, depth, pl);
+			
+			// **** Create image writers/image display ****
+			ImgWriterArrayByte img = new ImgWriterArrayByte(decodedImage, 0, 1, 2);
+			img.writeAll();
+			img.close();
+			
+			return new Texture(img.getPixels(), img.getWidth(), img.getHeight());
+		} catch(Exception e) {
+			e.printStackTrace();
+			return null;
 		}
-		
-		invWT.setImgResLevel(res);
-
-		// **** Data converter **** (after inverse transform module)
-		ImgDataConverter converter = new ImgDataConverter(invWT, 0);
-
-		// **** Inverse component transformation **** 
-		InvCompTransf decodedImage = new InvCompTransf(converter, decSpec, depth, pl);
-		
-		// **** Create image writers/image display ****
-		ImgWriterArrayByte img = new ImgWriterArrayByte(decodedImage, 0, 1, 2);
-		img.writeAll();
-		img.close();
-		
-		return new Texture(img.getPixels(), img.getWidth(), img.getHeight());
 	}
 	
 	public void delete() {

@@ -29,6 +29,8 @@ import javax.media.opengl.GL;
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.debug.Profiler.ProfilerEvent;
 import org.ptolemy3d.debug.Profiler.ProfilerEventReport;
+import org.ptolemy3d.globe.Globe;
+import org.ptolemy3d.globe.Layer;
 import org.ptolemy3d.scene.Landscape;
 import org.ptolemy3d.scene.Scene;
 import org.ptolemy3d.util.FontRenderer;
@@ -156,12 +158,32 @@ public class ProfilerUtil
 								tileSectionCounter, vertexCounter, memUsage);
 						break;
 					case 2:
+						final Globe globe = Ptolemy3D.getScene().landscape.globe;
+						final int numLayers = globe.getNumLayers();
+						//Format active layers in a list: (activeLayer0Id,activeLayer1Id,...)
+						String activeLayers = "(";
+						boolean first = true;
+						for(int i = 0; i < numLayers; i++) {
+							final Layer layer = globe.getLayer(i);
+							if(layer.isVisible()) {
+								if(!first) {
+									activeLayers += ",";
+								}
+								activeLayers += i;
+								first = false;
+							}
+						}
+						activeLayers += ")";
+						line = String.format("NumLayers:%d|ActiveLayers:%s",
+								numLayers, activeLayers);
+						break;
+					case 3:
 						Camera camera = Ptolemy3D.getCanvas().getCamera();
 						Position pos = camera.getPosition();
 						line = String.format(Locale.US, "(lat,lon,alt): (%f,%f,%f)",
 								(float)pos.getLatitudeDD(), (float)pos.getLongitudeDD(), (float)pos.getAltitudeDD());
 						break;
-					case 3:
+					case 4:
 						Scene scene = Ptolemy3D.getScene();
 						Landscape landscape = scene.landscape;
 

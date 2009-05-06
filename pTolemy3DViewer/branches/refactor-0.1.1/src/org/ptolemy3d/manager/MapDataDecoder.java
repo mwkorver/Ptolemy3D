@@ -113,13 +113,7 @@ class MapDataDecoder {
 				if (entry != null) {
 					final boolean downloaded = entry.download();
 					if(downloaded) {
-						synchronized(decoderThread) {	//Wait / notify events
-							try {
-								decoderThread.notify();
-							} catch(Exception e) {
-								e.printStackTrace();
-							}
-						}
+						notifyDecoder();
 					}
 				}
 				else {
@@ -127,7 +121,6 @@ class MapDataDecoder {
 						try {
 							IO.printlnConnection("Download thread waiting ...");
 							wait(timeOut);
-							resetDownloadStates();
 							IO.printlnConnection("Download thread wake-up.");
 						} catch(IllegalMonitorStateException e) {
 							e.printStackTrace();
@@ -135,6 +128,17 @@ class MapDataDecoder {
 							e.printStackTrace();
 						}
 					}
+					resetDownloadStates();
+					notifyDecoder();
+				}
+			}
+		}
+		private void notifyDecoder() {
+			synchronized(decoderThread) {	//Wait / notify events
+				try {
+					decoderThread.notify();
+				} catch(Exception e) {
+					e.printStackTrace();
 				}
 			}
 		}
@@ -202,11 +206,11 @@ class MapDataDecoder {
 						IO.printlnParser("Decoder thread waiting ...");
 						wait(timeOut);
 						IO.printlnParser("Decoder thread wake-up.");
-						if (DEBUG) {
-							dumpMap();
-						}
 					} catch(IllegalMonitorStateException e) {
 					} catch(InterruptedException e) {}
+				}
+				if (DEBUG) {
+					dumpMap();
 				}
 				return false;
 			}

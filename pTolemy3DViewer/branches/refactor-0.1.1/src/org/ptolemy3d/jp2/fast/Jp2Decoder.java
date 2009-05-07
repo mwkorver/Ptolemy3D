@@ -41,9 +41,6 @@ class Jp2Decoder {
 		//Get previous wavelet data
 		final short[][] waveletData = new short[parser.getNumChannels()][width * height];
 		if(res != 0) {
-			if(prevPixels == null) {
-				throw new RuntimeException();
-			}
 			parser.textureToNextWaveletRef(waveletData, prevPixels, width, parser.getWidth(res-1), parser.getHeight(res-1));
 		}
 		

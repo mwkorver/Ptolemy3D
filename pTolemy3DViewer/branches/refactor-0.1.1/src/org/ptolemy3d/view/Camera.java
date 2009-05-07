@@ -22,6 +22,7 @@ import static org.ptolemy3d.Unit.EARTH_RADIUS;
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.Ptolemy3DGLCanvas;
 import org.ptolemy3d.Unit;
+import org.ptolemy3d.debug.ProfilerUtil;
 import org.ptolemy3d.math.Math3D;
 import org.ptolemy3d.math.Matrix16d;
 import org.ptolemy3d.math.Matrix9d;
@@ -259,12 +260,21 @@ public class Camera {
 
 	/** @return the position in the view coordinate system */
 	public String toString() {
+		double[] forward = new double[3];
+		double[] up = new double[3];
+		double[] left = new double[3];
+		getForward(forward);
+		getUp(up);
+		getLeft(left);
 		return String.format(
-				"lat:%f, lon:%f, alt:%f, dir:%f, tilt:%f, x:%f, y:%f, z:%f",
+				"lat:%f, lon:%f, alt:%f, dir:%f, tilt:%f, x:%f, y:%f, z:%f, forX: %f, forY: %f, forZ: %f, uoX: %f, uoY: %f, uoZ: %f, leftX: %f, leftY: %f, leftZ: %f",
 				(float) position.getLatitudeDD(), (float) position.getLongitudeDD(),
 				(float) position.getAltitudeDD(), (float) getDirection(), tilt,
-				(float) cameraPos[0], (float) cameraPos[1],
-				(float) cameraPos[2]);
+				(float) cameraPos[0], (float) cameraPos[1], (float) cameraPos[2],
+				(float) forward[0], (float) forward[1], (float) forward[2],
+				(float) up[0], (float) up[1], (float) up[2],
+				(float) left[0], (float) left[1], (float) left[2]
+				);
 	}
 
 	/**
@@ -381,13 +391,17 @@ public class Camera {
 	 * @param point cartesian coordinate of the point on the globe
 	 * @return true if the point is on the visible side of the globe
 	 */
-	public boolean isCartesianPointInView(double[] point) {
+	public boolean isCartesianPointInView(double[] point) {	//point == n not normalized
 		// View forward vector
-		double[] forward = new double[3];
-		getForward(forward);
+		double[] posToPoint = new double[3];
+		//Direction from the viewer to the point
+		getCartesianPosition(posToPoint);
+		posToPoint[0] = point[0] - posToPoint[0];
+		posToPoint[1] = point[1] - posToPoint[1];
+		posToPoint[2] = point[2] - posToPoint[2];
 
 		// Dot product between the vectors (front/back face test)
-		double dot = (forward[0] * point[0]) + (forward[1] * point[1]) + (forward[2] * point[2]);
+		double dot = (posToPoint[0] * point[0]) + (posToPoint[1] * point[1]) + (posToPoint[2] * point[2]);
 		if (dot <= 0) {
 			// Visible if the forward vector is pointing in the other direction than the globe normal
 			return frustum.insideFrustum(point);
@@ -416,11 +430,15 @@ public class Camera {
 	 */
 	public boolean isCartesianPointInVisibleSide(double[] point) {
 		// View forward vector
-		double[] forward = new double[3];
-		getForward(forward);
+		double[] posToPoint = new double[3];
+		//Direction from the viewer to the point
+		getCartesianPosition(posToPoint);
+		posToPoint[0] = point[0] - posToPoint[0];
+		posToPoint[1] = point[1] - posToPoint[1];
+		posToPoint[2] = point[2] - posToPoint[2];
 
 		// Dot product between the vectors (front/back face test)
-		double dot = (forward[0] * point[0]) + (forward[1] * point[1]) + (forward[2] * point[2]);
+		double dot = (posToPoint[0] * point[0]) + (posToPoint[1] * point[1]) + (posToPoint[2] * point[2]);
 		if (dot <= 0) {
 			// Visible if the forward vector is pointing in the other direction than the globe normal
 			return true;

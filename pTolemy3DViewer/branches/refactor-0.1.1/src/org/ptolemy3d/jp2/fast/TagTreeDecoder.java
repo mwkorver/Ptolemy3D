@@ -65,19 +65,19 @@ import java.util.Arrays;
  * */
 class TagTreeDecoder {
 	/** The horizontal dimension of the base level */
-	protected int w = -1;
+	private int w = -1;
 	/** The vertical dimensions of the base level */
-	protected int h = -1;
+	private int h = -1;
 	/** The number of levels in the tag tree */
-	protected int lvls;
+	private int lvls;
 	/** The tag tree values. The first index is the level,
 	 * starting at level 0 (leafs). The second index is the element
 	 * within the level, in lexicographical order. */
-	protected int treeV[][];
+	private int treeV[][];
 	/** The tag tree state. The first index is the level, starting at
 	 * level 0 (leafs). The second index is the element within the
 	 * level, in lexicographical order. */
-	protected int treeS[][];
+	private int treeS[][];
 
 	/**
 	 * Creates a tag tree decoder with 'w' elements along the

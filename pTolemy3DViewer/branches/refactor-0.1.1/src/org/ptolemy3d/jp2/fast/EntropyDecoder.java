@@ -1,4 +1,88 @@
-// JJ2000
+/*
+ * CVS identifier:
+ *
+ * $Id: MQDecoder.java,v 1.32 2001/10/17 16:58:00 grosbois Exp $
+ *
+ * Class:                   MQDecoder
+ *
+ * Description:             Class that encodes a number of bits using the
+ *                          MQ arithmetic decoder
+ *
+ *
+ *
+ * COPYRIGHT:
+ * 
+ * This software module was originally developed by Raphaël Grosbois and
+ * Diego Santa Cruz (Swiss Federal Institute of Technology-EPFL); Joel
+ * Askelöf (Ericsson Radio Systems AB); and Bertrand Berthelot, David
+ * Bouchard, Félix Henry, Gerard Mozelle and Patrice Onno (Canon Research
+ * Centre France S.A) in the course of development of the JPEG2000
+ * standard as specified by ISO/IEC 15444 (JPEG 2000 Standard). This
+ * software module is an implementation of a part of the JPEG 2000
+ * Standard. Swiss Federal Institute of Technology-EPFL, Ericsson Radio
+ * Systems AB and Canon Research Centre France S.A (collectively JJ2000
+ * Partners) agree not to assert against ISO/IEC and users of the JPEG
+ * 2000 Standard (Users) any of their rights under the copyright, not
+ * including other intellectual property rights, for this software module
+ * with respect to the usage by ISO/IEC and Users of this software module
+ * or modifications thereof for use in hardware or software products
+ * claiming conformance to the JPEG 2000 Standard. Those intending to use
+ * this software module in hardware or software products are advised that
+ * their use may infringe existing patents. The original developers of
+ * this software module, JJ2000 Partners and ISO/IEC assume no liability
+ * for use of this software module or modifications thereof. No license
+ * or right to this software module is granted for non JPEG 2000 Standard
+ * conforming products. JJ2000 Partners have full right to use this
+ * software module for his/her own purpose, assign or donate this
+ * software module to any third party and to inhibit third parties from
+ * using this software module for non JPEG 2000 Standard conforming
+ * products. This copyright notice must be included in all copies or
+ * derivative works of this software module.
+ * 
+ * Copyright (c) 1999/2000 JJ2000 Partners.
+ * */
+/* 
+ * CVS identifier:
+ * 
+ * $Id: StdEntropyDecoder.java,v 1.30 2001/10/25 12:12:16 qtxjoas Exp $
+ * 
+ * Class:                   StdEntropyDecoder
+ * 
+ * Description:             Entropy decoding engine of stripes in code-blocks
+ * 
+ * 
+ * 
+ * COPYRIGHT:
+ * 
+ * This software module was originally developed by Raphaël Grosbois and
+ * Diego Santa Cruz (Swiss Federal Institute of Technology-EPFL); Joel
+ * Askelöf (Ericsson Radio Systems AB); and Bertrand Berthelot, David
+ * Bouchard, Félix Henry, Gerard Mozelle and Patrice Onno (Canon Research
+ * Centre France S.A) in the course of development of the JPEG2000
+ * standard as specified by ISO/IEC 15444 (JPEG 2000 Standard). This
+ * software module is an implementation of a part of the JPEG 2000
+ * Standard. Swiss Federal Institute of Technology-EPFL, Ericsson Radio
+ * Systems AB and Canon Research Centre France S.A (collectively JJ2000
+ * Partners) agree not to assert against ISO/IEC and users of the JPEG
+ * 2000 Standard (Users) any of their rights under the copyright, not
+ * including other intellectual property rights, for this software module
+ * with respect to the usage by ISO/IEC and Users of this software module
+ * or modifications thereof for use in hardware or software products
+ * claiming conformance to the JPEG 2000 Standard. Those intending to use
+ * this software module in hardware or software products are advised that
+ * their use may infringe existing patents. The original developers of
+ * this software module, JJ2000 Partners and ISO/IEC assume no liability
+ * for use of this software module or modifications thereof. No license
+ * or right to this software module is granted for non JPEG 2000 Standard
+ * conforming products. JJ2000 Partners have full right to use this
+ * software module for his/her own purpose, assign or donate this
+ * software module to any third party and to inhibit third parties from
+ * using this software module for non JPEG 2000 Standard conforming
+ * products. This copyright notice must be included in all copies or
+ * derivative works of this software module.
+ * 
+ * Copyright (c) 1999/2000 JJ2000 Partners.
+ * */
 package org.ptolemy3d.jp2.fast;
 
 import java.util.Arrays;
@@ -16,33 +100,17 @@ class EntropyDecoder
 	private final static int switchLM[] = {1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-	private byte[] buffer;
-	private static int[] mPS;
-	private static int[] I;
-	private static int c;
-	private static int cT;
-	private static int a;
-	private static int b;
-	private static boolean markerFound;
-	private static final int initStates[] = {46, 3, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-	private int pos, count;
-
+	private final static int initStates[] = {46, 3, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+	
 	private final boolean doer = false;
-
-	public final static int OPT_BYPASS = 1;
-	public final static int OPT_RESET_MQ = 1 << 1;
-	public final static int OPT_REG_TERM = 1 << 2;
-	public final static int OPT_VERT_STR_CAUSAL = 1 << 3;
-	public final static int OPT_ER_TERM = 1 << 4;
-	public final static int OPT_SEG_MARKERS = 1 << 5;
-	public static final int MIN_CB_DIM = 4;
-	public static final int MAX_CB_DIM = 1024;
-	public static final int MAX_CB_AREA = 4096;
-	public static final int STRIPE_HEIGHT = 4;
-	public static final int NUM_PASSES = 3;
-	public static final int NUM_NON_BYPASS_MS_BP = 4;
-	public static final int NUM_EMPTY_PASSES_IN_MS_BP = 2;
-	public static final int FIRST_BYPASS_PASS_IDX = NUM_PASSES * NUM_NON_BYPASS_MS_BP - NUM_EMPTY_PASSES_IN_MS_BP;
+	private final static int OPT_BYPASS = 1;
+	private final static int OPT_RESET_MQ = 1 << 1;
+	private final static int OPT_REG_TERM = 1 << 2;
+	private final static int OPT_VERT_STR_CAUSAL = 1 << 3;
+	private final static int OPT_ER_TERM = 1 << 4;
+	private final static int OPT_SEG_MARKERS = 1 << 5;
+	private static final int STRIPE_HEIGHT = 4;
+	private static final int NUM_NON_BYPASS_MS_BP = 4;
 	private static final int ZC_LUT_BITS = 8;
 	private static final int ZC_LUT_LH[] = new int[1 << ZC_LUT_BITS];
 	private static final int ZC_LUT_HL[] = new int[1 << ZC_LUT_BITS];
@@ -93,7 +161,6 @@ class EntropyDecoder
 	private static final int STATE_D_DR_R2 = STATE_D_DR_R1 << STATE_SEP;
 	private static final int SIG_MASK_R1R2 = STATE_SIG_R1 | STATE_SIG_R2;
 	private static final int VSTD_MASK_R1R2 = STATE_VISITED_R1 | STATE_VISITED_R2;
-	private static final int RLC_MASK_R1R2 = STATE_SIG_R1 | STATE_SIG_R2 | STATE_VISITED_R1 | STATE_VISITED_R2 | STATE_NZ_CTXT_R1 | STATE_NZ_CTXT_R2;
 	private static final int ZC_MASK = (1 << 8) - 1;
 	private static final int SC_SHIFT_R1 = 4;
 	private static final int SC_SHIFT_R2 = SC_SHIFT_R1 + STATE_SEP;
@@ -273,9 +340,27 @@ class EntropyDecoder
 			MR_LUT[i] = 18;
 		}
 	}
-	int[] state;
-	int options;
-	int Blkw, Blkh, MsbSk;
+	
+    /** The current most probable signal for each context */
+    private int[] mPS;
+    /** The current index of each context */
+    private int[] I;
+    /** The current bit code */
+    private int c;
+    /** The bit code counter */
+    private int cT;
+    /** The current interval */
+    private int a;
+    /** The last byte read */
+    private int b;
+    /** Flag indicating if a marker has been found */
+    private boolean markerFound;
+    
+	private int pos, count;
+	private byte[] buffer;
+	private int[] state;
+	private int options;
+	private int Blkw, Blkh, MsbSk;
 
 	/*
 	 *  init this entropy decoder with header values
@@ -300,7 +385,6 @@ class EntropyDecoder
 		int zc_lut[]; // The ZC lookup table to use
 		int npasses = 0; // The number of coding passes to perform
 		int curbp; // The current magnitude bit-plane (starts at 30)
-		int tsidx; // Index of current terminated segment
 		boolean error = false; // Error indicator
 		boolean isterm;
 
@@ -316,27 +400,18 @@ class EntropyDecoder
 				Arrays.fill(out_data, 0);
 			}
 		}
-		//int[] out_data = new int[blkw*blkh];   // data to be output from decoding.
-
-		//IO.println("h: " + blkh + " w:" + blkw);
+		
 		Blkw = blkw;
 		Blkh = blkh;
 		MsbSk = msbSk;
 		// reset state array
 		Arrays.fill(state, 0);
 
-		tsidx = 0;
-
 		for(int k = 0; k < trunc.length; k++) {
-			npasses += trunc[k]; //if (mq == null) {
-			//    mq = new MQDecoder(block ,NUM_CTXTS,MQ_INIT);
-			//}
-			//else{
-			// We always start by an MQ segment
+			npasses += trunc[k];
 		}
 		nextSegment(block, sb_start, sb_len);
 		resetCtxts();
-		//}
 
 		// Choose correct ZC lookup table for global orientation
 		switch(sbot) {
@@ -1214,7 +1289,7 @@ class EntropyDecoder
 		return error;
 	}
 
-	public final int decodeSymbol(int context) {
+	private final int decodeSymbol(int context) {
 		int q;
 		int la;
 		int index;
@@ -1316,7 +1391,7 @@ class EntropyDecoder
 		return decision;
 	}
 
-	public boolean checkPredTerm() {
+	private boolean checkPredTerm() {
 		int k; // Number of bits that where added in the termination process
 		int q;
 		if(b != 0xFF && !markerFound) {
@@ -1394,17 +1469,12 @@ class EntropyDecoder
 		}
 	}
 
-	public static final void resetCtxt(int c) {
-		I[c] = initStates[c];
-		mPS[c] = 0;
-	}
-
-	public static final void resetCtxts() {
+	private final void resetCtxts() {
 		System.arraycopy(initStates, 0, I, 0, I.length);
 		Arrays.fill(mPS, 0);
 	}
 
-	public final void nextSegment(byte buf[], int off, int len) {
+	private final void nextSegment(byte buf[], int off, int len) {
 		// Set the new input
 		buffer = buf;
 		pos = off;
@@ -1430,8 +1500,7 @@ class EntropyDecoder
 	}
 
 	private void initMQ() {
-		// Default initialization of the statistics bins is MPS=0 and
-		// I=0
+		// Default initialization of the statistics bins is MPS=0 and I=0
 		I = new int[NUM_CTXTS];
 		mPS = new int[NUM_CTXTS];
 		// Save the initial states
@@ -1441,7 +1510,6 @@ class EntropyDecoder
 	}
 
 	private int readByte() {
-		//IO.println("buffer pos: " + pos );
 		if(pos < count) {
 			return (int)buffer[pos++] & 0xFF;
 		}

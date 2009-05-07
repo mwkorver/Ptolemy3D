@@ -17,10 +17,11 @@
  */
 package org.ptolemy3d.globe;
 
+import static org.ptolemy3d.debug.Config.DEBUG;
+
 import org.ptolemy3d.DrawContext;
-import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.debug.IO;
-import org.ptolemy3d.scene.Landscape;
+import org.ptolemy3d.debug.ProfilerUtil;
 import org.ptolemy3d.view.Camera;
 import org.ptolemy3d.view.CameraMovement;
 
@@ -28,6 +29,7 @@ import org.ptolemy3d.view.CameraMovement;
  * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  */
 public class Globe {
+	private final static boolean FORCE_BYPASS_MIN_VISIBILITY_RANGE = true;
 	// Limit the number of layers active for the camera altitude
 	private final static int MAX_DIFFERENT_LAYER = 3;
 
@@ -51,7 +53,11 @@ public class Globe {
 
 			// Altitude check: in layer range
 			final double altMeters = camera.getVerticalAltitudeMeters();
-			final boolean inRange = ((altMeters <= layer.getMaxZoom()) && (altMeters >= layer.getMinZoom()));
+			boolean inRange = 
+				(altMeters <= layer.getMaxZoom()) && (altMeters >= layer.getMinZoom() || FORCE_BYPASS_MIN_VISIBILITY_RANGE);
+			if (DEBUG && ProfilerUtil.ignoreVisiblityRange) {
+				inRange = true;
+			}
 			if (inRange) {
 				numInRange++; // Track the number of level in the altitude range
 			}
@@ -61,7 +67,7 @@ public class Globe {
 				continue;
 			}
 
-			hasVisLayer = true; // Now at least one level has image data
+			hasVisLayer = true;
 			layer.setVisible(true);
 
 			// Process visibility for visible layers

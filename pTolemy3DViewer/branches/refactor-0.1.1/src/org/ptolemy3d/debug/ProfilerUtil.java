@@ -67,6 +67,10 @@ public class ProfilerUtil
 	public static int forceLevel = -1;
 	/** Freeze visibility */
 	public static boolean freezeVisibility = false;
+	/** Layer visibility range */
+	public static boolean ignoreVisiblityRange = false;
+	/** Variable used for misc test */
+	public static boolean test = false;
 
 	/** Font */
 	private static FontRenderer font;

@@ -49,20 +49,20 @@ import java.io.IOException;
  * applying the bit unstuffing procedure as required by the packet headers.
  */
 class PktHeaderBitReader {
-	byte[] bais;
-	int bbuf;
-	int bpos;
-	int nextbbuf;
-	int bais_pos;
+	private byte[] bais;
+	private int bbuf;
+	private int bpos;
+	private int nextbbuf;
+	private int bais_pos;
 
-	PktHeaderBitReader() {}
+	public PktHeaderBitReader() {}
 
-	final void set(byte[] bais) {
+	public final void set(byte[] bais) {
 		this.bais = bais;
 		bais_pos = 0;
 	}
 
-	final int readBit() {
+	public final int readBit() {
 		if(bpos == 0) { // Is bit buffer empty?
 			if(bbuf != 0xFF) { // No bit stuffing
 				bbuf = read();
@@ -79,7 +79,7 @@ class PktHeaderBitReader {
 		return (bbuf >> --bpos) & 0x01;
 	}
 
-	final int readBits(int n) throws IOException {
+	public final int readBits(int n) throws IOException {
 		int bits; // The read bits
 
 		// Can we get all bits from the bit buffer?
@@ -118,7 +118,7 @@ class PktHeaderBitReader {
 		}
 	}
 
-	void sync() {
+	public void sync() {
 		bbuf = 0;
 		bpos = 0;
 	}

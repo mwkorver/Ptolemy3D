@@ -406,7 +406,7 @@ public class Camera {
 		// Normal direction of the point( lon, lat) on the globe
 		double[] point = new double[3];
 		Math3D.setSphericalCoord(lon, lat, EARTH_RADIUS, point);
-		return isCartesianPointInView(point);
+		return isCartesianPointInVisibleSide(point);
 	}
 
 	/**

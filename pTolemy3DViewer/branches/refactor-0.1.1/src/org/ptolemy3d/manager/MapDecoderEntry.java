@@ -34,6 +34,9 @@ import org.ptolemy3d.jp2.fast.JJ2000FastDecoder;
  * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  */
 class MapDecoderEntry {
+	/* Avoid storing tile in memory */
+	private final static boolean AUTO_FREE = true;
+	
 	/** */
 	public final MapData mapData;
 	
@@ -155,7 +158,9 @@ class MapDecoderEntry {
 		catch(OutOfMemoryError e) {
 			throw e;
 		}
-		freeDecoder();
+		if(AUTO_FREE) {
+			freeDecoder();
+		}
 		boolean decoded = (texture != null);
 		if(decoded) {
 			mapData.newTexture = texture;

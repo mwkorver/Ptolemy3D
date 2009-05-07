@@ -24,40 +24,38 @@ import java.util.Arrays;
  * JP2 Decoder
  */
 class Jp2Decoder {
-	private final Jp2Header header;
+	private final Jp2Parser parser;
 	private final EntropyDecoder entropyDec;
 
-	public Jp2Decoder(Jp2Header jp2Header) {
-		header = jp2Header;
-		entropyDec = new EntropyDecoder(header.COD_ecOptions, header.COD_cblk);
+	public Jp2Decoder(Jp2Parser jp2Parser) {
+		this.parser = jp2Parser;
+		this.entropyDec = new EntropyDecoder(parser.header.COD_ecOptions, parser.header.COD_cblk);
 	}
 
-	/**
-	 * Gets next data for next resolution.
-	 */
+	/** Decode data for next resolution */
 	public byte[] getNextResolution(int res, byte[] prevPixels) throws IOException {
 		//Allocate new texture
-		final int width = header.getWidth(res);
-		final int height = header.getHeight(res);
+		final int width = parser.getWidth(res);
+		final int height = parser.getHeight(res);
 		
 		//Get previous wavelet data
-		final short[][] waveletData = new short[header.getNumChannels()][width * height];
+		final short[][] waveletData = new short[parser.getNumChannels()][width * height];
 		if(res != 0) {
 			if(prevPixels == null) {
 				throw new RuntimeException();
 			}
-			header.prepareImageData(waveletData, prevPixels, width, header.getWidth(res-1), header.getHeight(res-1));
+			parser.textureToNextWaveletRef(waveletData, prevPixels, width, parser.getWidth(res-1), parser.getHeight(res-1));
 		}
 		
 		//Decoding
-		byte[] streamBuffer = header.packetHeaders.getData(res);
-		for(int c = 0; c < header.getNumChannels(); c++) {
-			getDataAtRes(streamBuffer, res, 0, c, waveletData[c]);
+		byte[] streamBuffer = parser.getWaveletData(res);
+		for(int c = 0; c < parser.getNumChannels(); c++) {
+			getDataAtRes(streamBuffer, res, c, waveletData[c]);
 		}
 		
 		//Convert to texture
-		final byte[] pixels = new byte[header.getNumChannels() * width * height];
-		header.waveletToTexture(pixels, waveletData, width, height);
+		final byte[] pixels = new byte[parser.getNumChannels() * width * height];
+		parser.waveletToTexture(pixels, waveletData, width, height);
 		return pixels;
 	}
 
@@ -69,8 +67,8 @@ class Jp2Decoder {
 	 *  greater than 0 res gets the HL , LH,HH bands and performs 2d wavelet recons.
 	 *  with LL gotten band
 	 */
-	void getDataAtRes(byte[] streamBuffer, int reslvl, int t, int c, short[] data) {
-		Subband node = header.subband;
+	void getDataAtRes(byte[] streamBuffer, int reslvl, int c, short[] data) {
+		Subband node = parser.header.subband;
 		while(node.resLvl != reslvl) {
 			node = node.subb_LL;
 		}
@@ -78,44 +76,44 @@ class Jp2Decoder {
 		if(reslvl == 0) {
 			Arrays.fill(data, (short)0);
 			
-			getSubbandData(streamBuffer, node.w, node, t, c, data);
+			getSubbandData(streamBuffer, node.w, node, c, data);
 		}
 		else {
-			getSubbandData(streamBuffer, node.w, node.subb_LH, t, c, data);
-			getSubbandData(streamBuffer, node.w, node.subb_HL, t, c, data);
-			getSubbandData(streamBuffer, node.w, node.subb_HH, t, c, data);
+			getSubbandData(streamBuffer, node.w, node.subb_LH, c, data);
+			getSubbandData(streamBuffer, node.w, node.subb_HL, c, data);
+			getSubbandData(streamBuffer, node.w, node.subb_HH, c, data);
 
-			wavelet2Dreconstruction(node, c, t, data);
+			wavelet2Dreconstruction(node, data);
 		}
 	}
 
 	// get all code block data for this subband and store it in imgData
-	protected void getSubbandData(byte[] streamBuffer, int NomWidth, Subband sb, int t, int c, short[] data) {
+	protected void getSubbandData(byte[] streamBuffer, int NomWidth, Subband sb, int c, short[] data) {
 		int s = sb.sbandIdx;
 		int r = sb.resLvl;
 		int blkw, blkh, bulx, buly;
 		// data arrays are set up: tile | component | resolution | (subband index) | y | x | layer
-		int[][][] off = header.packetHeaders.CB_off[t][c][r][s];
-		short[][][] len = header.packetHeaders.CB_len[t][c][r][s];
-		boolean[][] inc = header.packetHeaders.cbInc[t][c][r][s];
-		int[] out_data;
+		int[][][] off = parser.header.CB_off[c][r][s];
+		short[][][] len = parser.header.CB_len[c][r][s];
+		boolean[][] inc = parser.header.cbInc[c][r][s];
+		
 		int cn = (sb.ulcx + sb.nomCBlkW) / sb.nomCBlkW - 1;
 		int cm = (sb.ulcy + sb.nomCBlkH) / sb.nomCBlkH - 1;
 
 		// set magBits
 		// mag bits for this tile and comp?
 		int gb = 0, exp = 0;
-		if(header.QCC_ValSet[t + 1][c]) {
-			gb = header.QCC_guardBits[t + 1][c];
-			exp = header.QCC_exp[t + 1][c][sb.resLvl][sb.sbandIdx];
+		if(parser.header.QCC_ValSet[1][c]) {
+			gb = parser.header.QCC_guardBits[1][c];
+			exp = parser.header.QCC_exp[1][c][sb.resLvl][sb.sbandIdx];
 		}
-		else if(header.QCC_ValSet[0][c]) {
-			gb = header.QCC_guardBits[0][c];
-			exp = header.QCC_exp[0][c][sb.resLvl][sb.sbandIdx];
+		else if(parser.header.QCC_ValSet[0][c]) {
+			gb = parser.header.QCC_guardBits[0][c];
+			exp = parser.header.QCC_exp[0][c][sb.resLvl][sb.sbandIdx];
 		}
 		else { // use defaults
-			gb = header.QCD_guardBits;
-			exp = header.QCD_exp[sb.resLvl][sb.sbandIdx];
+			gb = parser.header.QCD_guardBits;
+			exp = parser.header.QCD_exp[sb.resLvl][sb.sbandIdx];
 		}
 		sb.magbits = gb + exp - 1;
 		int sb_start, sb_len;
@@ -127,18 +125,19 @@ class Jp2Decoder {
 				if(inc[m][n]) {
 					bulx = getBlockUlx(sb, n, cn);
 					blkw = getBlockWt(sb, n, cn, bulx, inc[0].length);
-					sb_start = off[m][n][t] - header.packetHeaders.progPackStart[t][sb.resLvl];
-					sb_len = len[m][n][t];
-					out_data = entropyDec.decode(sb.gOrient, streamBuffer, sb_start, sb_len,
-							header.packetHeaders.cbTpLyr[t][c][r][s][m][n], header.packetHeaders.msbSk[t][c][r][s][m][n], blkw, blkh);
+					sb_start = off[m][n][0] - parser.header.progPackStart[sb.resLvl];
+					sb_len = len[m][n][0];
+					int[] out_data = entropyDec.decode(sb.gOrient, streamBuffer, sb_start, sb_len,
+							parser.header.cbTpLyr[c][r][s][m][n],
+							parser.header.msbSk[c][r][s][m][n], blkw, blkh);
 
-					dequantize(NomWidth, t, c, out_data, sb, blkw, blkh, buly, bulx, data);
+					dequantize(NomWidth, c, out_data, sb, blkw, blkh, buly, bulx, data);
 				}
 			}
 		}
 	}
 
-	private void wavelet2Dreconstruction(Subband sb, int c, int t, short[] data) {
+	private void wavelet2Dreconstruction(Subband sb, short[] data) {
 		int ulx, uly, w, h, imgw;
 		int i, j, k;
 		int offset;
@@ -363,7 +362,7 @@ class Jp2Decoder {
 	 * this f8unction performs reversible quant as well as copys our data from the out data array to
 	 * our main arrray
 	 */
-	private void dequantize(int NomWidth, int t, int c, int[] out_data, Subband sb, int blkw, int blkh, int buly, int bulx,
+	private void dequantize(int NomWidth, int c, int[] out_data, Subband sb, int blkw, int blkh, int buly, int bulx,
 			short[] data) {
 		int magBits, shiftBits, of1 = 0, of2 = 0, j;
 		magBits = sb.magbits;
@@ -380,14 +379,13 @@ class Jp2Decoder {
 	}
 
 	/**
-	 * get a ratio of the current subband width with the tile width right now this assumes a square
-	 * tile
+	 * get a ratio of the current subband width with the tile width right now this assumes a square tile
 	 */
-	protected int getResRatio(int t, int res) {
-		Subband node = header.subband;
+	protected int getResRatio(int res) {
+		Subband node = parser.header.subband;
 		while(node.resLvl != (res - 1)) {
 			node = node.subb_LL;
 		}
-		return header.getWidth()/*tileW*/ / node.w;
+		return parser.getWidth()/*tileW*/ / node.w;
 	}
 }

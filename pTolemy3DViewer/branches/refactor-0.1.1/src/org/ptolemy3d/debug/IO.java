@@ -215,12 +215,12 @@ public class IO {
 	public final static void keyReleasedDebug(Ptolemy3DGLCanvas canvas, int keyCode) {
 		if (DEBUG) {
 			Scene scene = Ptolemy3D.getScene();
-			Landscape landscape = scene.landscape;
+			Landscape landscape = scene.getLandscape();
 
 			switch (keyCode) {
 				case KeyEvent.VK_F1:
 					//Hide/Show landscape
-					scene.landscape.drawLandscape = !scene.landscape.drawLandscape;
+					scene.getLandscape().drawLandscape = !scene.getLandscape().drawLandscape;
 					break;
 				case KeyEvent.VK_F2:
 					ProfilerUtil.renderTiles = !ProfilerUtil.renderTiles;

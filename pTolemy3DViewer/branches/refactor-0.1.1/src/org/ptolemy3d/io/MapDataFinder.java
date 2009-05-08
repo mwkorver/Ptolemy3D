@@ -103,7 +103,7 @@ public class MapDataFinder {
 		return null;
 	}
 	private final String getTextureFileBase(MapData mapData) {
-		final Globe globe = Ptolemy3D.getScene().landscape.globe;
+		final Globe globe = Ptolemy3D.getScene().getLandscape().globe;
 		final Layer layer = globe.getLayer(mapData.key.layer);
 		
 		String fileBase = layer.getTileSize() + "/";

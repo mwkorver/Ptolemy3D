@@ -106,7 +106,7 @@ public class Configuration {
     public double initialCameraPitch = 0;
 
     protected ServerConfig[] servers = null;
-    protected String server = "";
+    private String server = "";
 	public String area = "";
 	public int flightFrameDelay = 1;
 	public boolean useTIN = false;
@@ -164,9 +164,9 @@ public class Configuration {
      */
     public void loadSettings(Element docelem) throws Ptolemy3DException {
         final Scene scene = Ptolemy3D.getScene();
-        final Landscape landScape = scene.landscape;
-        final Sky sky = scene.sky;
-        final Plugins plugins = scene.plugins;
+        final Landscape landScape = scene.getLandscape();
+        final Sky sky = scene.getSky();
+        final Plugins plugins = scene.getPlugins();
 
         // Coordinate System Units
         try {
@@ -659,4 +659,18 @@ public class Configuration {
             return s;
         }
     }
+
+	/**
+	 * @param server the server to set
+	 */
+	public void setServer(String server) {
+		this.server = server;
+	}
+
+	/**
+	 * @return the server
+	 */
+	public String getServer() {
+		return server;
+	}
 }

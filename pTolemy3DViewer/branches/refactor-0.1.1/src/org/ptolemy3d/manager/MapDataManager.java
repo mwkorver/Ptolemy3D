@@ -53,11 +53,11 @@ public class MapDataManager {
 		
 		//Request closest layer
 		MapDataKey prevKey = exactKey;
-		final Globe globe = Ptolemy3D.getScene().landscape.globe;
+		final Globe globe = Ptolemy3D.getScene().getLandscape().globe;
 		for (int i = layer - 1; i > 0; i--) {
 			final MapDataKey closeKey = globe.getCloserTile(i, lon, lat);
 			if(DEBUG) {	//Keep this code to be sure we got the good key
-				final int tileSize = Ptolemy3D.getScene().landscape.globe.getLayer(i).getTileSize();
+				final int tileSize = Ptolemy3D.getScene().getLandscape().globe.getLayer(i).getTileSize();
 				if((closeKey.lon <= lon) && ((closeKey.lon + tileSize) > lon) &&
 				   (closeKey.lat >= lat) && ((closeKey.lat - tileSize) < lat)) {
 					//OK

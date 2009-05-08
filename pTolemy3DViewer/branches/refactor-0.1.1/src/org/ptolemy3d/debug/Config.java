@@ -44,11 +44,11 @@ public class Config
 	/** Connection output */
 	protected final static boolean enablePrintConnection = DEBUG && true;
 	/** Javascript output */
-	protected final static boolean enablePrintJavascript = DEBUG && false;
+	protected final static boolean enablePrintJavascript = DEBUG && true;
 	/** Renderer output */
 	protected final static boolean enablePrintRender     = DEBUG && true;
 	/** Plugin output */
-	protected final static boolean enablePrintPlugin     = DEBUG && false;
+	protected final static boolean enablePrintPlugin     = DEBUG && true;
 	/** Parser output */
 	protected final static boolean enablePrintParser     = DEBUG && true;
 	/** Debug output */

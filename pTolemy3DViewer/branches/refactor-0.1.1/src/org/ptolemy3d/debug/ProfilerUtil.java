@@ -162,7 +162,7 @@ public class ProfilerUtil
 								tileSectionCounter, vertexCounter, memUsage);
 						break;
 					case 2:
-						final Globe globe = Ptolemy3D.getScene().landscape.globe;
+						final Globe globe = Ptolemy3D.getScene().getLandscape().globe;
 						final int numLayers = globe.getNumLayers();
 						//Format active layers in a list: (activeLayer0Id,activeLayer1Id,...)
 						String activeLayers = "(";
@@ -189,7 +189,7 @@ public class ProfilerUtil
 						break;
 					case 4:
 						Scene scene = Ptolemy3D.getScene();
-						Landscape landscape = scene.landscape;
+						Landscape landscape = scene.getLandscape();
 
 						String landscapeRenderMode;
 						switch(landscape.getDisplayMode()) {
@@ -247,7 +247,7 @@ public class ProfilerUtil
 
 	private static void drawDisplayModeLegend(FontRenderer font) {
 		Scene scene = Ptolemy3D.getScene();
-		Landscape landscape = scene.landscape;
+		Landscape landscape = scene.getLandscape();
 
 		Vector<String> legend = new Vector<String>(11);
 		switch(landscape.getDisplayMode()) {

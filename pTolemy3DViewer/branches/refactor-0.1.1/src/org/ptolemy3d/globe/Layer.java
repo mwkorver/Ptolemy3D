@@ -115,7 +115,7 @@ public class Layer {
 	 */
 	protected void processVisibility(DrawContext drawContext) {
 		final Camera camera = drawContext.getCanvas().getCamera();
-		final Landscape landscape = Ptolemy3D.getScene().landscape;
+		final Landscape landscape = Ptolemy3D.getScene().getLandscape();
 		final int maxLongitude = landscape.getMaxLongitude();
 		final int maxLatitude = landscape.getMaxLatitude();
 

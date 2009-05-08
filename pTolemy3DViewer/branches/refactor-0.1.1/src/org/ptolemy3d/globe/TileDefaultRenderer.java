@@ -70,7 +70,7 @@ class TileDefaultRenderer implements TileRenderer {
 		lowRightZ = tile.getLowRightLat();
 		ZLevel = tile.getLevelID();
 
-		landscape = Ptolemy3D.getScene().landscape;
+		landscape = Ptolemy3D.getScene().getLandscape();
 		tileColor = landscape.getTileColor();
 		colratios = landscape.getColorRatios();
 
@@ -193,7 +193,7 @@ class TileDefaultRenderer implements TileRenderer {
 	}
 
 	private final void drawSubsection_Dem(int x1, int z1, int x2, int z2) {
-		final Layer drawLevel = Ptolemy3D.getScene().landscape.globe.getLayer(drawZlevel);
+		final Layer drawLevel = Ptolemy3D.getScene().getLandscape().globe.getLayer(drawZlevel);
 		final byte[] dem = jtile.dem.demDatas;
 
 		double left_dem_slope = -1, right_dem_slope = -1, top_dem_slope = -1, bottom_dem_slope = -1;
@@ -405,7 +405,7 @@ class TileDefaultRenderer implements TileRenderer {
 	}
 
 	private final void drawSubsection(int x1, int z1, int x2, int z2) {
-		final Layer drawLevel = Ptolemy3D.getScene().landscape.globe.getLayer(drawZlevel);
+		final Layer drawLevel = Ptolemy3D.getScene().getLandscape().globe.getLayer(drawZlevel);
 
 		double t1, t2, t3;
 		float tx, ty1, ty2;
@@ -487,7 +487,7 @@ class TileDefaultRenderer implements TileRenderer {
 	}
 
 	private final void setColor(float y) {
-		final Landscape landscape = Ptolemy3D.getScene().landscape;
+		final Landscape landscape = Ptolemy3D.getScene().getLandscape();
 		final float COORDSYS_RATIO = Unit.getCoordSystemRatio();
 
 		if (y > landscape.getMaxColorHeight()) {
@@ -501,7 +501,7 @@ class TileDefaultRenderer implements TileRenderer {
 	}
 
 	private final void setGLBegin() {
-		final Landscape landscape = Ptolemy3D.getScene().landscape;
+		final Landscape landscape = Ptolemy3D.getScene().getLandscape();
 
 		switch (landscape.getDisplayMode()) {
 			case Landscape.DISPLAY_MESH:
@@ -525,7 +525,7 @@ class TileDefaultRenderer implements TileRenderer {
 	private final void setGLEnd() {
 		gl.glEnd();
 
-		Landscape landscape = Ptolemy3D.getScene().landscape;
+		Landscape landscape = Ptolemy3D.getScene().getLandscape();
 		switch (landscape.getDisplayMode()) {
 			case Landscape.DISPLAY_MESH:
 				gl.glEnable(GL.GL_TEXTURE_2D);

@@ -90,7 +90,7 @@ public class Tile {
 		final int textureID = mapDataManager.getTextureID(gl, mapData);
 		gl.glBindTexture(GL.GL_TEXTURE_2D, textureID);
 
-		final Landscape landscape = Ptolemy3D.getScene().landscape;
+		final Landscape landscape = Ptolemy3D.getScene().getLandscape();
 		final Globe globe = landscape.globe;
 		final int maxLon = landscape.getMaxLongitude();
 		final int maxLat = landscape.getMaxLatitude();
@@ -229,7 +229,7 @@ public class Tile {
 			return false;
 		}
 
-		final Landscape landscape = Ptolemy3D.getScene().landscape;
+		final Landscape landscape = Ptolemy3D.getScene().getLandscape();
 		final double terrainScaler = landscape.getTerrainScaler();
 
 		intersectPoint[0] = intersectPoint[1] = intersectPoint[2] = -999;
@@ -537,7 +537,7 @@ public class Tile {
 	public int getLowRightLon() {
 		final int res;
 		if (levelID != mapData.key.layer) {
-			final Globe globe = Ptolemy3D.getScene().landscape.globe;
+			final Globe globe = Ptolemy3D.getScene().getLandscape().globe;
 			final int tileSize = globe.getTileSize(mapData.key.layer);
 			res = getUpLeftLon() + tileSize;
 		}
@@ -560,7 +560,7 @@ public class Tile {
 	public int getLowRightLat() {
 		final int res;
 		if (levelID != mapData.key.layer) {
-			final Globe globe = Ptolemy3D.getScene().landscape.globe;
+			final Globe globe = Ptolemy3D.getScene().getLandscape().globe;
 			final int tileSize = globe.getTileSize(mapData.key.layer);
 			res = getUpLeftLat() + tileSize;
 		}

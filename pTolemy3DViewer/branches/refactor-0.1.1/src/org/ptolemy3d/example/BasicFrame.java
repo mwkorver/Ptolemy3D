@@ -75,7 +75,7 @@ public class BasicFrame extends JFrame {
 
     public static void main(String[] args) {
     	// Parse command line
-    	String xml = "pTolemy3D.xml";
+    	String xml = "config/config.xml";
     	int width = 640;
     	int height = 500;
 		if (args.length > 0) {

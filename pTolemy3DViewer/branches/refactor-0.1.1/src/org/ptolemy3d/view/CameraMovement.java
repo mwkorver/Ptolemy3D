@@ -126,7 +126,7 @@ public class CameraMovement {
     }
 
     public void init() {
-        final Landscape landscape = Ptolemy3D.getScene().landscape;
+        final Landscape landscape = Ptolemy3D.getScene().getLandscape();
 
         fmode = 0;// 1;
         accel = (int) mmx;
@@ -140,7 +140,7 @@ public class CameraMovement {
     }
 
     protected final void setCamera(Matrix16d modelView) {
-        final Landscape landscape = Ptolemy3D.getScene().landscape;
+        final Landscape landscape = Ptolemy3D.getScene().getLandscape();
         final Camera camera = canvas.getCamera();
 
 		double vpPos_1_bak = camera.getPosition().getAltitudeDD(), tilt_bak = camera.tilt;
@@ -514,7 +514,7 @@ public class CameraMovement {
     }
 
     private final boolean checkAlt() {
-        final Landscape landscape = Ptolemy3D.getScene().landscape;
+        final Landscape landscape = Ptolemy3D.getScene().getLandscape();
         final Camera camera = canvas.getCamera();
 
         {
@@ -710,7 +710,7 @@ public class CameraMovement {
     }
 
     public final void setFollowDem(boolean v) {
-        final Landscape landscape = Ptolemy3D.getScene().landscape;
+        final Landscape landscape = Ptolemy3D.getScene().getLandscape();
         final Camera camera = canvas.getCamera();
 
         boolean prev = followDemOn;
@@ -1158,9 +1158,9 @@ public class CameraMovement {
     /*****************************************************************************************/
     protected final synchronized void outputCoordinates(MouseEvent e) {
         setRays(e);
-        if (!Ptolemy3D.getScene().plugins.pick(intersectPoint, pickray)) {
-            if (Ptolemy3D.getScene().landscape.globe.pick(intersectPoint, pickray)) {
-                if (!Ptolemy3D.getScene().plugins.onPick(intersectPoint)) {
+        if (!Ptolemy3D.getScene().getPlugins().pick(intersectPoint, pickray)) {
+            if (Ptolemy3D.getScene().getLandscape().globe.pick(intersectPoint, pickray)) {
+                if (!Ptolemy3D.getScene().getPlugins().onPick(intersectPoint)) {
                     displayCoords();
                 }
             }
@@ -1169,11 +1169,11 @@ public class CameraMovement {
 
     protected final void zoomToSelected(MouseEvent e, boolean zoomin) {
         setRays(e);
-        if (!Ptolemy3D.getScene().landscape.globe.pick(intersectPoint, pickray)) {
+        if (!Ptolemy3D.getScene().getLandscape().globe.pick(intersectPoint, pickray)) {
             return;
         }
 
-        final Landscape landscape = Ptolemy3D.getScene().landscape;
+        final Landscape landscape = Ptolemy3D.getScene().getLandscape();
         final Camera camera = canvas.getCamera();
 
         if ((intersectPoint[0] != -999) || (intersectPoint[1] != -999) || (intersectPoint[2] != -999)) {

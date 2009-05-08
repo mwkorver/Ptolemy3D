@@ -103,7 +103,7 @@ public final class Ptolemy3D {
     public static void initialize(Configuration config) {
     	configuration = config;
     	textureManager = new TextureManager();
-    	mapDataFinder = new MapDataFinder(configuration.server, configuration.servers);
+    	mapDataFinder = new MapDataFinder(configuration.getServer(), configuration.servers);
     	mapDataManager = new MapDataManager();
     	cache = new FileSystemCache();
     }

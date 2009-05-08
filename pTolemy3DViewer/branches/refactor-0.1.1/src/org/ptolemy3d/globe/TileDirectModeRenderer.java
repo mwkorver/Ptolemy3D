@@ -65,7 +65,7 @@ class TileDirectModeRenderer implements TileRenderer {
 		lowRightX = tile.getLowRightLon();
 		lowRightZ = tile.getLowRightLat();
 
-		landscape = Ptolemy3D.getScene().landscape;
+		landscape = Ptolemy3D.getScene().getLandscape();
 		tileColor = landscape.getTileColor();
 		colratios = landscape.getColorRatios();
 		terrainScaler = landscape.getTerrainScaler();

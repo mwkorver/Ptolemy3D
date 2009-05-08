@@ -3,11 +3,11 @@
 	<CenterX>0</CenterX>
 	<CenterY>0</CenterY>
 
-	<Server>demo.spatialcloud.com</Server>
+	<Server>localhost:8080</Server>
 	<NumMapDataServers>1</NumMapDataServers>
-	<MapDataSvr1>ptolemy3d.s3.amazonaws.com</MapDataSvr1>
-	<MapJp2Store1>/demo-data/jp2/</MapJp2Store1>
-	<MapDemStore1>/demo-data/dem/</MapDemStore1>
+	<MapDataSvr1>localhost:8080</MapDataSvr1>
+	<MapJp2Store1>/Ptolemy_test/jp2base/</MapJp2Store1>
+	<MapDemStore1>/Ptolemy_test/jp2base/</MapDemStore1>
 	<MUrlAppend1>&amp;streamID=class64</MUrlAppend1>
 	<MServerKey1></MServerKey1>
 
@@ -54,6 +54,6 @@
 	<NumPlugins>1</NumPlugins>
 
 	<PluginType_1>org.ptolemy3d.plugin.IconPlugin</PluginType_1>
-	<PluginParam_1>new.png,40,0</PluginParam_1>
+	<PluginParam_1>/Ptolemy_test/new.png,40,0</PluginParam_1>
 	
 </entity>

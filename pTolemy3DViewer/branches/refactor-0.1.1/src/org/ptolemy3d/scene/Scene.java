@@ -60,17 +60,17 @@ import org.ptolemy3d.view.Camera;
 public class Scene implements Transferable {
 
     // Landscape
-    public final Landscape landscape;
+    private final Landscape landscape;
     // Sky
-    public final Sky sky;
+    private final Sky sky;
     // Plugins
-    public final Plugins plugins;
+    private final Plugins plugins;
     // Light
-    public final Light light;
+    private final Light light;
     // Do a screenshot of the next frame in <code>clipboardImage</code>.
-    public boolean screenshot = false;
+    private boolean screenshot = false;
     // Screenshot image
-    public Image clipboardImage;
+    private Image clipboardImage;
 
     /**
      * Creates a new Scene instance.
@@ -234,4 +234,60 @@ public class Scene implements Transferable {
         // Returns image
         return clipboardImage;
     }
+
+	/**
+	 * @return the landscape
+	 */
+	public Landscape getLandscape() {
+		return landscape;
+	}
+
+	/**
+	 * @return the sky
+	 */
+	public Sky getSky() {
+		return sky;
+	}
+
+	/**
+	 * @return the plugins
+	 */
+	public Plugins getPlugins() {
+		return plugins;
+	}
+
+	/**
+	 * @return the light
+	 */
+	public Light getLight() {
+		return light;
+	}
+
+	/**
+	 * @param screenshot the screenshot to set
+	 */
+	public void setScreenshot(boolean screenshot) {
+		this.screenshot = screenshot;
+	}
+
+	/**
+	 * @return the screenshot
+	 */
+	public boolean isScreenshot() {
+		return screenshot;
+	}
+
+	/**
+	 * @param clipboardImage the clipboardImage to set
+	 */
+	public void setClipboardImage(Image clipboardImage) {
+		this.clipboardImage = clipboardImage;
+	}
+
+	/**
+	 * @return the clipboardImage
+	 */
+	public Image getClipboardImage() {
+		return clipboardImage;
+	}
 }

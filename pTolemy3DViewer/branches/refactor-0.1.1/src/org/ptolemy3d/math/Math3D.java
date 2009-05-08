@@ -50,7 +50,7 @@ public class Math3D {
      * @see Unit#DD
      */
     public static final void setSphericalCoord(double lon, double lat, double radius, double[] dest) {
-        final Landscape landscape = Ptolemy3D.getScene().landscape;
+        final Landscape landscape = Ptolemy3D.getScene().getLandscape();
 
         double toRadiansOverDDBuffer = Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor();
 

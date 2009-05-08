@@ -143,7 +143,7 @@ class MapDataDecoder {
 			}
 		}
 		private MapDecoderEntry findEntryToDownload() {
-			final int numLevels = Ptolemy3D.getScene().landscape.globe.getNumLayers();
+			final int numLevels = Ptolemy3D.getScene().getLandscape().globe.getNumLayers();
 			for(int layer = 0; layer < numLevels; layer++) {
 				final HashMap<MapDataKey, MapDecoderEntry> map = getHashMap(layer);
 				synchronized(map) {	//Accessed from multiple threads
@@ -159,7 +159,7 @@ class MapDataDecoder {
 			return null;
 		}
 		private void resetDownloadStates() {
-			final int numLevels = Ptolemy3D.getScene().landscape.globe.getNumLayers();
+			final int numLevels = Ptolemy3D.getScene().getLandscape().globe.getNumLayers();
 			for(int layer = 0; layer < numLevels; layer++) {
 				final HashMap<MapDataKey, MapDecoderEntry> map = getHashMap(layer);
 				synchronized(map) {	//Accessed from multiple threads
@@ -216,7 +216,7 @@ class MapDataDecoder {
 			}
 		}
 		private MapDecoderEntry findEntryToDecode() {
-			final int numLayers = Ptolemy3D.getScene().landscape.globe.getNumLayers();
+			final int numLayers = Ptolemy3D.getScene().getLandscape().globe.getNumLayers();
 			for(int layer = 0; layer < numLayers; layer++) {
 				for(int resolution = 0; resolution < MapData.MAX_NUM_RESOLUTION; resolution++) {
 					final MapDecoderEntry entry = findEntryToDecode(layer, resolution);
@@ -243,7 +243,7 @@ class MapDataDecoder {
 		}
 		
 		private void dumpMap() {
-			final int numLayers = Ptolemy3D.getScene().landscape.globe.getNumLayers();
+			final int numLayers = Ptolemy3D.getScene().getLandscape().globe.getNumLayers();
 			for(int layer = 0; layer < numLayers; layer++) {
 				dumpMap(layer);
 			}

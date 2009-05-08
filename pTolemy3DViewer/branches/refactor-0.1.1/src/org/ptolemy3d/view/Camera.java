@@ -545,7 +545,7 @@ public class Camera {
 	}
 
 	/**
-	 * Converts a lat/lot position into a cartesion space.
+	 * Converts a lat/lot position into a cartesian space.
 	 * 
 	 * @param latDD
 	 * @param lonDD
@@ -555,16 +555,13 @@ public class Camera {
 
 		Landscape landscape = Ptolemy3D.getScene().getLandscape();
 
-		// Transform from lat/lon to cartesion coordinates.
-		double point[] = new double[3];
-		Math3D.setSphericalCoord(lonDD, latDD, Unit.EARTH_RADIUS, point);
-
 		// Get the terrain elevation
 		double terrainElev = landscape.groundHeight(lonDD, latDD, 0);
 
-		point[0] += terrainElev;
-		point[1] += terrainElev;
-		point[2] += terrainElev;
+		// Transform from lat/lon to cartesion coordinates.
+		double point[] = new double[3];
+		Math3D.setSphericalCoord(lonDD, latDD, Unit.EARTH_RADIUS + terrainElev,
+				point);
 
 		return point;
 	}
@@ -575,8 +572,7 @@ public class Camera {
 	 * 
 	 * @param cartesian
 	 */
-	public double[] worldToScreen(DrawContext drawContext,
-			double[] cartesian) {
+	public double[] worldToScreen(DrawContext drawContext, double[] cartesian) {
 
 		GLU glu = new GLU();
 		double model[] = new double[16];
@@ -586,7 +582,7 @@ public class Camera {
 		Ptolemy3DGLCanvas canvas = drawContext.getCanvas();
 		viewport[0] = canvas.getX();
 		viewport[1] = canvas.getY();
-		viewport[2] = canvas.getWidth();		
+		viewport[2] = canvas.getWidth();
 		viewport[3] = canvas.getHeight();
 
 		Camera camera = canvas.getCamera();

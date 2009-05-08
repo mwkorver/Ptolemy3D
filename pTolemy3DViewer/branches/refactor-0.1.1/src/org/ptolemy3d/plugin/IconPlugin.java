@@ -171,7 +171,7 @@ public class IconPlugin implements Plugin {
 
 		// Get screen coordinates before altering projection and modelview
 		// matrices.
-		double scr[] = Camera.worldToScreen(drawContext, point);
+		double scr[] = camera.worldToScreen(drawContext, point);
 
 		// Set an orthographic projection.
 		int viewport[] = new int[4];

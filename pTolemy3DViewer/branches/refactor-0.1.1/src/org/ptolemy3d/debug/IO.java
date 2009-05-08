@@ -37,12 +37,12 @@ import org.ptolemy3d.view.Camera;
  * F4 :
  * F5 : Enable/Disable Wireframe rendering for Landscape.
  * F6 :
- * F7 : Test
+ * F7 : 
  * F8 : Camera position
  * F9 : Force level ++
  * F10: Force level --
  * F11: Freeze visibility
- * F12: Ignore layer visibility range
+ * F12: Test
  * </pre>
  * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  */
@@ -250,10 +250,6 @@ public class IO {
 							break;
 					}
 					break;
-				case KeyEvent.VK_F7:
-					ProfilerUtil.test = !ProfilerUtil.test;
-					println("Test: "+ProfilerUtil.test);
-					break;
 				case KeyEvent.VK_F8:
 					Camera camera = canvas.getCamera();
 					println(camera.toString());
@@ -271,8 +267,8 @@ public class IO {
 					println("Freeze visibility: "+ProfilerUtil.freezeVisibility);
 					break;
 				case KeyEvent.VK_F12:
-					ProfilerUtil.ignoreVisiblityRange = !ProfilerUtil.ignoreVisiblityRange;
-					println("Visibility range: "+ProfilerUtil.ignoreVisiblityRange);
+					ProfilerUtil.test = !ProfilerUtil.test;
+					println("Test: "+ProfilerUtil.test);
 					break;
 			}
 		}

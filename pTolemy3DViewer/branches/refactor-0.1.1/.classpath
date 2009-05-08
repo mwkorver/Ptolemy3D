@@ -2,9 +2,17 @@
 <classpath>
 	<classpathentry excluding="**/.svn/" kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="/opt/software/java_libs/jogl-1.1.1-linux-i586/lib/gluegen-rt.jar"/>
-	<classpathentry kind="lib" path="/opt/software/java_libs/jogl-1.1.1-linux-i586/lib/jogl.jar"/>
+	<classpathentry kind="lib" path="/Users/jerome/Documents/pTolemy3DThirdParty/netscape.jar"/>
+	<classpathentry kind="lib" path="/Users/jerome/Documents/pTolemy3DThirdParty/jogl.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/Users/jerome/Documents/pTolemy3DThirdParty"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/Users/jerome/Documents/pTolemy3DThirdParty/gluegen-rt.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="D:/Mes documents/Mes Programmes/Ptolemy3D/Ptolemy3D/lib/lib"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/jj2000-5.1"/>
-	<classpathentry kind="lib" path="/opt/software/jdk1.5.0_07/jre/lib/plugin.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

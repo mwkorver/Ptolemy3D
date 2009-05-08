@@ -21,29 +21,37 @@ package org.ptolemy3d.util;
  * Utility to read in a byte array.
  */
 public class ByteReader {
-	public final static int readInt(byte[] b, int[] cur) {
-		return (b[cur[0]++] & 0xff) << 24 |
-			   (b[cur[0]++] & 0xff) << 16 |
-			   (b[cur[0]++] & 0xff) << 8 |
-			   (b[cur[0]++] & 0xff) << 0;
+	private final byte[] bytes;
+	private int position;
+	
+	public ByteReader(byte[] data) {
+		this.bytes = data;
+		this.position = 0;
+	}
+	
+	public final int readInt() {
+		return (bytes[position++] & 0xff) << 24 |
+			   (bytes[position++] & 0xff) << 16 |
+			   (bytes[position++] & 0xff) << 8 |
+			   (bytes[position++] & 0xff) << 0;
 	}
 
-	public final static long readLong(byte[] b, int[] cur) {
-		return (long) (b[cur[0]++] & 0xff) << 56 |
-			   (long) (b[cur[0]++] & 0xff) << 48 |
-			   (long) (b[cur[0]++] & 0xff) << 40 |
-			   (long) (b[cur[0]++] & 0xff) << 32 |
-			   (long) (b[cur[0]++] & 0xff) << 24 |
-			   (long) (b[cur[0]++] & 0xff) << 16 |
-			   (long) (b[cur[0]++] & 0xff) <<  8 |
-			   (long) (b[cur[0]++] & 0xff) <<  0;
+	public final long readLong() {
+		return (long) (bytes[position++] & 0xff) << 56 |
+			   (long) (bytes[position++] & 0xff) << 48 |
+			   (long) (bytes[position++] & 0xff) << 40 |
+			   (long) (bytes[position++] & 0xff) << 32 |
+			   (long) (bytes[position++] & 0xff) << 24 |
+			   (long) (bytes[position++] & 0xff) << 16 |
+			   (long) (bytes[position++] & 0xff) <<  8 |
+			   (long) (bytes[position++] & 0xff) <<  0;
 	}
 
-	public final static float readFloat(byte[] b, int[] cur) {
-		return Float.intBitsToFloat(readInt(b, cur));
+	public final float readFloat() {
+		return Float.intBitsToFloat(readInt());
 	}
 
-	public final static double readDouble(byte[] b, int[] cur) {
-		return Double.longBitsToDouble(readLong(b, cur));
+	public final double readDouble() {
+		return Double.longBitsToDouble(readLong());
 	}
 }

@@ -59,6 +59,14 @@ public class ProfilerUtil
 	public static int tileSectionCounter = 0;
 	/** Vertex counter */
 	public static int vertexCounter = 0;
+	/** Bytes downloaded this frame */
+	public static int bytesDownloaded = 0;
+	/** Total byte downloaded */
+	public static int totalBytesDownloaded = 0;
+	/** Download speed */
+	public static float koPerSec = 0;
+	private static int accumDLBytes = 0, accumDLMs = 0;	//Accumulation to display 1s average speed
+	private static final int DL_FPS_UPDATE = 500;
 	/** Vertex counter */
 	public static int vertexMemoryUsage = 0;
 	/** Tiles */
@@ -67,8 +75,6 @@ public class ProfilerUtil
 	public static int forceLevel = -1;
 	/** Freeze visibility */
 	public static boolean freezeVisibility = false;
-	/** Layer visibility range */
-	public static boolean ignoreVisiblityRange = false;
 	/** Variable used for misc test */
 	public static boolean test = false;
 
@@ -135,6 +141,14 @@ public class ProfilerUtil
 		}
 		return 0;
 	}
+	
+	public static float getTimePassedMillis() {
+		if(enableProfiler) {
+			init();
+			return counter.getTimePassedMillis();
+		}
+		return 1000000000;
+	}
 
 	private static Vector<String> generateReport() {
 		if(printProfiler) {
@@ -144,6 +158,20 @@ public class ProfilerUtil
 				String line = null;
 				switch(count) {
 					case 0:
+						accumDLBytes += bytesDownloaded;
+						accumDLMs += getTimePassedMillis();
+						if(accumDLMs > DL_FPS_UPDATE) {
+							koPerSec = (accumDLBytes / 1024.f) / (accumDLMs / 1000.f);
+							accumDLBytes = 0;
+							accumDLMs = 0;
+						}
+						totalBytesDownloaded += bytesDownloaded;
+						bytesDownloaded = 0;
+						
+						float totalKO = (totalBytesDownloaded / 1024.f);
+						line = String.format("DL speed:%f ko|TotalDL:%f ko", koPerSec, totalKO);
+						break;
+					case 1:
 						float fps = getFPS();
 						ProfilerEventReport renderProf = ProfilerUtil.getReport(ProfilerEventInterface.Frame);
 						ProfilerEventReport landscapeProf = ProfilerUtil.getReport(ProfilerEventInterface.Landscape);
@@ -156,12 +184,12 @@ public class ProfilerUtil
 							line = String.format("Frame:%dFPS|Landscape:%dFPS", (int)fps, (int)landscapFPS);
 						}
 						break;
-					case 1:
+					case 2:
 						float memUsage = vertexMemoryUsage / 1024.f;
 						line = String.format("Tile:%d|Section:%d|Vtx:%d|VtxUsage:%.2f ko", tileCounter,
 								tileSectionCounter, vertexCounter, memUsage);
 						break;
-					case 2:
+					case 3:
 						final Globe globe = Ptolemy3D.getScene().getLandscape().globe;
 						final int numLayers = globe.getNumLayers();
 						//Format active layers in a list: (activeLayer0Id,activeLayer1Id,...)
@@ -181,13 +209,13 @@ public class ProfilerUtil
 						line = String.format("NumLayers:%d|ActiveLayers:%s",
 								numLayers, activeLayers);
 						break;
-					case 3:
+					case 4:
 						Camera camera = Ptolemy3D.getCanvas().getCamera();
 						Position pos = camera.getPosition();
 						line = String.format(Locale.US, "(lat,lon,alt): (%f,%f,%f)",
 								(float)pos.getLatitudeDD(), (float)pos.getLongitudeDD(), (float)pos.getAltitudeDD());
 						break;
-					case 4:
+					case 5:
 						Scene scene = Ptolemy3D.getScene();
 						Landscape landscape = scene.getLandscape();
 

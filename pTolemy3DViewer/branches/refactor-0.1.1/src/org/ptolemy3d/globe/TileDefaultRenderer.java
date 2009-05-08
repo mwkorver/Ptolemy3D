@@ -30,9 +30,7 @@ import org.ptolemy3d.math.Math3D;
 import org.ptolemy3d.scene.Landscape;
 
 /**
- * Original version of the tile render.<BR>
- * Keeped to track bug if some appears ...<BR>
- * Please keep it !
+ * Original version a little improved. Please keep it to track regression.
  */
 class TileDefaultRenderer implements TileRenderer {
 	/* All of that are temporary datas that are used in drawSubsection.
@@ -110,16 +108,16 @@ class TileDefaultRenderer implements TileRenderer {
 
 		// corners clockwise, from ul
 		if ((leftTile == null) || (leftTile.mapData.key.layer != drawZlevel)) {
-			left_dem_slope = (double) (jtile.tin.p[3][1] - jtile.tin.p[0][1]) / jtile.tin.w;
+			left_dem_slope = (double) (jtile.tin.positions[3][1] - jtile.tin.positions[0][1]) / jtile.tin.w;
 		}
 		if ((rightTile == null) || (rightTile.mapData.key.layer != drawZlevel)) {
-			right_dem_slope = (double) (jtile.tin.p[2][1] - jtile.tin.p[1][1]) / jtile.tin.w;
+			right_dem_slope = (double) (jtile.tin.positions[2][1] - jtile.tin.positions[1][1]) / jtile.tin.w;
 		}
 		if ((aboveTile == null) || (aboveTile.mapData.key.layer != drawZlevel)) {
-			top_dem_slope = (double) (jtile.tin.p[1][1] - jtile.tin.p[0][1]) / jtile.tin.w;
+			top_dem_slope = (double) (jtile.tin.positions[1][1] - jtile.tin.positions[0][1]) / jtile.tin.w;
 		}
 		if ((belowTile == null) || (belowTile.mapData.key.layer != drawZlevel)) {
-			bottom_dem_slope = (double) (jtile.tin.p[2][1] - jtile.tin.p[3][1]) / jtile.tin.w;
+			bottom_dem_slope = (double) (jtile.tin.positions[2][1] - jtile.tin.positions[3][1]) / jtile.tin.w;
 		}
 
 		double theta1 = 0, theta2 = 0;
@@ -135,31 +133,31 @@ class TileDefaultRenderer implements TileRenderer {
 		double dx, dz;
 		double tx, ty, tz;
 
-		for (int i = 0; i < jtile.tin.nSt.length; i++) {
+		for (int i = 0; i < jtile.tin.texCoords.length; i++) {
 			setGLBegin();
-			for (int j = 0; j < jtile.tin.nSt[i].length; j++) {
+			for (int j = 0; j < jtile.tin.texCoords[i].length; j++) {
 				int v;
 
-				v = jtile.tin.nSt[i][j];
-				dy = jtile.tin.p[v][1];
+				v = jtile.tin.texCoords[i][j];
+				dy = jtile.tin.positions[v][1];
 
-				if ((left_dem_slope != -1) && (jtile.tin.p[v][0] == 0)) {
-					dy = jtile.tin.p[0][1] + (jtile.tin.p[v][2] * left_dem_slope);
+				if ((left_dem_slope != -1) && (jtile.tin.positions[v][0] == 0)) {
+					dy = jtile.tin.positions[0][1] + (jtile.tin.positions[v][2] * left_dem_slope);
 				}
-				if ((right_dem_slope != -1) && (jtile.tin.p[v][0] == jtile.tin.w)) {
-					dy = jtile.tin.p[1][1] + (jtile.tin.p[v][2] * right_dem_slope);
+				if ((right_dem_slope != -1) && (jtile.tin.positions[v][0] == jtile.tin.w)) {
+					dy = jtile.tin.positions[1][1] + (jtile.tin.positions[v][2] * right_dem_slope);
 				}
-				if ((top_dem_slope != -1) && (jtile.tin.p[v][2] == 0)) {
-					dy = jtile.tin.p[0][1] + (jtile.tin.p[v][0] * top_dem_slope);
+				if ((top_dem_slope != -1) && (jtile.tin.positions[v][2] == 0)) {
+					dy = jtile.tin.positions[0][1] + (jtile.tin.positions[v][0] * top_dem_slope);
 				}
-				if ((bottom_dem_slope != -1) && (jtile.tin.p[v][2] == jtile.tin.w)) {
-					dy = jtile.tin.p[3][1] + (jtile.tin.p[v][0] * bottom_dem_slope);
+				if ((bottom_dem_slope != -1) && (jtile.tin.positions[v][2] == jtile.tin.w)) {
+					dy = jtile.tin.positions[3][1] + (jtile.tin.positions[v][0] * bottom_dem_slope);
 				}
 				dy *= Unit.getCoordSystemRatio() * terrainScaler;
 
 				{
-					dx = theta1 + jtile.tin.p[v][0] * (theta2 - theta1) / jtile.tin.w;
-					dz = phi1 + jtile.tin.p[v][2] * (phi2 - phi1) / jtile.tin.w;
+					dx = theta1 + jtile.tin.positions[v][0] * (theta2 - theta1) / jtile.tin.w;
+					dz = phi1 + jtile.tin.positions[v][2] * (phi2 - phi1) / jtile.tin.w;
 
 					tx =  (EARTH_RADIUS + dy) * Math.cos(dz) * Math.sin(dx);
 					ty = -(EARTH_RADIUS + dy) * Math.sin(dz);
@@ -167,7 +165,7 @@ class TileDefaultRenderer implements TileRenderer {
 				}
 
 				if (texture) {
-					gl.glTexCoord2f((jtile.tin.p[v][0] / jtile.tin.w), (jtile.tin.p[v][2] / jtile.tin.w));
+					gl.glTexCoord2f((jtile.tin.positions[v][0] / jtile.tin.w), (jtile.tin.positions[v][2] / jtile.tin.w));
 				}
 				else if (landscape.getDisplayMode() == Landscape.DISPLAY_SHADEDDEM) {
 					setColor((float) dy);
@@ -177,7 +175,7 @@ class TileDefaultRenderer implements TileRenderer {
 			setGLEnd();
 
 			if(DEBUG) {
-				int numVertices = jtile.tin.nSt[i].length;
+				int numVertices = jtile.tin.texCoords[i].length;
 				ProfilerUtil.vertexCounter += numVertices;
 				if (texture) {
 					ProfilerUtil.vertexMemoryUsage += numVertices * (2 * 4 + 3 * 8);

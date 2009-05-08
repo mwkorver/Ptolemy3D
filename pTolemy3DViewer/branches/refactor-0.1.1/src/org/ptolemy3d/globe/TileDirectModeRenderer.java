@@ -29,6 +29,10 @@ import org.ptolemy3d.globe.Tile.TileRenderer;
 import org.ptolemy3d.math.Math3D;
 import org.ptolemy3d.scene.Landscape;
 
+/**
+ * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
+ * @author Contributors
+ */
 class TileDirectModeRenderer implements TileRenderer {
 	/* All of that are temporary datas that are used in drawSubsection.
 	 * They must be restore in each entering */
@@ -38,6 +42,7 @@ class TileDirectModeRenderer implements TileRenderer {
 
 	//From the Tile
 	protected int drawZlevel;
+	protected int levelID;
 	protected Tile leftTile;
 	protected Tile aboveTile;
 	protected Tile rightTile;
@@ -55,6 +60,7 @@ class TileDirectModeRenderer implements TileRenderer {
 		mapData = mapData_;
 
 		drawZlevel = tile.drawZlevel;
+		levelID = tile.getLevelID();
 		leftTile = tile.left;
 		aboveTile = tile.above;
 		rightTile = tile.right;
@@ -764,16 +770,16 @@ class TileDirectModeRenderer implements TileRenderer {
 
 		// corners clockwise, from ul
 		if ((leftTile == null) || (leftTile.mapData.key.layer != drawZlevel)) {
-			left_dem_slope = (double) (mapData.tin.p[3][1] - mapData.tin.p[0][1]) / mapData.tin.w;
+			left_dem_slope = (double) (mapData.tin.positions[3][1] - mapData.tin.positions[0][1]) / mapData.tin.w;
 		}
 		if ((rightTile == null) || (rightTile.mapData.key.layer != drawZlevel)) {
-			right_dem_slope = (double) (mapData.tin.p[2][1] - mapData.tin.p[1][1]) / mapData.tin.w;
+			right_dem_slope = (double) (mapData.tin.positions[2][1] - mapData.tin.positions[1][1]) / mapData.tin.w;
 		}
 		if ((aboveTile == null) || (aboveTile.mapData.key.layer != drawZlevel)) {
-			top_dem_slope = (double) (mapData.tin.p[1][1] - mapData.tin.p[0][1]) / mapData.tin.w;
+			top_dem_slope = (double) (mapData.tin.positions[1][1] - mapData.tin.positions[0][1]) / mapData.tin.w;
 		}
 		if ((belowTile == null) || (belowTile.mapData.key.layer != drawZlevel)) {
-			bottom_dem_slope = (double) (mapData.tin.p[2][1] - mapData.tin.p[3][1]) / mapData.tin.w;
+			bottom_dem_slope = (double) (mapData.tin.positions[2][1] - mapData.tin.positions[3][1]) / mapData.tin.w;
 		}
 
 		double theta1, dThetaOverW;
@@ -793,28 +799,28 @@ class TileDirectModeRenderer implements TileRenderer {
 		}
 
 		float oneOverW = 1.0f / mapData.tin.w;
-		for (int i = 0; i < mapData.tin.nSt.length; i++) {
+		for (int i = 0; i < mapData.tin.texCoords.length; i++) {
 			gl.glBegin(GL.GL_TRIANGLE_STRIP);
-			for (int j = 0; j < mapData.tin.nSt[i].length; j++) {
-				int v = mapData.tin.nSt[i][j];
+			for (int j = 0; j < mapData.tin.texCoords[i].length; j++) {
+				int v = mapData.tin.texCoords[i][j];
 
 				double dx, dy, dz;
 				{
-					final float[] p = mapData.tin.p[v];
+					final float[] p = mapData.tin.positions[v];
 					final float tinW = mapData.tin.w;
 
 					dy = p[1];
 					if ((left_dem_slope != -1) && (p[0] == 0)) {
-						dy = mapData.tin.p[0][1] + (p[2] * left_dem_slope);
+						dy = mapData.tin.positions[0][1] + (p[2] * left_dem_slope);
 					}
 					if ((right_dem_slope != -1) && (p[0] == tinW)) {
-						dy = mapData.tin.p[1][1] + (p[2] * right_dem_slope);
+						dy = mapData.tin.positions[1][1] + (p[2] * right_dem_slope);
 					}
 					if ((top_dem_slope != -1) && (p[2] == 0)) {
-						dy = mapData.tin.p[0][1] + (p[0] * top_dem_slope);
+						dy = mapData.tin.positions[0][1] + (p[0] * top_dem_slope);
 					}
 					if ((bottom_dem_slope != -1) && (p[2] == tinW)) {
-						dy = mapData.tin.p[3][1] + (p[0] * bottom_dem_slope);
+						dy = mapData.tin.positions[3][1] + (p[0] * bottom_dem_slope);
 					}
 					dy *= terrainScaler;
 
@@ -836,7 +842,7 @@ class TileDirectModeRenderer implements TileRenderer {
 				}
 
 				if (texture) {
-					gl.glTexCoord2f((mapData.tin.p[v][0] * oneOverW), (mapData.tin.p[v][2] * oneOverW));
+					gl.glTexCoord2f((mapData.tin.positions[v][0] * oneOverW), (mapData.tin.positions[v][2] * oneOverW));
 				}
 				else if (landscape.getDisplayMode() == Landscape.DISPLAY_SHADEDDEM) {
 					setColor((float) dy);
@@ -846,7 +852,7 @@ class TileDirectModeRenderer implements TileRenderer {
 			gl.glEnd();
 
 			if (DEBUG) {
-				int numVertices = mapData.tin.nSt[i].length;
+				int numVertices = mapData.tin.texCoords[i].length;
 				ProfilerUtil.vertexCounter += numVertices;
 				if (texture) {
 					ProfilerUtil.vertexMemoryUsage += numVertices * (2 * 4 + 3 * 8);

@@ -29,6 +29,7 @@ import java.net.URL;
 
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.debug.IO;
+import org.ptolemy3d.debug.ProfilerUtil;
 
 /**
  * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
@@ -105,6 +106,7 @@ public class Stream {
 //        int remaining = 0;
 //        while ((remaining = in.available()) > 0)  {
         	int read = in.read(buffer, 0, (remaining > buffer.length) ? buffer.length : remaining);
+        	ProfilerUtil.bytesDownloaded += read;
         	os.write(buffer, 0, read);
         	remaining -= read;
         }

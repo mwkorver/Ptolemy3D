@@ -39,6 +39,7 @@ import org.ptolemy3d.scene.Landscape;
  * The third  level precision is:   204 800
  * The fourth level precision is:    12 800
  * @see Landscape#DD
+ * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  */
 class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 
@@ -100,11 +101,13 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 //		}
 //	}
 
-	//Settings: MaxLevels=4, MaxPrecision=3200, MemUsage=215ko
-	//Settings: MaxLevels=5, MaxPrecision=1600, MemUsage=430ko
+	//Settings: MaxLevels=4, MaxPrecision=3200, MemUsage= 215ko
+	//Settings: MaxLevels=5, MaxPrecision=1600, MemUsage= 430ko
+	//Settings: MaxLevels=5, MaxPrecision= 800, MemUsage= 860ko
+	//Settings: MaxLevels=5, MaxPrecision= 400, MemUsage=1720ko
 
 	/* Angle precision */
-	private final static int MAX_PRECISION = 1600;
+	private final static int MAX_PRECISION = 400;
 	/* Number of level to use pre-computed values */
 	private final static int MAX_PRECOMPUTEDLEVEL = 5;
 
@@ -195,7 +198,7 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 	}
 
 	protected void drawDemSubsection_Textured(int xStart, int zStart, int xEnd, int zEnd) {
-		if (drawZlevel >= MAX_PRECOMPUTEDLEVEL) {
+		if (levelID > MAX_PRECOMPUTEDLEVEL) {
 			super.drawDemSubsection_Textured(xStart, zStart, xEnd, zEnd);
 			return;
 		}
@@ -422,7 +425,7 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 	}
 
 	protected void drawDemSubsection(int xStart, int zStart, int xEnd, int zEnd) {
-		if (drawZlevel >= MAX_PRECOMPUTEDLEVEL) {
+		if (levelID > MAX_PRECOMPUTEDLEVEL) {
 			super.drawDemSubsection(xStart, zStart, xEnd, zEnd);
 			return;
 		}
@@ -644,7 +647,7 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 	}
 
 	protected final void drawSubsection_Textured(int xStart, int zStart, int xEnd, int zEnd) {
-		if (drawZlevel >= MAX_PRECOMPUTEDLEVEL) {
+		if (levelID > MAX_PRECOMPUTEDLEVEL) {
 			super.drawSubsection_Textured(xStart, zStart, xEnd, zEnd);
 			return;
 		}
@@ -740,7 +743,7 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 	}
 
 	protected final void drawSubsection(int xStart, int zStart, int xEnd, int zEnd) {
-		if (drawZlevel >= MAX_PRECOMPUTEDLEVEL) {
+		if (levelID > MAX_PRECOMPUTEDLEVEL) {
 			super.drawSubsection(xStart, zStart, xEnd, zEnd);
 			return;
 		}

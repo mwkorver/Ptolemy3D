@@ -20,7 +20,7 @@ package org.ptolemy3d.globe;
 import org.ptolemy3d.manager.Texture;
 
 /**
- * This class holds info for our tile data
+ * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  */
 public class MapData {
 	/** Number of resolution per jp2 tiles. */

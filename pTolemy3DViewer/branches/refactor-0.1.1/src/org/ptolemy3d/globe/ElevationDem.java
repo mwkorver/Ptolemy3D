@@ -21,8 +21,7 @@ package org.ptolemy3d.globe;
 /**
  *
  */
-public class ElevationDem
-{
+public class ElevationDem {
 	/** DEM Elevation raw datas */
 	public final byte[] demDatas;
 	/** */

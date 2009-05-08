@@ -32,6 +32,8 @@ import org.ptolemy3d.view.Camera;
 
 /**
  * A tile.
+ * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
+ * @author Contributors
  */
 public class Tile {
 	private final int tileID;
@@ -331,12 +333,12 @@ public class Tile {
 			}
 			double scaler = Unit.getCoordSystemRatio() * terrainScaler;
 
-			for (int i = 0; i < mapData.tin.nSt.length; i++) {
-				for (int j = 0; j < mapData.tin.nSt[i].length; j++) {
+			for (int i = 0; i < mapData.tin.texCoords.length; i++) {
+				for (int j = 0; j < mapData.tin.texCoords[i].length; j++) {
 					double dx, dz, dy;
 					{
-						final int v = mapData.tin.nSt[i][j];
-						final float[] p = mapData.tin.p[v];
+						final int v = mapData.tin.texCoords[i][j];
+						final float[] p = mapData.tin.positions[v];
 
 						dx = theta1 + p[0] * dTetaOverN;
 						dy = p[1] * scaler;

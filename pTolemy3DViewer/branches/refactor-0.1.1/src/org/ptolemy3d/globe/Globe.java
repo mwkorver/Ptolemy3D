@@ -17,62 +17,63 @@
  */
 package org.ptolemy3d.globe;
 
-import static org.ptolemy3d.debug.Config.DEBUG;
-
 import org.ptolemy3d.DrawContext;
 import org.ptolemy3d.debug.IO;
-import org.ptolemy3d.debug.ProfilerUtil;
 import org.ptolemy3d.view.Camera;
 import org.ptolemy3d.view.CameraMovement;
 
 /**
  * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
+ * @author Contributors
  */
 public class Globe {
-	private final static boolean FORCE_BYPASS_MIN_VISIBILITY_RANGE = true;
-	// Limit the number of layers active for the camera altitude
-	private final static int MAX_DIFFERENT_LAYER = 3;
-
 	private Layer[] layers;
 
+	/** Process visibility of eahc layers */
 	public void processVisibility(DrawContext drawContext) {
 		final Camera camera = drawContext.getCanvas().getCamera();
-		boolean hasVisLayer = false;
 
-		int numInRange = 0; // Track the number of levels
-		for (int i = layers.length - 1; i >= 0; i--) {
-			final Layer layer = layers[i];
-			
-			if (numInRange >= MAX_DIFFERENT_LAYER) {	//FIXME
+		final int lowestLayer = findLowestLayer(camera);
+		for (int i = lowestLayer; i >= 0; i--) {
+			final boolean areaFilled = isVisibleAreaCovered(camera, lowestLayer, i);
+			if(areaFilled) {
+				//Outside the view
 				for (int j = i; j >= 0; j--) {
-					final Layer prevLayer = layers[j];
-                    prevLayer.setVisible(false);
+					layers[j].setVisible(false);
 				}
 				break;
 			}
-
-			// Altitude check: in layer range
-			final double altMeters = camera.getVerticalAltitudeMeters();
-			boolean inRange = 
-				(altMeters <= layer.getMaxZoom()) && (altMeters >= layer.getMinZoom() || FORCE_BYPASS_MIN_VISIBILITY_RANGE);
-			if (DEBUG && ProfilerUtil.ignoreVisiblityRange) {
-				inRange = true;
+			else {
+				final Layer layer = layers[i];
+				layer.setVisible(true);
+				layer.processVisibility(drawContext);
 			}
-			if (inRange) {
-				numInRange++; // Track the number of level in the altitude range
-			}
-
-			if (!inRange && (hasVisLayer || (altMeters > layer.getMaxZoom()))) {
-				layer.setVisible(false);
-				continue;
-			}
-
-			hasVisLayer = true;
-			layer.setVisible(true);
-
-			// Process visibility for visible layers
-			layer.processVisibility(drawContext);
 		}
+	}
+	/* Find the lowest visible layer (smaller tiles) */
+	private final int findLowestLayer(Camera camera) {
+		final double alt = camera.getVerticalAltitudeMeters();
+		
+		for (int i = layers.length - 1; i >= 0; i--) {
+			final Layer layer = layers[i];
+			layer.setVisible(false);	//Hide all non visible
+			
+			boolean visible = (alt <= layer.getMaxZoom());
+			if(visible) {
+				return i;
+			}
+		}
+		return 0;
+	}
+	/*  */
+	@Deprecated private final static int MAX_DIFFERENT_LAYER = 3;
+	private final boolean isVisibleAreaCovered(Camera camera, int lowest, int current) {
+		//FIXME Implement it
+		int numActive = lowest - current + 1;
+		if (numActive > MAX_DIFFERENT_LAYER) {
+			return true;
+		}
+		return false;
 	}
 
 	public void draw(DrawContext drawContext) {

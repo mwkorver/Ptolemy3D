@@ -111,7 +111,6 @@ public class CameraMovement {
     private boolean isPan;
     private short updatecounter = UPDATE_INC;
     private double[][] pickray = new double[2][3];
-    private String[] jsArgs = new String[6];
     private boolean followDemOn = false;
     private double relspdmult = 1;
     private double desiredTilt;
@@ -543,6 +542,7 @@ public class CameraMovement {
         if ((updatecounter > UPDATE_INC) || (force)) {
 //             if(ptolemy.javascript != null && ptolemy.javascript.getJSObject() != null) {
 //				try {
+//            		final String[] jsArgs = new String[6];
 //					jsArgs[0] = String.valueOf(camera.getCameraX());
 //					jsArgs[1] = String.valueOf(camera.getCameraY());
 //					jsArgs[2] = String.valueOf(camera.getDirection() * Math3D.RADIAN_TO_DEGREE_FACTOR);

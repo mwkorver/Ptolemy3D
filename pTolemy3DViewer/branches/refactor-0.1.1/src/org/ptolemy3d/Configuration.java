@@ -65,7 +65,6 @@ public class Configuration {
 		/* Layers */
 		public final static String NumLayers = "NumLayers";
 		public final static String LayerWidth_ = "LayerWidth_";
-		public final static String LayerMin_ = "LayerMin_";
 		public final static String LayerMax_ = "LayerMax_";
 	}
 	private static interface Optional {
@@ -248,14 +247,13 @@ public class Configuration {
 
             for (int i = 0; i < numLayers; i++) {
                 int tilePixel = getRequieredParameterInt(Requiered.LayerWidth_ + (i + 1), docelem);
-                int minZoom = getRequieredParameterInt(Requiered.LayerMin_ + (i + 1), docelem);
                 int maxZoom = getRequieredParameterInt(Requiered.LayerMax_ + (i + 1), docelem);
                 int divider = getOptionalParameterInt(Optional.LayerDivider_ + (i + 1), docelem);
                 if (divider == -1) {
                     divider = 0;
                 }
 
-                final Layer level = new Layer(i, tilePixel, minZoom, maxZoom, divider);
+                final Layer level = new Layer(i, tilePixel, maxZoom, divider);
                 layers[i] = level;
             }
         }
@@ -659,13 +657,6 @@ public class Configuration {
             return s;
         }
     }
-
-	/**
-	 * @param server the server to set
-	 */
-	public void setServer(String server) {
-		this.server = server;
-	}
 
 	/**
 	 * @return the server

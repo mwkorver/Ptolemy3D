@@ -32,6 +32,7 @@ import org.ptolemy3d.view.Camera;
  * 
  * @author Antonio Santiago <asantiagop(at)gmail(dot)com>
  * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
+ * @author Contributors
  */
 public class Layer {
 	/** Number of tiles in longitude direction */
@@ -61,8 +62,6 @@ public class Layer {
 	private boolean visible;
 	/** Maximum altitude to render the level */
 	private final int maxZoom;
-	/** Minimum altitude to render the level */
-	private final int minZoom;
 	/** Use for server efficiency storage and speed of map datas */
 	private final int divider;
 
@@ -71,14 +70,12 @@ public class Layer {
 	 *
 	 * @param levelId
 	 * @param tileSize
-	 * @param minZoom
-	 * @param maxZoom
+	 * @param maxVisibility
 	 * @param divider
 	 */
-	public Layer(int levelId, int tileSize, int minZoom, int maxZoom, int divider) {
+	public Layer(int levelId, int tileSize, int maxVisibility, int divider) {
 		this.levelID = levelId;
-		this.minZoom = minZoom;
-		this.maxZoom = maxZoom;
+		this.maxZoom = maxVisibility;
 		this.tileSize = tileSize;
 		this.divider = divider;
 
@@ -97,7 +94,7 @@ public class Layer {
 
 	@Override
 	public String toString() {
-		return super.toString()+"("+levelID+","+tileSize+","+minZoom+","+maxZoom+","+divider+")";
+		return super.toString()+"("+levelID+","+tileSize+","+maxZoom+","+divider+")";
 	}
 	
 	/**
@@ -347,17 +344,17 @@ public class Layer {
 			/*
 			 * TIN Elevation
 			 */
-			for (int k = 0; (k < mapData.tin.nSt.length); k++) {
-				if (mapData.tin.nSt[k] == null) {
+			for (int k = 0; (k < mapData.tin.texCoords.length); k++) {
+				if (mapData.tin.texCoords[k] == null) {
 					continue;
 				}
-				for (int j = 2; (j < mapData.tin.nSt[k].length); j++) {
-					Math3D.setTriVert(0, mapData.getLon() + (mapData.tin.p[mapData.tin.nSt[k][j - 2]][0]),
-							mapData.tin.p[mapData.tin.nSt[k][j - 2]][1], mapData.getLat() - (mapData.tin.p[mapData.tin.nSt[k][j - 2]][2]));
-					Math3D.setTriVert(1, mapData.getLon() + (mapData.tin.p[mapData.tin.nSt[k][j - 1]][0]),
-							mapData.tin.p[mapData.tin.nSt[k][j - 1]][1], mapData.getLat() - (mapData.tin.p[mapData.tin.nSt[k][j - 1]][2]));
-					Math3D.setTriVert(2, mapData.getLon() + (mapData.tin.p[mapData.tin.nSt[k][j]][0]),
-							mapData.tin.p[mapData.tin.nSt[k][j]][1], mapData.getLat() - (mapData.tin.p[mapData.tin.nSt[k][j]][2]));
+				for (int j = 2; (j < mapData.tin.texCoords[k].length); j++) {
+					Math3D.setTriVert(0, mapData.getLon() + (mapData.tin.positions[mapData.tin.texCoords[k][j - 2]][0]),
+							mapData.tin.positions[mapData.tin.texCoords[k][j - 2]][1], mapData.getLat() - (mapData.tin.positions[mapData.tin.texCoords[k][j - 2]][2]));
+					Math3D.setTriVert(1, mapData.getLon() + (mapData.tin.positions[mapData.tin.texCoords[k][j - 1]][0]),
+							mapData.tin.positions[mapData.tin.texCoords[k][j - 1]][1], mapData.getLat() - (mapData.tin.positions[mapData.tin.texCoords[k][j - 1]][2]));
+					Math3D.setTriVert(2, mapData.getLon() + (mapData.tin.positions[mapData.tin.texCoords[k][j]][0]),
+							mapData.tin.positions[mapData.tin.texCoords[k][j]][1], mapData.getLat() - (mapData.tin.positions[mapData.tin.texCoords[k][j]][2]));
 					if (Math3D.rayIntersectTri(pickArr, ray) == 1) {
 						pickArr[1] *= Unit.getCoordSystemRatio();
 						return pickArr;
@@ -474,11 +471,6 @@ public class Layer {
 	/** @return the maxZoom */
 	public int getMaxZoom() {
 		return maxZoom;
-	}
-
-	/** @return the minZoom */
-	public int getMinZoom() {
-		return minZoom;
 	}
 
 	/** @return the divider */

@@ -22,11 +22,9 @@ import static org.ptolemy3d.debug.Config.DEBUG;
 import javax.media.opengl.GL;
 
 import org.ptolemy3d.DrawContext;
-import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.Unit;
 import org.ptolemy3d.debug.ProfilerUtil;
 import org.ptolemy3d.globe.Globe;
-import org.ptolemy3d.manager.TextureManager;
 
 /**
  * <H1>Overview</H1> <BR>

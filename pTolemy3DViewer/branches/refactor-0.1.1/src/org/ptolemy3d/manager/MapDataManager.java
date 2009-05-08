@@ -19,10 +19,6 @@ package org.ptolemy3d.manager;
 
 import static org.ptolemy3d.debug.Config.DEBUG;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map.Entry;
-
 import javax.media.opengl.GL;
 
 import org.ptolemy3d.Ptolemy3D;

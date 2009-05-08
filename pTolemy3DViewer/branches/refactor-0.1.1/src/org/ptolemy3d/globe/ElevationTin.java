@@ -22,40 +22,38 @@ import org.ptolemy3d.util.ByteReader;
 /**
  *
  */
-public class ElevationTin
-{
+public class ElevationTin {
 	/** Array of positions */
-	public float[][] p;
-	/* Array of texture coordinates */
-	public int[][] nSt;
+	public float[][] positions;
+	/** Array of texture coordinates */
+	public int[][] texCoords;
 	/**  */
 	public double x, y;
 	/**  */
 	public int w;
 
-	public ElevationTin(byte[] datas)
-	{
-		int[] cursor = { 0 };
+	public ElevationTin(byte[] datas) {
+		final ByteReader reader = new ByteReader(datas);
 
-		x = ByteReader.readDouble(datas, cursor);
-		y = ByteReader.readDouble(datas, cursor);
-		w = ByteReader.readInt(datas, cursor);
+		x = reader.readDouble();
+		y = reader.readDouble();
+		w = reader.readInt();
 
-		int nP = ByteReader.readInt(datas, cursor);
-		p = new float[nP][3];
-		for (int j = 0; j < nP; j++) {
+		int numVertices = reader.readInt();
+		positions = new float[numVertices][3];
+		for (int j = 0; j < numVertices; j++) {
 			for (int k = 0; k < 3; k++) {
-				p[j][k] = ByteReader.readFloat(datas, cursor);
+				positions[j][k] = reader.readFloat();
 			}
 		}
 
-		nP = ByteReader.readInt(datas, cursor);
-		nSt = new int[nP][];
-		for (int j = 0; j < nP; j++) {
-			int nV = ByteReader.readInt(datas, cursor);
-			nSt[j] = new int[nV];
+		numVertices = reader.readInt();
+		texCoords = new int[numVertices][];
+		for (int j = 0; j < numVertices; j++) {
+			int nV = reader.readInt();
+			texCoords[j] = new int[nV];
 			for (int k = 0; k < nV; k++) {
-				nSt[j][k] = ByteReader.readInt(datas, cursor);
+				texCoords[j][k] = reader.readInt();
 			}
 		}
 	}

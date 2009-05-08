@@ -17,7 +17,6 @@
  */
 package org.ptolemy3d.view;
 
-import javax.media.opengl.GL;
 import javax.media.opengl.glu.GLU;
 
 import org.ptolemy3d.DrawContext;
@@ -548,27 +547,24 @@ public class Camera {
 	/**
 	 * Converts a lat/lot position into a cartesion space.
 	 * 
-	 * @param lat
-	 * @param lon
+	 * @param latDD
+	 * @param lonDD
 	 * @return
 	 */
-	public double[] computeCartesianSurfacePoint(double lat, double lon) {
+	public double[] computeCartesianSurfacePoint(double lonDD, double latDD) {
 
 		Landscape landscape = Ptolemy3D.getScene().getLandscape();
 
-		lat *= Unit.getDDFactor();
-		lon *= Unit.getDDFactor();
-
 		// Transform from lat/lon to cartesion coordinates.
 		double point[] = new double[3];
-		Math3D.setSphericalCoord(lon, lat, Unit.EARTH_RADIUS, point);
+		Math3D.setSphericalCoord(lonDD, latDD, Unit.EARTH_RADIUS, point);
 
 		// Get the terrain elevation
-		double terrainElev = landscape.groundHeight(lon, lat, 0);
+		double terrainElev = landscape.groundHeight(lonDD, latDD, 0);
 
-		point[0] *= (Unit.EARTH_RADIUS + terrainElev);
-		point[1] *= (Unit.EARTH_RADIUS + terrainElev);
-		point[2] *= (Unit.EARTH_RADIUS + terrainElev);
+		point[0] += terrainElev;
+		point[1] += terrainElev;
+		point[2] += terrainElev;
 
 		return point;
 	}
@@ -579,17 +575,23 @@ public class Camera {
 	 * 
 	 * @param cartesian
 	 */
-	public static double[] worldToScreen(DrawContext drawContext, double[] cartesian) {
-		
-		GL gl = drawContext.getGL();
+	public static double[] worldToScreen(DrawContext drawContext,
+			double[] cartesian) {
+
 		GLU glu = new GLU();
 		double model[] = new double[16];
 		double proj[] = new double[16];
 		int viewport[] = new int[4];
 
-		gl.glGetDoublev(GL.GL_MODELVIEW_MATRIX, model, 0);
-		gl.glGetDoublev(GL.GL_PROJECTION_MATRIX, proj, 0);
-		gl.glGetIntegerv(GL.GL_VIEWPORT, viewport, 0);
+		Ptolemy3DGLCanvas canvas = drawContext.getCanvas();
+		viewport[0] = canvas.getX();
+		viewport[1] = canvas.getY();
+		viewport[2] = canvas.getWidth();		
+		viewport[3] = canvas.getHeight();
+
+		Camera camera = canvas.getCamera();
+		model = camera.modelview.m;
+		proj = camera.perspective.m;
 
 		double screen[] = new double[4];
 		glu.gluProject(cartesian[0], cartesian[1], cartesian[2], model, 0,

@@ -132,8 +132,11 @@ public class IconPlugin implements Plugin {
 		GL gl = drawContext.getGL();
 		Camera camera = drawContext.getCanvas().getCamera();
 
+		double latDD = latitude * Unit.getDDFactor();
+		double lonDD = longitude * Unit.getDDFactor();
+
 		// Check if our point is in the visible side of the globe.
-		if (!status || !camera.isPointInView(longitude, latitude)) {
+		if (!status || !camera.isPointInView(lonDD, latDD)) {
 			return;
 		}
 
@@ -163,11 +166,7 @@ public class IconPlugin implements Plugin {
 		gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
 
 		// Compute coordinates
-		double point[] = camera.computeCartesianSurfacePoint(latitude,
-				longitude);
-		point[0] += 5 * Unit.getCoordSystemRatio();
-		point[1] += 5 * Unit.getCoordSystemRatio();
-		point[2] += 5 * Unit.getCoordSystemRatio();
+		double point[] = camera.computeCartesianSurfacePoint(lonDD, latDD);
 
 		// Get screen coordinates before altering projection and modelview
 		// matrices.

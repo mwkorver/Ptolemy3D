@@ -575,7 +575,7 @@ public class Camera {
 	 * 
 	 * @param cartesian
 	 */
-	public static double[] worldToScreen(DrawContext drawContext,
+	public double[] worldToScreen(DrawContext drawContext,
 			double[] cartesian) {
 
 		GLU glu = new GLU();

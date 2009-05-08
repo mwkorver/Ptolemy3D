@@ -38,17 +38,17 @@ import com.sun.opengl.util.texture.TextureCoords;
 import com.sun.opengl.util.texture.TextureIO;
 
 /**
- * IconPlugin shows an image at the specified position.
+ * CityGmlPlugin adds basic support for CityGML format.
  * 
  * @author Antonio Santiago <asantiagop@gmail.com>
  */
-public class IconPlugin implements Plugin {
+public class CityGmlPlugin implements Plugin {
 
-	private static final String NAME = "ICON_PLUGIN_";
+	private static final String NAME = "CITY_GML_PLUGIN_";
 	private int index = -1;
 	private boolean status = true;
 	//
-	private String imageName = "";
+	private String fileName = "";
 	private double latitude = 0;
 	private double longitude = 0;
 	//
@@ -68,12 +68,12 @@ public class IconPlugin implements Plugin {
 					try {
 						String server = Ptolemy3D.getConfiguration()
 								.getServer();
-						url = new URL("http://" + server + imageName);
+						url = new URL("http://" + server + fileName);
 						bufferedImage = ImageIO.read(url);
 					} catch (IOException ex) {
-						Logger.getLogger(IconPlugin.class.getName()).warning(
+						Logger.getLogger(CityGmlPlugin.class.getName()).warning(
 								"Can't load icon: '" + url + "'");
-						Logger.getLogger(IconPlugin.class.getName()).log(
+						Logger.getLogger(CityGmlPlugin.class.getName()).log(
 								Level.WARNING, null, ex);
 						errorLoading = true;
 					} finally {
@@ -95,7 +95,7 @@ public class IconPlugin implements Plugin {
 
 	public void setPluginParameters(String params) {
 		String values[] = params.split(",");
-		imageName = values[0];
+		fileName = values[0];
 		latitude = Double.valueOf(values[1]);
 		longitude = Double.valueOf(values[2]);
 	}
@@ -171,7 +171,7 @@ public class IconPlugin implements Plugin {
 
 		// Get screen coordinates before altering projection and modelview
 		// matrices.
-		double scr[] = Camera.worldToScreen(drawContext, point);
+		double scr[] = camera.worldToScreen(drawContext, point);
 
 		// Set an orthographic projection.
 		int viewport[] = new int[4];
@@ -180,7 +180,7 @@ public class IconPlugin implements Plugin {
 		viewport[1] = canvas.getY();
 		viewport[2] = canvas.getWidth();		
 		viewport[3] = canvas.getHeight();
-
+		
 		gl.glMatrixMode(GL.GL_PROJECTION);
 		gl.glLoadIdentity();
 		gl.glOrtho(0.0f, viewport[2], 0.0f, viewport[3], -1.0f, 1.0f);

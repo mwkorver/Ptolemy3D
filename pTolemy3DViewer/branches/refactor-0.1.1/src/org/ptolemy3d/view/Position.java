@@ -25,61 +25,69 @@ package org.ptolemy3d.view;
  */
 public class Position {
 
-    // Latitude of the view point.
-    private double latitudeDD;
-    // Longitude of the view point.
-    private double longitudeDD;
-    // Distance from the view point. May not be vertical (distance not altitude).
-    private double altitude;
+	// Latitude of the view point.
+	private double latitudeDD;
+	// Longitude of the view point.
+	private double longitudeDD;
+	// Distance from the view point. May not be vertical (distance not
+	// altitude).
+	private double altitude;
 
-    /**
-     * @param lat
-     *            unit is DD
-     * @param lon
-     *            unit is DD
-     * @param alt
-     */
-    public Position(double lat, double lon, double alt) {
-        this.latitudeDD = lat;
-        this.longitudeDD = lon;
-        this.altitude = alt;
-    }
+	/**
+	 * @param lat
+	 *            unit is DD
+	 * @param lon
+	 *            unit is DD
+	 * @param alt
+	 */
+	public Position(double lat, double lon, double alt) {
+		this.latitudeDD = lat;
+		this.longitudeDD = lon;
+		this.altitude = alt;
+	}
 
-    public Position copy() {
-        return new Position(latitudeDD, longitudeDD, altitude);
-    }
+	public Position copy() {
+		return new Position(latitudeDD, longitudeDD, altitude);
+	}
 
-    /**
-     * @return latitude in DD.
-     */
-    public double getLatitudeDD() {
-        return latitudeDD;
-    }
+	/**
+	 * @return latitude in DD.
+	 */
+	public double getLatitudeDD() {
+		return latitudeDD;
+	}
 
-    public void setLatitudeDD(double latDD) {
-        latitudeDD = latDD;
-    }
+	public void setLatitudeDD(double latDD) {
+		latitudeDD = latDD;
+	}
 
-    /**
-     * @return longitude in DD.
-     */
-    public double getLongitudeDD() {
-        return longitudeDD;
-    }
+	/**
+	 * @return longitude in DD.
+	 */
+	public double getLongitudeDD() {
+		return longitudeDD;
+	}
 
-    public void setLongitudeDD(double lonDD) {
-        longitudeDD = lonDD;
-    }
+	public void setLongitudeDD(double lonDD) {
+		longitudeDD = lonDD;
+	}
 
-    /**
-     * @return the altitude in view space (altitude axis may not be vertical),
-     *         zero is the altitude of the ground with no elevation.
-     */
-    public double getAltitudeDD() {
-        return altitude;
-    }
+	/**
+	 * @return the altitude in view space (altitude axis may not be vertical),
+	 *         zero is the altitude of the ground with no elevation.
+	 */
+	public double getAltitudeDD() {
+		return altitude;
+	}
 
-    public void setAltitudeDD(double altDD) {
-        altitude = altDD;
-    }
+	public void setAltitudeDD(double altDD) {
+		altitude = altDD;
+	}
+
+	@Override
+	public String toString() {
+		return "Lat: " + latitudeDD + ", Lon: " + longitudeDD + ", Alt: "
+				+ altitude;
+	}
+
 }

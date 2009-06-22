@@ -33,7 +33,7 @@ package org.ptolemy3d.debug;
 public class Config
 {
 	/** Debug flag, set this to false to disable all debug related code (and remove from the compiled file) */
-	public final static boolean DEBUG = false;	//final static: false compiler will remove all blocks: if(DEBUG) { ... }
+	public final static boolean DEBUG = true;	//final static: false compiler will remove all blocks: if(DEBUG) { ... }
 
 	/** Standard output */
 	protected final static boolean enablePrint           = DEBUG && true;
@@ -42,17 +42,17 @@ public class Config
 	/** Connection output */
 	protected final static boolean enablePrintManager    = DEBUG && false;
 	/** Connection output */
-	protected final static boolean enablePrintConnection = DEBUG && true;
+	protected final static boolean enablePrintConnection = DEBUG && false;
 	/** Javascript output */
 	protected final static boolean enablePrintJavascript = DEBUG && false;
 	/** Renderer output */
-	protected final static boolean enablePrintRender     = DEBUG && true;
+	protected final static boolean enablePrintRender     = DEBUG && false;
 	/** Plugin output */
 	protected final static boolean enablePrintPlugin     = DEBUG && false;
 	/** Parser output */
-	protected final static boolean enablePrintParser     = DEBUG && true;
+	protected final static boolean enablePrintParser     = DEBUG && false;
 	/** Debug output */
-	protected final static boolean enablePrintDebug      = DEBUG && true;
+	protected final static boolean enablePrintDebug      = DEBUG && false;
 
 	/** Enable Profiler*/
 	protected final static boolean enableProfiler        = DEBUG && true;

@@ -17,28 +17,30 @@
  */
 package org.ptolemy3d.plugin;
 
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.imageio.ImageIO;
 import javax.media.opengl.GL;
+import javax.xml.bind.JAXBException;
 
 import org.ptolemy3d.DrawContext;
-import org.ptolemy3d.Ptolemy3D;
-import org.ptolemy3d.Ptolemy3DGLCanvas;
-import org.ptolemy3d.Unit;
+import org.ptolemy3d.debug.IO;
 import org.ptolemy3d.scene.Plugin;
 import org.ptolemy3d.view.Camera;
-
-import com.sun.opengl.util.texture.Texture;
-import com.sun.opengl.util.texture.TextureCoords;
-import com.sun.opengl.util.texture.TextureIO;
+import org.ptolemy3d.view.Position;
 
 /**
- * CityGmlPlugin adds basic support for CityGML format.
+ * CityGmlPlugin adds basic support for CityGML format. Allowed CityGML elements
+ * it reads are Lod1MultiSurface and Lod1Solid, etc
+ * 
+ * The 'wfsServerUrl' is the query URL to a WFS server which must return a valid
+ * CityGML document.
+ * 
+ * The 'altitude' parameter is used to decide which LOD to be show. When camera
+ * is under the 'altitude' value LOD1 is shown, LOD2 is shown otherwise.
  * 
  * @author Antonio Santiago <asantiagop@gmail.com>
  */
@@ -48,39 +50,53 @@ public class CityGmlPlugin implements Plugin {
 	private int index = -1;
 	private boolean status = true;
 	//
-	private String fileName = "";
-	private double latitude = 0;
-	private double longitude = 0;
+	private String wfsServerUrl = "";
+	private double altitude = 0;
 	//
-	private boolean iconLoaded = false;
+	private boolean fileLoaded = false;
 	private boolean errorLoading = false;
-	private boolean initTexture = false;
-	private BufferedImage bufferedImage = null;
-	private Texture texture = null;
+	private CityGmlReader cityReader = null;
+	//
+	private ArrayList<CityGmlBuildingData> listBuildindData = new ArrayList<CityGmlBuildingData>();
 
 	public void initGL(DrawContext drawContext) {
-		if (!iconLoaded) {
+		if (!fileLoaded) {
 
 			Thread newThread = new Thread(new Runnable() {
 
 				public void run() {
+					IO.printlnDebug("Started CityGML loader thread...");
+
 					URL url = null;
 					try {
-						String server = Ptolemy3D.getConfiguration()
-								.getServer();
-						url = new URL("http://" + server + fileName);
-						bufferedImage = ImageIO.read(url);
+						// String server = Ptolemy3D.getConfiguration()
+						// .getServer();
+						// url = new URL("http://" + server + wfsServerUrl);
+						String s = "http://localhost:8080/openbd/CFML/pseudoWFS/wfs.cfm?SERVICE=wfs&REQUEST=GetFeature&bbox=-180,-90,180,90";
+						url = new URL(wfsServerUrl);
+
+						cityReader = new CityGmlReader();
+						cityReader.loadGML(url);
+						listBuildindData = cityReader.getBuildingData();
 					} catch (IOException ex) {
-						Logger.getLogger(CityGmlPlugin.class.getName()).warning(
-								"Can't load icon: '" + url + "'");
+						Logger.getLogger(CityGmlPlugin.class.getName())
+								.warning("Can't load GML file: '" + url + "'");
 						Logger.getLogger(CityGmlPlugin.class.getName()).log(
-								Level.WARNING, null, ex);
+								Level.WARNING, ex.getMessage());
 						errorLoading = true;
+					} catch (JAXBException ex) {
+						Logger.getLogger(CityGmlPlugin.class.getName())
+								.warning(
+										"Problems loading GML file: '" + url
+												+ "'");
+						Logger.getLogger(CityGmlPlugin.class.getName()).log(
+								Level.WARNING, ex.getMessage());
 					} finally {
-						iconLoaded = true;
+						fileLoaded = true;
+						IO.printlnDebug("Finished CityGML loader thread.");
 					}
 				}
-			}, "IconPluginThread");
+			}, "CityGmlPluginThread");
 
 			newThread.start();
 		}
@@ -94,10 +110,14 @@ public class CityGmlPlugin implements Plugin {
 	}
 
 	public void setPluginParameters(String params) {
-		String values[] = params.split(",");
-		fileName = values[0];
-		latitude = Double.valueOf(values[1]);
-		longitude = Double.valueOf(values[2]);
+		String[] parameters = params.split(",");
+		try {
+			altitude = Double.parseDouble(parameters[0]);
+		} catch (NumberFormatException ex) {
+			Logger.getLogger(CityGmlPlugin.class.getName()).warning(
+					ex.getMessage());
+		}
+		wfsServerUrl = params.replaceAll(parameters[0] + ",", "");
 	}
 
 	public void motionStop(GL gl) {
@@ -124,7 +144,7 @@ public class CityGmlPlugin implements Plugin {
 	}
 
 	/**
-	 * Renders the icon.
+	 * Renders the GML.
 	 * 
 	 * @param drawContext
 	 */
@@ -133,24 +153,14 @@ public class CityGmlPlugin implements Plugin {
 		GL gl = drawContext.getGL();
 		Camera camera = drawContext.getCanvas().getCamera();
 
-		double latDD = latitude * Unit.getDDFactor();
-		double lonDD = longitude * Unit.getDDFactor();
-
-		// Check if our point is in the visible side of the globe.
-		if (!status || !camera.isPointInView(lonDD, latDD)) {
+		if (!status) {
 			return;
 		}
 
-		// If the icon image is not loaded return or there was an error loading
+		// If the gml file is not loaded return or there was an error loading
 		// it then returns.
-		if (!iconLoaded || errorLoading) {
+		if (!fileLoaded || errorLoading || cityReader == null) {
 			return;
-		}
-
-		// Initialize the texture
-		if (!initTexture) {
-			initTexture = true;
-			texture = TextureIO.newTexture(bufferedImage, false);
 		}
 
 		// Store previous matrices
@@ -163,49 +173,38 @@ public class CityGmlPlugin implements Plugin {
 		gl.glPushAttrib(GL.GL_CURRENT_BIT | GL.GL_ENABLE_BIT
 				| GL.GL_COLOR_BUFFER_BIT);
 
+		gl.glDisable(GL.GL_CULL_FACE);
 		gl.glEnable(GL.GL_BLEND);
 		gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
 
-		// Compute coordinates
-		double point[] = camera.computeCartesianSurfacePoint(lonDD, latDD);
+		gl.glColor4f(0.7f, 0.5f, 0.5f, 0.9f);
 
-		// Get screen coordinates before altering projection and modelview
-		// matrices.
-		double scr[] = camera.worldToScreen(drawContext, point);
+		// Start drawing
+		for (CityGmlBuildingData buildingData : listBuildindData) {
 
-		// Set an orthographic projection.
-		int viewport[] = new int[4];
-		Ptolemy3DGLCanvas canvas = drawContext.getCanvas();
-		viewport[0] = canvas.getX();
-		viewport[1] = canvas.getY();
-		viewport[2] = canvas.getWidth();		
-		viewport[3] = canvas.getHeight();
-		
-		gl.glMatrixMode(GL.GL_PROJECTION);
-		gl.glLoadIdentity();
-		gl.glOrtho(0.0f, viewport[2], 0.0f, viewport[3], -1.0f, 1.0f);
-		gl.glMatrixMode(GL.GL_MODELVIEW);
-		gl.glLoadIdentity();
+			ArrayList<CityPolygon> listCityPolygons = null;
 
-		// Bind texture and draw icon
-		texture.bind();
-		TextureCoords textureCoords = texture.getImageTexCoords();
-		int width = texture.getImageWidth();
-		int height = texture.getImageHeight();
+			// Decide if show LOD1 or LOD2
+			double camAltitude = drawContext.getCanvas().getCamera()
+					.getPosition().getAltitudeDD();
+			if (camAltitude < altitude
+					&& buildingData.getLod1Polygons().size() > 0) {
+				listCityPolygons = buildingData.getLod1Polygons();
+			} else {
+				listCityPolygons = buildingData.getLod2Polygons();
+			}
 
-		gl.glBegin(GL.GL_QUADS);
-		gl.glTexCoord2f(textureCoords.left(), textureCoords.bottom());
-		gl.glVertex2d(scr[0], scr[1]);
-
-		gl.glTexCoord2f(textureCoords.right(), textureCoords.bottom());
-		gl.glVertex2d(scr[0] + width, scr[1]);
-
-		gl.glTexCoord2f(textureCoords.right(), textureCoords.top());
-		gl.glVertex2d(scr[0] + width, scr[1] + height);
-
-		gl.glTexCoord2f(textureCoords.left(), textureCoords.top());
-		gl.glVertex2d(scr[0], scr[1] + height);
-		gl.glEnd();
+			for (CityPolygon cityPolygon : listCityPolygons) {
+				gl.glBegin(GL.GL_POLYGON);
+				for (Position position : cityPolygon.getPositions()) {
+					double[] d = camera.computeCartesianPoint(position
+							.getLongitudeDD(), position.getLatitudeDD(),
+							position.getAltitudeDD());
+					gl.glVertex3dv(d, 0);
+				}
+				gl.glEnd();
+			}
+		}
 
 		// Restore attributes
 		gl.glPopAttrib();

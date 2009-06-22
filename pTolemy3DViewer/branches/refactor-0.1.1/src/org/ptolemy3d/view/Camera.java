@@ -34,7 +34,7 @@ import org.ptolemy3d.scene.Landscape;
  * <BR>
  * The view position is defined with the position (longitude, latitude, altitude, direction, tilt).<BR>
  * <BR>
- * The longitude and latitude components are angles in the ranges respectively [-180°;180°] and [-90°;90°].
+ * The longitude and latitude components are angles in the ranges respectively [-180ï¿½;180ï¿½] and [-90ï¿½;90ï¿½].
  * Those two angles define every position on the globe.<BR>
  * <BR>
  * <div align="center"><img src="../../../ViewCoordinateSystem-LongitudeLatitude.jpg" width=256 height=256><BR>
@@ -62,18 +62,18 @@ import org.ptolemy3d.scene.Landscape;
  * <BR>
  * Here are relations between cartesian axis and longitude/latitude:<BR>
  * <ul>
- * <li>X axis: longitude=180°, latitude=0°</li>
- * <li>Y axis: longitude=90°, latitude=any angles</li>
- * <li>Z axis: longitude=90°, latitude=0°</li>
+ * <li>X axis: longitude=180ï¿½, latitude=0ï¿½</li>
+ * <li>Y axis: longitude=90ï¿½, latitude=any angles</li>
+ * <li>Z axis: longitude=90ï¿½, latitude=0ï¿½</li>
  * </ul>
  * From that, you can find easily those relations :<BR>
  * <ul>
- * <li>-X axis: longitude=0°, latitude=0°</li>
- * <li>-Y axis: longitude=-90°, latitude=any angles</li>
- * <li>-Z axis: longitude=-90°, latitude=0°</li>
+ * <li>-X axis: longitude=0ï¿½, latitude=0ï¿½</li>
+ * <li>-Y axis: longitude=-90ï¿½, latitude=any angles</li>
+ * <li>-Z axis: longitude=-90ï¿½, latitude=0ï¿½</li>
  * </ul>
  * <BR>
- * <i><u>Remark:</u> All angles are expressed modulos 360° (180° equals to -180° and 540° ...)</i><BR>
+ * <i><u>Remark:</u> All angles are expressed modulos 360ï¿½ (180ï¿½ equals to -180ï¿½ and 540ï¿½ ...)</i><BR>
  * <BR>
  * <BR>
  * <H1>Positioning</H1>
@@ -518,7 +518,7 @@ public class Camera {
 	}
 
 	/**
-	 * Converts a lat/lot position into a cartesian space.
+	 * Converts a lat/lot position into a cartesian space situated in the globe surface.
 	 * 
 	 * @param latDD
 	 * @param lonDD
@@ -534,6 +534,23 @@ public class Camera {
 		// Transform from lat/lon to cartesion coordinates.
 		double point[] = new double[3];
 		Math3D.setSphericalCoord(lonDD, latDD, Unit.EARTH_RADIUS + terrainElev,
+				point);
+
+		return point;
+	}
+	
+	/**
+	 * Converts a lat/lot position into a cartesian space situated in the globe surface.
+	 * 
+	 * @param latDD
+	 * @param lonDD
+	 * @return
+	 */
+	public double[] computeCartesianPoint(double lonDD, double latDD, double altitude) {
+
+		// Transform from lat/lon to cartesion coordinates.
+		double point[] = new double[3];
+		Math3D.setSphericalCoord(lonDD, latDD, Unit.EARTH_RADIUS + altitude,
 				point);
 
 		return point;

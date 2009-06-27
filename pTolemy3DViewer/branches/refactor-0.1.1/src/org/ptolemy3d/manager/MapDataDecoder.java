@@ -28,13 +28,13 @@ import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.debug.IO;
 import org.ptolemy3d.globe.MapData;
 import org.ptolemy3d.globe.MapDataKey;
+import org.ptolemy3d.scene.Landscape;
+import org.ptolemy3d.view.Camera;
 
 /*
- * FIXME
- *  - Download implemented as a single unit, but to be moved with multiple download units
- *  - Download retry
+ * TODO
+ *  - Download dispatcher to mutlitple download unit (one unit by server)
  *  - Memory manager
- *  - synchronize getCurrentResolution / getAndFreeCurrentWavelet
  */
 
 /**
@@ -52,7 +52,9 @@ class MapDataDecoder {
 		decoders = new HashMap<Integer, HashMap<MapDataKey, MapDecoderEntry>>();
 		downloadDispatcher = new DownloadDispatcherThread();
 		decoderThread = new DecoderThread();
-		
+	}
+	
+	public void start() {
 		//Let's start now, if nothing is to be done,
 		//thread will be in wait state and will wake-up when entry will be added
 		downloadDispatcher.start();
@@ -109,7 +111,7 @@ class MapDataDecoder {
 		
 		public void run() {
 			while (true) {
-				final MapDecoderEntry entry = findEntryToDownload();
+				final MapDecoderEntry entry = findCloserEntryToDownload();
 				if (entry != null) {
 					final boolean downloaded = entry.download();
 					if(downloaded) {
@@ -142,21 +144,38 @@ class MapDataDecoder {
 				}
 			}
 		}
-		private MapDecoderEntry findEntryToDownload() {
-			final int numLevels = Ptolemy3D.getScene().getLandscape().globe.getNumLayers();
-			for(int layer = 0; layer < numLevels; layer++) {
+		private MapDecoderEntry findCloserEntryToDownload() {
+			if(Ptolemy3D.getCanvas() == null) {
+				return null;
+			}
+			
+			double dist = Double.MAX_VALUE;
+			MapDecoderEntry closer = null;
+			
+			final Landscape landscape = Ptolemy3D.getScene().getLandscape();
+			final Camera camera = Ptolemy3D.getCanvas().getCamera();
+			final int numLayers = landscape.globe.getNumLayers();
+			for(int layer = 0; layer < numLayers; layer++) {
+				if(closer != null) {
+					return closer;
+				}
+				
 				final HashMap<MapDataKey, MapDecoderEntry> map = getHashMap(layer);
 				synchronized(map) {	//Accessed from multiple threads
 					final Iterator<MapDecoderEntry> j = map.values().iterator();
 					while (j.hasNext()) {
 						final MapDecoderEntry entry = j.next();
 						if (!entry.isDownloaded() && !entry.isDownloadFailed()) {
-							return entry;
+							double entryDist = landscape.globe.getMapDistanceFromCamera(entry.mapData.key, camera);
+							if(entryDist < dist) {
+								closer = entry;
+								dist = entryDist;
+							}
 						}
 					}
 				}
 			}
-			return null;
+			return closer;
 		}
 		private void resetDownloadStates() {
 			final int numLevels = Ptolemy3D.getScene().getLandscape().globe.getNumLayers();

@@ -36,6 +36,7 @@ public class MapDataManager {
 	
 	public MapDataManager() {
 		decoderQueue = new MapDataDecoder();
+		decoderQueue.start();
 	}
 	
 	/** Request a <code>MapData</code> for the given (<code>layer</code>,<code>lon</code>,<code>lat</code>)*/
@@ -51,7 +52,7 @@ public class MapDataManager {
 		MapDataKey prevKey = exactKey;
 		final Globe globe = Ptolemy3D.getScene().getLandscape().globe;
 		for (int i = layer - 1; i > 0; i--) {
-			final MapDataKey closeKey = globe.getCloserTile(i, lon, lat);
+			final MapDataKey closeKey = globe.getCloserMap(i, lon, lat);
 			if(DEBUG) {	//Keep this code to be sure we got the good key
 				final int tileSize = Ptolemy3D.getScene().getLandscape().globe.getLayer(i).getTileSize();
 				if((closeKey.lon <= lon) && ((closeKey.lon + tileSize) > lon) &&
@@ -80,7 +81,7 @@ public class MapDataManager {
 		decoderQueue.get(prevKey);
 		
 		//Request first layer
-		final MapDataKey firstKey = globe.getCloserTile(0, lon, lat);
+		final MapDataKey firstKey = globe.getCloserMap(0, lon, lat);
 		final MapDecoderEntry firstEntry = decoderQueue.get(firstKey);
 		return firstEntry.mapData;
 	}

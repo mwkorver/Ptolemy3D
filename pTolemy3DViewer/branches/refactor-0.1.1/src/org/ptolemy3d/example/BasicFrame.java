@@ -83,8 +83,10 @@ public class BasicFrame extends JFrame {
 		}
 		if(args.length > 2) {
 			try {
-				width = Integer.parseInt(args[1]);
-				height = Integer.parseInt(args[2]);
+				int w = Integer.parseInt(args[1]);
+				int h = Integer.parseInt(args[2]);
+				width = w;
+				height = h;
 			} catch (NumberFormatException e) { }
 		}
 		

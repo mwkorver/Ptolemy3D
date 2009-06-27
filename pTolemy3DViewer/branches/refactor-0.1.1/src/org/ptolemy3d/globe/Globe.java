@@ -18,7 +18,10 @@
 package org.ptolemy3d.globe;
 
 import org.ptolemy3d.DrawContext;
+import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.debug.IO;
+import org.ptolemy3d.math.Math3D;
+import org.ptolemy3d.scene.Landscape;
 import org.ptolemy3d.view.Camera;
 import org.ptolemy3d.view.CameraMovement;
 
@@ -124,7 +127,7 @@ public class Globe {
 	}
 	
 	/** */
-	public MapDataKey getCloserTile(int layerID, int lon, int lat) {
+	public MapDataKey getCloserMap(int layerID, int lon, int lat) {
 		final int tileSize = getLayer(layerID).getTileSize();
 		
 		final int refLon = (lon / tileSize) * tileSize;
@@ -147,6 +150,28 @@ public class Globe {
 		}
 		
 		return new MapDataKey(layerID, closeLon, closeLat);
+	}
+	
+	public double getMapDistanceFromCamera(MapDataKey mapDataKey, Camera camera) {
+		final double camLon = camera.getCameraX();
+		final double camLat = camera.getCameraY();
+		
+		final Layer layer = getLayer(mapDataKey.layer);
+		double tileLon = mapDataKey.lon + (layer.getTileSize() / 2);
+		double tileLat = mapDataKey.lat + (layer.getTileSize() / 2);
+		
+		double dist = Math3D.distance2D(camLon, tileLon, camLat, tileLat);
+
+		final Landscape landscape = Ptolemy3D.getScene().getLandscape();
+		if (camLon < 0) {
+			tileLon = camLon + (landscape.getMaxLongitude() - mapDataKey.lon) + (camLon + landscape.getMaxLongitude());
+		}
+		else {
+			tileLon = camLon + (landscape.getMaxLongitude() - camLon) + (mapDataKey.lon + landscape.getMaxLongitude());
+		}
+
+		double dist2 = Math3D.distance2D(camLon, tileLon, camLat, tileLat);
+		return ((dist < dist2) ? dist : dist2);
 	}
 
 	public int getTileSize(int layerID) {

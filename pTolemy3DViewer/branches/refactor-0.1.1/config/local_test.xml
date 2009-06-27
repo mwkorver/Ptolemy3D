@@ -30,7 +30,6 @@
 
     <LayerWidth_1>52428800</LayerWidth_1>
     <LayerDEM_1>9</LayerDEM_1>
-    <LayerMin_1>50000</LayerMin_1>
     <LayerMax_1>10000000</LayerMax_1>
     <LayerDivider_1>0</LayerDivider_1>
 

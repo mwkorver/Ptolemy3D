@@ -1,32 +1,41 @@
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html>
     <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        <meta name="keywords" content="pTtolemy3D" />
-        <meta name="description" content="pTolemy3D Demo Site" />
-
-        <title>pTolemy3D Demo Site</title>
-
-        <script type="text/javascript" src="jquery-1.2.6.min.js"></script>
-        <script type="text/javascript" src="jquery-ui-personalized-1.5.3.min.js"></script>
-        <script type="text/javascript" src="ptolemy3d.js"></script>
-
-        <link href="css/ui.all.css" rel="stylesheet" type="text/css" media="screen" />
+        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+        <title>pTolemy3D Demo Page</title>
+        <link type="text/css" href="css/south-street/jquery-ui-1.7.2.custom.css" rel="stylesheet" />
         <link href="css/screen.css" rel="stylesheet" type="text/css" media="screen" />
-        <link href="css/demos.css" rel="stylesheet" type="text/css" media="screen" />
 
+        <script type="text/javascript" src="js/jquery-1.3.2.min.js"></script>
+        <script type="text/javascript" src="js/jquery-ui-1.7.2.custom.min.js"></script>
         <script type="text/javascript">
-            /**
-             * Once the document is ready checks if Java plugin is available and
-             * set some jQuery components.
-             */
-            $(document).ready(function() {
-
+            $(function(){
                 // Accordion
                 $("#accordion").accordion({
-                    header: ".ui-accordion-header",
+                    header: "h3",
                     clearStyle: true,
                     autoHeight: false
                 });
+
+                // NOTE: The dialog plugin is avoided due problems shown on
+                // top of the applet.
+                // Dialog
+                /*
+                $('#dialog').dialog({
+                    autoOpen: false,
+                    width: 400,
+                    buttons: {
+                        "Ok": function() {
+                            $(this).dialog("close");
+                        }
+                    }
+                });
+                // Dialog Link
+                $('#dialog_link').click(function(){
+                    $('#dialog').dialog('open');
+                    return false;
+                });
+                 */
 
                 // Execute free code
                 $("#run_freecode").click(function(){
@@ -114,8 +123,8 @@
             }
         </script>
     </head>
-
     <body>
+
         <!-- HEADER -->
         <div class="header">
             <img style="float:right;" src="images/pTolemy3D_logo.png" width="144" height="48" alt="Logo" longdesc="pTolemy3D Logo" />
@@ -210,10 +219,11 @@
                 <tr>
                     <td width="250px" valign="top">
                         <!-- Every link in the accordion loads a different JS file -->
-                        <div id="accordion"  class="ui-accordion ui-widget" role="tablist">
-                            <div class="ui-accordion-group">
-                                <h3 class="ui-accordion-header"><a href="#">Camera:</a></h3>
-                                <div class="ui-accordion-content">
+
+                        <div id="accordion">
+                            <div>
+                                <h3><a href="#">Camera:</a></h3>
+                                <div>
                                     <ul>
                                         <li><a href="#" onClick="$('#freecode').load('./code/simpleFlight.js','',function (responseText, textStatus, XMLHttpRequest) {$('#freecode').val(responseText);});">Simple flight.</a></li>
                                         <li><a href="#" onclick="$('#freecode').load('./code/complexFlight.js','',function (responseText, textStatus, XMLHttpRequest) {$('#freecode').val(responseText);});">Complex flight.</a></li>
@@ -221,9 +231,9 @@
                                     </ul>
                                 </div>
                             </div>
-                            <div class="ui-accordion-group">
-                                <h3 class="ui-accordion-header"><a href="#">Options:</a></h3>
-                                <div class="ui-accordion-content">
+                            <div>
+                                <h3><a href="#">Options:</a></h3>
+                                <div>
                                     <ul>
                                         <li><a href="#" onclick="$('#freecode').load('./code/cameraFlightType.js','',function (responseText, textStatus, XMLHttpRequest) {$('#freecode').val(responseText);});">Camera flight type.</a></li>
                                         <li><a href="#" onclick="$('#freecode').load('./code/terrainOptions.js','',function (responseText, textStatus, XMLHttpRequest) {$('#freecode').val(responseText);});">Terrain options.</a></li>
@@ -232,34 +242,34 @@
                                     </ul>
                                 </div>
                             </div>
-                            <div class="ui-accordion-group">
-                                <h3 class="ui-accordion-header"><a href="#">Viewer Controls:</a></h3>
-                                <div class="ui-accordion-content">
-                                    You can control pTolemy3D viewer using:
+                            <div>
+                                <h3><a href="#" id="dialog_link">Viewer Controls:</a></h3>
+                                <div id="dialog" title="Controls">
+                                    You can control pTolemy3D viewer using:<br/>
+                                    <strong>Keyboard:</strong>
                                     <ul>
-                                        <li>Keyboard:</li>
-                                        <ul>
-                                            <li>a - zoom in</li>
-                                            <li>z - zoom out</li>
-                                            <li>s - zoom in</li>
-                                            <li>x - zoom out</li>
-                                            <li>d - rotate left</li>
-                                            <li>f - rotate right</li>
-                                            <li>r - tilt down</li>
-                                            <li>c - tilt up</li>
-                                            <li>left arrow - spin globe left</li>
-                                            <li>right arrow - spin globe right</li>
-                                            <li>up arrow - spin globe up</li>
-                                            <li>down arrow - spin globe down</li>
-                                        </ul>
-                                        <li>Mouse:</li>
-                                        <ul>
-                                            <li>drag - moves camera</li>
-                                        </ul>
+                                        <li>a - zoom in</li>
+                                        <li>z - zoom out</li>
+                                        <li>s - zoom in</li>
+                                        <li>x - zoom out</li>
+                                        <li>d - rotate left</li>
+                                        <li>f - rotate right</li>
+                                        <li>r - tilt down</li>
+                                        <li>c - tilt up</li>
+                                        <li>left arrow - spin globe left</li>
+                                        <li>right arrow - spin globe right</li>
+                                        <li>up arrow - spin globe up</li>
+                                        <li>down arrow - spin globe down</li>
                                     </ul>
+                                    <strong>Mouse:</strong>
+                                    <ul>
+                                        <li>drag - moves camera</li>
+                                    </ul>
+
                                 </div>
                             </div>
                         </div>
+
                     </td>
                     <td valign="top">
                         <textarea id="freecode" cols="110" rows="15">// Use the 'ptolemy' object to interact with the viewer.&#13;// Put your code here...&#13;</textarea><br/>
@@ -277,3 +287,5 @@
 
     </body>
 </html>
+
+

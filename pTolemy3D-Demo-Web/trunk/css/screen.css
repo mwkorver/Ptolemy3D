@@ -1,0 +1,41 @@
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight:normal;
+     font-size: 62.5%;
+    color:#333333;
+}
+
+.title {
+    font-size:22pt;
+    font-weight:bold;
+    color:#669933;
+}
+.subtitle {
+    font-size:18pt;
+    font-weight:normal;
+    color:#99CC33;
+}
+
+.footer p {
+    color:#333333;
+    font-size:12px;
+    text-align:center;
+}
+
+.maincontainer{
+    margin-top: 15px;
+}
+
+.map3dcontainer{
+    border:#999999 solid 1px;
+    margin: 5px;
+    padding: 5px;
+    width: auto;
+    height: 400px;
+}
+
+textarea {
+    font-family: 'Courier New',Courier,monospace;
+    font-size: 8pt;
+    color: gray;
+}

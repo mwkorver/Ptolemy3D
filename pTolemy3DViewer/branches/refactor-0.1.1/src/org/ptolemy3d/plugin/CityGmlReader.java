@@ -104,7 +104,7 @@ public class CityGmlReader {
 						Double d3 = posValues.get(j);
 						cityPolygon.addPosition(new Position(d1
 								* Unit.getDDFactor(), d2 * Unit.getDDFactor(),
-								d3/10));
+								d3 * Unit.getCoordSystemRatio()));
 					}
 					buildingData.addLod1Polygon(cityPolygon);
 				}
@@ -126,7 +126,7 @@ public class CityGmlReader {
 						Double d3 = posValues.get(j);
 						Position position = new Position(d1
 								* Unit.getDDFactor(), d2 * Unit.getDDFactor(),
-								d3/10);
+								d3 * Unit.getCoordSystemRatio());
 						cityPolygon.addPosition(position);
 					}
 					buildingData.addLod2Polygon(cityPolygon);

@@ -19,6 +19,7 @@ package org.ptolemy3d.plugin;
 
 import java.io.IOException;
 import java.net.URL;
+import java.nio.DoubleBuffer;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -58,6 +59,7 @@ public class CityGmlPlugin implements Plugin {
 	private CityGmlReader cityReader = null;
 	//
 	private ArrayList<CityGmlBuildingData> listBuildindData = new ArrayList<CityGmlBuildingData>();
+	private boolean isVertexArrayInitialized = false;
 
 	public void initGL(DrawContext drawContext) {
 		if (!fileLoaded) {
@@ -179,12 +181,52 @@ public class CityGmlPlugin implements Plugin {
 
 		gl.glColor4f(0.7f, 0.5f, 0.5f, 0.9f);
 
-		// Start drawing
+		// Initialize the vertex array of all buildings
+		if (!isVertexArrayInitialized) {
+			for (CityGmlBuildingData buildingData : listBuildindData) {
+				ArrayList<CityPolygon> listCityPolygonsLod1 = buildingData
+						.getLod1Polygons();
+				ArrayList<CityPolygon> listCityPolygonsLod2 = buildingData
+						.getLod2Polygons();
+
+				// For each polygon initiale its vertex array.
+				for (CityPolygon cityPolygon : listCityPolygonsLod1) {
+					cityPolygon.initVertexArray(cityPolygon.getPositions()
+							.size() * 3);
+					for (Position position : cityPolygon.getPositions()) {
+						double[] d = Camera.computeCartesianPoint(position
+								.getLongitudeDD(), position.getLatitudeDD(),
+								position.getAltitudeDD());
+						cityPolygon.addVertex(d[0]);
+						cityPolygon.addVertex(d[1]);
+						cityPolygon.addVertex(d[2]);
+					}
+				}
+				for (CityPolygon cityPolygon : listCityPolygonsLod2) {
+					cityPolygon.initVertexArray(cityPolygon.getPositions()
+							.size() * 3);
+					for (Position position : cityPolygon.getPositions()) {
+						double[] d = Camera.computeCartesianPoint(position
+								.getLongitudeDD(), position.getLatitudeDD(),
+								position.getAltitudeDD());
+						cityPolygon.addVertex(d[0]);
+						cityPolygon.addVertex(d[1]);
+						cityPolygon.addVertex(d[2]);
+					}
+				}
+			}
+			isVertexArrayInitialized = true;
+		}
+
+		// Enable vertex array
+		gl.glEnableClientState(GL.GL_VERTEX_ARRAY);
+
+		// For each buildings decide which LOD and draws it
 		for (CityGmlBuildingData buildingData : listBuildindData) {
 
 			ArrayList<CityPolygon> listCityPolygons = null;
 
-			// Decide if show LOD1 or LOD2
+			// Decide if show LOD1 or LOD2 depending on the altitude
 			double camAltitude = drawContext.getCanvas().getCamera()
 					.getPosition().getAltitudeDD();
 			if (camAltitude < altitude
@@ -195,16 +237,15 @@ public class CityGmlPlugin implements Plugin {
 			}
 
 			for (CityPolygon cityPolygon : listCityPolygons) {
-				gl.glBegin(GL.GL_POLYGON);
-				for (Position position : cityPolygon.getPositions()) {
-					double[] d = camera.computeCartesianPoint(position
-							.getLongitudeDD(), position.getLatitudeDD(),
-							position.getAltitudeDD());
-					gl.glVertex3dv(d, 0);
-				}
-				gl.glEnd();
+				DoubleBuffer db = cityPolygon.getVertex();
+				db.rewind();
+				gl.glVertexPointer(3, GL.GL_DOUBLE, 0, db);
+				gl.glDrawArrays(GL.GL_POLYGON, 0, db.capacity());
 			}
 		}
+
+		// Disable vertex array
+		gl.glDisableClientState(GL.GL_VERTEX_ARRAY);
 
 		// Restore attributes
 		gl.glPopAttrib();

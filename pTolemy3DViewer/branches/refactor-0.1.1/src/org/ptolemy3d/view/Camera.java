@@ -524,7 +524,7 @@ public class Camera {
 	 * @param lonDD
 	 * @return
 	 */
-	public double[] computeCartesianSurfacePoint(double lonDD, double latDD) {
+	public static double[] computeCartesianSurfacePoint(double lonDD, double latDD) {
 
 		Landscape landscape = Ptolemy3D.getScene().getLandscape();
 
@@ -546,7 +546,7 @@ public class Camera {
 	 * @param lonDD
 	 * @return
 	 */
-	public double[] computeCartesianPoint(double lonDD, double latDD, double altitude) {
+	public static double[] computeCartesianPoint(double lonDD, double latDD, double altitude) {
 
 		// Transform from lat/lon to cartesion coordinates.
 		double point[] = new double[3];

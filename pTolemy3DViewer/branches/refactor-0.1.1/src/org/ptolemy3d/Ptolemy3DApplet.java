@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.ptolemy3d.example;
+package org.ptolemy3d;
 
 import java.applet.Applet;
 import java.awt.BorderLayout;
@@ -24,43 +24,41 @@ import java.awt.event.MouseEvent;
 
 import netscape.javascript.JSObject;
 
-import org.ptolemy3d.Configuration;
-import org.ptolemy3d.Ptolemy3D;
-import org.ptolemy3d.Ptolemy3DGLCanvas;
-import org.ptolemy3d.Ptolemy3DJavascript;
 
 /**
- * Ptolemy3D example.
+ * Ptolemy3D appletf.
  * 
  * @author Antonio Santiago <asantiagop(at)gmail(dot)com>
  * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  */
-public class BasicApplet extends Applet implements Ptolemy3DJavascript {
+public class Ptolemy3DApplet extends Applet implements Ptolemy3DJavascript {
 	private static final long serialVersionUID = 1L;
 
-	private Ptolemy3DGLCanvas canvas;
-	private JSObject jsObject;
+	private Ptolemy3DGLCanvas canvas = null;
+	private JSObject jsObject = null;
 
+	/**
+	 * Initialize the pTolemy applet.
+	 */
 	@Override
 	public void init() {
-		if(jsObject == null) {
+		if (jsObject == null) {
 			JSObject obj;
 			try {
 				obj = JSObject.getWindow(this);
-			} catch(RuntimeException e) {
+			} catch (RuntimeException e) {
 				obj = null;
 			}
 			this.jsObject = obj;
 		}
 
-		if(canvas == null) {
+		if (canvas == null) {
 			// Register applet
 			Ptolemy3D.registerApplet(this);
-			
-			// Load the configuration file.
-			Configuration config = new Configuration();
 
-			// Initialize ptolemy system with the config file.
+			// Initialize ptolemy system. When configuration doesn't use any XML
+			// config file it is suppose to be executed as applet.
+			Configuration config = new Configuration();
 			Ptolemy3D.initialize(config);
 
 			// Create the canvas and register it into Ptolemy3D system.
@@ -80,20 +78,17 @@ public class BasicApplet extends Applet implements Ptolemy3DJavascript {
 	@Override
 	public void start() {
 		Ptolemy3D.start();
-		
 		requestFocus();
 	}
 
 	@Override
 	public void stop() {
-		getInputContext().removeNotify(canvas);
-
-		Ptolemy3D.shutDown();
+		Ptolemy3D.stop();
 	}
 
 	@Override
 	public void destroy() {
-
+		Ptolemy3D.shutDown();
 	}
 
 	public Applet getApplet() {

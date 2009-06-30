@@ -17,7 +17,6 @@
  */
 package org.ptolemy3d;
 
-import javax.media.opengl.GL;
 import javax.media.opengl.GLAutoDrawable;
 import javax.media.opengl.GLCanvas;
 import javax.media.opengl.GLContext;
@@ -43,169 +42,159 @@ import com.sun.opengl.util.Animator;
  */
 public class Ptolemy3DGLCanvas extends GLCanvas implements GLEventListener {
 	private static final long serialVersionUID = 1L;
-	
+
 	// Camera that renders ptolemy instance.
-    private final Camera camera;
-    private final CameraMovement cameraMovement;
-    private final InputHandler input;
-    private final DrawContext drawContext;
-    // Rendering loop
-    private final Animator animator;
-    
-    /**
-     * Creates a new instance.
-     *
-     * @param ptolemy
-     */
-    public Ptolemy3DGLCanvas() {
-    	this.drawContext = new DrawContext();
-        this.camera = new Camera(this);
-        this.input = new InputHandler(this);
-        this.cameraMovement = new CameraMovement(this, this.input);
+	private final Camera camera;
+	private final CameraMovement cameraMovement;
+	private final InputHandler input;
+	private final DrawContext drawContext;
+	// Rendering loop
+	private final Animator animator;
 
-        // Register itself as listener.
-        this.addGLEventListener(this);
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param ptolemy
+	 */
+	public Ptolemy3DGLCanvas() {
+		this.drawContext = new DrawContext();
+		this.camera = new Camera(this);
+		this.input = new InputHandler(this);
+		this.cameraMovement = new CameraMovement(this, this.input);
 
-        // Create the animator and starts the rendering process.
-        this.animator = new Animator(this);
-    }
+		// Register itself as listener.
+		this.addGLEventListener(this);
 
-    /**
-     * Returns the Camera instance associated with this canvas object.
-     *
-     * @return
-     */
-    public Camera getCamera() {
-        return camera;
-    }
+		// Add listeners
+		this.addKeyListener(this.input);
+		this.addMouseListener(this.input);
+		this.addMouseMotionListener(this.input);
+		this.addMouseWheelListener(this.input);
 
-    /**
-     * Returns the Camera instance associated with this canvas object.
-     *
-     * @return
-     */
-    public CameraMovement getCameraMovement() {
-        return cameraMovement;
-    }
+		// Create the animator and starts the rendering process.
+		this.animator = new Animator(this);
+	}
 
-    public InputHandler getInput() {
-        return input;
-    }
+	/**
+	 * Returns the Camera instance associated with this canvas object.
+	 * 
+	 * @return
+	 */
+	public Camera getCamera() {
+		return camera;
+	}
 
-    /** Start rendering loop. */
-    public void startRenderingLoop() {
-        if (animator != null && !animator.isAnimating()) {
-            animator.start();
-        }
-    }
+	/**
+	 * Returns the Camera instance associated with this canvas object.
+	 * 
+	 * @return
+	 */
+	public CameraMovement getCameraMovement() {
+		return cameraMovement;
+	}
 
-    /**
-     * Stop rendering loop.<BR>
-     * To stop and clean up OpenGL datas, when exiting, use <code>ON</code> flag
-     * and wait while rendering thread is alive.
-     *
-     * @see #renderingLoopOn
-     * @see #isRenderingThreadAlive()
-     */
-    public void stopRenderingLoop() {
-        if (animator != null && animator.isAnimating()) {
-            animator.stop();
-        }
-    }
+	public InputHandler getInput() {
+		return input;
+	}
 
-    /** */
-    public boolean isRenderingThreadAlive() {
-        if (animator != null && animator.isAnimating()) {
-            return true;
-        }
-        return false;
-    }
+	/**
+	 * Start rendering loop.
+	 */
+	public void startRenderingLoop() {
+		if (animator != null && !animator.isAnimating()) {
+			animator.start();
+		}
+	}
 
-    /**
-     * Initialize the common attributes stored in the DrawContext instance
-     * and useful in the rendering process.
-     */
-    private void initializeDrawContext(GLAutoDrawable glDrawable) {
-        drawContext.setGLDrawable(glDrawable);
-        drawContext.setGL(glDrawable.getGL());
-        drawContext.setGLContext(GLContext.getCurrent());
-        drawContext.setCanvas(this);
-    }
+	/**
+	 * Stop rendering loop.
+	 */
+	public void stopRenderingLoop() {
+		if (animator != null && animator.isAnimating()) {
+			animator.stop();
+		}
+	}
 
-    /* GLEventListener */
-    public void init(GLAutoDrawable glDrawable) {
-        initializeDrawContext(glDrawable);
+	/**
+	 * Initialize the common attributes stored in the DrawContext instance and
+	 * useful in the rendering process.
+	 */
+	private void initializeDrawContext(GLAutoDrawable glDrawable) {
+		drawContext.setGLDrawable(glDrawable);
+		drawContext.setGL(glDrawable.getGL());
+		drawContext.setGLContext(GLContext.getCurrent());
+		drawContext.setCanvas(this);
+	}
 
-        // Enable V-Sync
-//        glDrawable.getGL().setSwapInterval(1);
-        
-        // Init flight movement
-        cameraMovement.init();
+	/* GLEventListener */
+	public void init(GLAutoDrawable glDrawable) {
+		initializeDrawContext(glDrawable);
 
-        // Init Scene landscane, sky, hud, plugins ...
-        Ptolemy3D.getScene().initGL(drawContext);
+		// TODO - Necessary
+		// Enable V-Sync
+		// glDrawable.getGL().setSwapInterval(1);
 
-        // Add listeners
-        this.addKeyListener(this.input);
-        this.addMouseListener(this.input);
-        this.addMouseMotionListener(this.input);
-        this.addMouseWheelListener(this.input);
-    }
+		// Init flight movement
+		cameraMovement.init();
 
-    public void display(GLAutoDrawable glDrawable) {
-        initializeDrawContext(glDrawable);
-        
-        Ptolemy3D.getScene().draw(drawContext);
-    }
+		// Init Scene landscane, sky, hud, plugins ...
+		Ptolemy3D.getScene().initGL(drawContext);
+	}
 
-    public void reshape(GLAutoDrawable glDrawable, int x, int y, int width, int height) {
-        initializeDrawContext(glDrawable);
+	public void display(GLAutoDrawable glDrawable) {
+		initializeDrawContext(glDrawable);
 
-        GL gl = glDrawable.getGL();
-        gl.glViewport(x, y, width, height);
-    }
+		Ptolemy3D.getScene().draw(drawContext);
+	}
 
-    public void displayChanged(GLAutoDrawable drawable, boolean modeChanged, boolean deviceChanged) {
-    }
-    
-    /**
-     * @return the drawAspectRatio
-     */
-    public float getAspectRatio() {
-    	int width = getWidth();
-    	int height = getHeight();
-        if (height == 0) {
-            height = 1;
-        }
-        return (float) width / height;
-    }
-    
-//	protected final void destroyGL() {
-//		// Stop rendering loop
-//		stopRenderingLoop();
-//
-//		// Destroy OpenGL Datas
-//		runInContext(new ActionListener() {
-//			public void actionPerformed(ActionEvent e) {
-//				Ptolemy3D.getScene().destroyGL(drawContext);
-//				Ptolemy3D.getTextureManager().destroyGL(drawContext);
-//			}
-//		});
-//	}
-//	private void runInContext(ActionListener action) {
-//		final GLContext glContext = drawContext.getGLContext();
-//		if (glContext != null) {
-//			int result = glContext.makeCurrent();
-//			if(result != GLContext.CONTEXT_NOT_CURRENT) {
-//				try {
-//					action.actionPerformed(null);
-//				} catch(Exception e) { } catch(Error e) { }
-//
-//				glContext.release();
-//				if(result == GLContext.CONTEXT_CURRENT_NEW) {
-//					glContext.destroy();
-//				}
-//			}
-//		}
-//	}
+	public void reshape(GLAutoDrawable glDrawable, int x, int y, int width,
+			int height) {
+	}
+
+	public void displayChanged(GLAutoDrawable drawable, boolean modeChanged,
+			boolean deviceChanged) {
+	}
+
+	/**
+	 * @return the drawAspectRatio
+	 */
+	public float getAspectRatio() {
+		int width = getWidth();
+		int height = getHeight();
+		if (height == 0) {
+			height = 1;
+		}
+
+		return (float) width / height;
+	}
+
+	// TODO - Decide if necessary.
+	// protected final void destroyGL() {
+	// // Stop rendering loop
+	// stopRenderingLoop();
+	//
+	// // Destroy OpenGL Datas
+	// runInContext(new ActionListener() {
+	// public void actionPerformed(ActionEvent e) {
+	// Ptolemy3D.getScene().destroyGL(drawContext);
+	// Ptolemy3D.getTextureManager().destroyGL(drawContext);
+	// }
+	// });
+	// }
+	// private void runInContext(ActionListener action) {
+	// final GLContext glContext = drawContext.getGLContext();
+	// if (glContext != null) {
+	// int result = glContext.makeCurrent();
+	// if(result != GLContext.CONTEXT_NOT_CURRENT) {
+	// try {
+	// action.actionPerformed(null);
+	// } catch(Exception e) { } catch(Error e) { }
+	//
+	// glContext.release();
+	// if(result == GLContext.CONTEXT_CURRENT_NEW) {
+	// glContext.destroy();
+	// }
+	// }
+	// }
+	// }
 }

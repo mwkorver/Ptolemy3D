@@ -23,6 +23,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 import org.ptolemy3d.Configuration;
 import org.ptolemy3d.Ptolemy3D;
@@ -37,63 +38,64 @@ public class BasicFrame extends JFrame {
 	private static final long serialVersionUID = 1L;
 
 	public BasicFrame(String configFile) {
-    	super("pTolemy3D Basic Frame");
-    	
-        // Load the configuration file.
-        Configuration config = new Configuration(configFile);
+		super("pTolemy3D Basic Frame");
 
-        // Initialize ptolemy system with the config file.
-        Ptolemy3D.initialize(config);
+		// Load the configuration file.
+		Configuration config = new Configuration(configFile);
 
-        // Create the canvas and register it into Ptolemy3D system.
-        Ptolemy3DGLCanvas canvas = new Ptolemy3DGLCanvas();
-        Ptolemy3D.registerCanvas(canvas);
-        Ptolemy3D.start();
+		// Initialize ptolemy system with the config file.
+		Ptolemy3D.initialize(config);
 
-        this.getRootPane().setLayout(new BorderLayout());
-        this.getRootPane().add(canvas, BorderLayout.CENTER);
-        this.pack();
-        
-        canvas.addKeyListener(new KeyAdapter() {
-        	@Override
-             public void keyReleased(KeyEvent e) {
-				if(e.getKeyCode() == KeyEvent.VK_ESCAPE && !e.isControlDown()) {
+		// Create the canvas and register it into Ptolemy3D system.
+		Ptolemy3DGLCanvas canvas = new Ptolemy3DGLCanvas();
+		Ptolemy3D.registerCanvas(canvas);
+		Ptolemy3D.start();
+
+		this.getRootPane().setLayout(new BorderLayout());
+		this.getRootPane().add(canvas, BorderLayout.CENTER);
+//		this.pack();
+
+		canvas.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_ESCAPE && !e.isControlDown()) {
 					System.out.println("Closing ptolemy...");
-	                Ptolemy3D.shutDown();
-	                System.exit(1);
+					Ptolemy3D.shutDown();
+					System.exit(1);
 				}
 			}
 		});
-        this.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                System.out.println("Closing ptolemy...");
-                Ptolemy3D.shutDown();
-            }
-        });
-    }
+		this.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				System.out.println("Closing ptolemy...");
+				Ptolemy3D.shutDown();
+			}
+		});
+	}
 
-    public static void main(String[] args) {
-    	// Parse command line
-    	String xml = "config/config.xml";
-    	int width = 640;
-    	int height = 500;
+	public static void main(String[] args) {
+		// Parse command line
+		String xml = "config/config.xml";
+		int width = 640;
+		int height = 500;
 		if (args.length > 0) {
 			xml = args[0];
 		}
-		if(args.length > 2) {
+		if (args.length > 2) {
 			try {
 				int w = Integer.parseInt(args[1]);
 				int h = Integer.parseInt(args[2]);
 				width = w;
 				height = h;
-			} catch (NumberFormatException e) { }
+			} catch (NumberFormatException e) {
+			}
 		}
-		
-        BasicFrame frame = new BasicFrame(xml);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        frame.setSize(width, height);
-        frame.setVisible(true);
-    }
+		BasicFrame frame = new BasicFrame(xml);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+		frame.setSize(width, height);
+		frame.setVisible(true);
+	}
 }

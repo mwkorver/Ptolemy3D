@@ -17,6 +17,9 @@
  */
 package org.ptolemy3d;
 
+import netscape.javascript.JSObject;
+
+import org.ptolemy3d.debug.IO;
 import org.ptolemy3d.io.FileSystemCache;
 import org.ptolemy3d.io.MapDataFinder;
 import org.ptolemy3d.manager.MapDataManager;
@@ -75,175 +78,202 @@ import org.ptolemy3d.view.CameraMovement;
  * @see Camera
  * @see CameraMovement
  * @see Scene
- *
+ * 
  * @author Antonio Santiago <asantiagop(at)gmail(dot)com>
  * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  */
 public final class Ptolemy3D {
-    // TODO - canvas variable is only here temporaly to solve a reference problem in Jp2TileLoader. We must remove from here.
-    private static Ptolemy3DGLCanvas canvas = null;
-    private static Ptolemy3DJavascript javascript = null;
-    private static Configuration configuration = null;
-    private static Scene scene = new Scene();
-    private static TextureManager textureManager = null;
-    private static MapDataManager mapDataManager = null;
-    private static MapDataFinder mapDataFinder = null;
-    private static FileSystemCache cache = null;
-    
-    
-    private Ptolemy3D() {
-        System.out.println("Ptolemy created");
-    }
+	// TODO - canvas variable is only here temporaly to solve a reference
+	// problem in Jp2TileLoader. We must remove from here.
+	private static Ptolemy3DGLCanvas canvas = null;
+	private static Ptolemy3DJavascript javascript = null;
+	private static Configuration configuration = null;
+	private static Scene scene = new Scene();
+	private static TextureManager textureManager = null;
+	private static MapDataManager mapDataManager = null;
+	private static MapDataFinder mapDataFinder = null;
+	private static FileSystemCache cache = null;
 
-    /**
-     * Initialized pTolemy3D system with the specified settings.
-     *
-     * @param config
-     */
-    public static void initialize(Configuration config) {
-    	configuration = config;
-    	textureManager = new TextureManager();
-    	mapDataFinder = new MapDataFinder(configuration.getServer(), configuration.servers);
-    	mapDataManager = new MapDataManager();
-    	cache = new FileSystemCache();
-    }
+	// JavaScript function names
+	private static String JS_START_FUNCTION = "ptolemyStart";
+	private static String JS_STOP_FUNCTION = "ptolemyStop";
 
-    /**
-     * Registers the canvas to be used by ptolemy.
-     *
-     * TODO - This method must be temporal. This not allows to have various canvas
-     * render the same scene.
-     *
-     * @param cnv
-     */
-    public static void registerCanvas(Ptolemy3DGLCanvas cnv) {
-    	canvas = cnv;
+	private Ptolemy3D() {
+		System.out.println("Ptolemy created");
+	}
 
-        // If there is a configuration the apply them to the cameraMovement.
-        if (configuration != null) {
-        	canvas.getCameraMovement().setOrientation(
-        			configuration.initialCameraPosition,
-        			configuration.initialCameraDirection,
-        			configuration.initialCameraPitch);
-        	canvas.getCameraMovement().setFollowDem(configuration.follorDEM);
-        }
-    }
-    
-    public static void registerApplet(Ptolemy3DJavascript javascript_) {
-    	javascript = javascript_;
-    }
-    
-    /**
-     * Start required threads.
-     */
-    public static void start() {
-    	canvas.startRenderingLoop();
-    }
+	/**
+	 * Initialized pTolemy3D system with the specified settings.
+	 * 
+	 * @param config
+	 */
+	public static void initialize(Configuration config) {
+		configuration = config;
+		textureManager = new TextureManager();
+		mapDataFinder = new MapDataFinder(configuration.getServer(),
+				configuration.servers);
+		mapDataManager = new MapDataManager();
+		cache = new FileSystemCache();
+	}
 
-    /**
-     * Stop the pTolemy system: request data thread and other resources.
-     */
-    public static void shutDown() {
-//		// Stop and shutDown all the 3D
-//		if (canvas != null) {
-//			canvas.destroyGL();
-//			canvas = null;
-//		}
-    }
-    
-    /**
-     * @return the canvas
-     */
-    public static Ptolemy3DGLCanvas getCanvas() {
-        return canvas;
-    }
+	/**
+	 * Registers the canvas to be used by ptolemy.
+	 * 
+	 * TODO - This method must be temporal. This not allows to have various
+	 * canvas render the same scene. For the moment only one canvas is allowed.
+	 * In the future we could have a list of canvas registered in the system and
+	 * rendering the same scene.
+	 * 
+	 * @param cnv
+	 */
+	public static void registerCanvas(Ptolemy3DGLCanvas cnv) {
+		canvas = cnv;
 
-    /**
-     * Returns the scene.
-     * @return
-     */
-    public static Scene getScene() {
-        return scene;
-    }
+		// If there is a configuration the apply them to the cameraMovement.
+		if (configuration != null) {
+			canvas.getCameraMovement().setOrientation(
+					configuration.initialCameraPosition,
+					configuration.initialCameraDirection,
+					configuration.initialCameraPitch);
+			canvas.getCameraMovement().setFollowDem(configuration.follorDEM);
+		}
+	}
 
-    /**
-     * @return the configuration
-     */
-    public static Configuration getConfiguration() {
-        return configuration;
-    }
+	/**
+	 * Registers a javascript interface to communicate with the browser when
+	 * pTolemy is used as applet.
+	 * 
+	 * @param javascript
+	 */
+	public static void registerApplet(Ptolemy3DJavascript javascript) {
+		Ptolemy3D.javascript = javascript;
+	}
 
-    /**
-     * @return the textureManager
-     */
-    public static TextureManager getTextureManager() {
-        return textureManager;
-    }
+	/**
+	 * Start rendering threads.
+	 */
+	public static void start() {
+		canvas.startRenderingLoop();
 
-    /**
-     * @param aTextureManager the textureManager to set
-     */
-    public static void setTextureManager(TextureManager aTextureManager) {
-        textureManager = aTextureManager;
-    }
-    
-    /**
-     * @return the map data manager
-     */
-    public static MapDataManager getMapDataManager() {
-        return mapDataManager;
-    }
-    
-    /**
-     * @return the map data manager finder
-     */
-    public static MapDataFinder getMapDataFinder() {
-        return mapDataFinder;
-    }
+		// Call the start JavaScript function
+		callJavascript(JS_START_FUNCTION, null);
+	}
 
-    /**
-     * @param mapDataManager the textureManager to set
-     */
-    public static void setMapDataManager(MapDataManager aMapDataManager) {
-        mapDataManager = aMapDataManager;
-    }
-    
-    public static FileSystemCache getFileSystemCache() {
-    	return cache;
-    }
+	/**
+	 * Stop rendering threads.
+	 */
+	public static void stop() {
+		canvas.stopRenderingLoop();
+
+		// Call the stop JavaScript function
+		callJavascript(JS_STOP_FUNCTION, null);
+	}
+
+	/**
+	 * Stop the pTolemy system: request data thread and other resources.
+	 */
+	public static void shutDown() {
+		stop();
+
+		// TODO - Test if necessary.
+		// // Stop and shutDown all the 3D
+		// if (canvas != null) {
+		// canvas.destroyGL();
+		// canvas = null;
+		// }
+	}
+
+	/**
+	 * @return the canvas
+	 */
+	public static Ptolemy3DGLCanvas getCanvas() {
+		return canvas;
+	}
+
+	/**
+	 * Returns the scene.
+	 * 
+	 * @return
+	 */
+	public static Scene getScene() {
+		return scene;
+	}
+
+	/**
+	 * @return the configuration
+	 */
+	public static Configuration getConfiguration() {
+		return configuration;
+	}
+
+	/**
+	 * @return the textureManager
+	 */
+	public static TextureManager getTextureManager() {
+		return textureManager;
+	}
+
+	/**
+	 * @param aTextureManager
+	 *            the textureManager to set
+	 */
+	public static void setTextureManager(TextureManager aTextureManager) {
+		textureManager = aTextureManager;
+	}
+
+	/**
+	 * @return the map data manager
+	 */
+	public static MapDataManager getMapDataManager() {
+		return mapDataManager;
+	}
+
+	/**
+	 * @return the map data manager finder
+	 */
+	public static MapDataFinder getMapDataFinder() {
+		return mapDataFinder;
+	}
+
+	/**
+	 * @param mapDataManager
+	 *            the textureManager to set
+	 */
+	public static void setMapDataManager(MapDataManager aMapDataManager) {
+		mapDataManager = aMapDataManager;
+	}
+
+	public static FileSystemCache getFileSystemCache() {
+		return cache;
+	}
 
 	public static Ptolemy3DJavascript getJavascript() {
 		return javascript;
 	}
-    
-//     /**
-//	* Call a javascript function
-//	* @param javascripFunction
-//	*/
-//	// Plugins args
-//	private String[] plugargs = new String[3];
-//	public void callJavascript(String javascripFunction, String param0, String param1, String param2) {
-//		plugargs[0] = param0;
-//		plugargs[1] = param1;
-//		plugargs[2] = param2;
-//
-//		if(javascript != null) {
-//			JSObject jsObject = javascript.getJSObject();
-//			if(jsObject != null) {
-//				try {
-//					jsObject.call(javascripFunction, plugargs);
-//				}
-//				catch(Exception ne) {
-//					IO.printStackRenderer(ne);
-//				}
-//			}
-//		}
-//	}
-//
-//	/**
-//	* Send an error message to javascript.
-//	*/
-//	public final void sendErrorMessage(String msg) {
-//		callJavascript("alert", msg, null, null);
-//	}
+
+	/**
+	 * Call a javascript function.
+	 * 
+	 * @param javascripFunction
+	 */
+	public static void callJavascript(String javascripFunction,
+			String[] plugargs) {
+		if (javascript != null) {
+			JSObject jsObject = javascript.getJSObject();
+			if (jsObject != null) {
+				try {
+					jsObject.call(javascripFunction, plugargs);
+				} catch (Exception ne) {
+					IO.printStackRenderer(ne);
+				}
+			}
+		}
+	}
+	//
+	// /**
+	// * Send an error message to javascript.
+	// */
+	// public final void sendErrorMessage(String msg) {
+	// callJavascript("alert", msg, null, null);
+	// }
 }

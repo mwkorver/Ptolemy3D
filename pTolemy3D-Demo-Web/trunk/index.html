@@ -85,6 +85,9 @@
              * Called once the applet is initialized and started.
              */
             function ptolemyStart(){
+
+                alert("ptolemyStart");
+                
                 // Create a Ptolemy instance from the applet element identifier
                 // in the HTML file.
                 ptolemy = new ptolemy3d('pTolemy3D');
@@ -103,6 +106,10 @@
                 init_terrain_scale = ptolemy.getTerrain().getTerrainScale();
                 init_terrain_status = ptolemy.getTerrain().getTerrainStatus();
                 init_horizon = ptolemy.getTerrain().getHorizonAlt();
+            }
+
+            function ptolemyStop(){
+                alert("ptolemyStop");
             }
 
             function reset(){
@@ -141,8 +148,8 @@
                         align="center" width="100%" height="100%"
                         id="pTolemy3D" Name="pTolemy3DViewer"
                         codebase="./applet/"
-                        archive="./jogl.jar,./gluegen-rt.jar,./plugin.jar,./ptolemy3d-1.0-SNAPSHOT.jar,./ptolemy3dplugin-1.0-SNAPSHOT.jar" MAYSCRIPT>
-                    <param name="subapplet.classname" VALUE="org.ptolemy3d.viewer.Ptolemy3DApplet">
+                        archive="./jogl.jar,./gluegen-rt.jar,./plugin.jar,./ptolemy-refactor-0.1.1.jar,./citygml4j-0.2.1.jar,./jaxb-api.jar,./jaxb-impl.jar" MAYSCRIPT>
+                    <param name="subapplet.classname" VALUE="org.ptolemy3d.Ptolemy3DApplet">
                     <param name="subapplet.displayname" VALUE="pTolemy3D Viewer">
                     <param name="progressbar" value="true">
                     <param name="noddraw.check" value="true">
@@ -150,66 +157,66 @@
                     <param name="cache_archive" VALUE="jogl.jar,gluegen-rt.jar,plugin.jar,ptolemy3d-1.0-SNAPSHOT.jar,ptolemy3dplugin-1.0-SNAPSHOT.jar">
                     <param name="cache_archive_ex" VALUE="jogl.jar;preload,gluegen-rt.jar;preload,plugin.jar;preload,ptolemy3d-1.0-SNAPSHOT.jar;preload,ptolemy3dplugin-1.0-SNAPSHOT.jar;preload">
 
-                    <param name="Orientation" value="-100000000,40000000,1260000,0,-30">
+                    <param name="Orientation" value="132730000,35010000,1260000,0,-30">
                     <param name="CenterX" value="0">
                     <param name="CenterY" value="0">
                     <param name="DisplayRatio" value="1">
 
                     <param name="Server" value="demo.spatialcloud.com">
-                    <param name="nMapDataSvr" value="1">
+                    <param name="NumMapDataServers" value="1">
                     <param name="MapDataSvr1" value="ptolemy3d.s3.amazonaws.com">
                     <param name="MapJp2Store1" value="/demo-data/jp2/">
                     <param name="MapDemStore1" value="/demo-data/dem/">
                     <param name="MUrlAppend1" value="&streamID=class64">
                     <param name="MServerKey1" value="">
 
-                    <param name="TILECOLOR" value="47,47,86">
+                    <param name="TileColor" value="47,47,86">
                     <param name="Area" value="00">
-                    <param name="HORIZON" value="10000">
+                    <param name="Horizon" value="10000">
                     <param name="FlightFrameDelay" value="200">
                     <param name="TIN" value="0">
-                    <param name="FOLLOWDEM" value="0">
-
-                    <param name="Units" value="DD">
-                    <param name="BGCOLOR" value="0,0,0">
-                    <param name="SubTextures" value="1">
+                    <param name="FollowDEM" value="0">
+                    <param name="BackgroundColor" value="0,0,0">
 
                     <param name="NumLayers" value="5">
 
                     <param name="LayerWidth_1" value="52428800">
                     <param name="LayerDEM_1" value="9">
-                    <param name="LayerMIN_1" value="400000">
-                    <param name="LayerMAX_1" value="10000000">
-                    <param name="LayerDIVIDER_1" value="0">
+                    <param name="LayerMin_1" value="400000">
+                    <param name="LayerMax_1" value="10000000">
+                    <param name="LayerDivider_1" value="0">
 
                     <param name="LayerWidth_2" value="6553600">
                     <param name="LayerDEM_2" value="9">
-                    <param name="LayerMIN_2" value="200000">
-                    <param name="LayerMAX_2" value="500000">
-                    <param name="LayerDIVIDER_2" value="0">
+                    <param name="LayerMin_2" value="200000">
+                    <param name="LayerMax_2" value="500000">
+                    <param name="LayerDivider_2" value="0">
 
                     <param name="LayerWidth_3" value="819200">
                     <param name="LayerDEM_3" value="9">
-                    <param name="LayerMIN_3" value="100000">
-                    <param name="LayerMAX_3" value="250000">
-                    <param name="LayerDIVIDER_3" value="0">
+                    <param name="LayerMin_3" value="100000">
+                    <param name="LayerMax_3" value="250000">
+                    <param name="LayerDivider_3" value="0">
 
                     <param name="LayerWidth_4" value="102400">
                     <param name="LayerDEM_4" value="9">
-                    <param name="LayerMIN_4" value="20000">
-                    <param name="LayerMAX_4" value="100000">
-                    <param name="LayerDIVIDER_4" value="0">
+                    <param name="LayerMin_4" value="20000">
+                    <param name="LayerMax_4" value="100000">
+                    <param name="LayerDivider_4" value="0">
 
                     <param name="LayerWidth_5" value="12800">
                     <param name="LayerDEM_5" value="9">
-                    <param name="LayerMIN_5" value="0">
-                    <param name="LayerMAX_5" value="10000">
-                    <param name="LayerDIVIDER_5" value="0">
+                    <param name="LayerMin_5" value="0">
+                    <param name="LayerMax_5" value="10000">
+                    <param name="LayerDivider_5" value="0">
 
-                    <param name="NumPlugins" value="1">
+                    <param name="NumPlugins" value="0">
 
-                    <param name="PluginType_1" value="org.ptolemy3d.plugin.HudPlugin">
-                    <param name="PluginParam_1" value="-hudPrefix1 Center: -hudPrefix2 Streaming%20Speed: -hudPrefix3 Altitude: -hudSuffix3 meters">
+                    <param name="PluginType_1" value="org.ptolemy3d.plugin.IconPlugin">
+                    <param name="PluginParam_1" value="/Ptolemy_test/new.png,40,0">
+
+                    <param name="PluginType_2" value="org.ptolemy3d.plugin.CityGmlPlugin">
+                    <param name="PluginParam_2" value="100000,http://localhost:8080/openbd/CFML/pseudoWFS/wfs.cfm?SERVICE=wfs&amp;REQUEST=GetFeature&amp;bbox=-180,-90,180,90">
 
                 </applet>
             </div>

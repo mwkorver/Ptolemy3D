@@ -23,6 +23,7 @@ import org.ptolemy3d.DrawContext;
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.Ptolemy3DGLCanvas;
 import org.ptolemy3d.Unit;
+import org.ptolemy3d.globe.Tile;
 import org.ptolemy3d.math.Math3D;
 import org.ptolemy3d.math.Matrix16d;
 import org.ptolemy3d.math.Matrix9d;
@@ -444,7 +445,7 @@ public class Camera {
 		posToPoint[2] = point[2] - posToPoint[2];
 
 		// Dot product between the vectors (front/back face test)
-		double dot = (posToPoint[0] * point[0]) + (posToPoint[1] * point[1]) + (posToPoint[2] * point[2]);
+		final double dot = (posToPoint[0] * point[0]) + (posToPoint[1] * point[1]) + (posToPoint[2] * point[2]);
 		if (dot <= 0) {
 			// Visible if the forward vector is pointing in the other direction than the globe normal
 			return true;
@@ -460,15 +461,21 @@ public class Camera {
 	 * @param tileSize tile size (square: size == width == height)
 	 * @return true if the tile is on the visible side of the globe and in the view sight (frustum volume)
 	 */
-	public boolean isTileInView(double lon, double lat, int tileSize) {
+	public boolean isTileInView(Tile tile) {
+		final int leftLon = tile.getLeftLongitude();
+		final int rightLon = tile.getRightLongitude();
+		final int upLat = tile.getUpperLatitude();
+		final int botLat = tile.getLowerLatitude();
+		
+		// Tile corners
 		double[] point0 = new double[3];
 		double[] point1 = new double[3];
 		double[] point2 = new double[3];
 		double[] point3 = new double[3];
-		Math3D.setSphericalCoord(lon, -lat, Unit.EARTH_RADIUS, point0);
-		Math3D.setSphericalCoord(lon, -lat - tileSize, Unit.EARTH_RADIUS, point1);
-		Math3D.setSphericalCoord(lon + tileSize, -lat - tileSize, Unit.EARTH_RADIUS, point2);
-		Math3D.setSphericalCoord(lon + tileSize, -lat, Unit.EARTH_RADIUS, point3);
+		Math3D.setSphericalCoord(leftLon, upLat, Unit.EARTH_RADIUS, point0);
+		Math3D.setSphericalCoord(leftLon, botLat, Unit.EARTH_RADIUS, point1);
+		Math3D.setSphericalCoord(rightLon, botLat, Unit.EARTH_RADIUS, point2);
+		Math3D.setSphericalCoord(rightLon, upLat, Unit.EARTH_RADIUS, point3);
 		
 		if(isCartesianPointInVisibleSide(point0) ||
 		   isCartesianPointInVisibleSide(point1) ||

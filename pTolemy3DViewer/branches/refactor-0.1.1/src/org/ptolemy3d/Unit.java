@@ -30,8 +30,8 @@ public class Unit {
     public static final int EARTH_RADIUS = 500000; // 6378136;
     public static final int DEFAULT_DD_FACTOR = 1000000;
     private static int ddFactor = DEFAULT_DD_FACTOR;
-    private static int meterX = 0;
-    private static int meterZ = 0;
+    private static int meterX = 0;	//FIXME Always 0, remove that ?
+    private static int meterZ = 0;	//FIXME Always 0, remove that ?
     private static float coordSystemRatio = (float) EARTH_RADIUS / 6378136;
 
     /**

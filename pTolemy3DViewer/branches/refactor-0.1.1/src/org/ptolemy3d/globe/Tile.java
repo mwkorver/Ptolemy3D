@@ -20,6 +20,8 @@ package org.ptolemy3d.globe;
 import static org.ptolemy3d.debug.Config.DEBUG;
 import static org.ptolemy3d.Unit.EARTH_RADIUS;
 
+import java.util.List;
+
 import javax.media.opengl.GL;
 
 import org.ptolemy3d.Ptolemy3D;
@@ -28,6 +30,7 @@ import org.ptolemy3d.debug.ProfilerUtil;
 import org.ptolemy3d.manager.MapDataManager;
 import org.ptolemy3d.math.Math3D;
 import org.ptolemy3d.scene.Landscape;
+import org.ptolemy3d.view.Area;
 import org.ptolemy3d.view.Camera;
 
 /**
@@ -39,15 +42,16 @@ public class Tile {
 	private final int tileID;
 
 	/* Tile.processVisibility */
-	private int levelID, tileSize;
-	private int upLeftLat, lowRightLat;
-	private int upLeftLon, lowRightLon;
+	private int layerID;
+	private int tileSize;
+	private int tileLat;
+	private int tileLon;
 	protected boolean visible;
 	protected MapData mapData;
 
 	/* Tile.display */
 	protected GL gl;
-	protected int drawZlevel;
+	protected int drawLevelID;
 	protected boolean texture;
 	protected Tile left, above, right, below;
 
@@ -62,20 +66,18 @@ public class Tile {
 	}
 
 	protected void processVisibility(Camera camera, Layer layer, int lon, int lat) {
-		levelID = layer.getLevelID();
+		layerID = layer.getLevelID();
 		tileSize = layer.getTileSize();
 		
-		upLeftLon = lon;
-		upLeftLat = lat;
-		lowRightLon = lon + tileSize;
-		lowRightLat = lat + tileSize;
+		tileLon = lon;
+		tileLat = lat;
 		
-		visible = camera.isTileInView(upLeftLon, upLeftLat, tileSize);
+		visible = camera.isTileInView(this);
 		
 		if (visible) {
 			final MapDataManager mapDataManager = Ptolemy3D.getMapDataManager();
-			this.mapData = mapDataManager.request(levelID, lon, -lat);
-			drawZlevel = mapData.key.layer;
+			this.mapData = mapDataManager.request(layerID, lon, -lat);
+			drawLevelID = mapData.key.layer;
 		}
 	}
 
@@ -94,8 +96,6 @@ public class Tile {
 
 		final Landscape landscape = Ptolemy3D.getScene().getLandscape();
 		final Globe globe = landscape.globe;
-		final int maxLon = landscape.getMaxLongitude();
-		final int maxLat = landscape.getMaxLatitude();
 
 		this.gl = gl;
 		this.texture = (textureID != 0);
@@ -103,84 +103,96 @@ public class Tile {
 		this.below = belowTile;
 		this.left = leftTile;
 		this.above = aboveTile;
-
+		
 		if (!texture) {
 			final float[] tileColor = landscape.getTileColor();
 			gl.glColor3f(tileColor[0], tileColor[1], tileColor[2]);
 		}
 		
-		// look for tile header to match coords
-		int ulx, ulz, lrx, lrz;
-		ulx = upLeftLon;
-		ulz = upLeftLat;
-		lrx = lowRightLon;
-		lrz = lowRightLat;
-        if (ulx < -maxLon) {
-            ulx = -maxLon;
-        }
-        if (lrx > maxLon) {
-            lrx = maxLon;
-        }
-        if (ulz < -maxLat) {
-            ulz = -maxLat;
-        }
-        if (lrz > maxLat) {
-            lrz = maxLat;
-        }
-           
 		if (DEBUG) {
-			if (ProfilerUtil.forceLevel != -1 && ProfilerUtil.forceLevel != drawZlevel) {
+//			if (ProfilerUtil.forceLayer != -1 && ProfilerUtil.forceLayer != drawLevelID) {	//Select map layer
+			if (ProfilerUtil.forceLayer != -1 && ProfilerUtil.forceLayer != layerID) {		//Select mesh layer
 				return;
 			}
 		}
 
-		if (levelID < (globe.getNumLayers() - 1)) {	//Last layer don't have tile below
-			final Layer below = globe.getLayer(levelID + 1);
-			if (below.isVisible()) {
-				int b_ulx = below.getUpLeftLon();
-				int b_ulz = below.getUpLeftLat();
-				int b_lrx = below.getLowRightLon();
-				int b_lrz = below.getLowRightLat();
-
-				if ((b_lrz < maxLat) && (b_lrz > -maxLat)) {
-					if (!((lrx <= b_ulx) || (ulx >= b_lrx) || (lrz <= b_ulz) || (ulz >= b_lrz))) {
-						displayClipped(ulx, ulz, lrx, lrz, b_ulx, b_ulz, b_lrx, b_lrz);
+		if (layerID < (globe.getNumLayers() - 1)) {	//Last layer don't have tile below
+			final Layer layerBelow = globe.getLayer(layerID + 1);
+			if (layerBelow.isVisible()) {
+				List<Area> areas = layerBelow.getAreas();
+				for(Area area : areas) {
+					if(clipWithArea(area)) {
 						return;
-					}
-
-					int maxX = (maxLon / below.getTileSize()) * below.getTileSize();
-					if (maxX != maxLon) {
-						maxX += below.getTileSize();
-					}
-
-					if (b_lrx > maxX) {
-						int t_past = Layer.LEVEL_NUMTILE_LON - ((maxLon - b_ulx) / below.getTileSize()) - 1;
-						b_ulx = -maxX;
-						b_lrx = b_ulx + (t_past * below.getTileSize());
-
-						if (!((lrx <= b_ulx) || (ulx >= b_lrx) || (lrz <= b_ulz) || (ulz >= b_lrz))) {
-                            displayClipped(ulx, ulz, lrx, lrz, b_ulx, b_ulz, b_lrx, b_lrz);
-							return;
-						}
 					}
 				}
 			}
 		}
+		
+		final int maxLon = landscape.getMaxLongitude();
+		final int maxLat = landscape.getMaxLatitude();
+		
+		final int ulx, ulz, lrx, lrz;
+		ulx = Math.max(tileLon, -maxLon);
+		ulz = Math.max(tileLat, -maxLat);
+		lrx = Math.min(tileLon + tileSize, maxLon);
+		lrz = Math.min(tileLat + tileSize, maxLat);
 		renderer.drawSubsection(this, ulx, ulz, lrx, lrz);
 	}
 
-	private void displayClipped(int ulx, int ulz, int lrx, int lrz, int c_ulx, int c_ulz, int c_lrx, int c_lrz) {
-		boolean ul, ur, ll, lr;
+	private boolean clipWithArea(Area belowArea) {
+		int ulxBelow = belowArea.getMinLongitude();
+		int lrxBelow = belowArea.getMaxLongitude();
+		int ulzBelow = belowArea.getMinLatitude();
+		int lrzBelow = belowArea.getMaxLatitude();
+		
+		final Landscape landscape = Ptolemy3D.getScene().getLandscape();
+		final int maxLon = landscape.getMaxLongitude();
+		final int maxLat = landscape.getMaxLatitude();
+		
+        final Layer layerBelow = landscape.globe.getLayer(layerID + 1);
+		final int topTileLat = layerBelow.getMaxTileLatitude();
+		
+		final int ulx, ulz, lrx, lrz;
+		ulx = Math.max(tileLon, -maxLon);
+		ulz = Math.max(tileLat, -maxLat);
+		lrx = Math.min(tileLon + tileSize, maxLon);
+		lrz = Math.min(tileLat + tileSize, maxLat);
+        
+        if ((lrzBelow <= topTileLat) && (lrzBelow > -topTileLat)) {
+			if ((lrx > ulxBelow) && (ulx < lrxBelow) && (lrz > ulzBelow) && (ulz < lrzBelow)) {
+				displayClipped(ulx, ulz, lrx, lrz, ulxBelow, ulzBelow, lrxBelow, lrzBelow);
+				return true;
+			}
 
-		ul = inBounds(ulx, ulz, c_ulx, c_ulz, c_lrx, c_lrz);
-		ur = inBounds(lrx, ulz, c_ulx, c_ulz, c_lrx, c_lrz);
-		ll = inBounds(ulx, lrz, c_ulx, c_ulz, c_lrx, c_lrz);
-		lr = inBounds(lrx, lrz, c_ulx, c_ulz, c_lrx, c_lrz);
+			int maxX = (maxLon / layerBelow.getTileSize()) * layerBelow.getTileSize();
+			if (maxX != maxLon) {
+				maxX += layerBelow.getTileSize();
+			}
+			
+			if (lrxBelow > maxX) {
+				int past = Layer.LEVEL_NUMTILE_LON - ((maxLon - ulxBelow) / layerBelow.getTileSize()) - 1;
+				ulxBelow = -maxX;
+				lrxBelow = ulxBelow + (past * layerBelow.getTileSize());
+
+				if (!((lrx <= ulxBelow) || (ulx >= lrxBelow) || (lrz <= ulzBelow) || (ulz >= lrzBelow))) {
+                    displayClipped(ulx, ulz, lrx, lrz, ulxBelow, ulzBelow, lrxBelow, lrzBelow);
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	private void displayClipped(int ulx, int ulz, int lrx, int lrz, int c_ulx, int c_ulz, int c_lrx, int c_lrz) {
+		final boolean ul = inBounds(ulx, ulz, c_ulx, c_ulz, c_lrx, c_lrz);
+		final boolean ur = inBounds(lrx, ulz, c_ulx, c_ulz, c_lrx, c_lrz);
+		final boolean ll = inBounds(ulx, lrz, c_ulx, c_ulz, c_lrx, c_lrz);
+		final boolean lr = inBounds(lrx, lrz, c_ulx, c_ulz, c_lrx, c_lrz);
 
 		if (ul && ur && ll && lr) {
 			return;
 		}
-		else if (ul && ur) {
+		
+		if (ul && ur) {
 			renderer.drawSubsection(this, ulx, c_lrz, lrx, lrz);
 		}
 		else if (ur && lr) {
@@ -215,19 +227,13 @@ public class Tile {
 			renderer.drawSubsection(this, c_lrx, c_ulz, lrx, c_lrz);
 		}
 	}
-	private final boolean inBounds(int x, int z, int c_ulx, int c_ulz,
-			int c_lrx, int c_lrz) {
-		if ((x >= c_ulx) && (x <= c_lrx) && (z >= c_ulz) && (z <= c_lrz)) {
-			return true;
-		}
-		else {
-			return false;
-		}
+	private final boolean inBounds(int x, int z, int c_ulx, int c_ulz, int c_lrx, int c_lrz) {
+		return (x >= c_ulx) && (x <= c_lrx) && (z >= c_ulz) && (z <= c_lrz);
 	}
 
 	/** Tile Picking */
 	protected boolean pick(double[] intersectPoint, double[][] ray) {
-		if (mapData == null || mapData.key.layer != levelID) {
+		if (mapData == null || mapData.key.layer != layerID) {
 			return false;
 		}
 
@@ -236,10 +242,10 @@ public class Tile {
 
 		intersectPoint[0] = intersectPoint[1] = intersectPoint[2] = -999;
 
-		int x1 = upLeftLon;
-		int z1 = upLeftLat;
-		int x2 = lowRightLon;
-		int z2 = lowRightLat;
+		int x1 = tileLon;
+		int z1 = tileLat;
+		int x2 = tileLon + tileSize;
+		int z2 = tileLat + tileSize;
 
 		boolean useDem, useTin;
 		{
@@ -486,95 +492,120 @@ public class Tile {
 	 * Level ID
 	 * @return the level id (first is 0)
 	 */
-	public int getLevelID() {
-		return levelID;
+	public int getLayerID() {
+		return layerID;
 	}
 
+	public int getTileSize() {
+		return tileSize;
+	}
+	
 	/**
 	 * Upper left corner longitude
 	 * @return the upper left longitude
 	 */
-	public int getUpLeftLon() {
+	protected int getRenderingLeftLongitude() {
 		final int res;
-		if (levelID != mapData.key.layer) {
+		if (layerID != mapData.key.layer) {
 			res = mapData.getLon() - Unit.getMeterX();
 		}
 		else {
-			res = upLeftLon;
+			res = tileLon;
 		}
-		
-//		final Landscape landscape = Ptolemy3D.getScene().landscape;
-//		final int maxLon = landscape.getMaxLongitude();
-//		if (res < -maxLon) {
-//			return -maxLon;
-//		}
 		return res;
 	}
-
-	/**
-	 * Upper left corner latitude
-	 * @return the upper left latitude
-	 */
-	public int getUpLeftLat() {
-		final int res;
-		if (levelID != mapData.key.layer) {
-			res = Unit.getMeterZ() - mapData.getLat();
-		}
-		else {
-			res = upLeftLat;
-		}
-		
-//		final Landscape landscape = Ptolemy3D.getScene().landscape;
-//		final int maxLat = landscape.getMaxLatitude();
-//		if (res < -maxLat) {
-//			return -maxLat;
-//		}
-		return res;
-	}
-
 	/**
 	 * Lower right corner longitude
 	 * @return the lower right longitude
 	 */
-	public int getLowRightLon() {
+	protected int getRenderingRightLongitude() {
 		final int res;
-		if (levelID != mapData.key.layer) {
+		if (layerID != mapData.key.layer) {
 			final Globe globe = Ptolemy3D.getScene().getLandscape().globe;
 			final int tileSize = globe.getTileSize(mapData.key.layer);
-			res = getUpLeftLon() + tileSize;
+			res = getRenderingLeftLongitude() + tileSize;
 		}
 		else {
-			res = lowRightLon;
+			res = tileLon + tileSize;
 		}
-		
-//		final Landscape landscape = Ptolemy3D.getScene().landscape;
-//		final int maxLon = landscape.getMaxLongitude();
-//		if (res > maxLon) {
-//			return maxLon;
-//		}
 		return res;
 	}
-
+	/**
+	 * Upper left corner latitude
+	 * @return the upper left latitude
+	 */
+	protected int getRenderingUpperLatitude() {
+		final int res;
+		if (layerID != mapData.key.layer) {
+			res = Unit.getMeterZ() - mapData.getLat();
+		}
+		else {
+			res = tileLat;
+		}
+		return res;
+	}
 	/**
 	 * Lower right corner latitude
 	 * @return the lower right latitude
 	 */
-	public int getLowRightLat() {
+	protected int getRenderingLowerLatitude() {
 		final int res;
-		if (levelID != mapData.key.layer) {
+		if (layerID != mapData.key.layer) {
 			final Globe globe = Ptolemy3D.getScene().getLandscape().globe;
 			final int tileSize = globe.getTileSize(mapData.key.layer);
-			res = getUpLeftLat() + tileSize;
+			res = getRenderingUpperLatitude() + tileSize;
 		}
 		else {
-			res = lowRightLat;
+			res = tileLat + tileSize;
 		}
-		
-//		final Landscape landscape = Ptolemy3D.getScene().landscape;
-//		final int maxLat = landscape.getMaxLatitude();
-//		if (res > maxLat) {
-//			return maxLat;
-//		}
 		return res;
+	}
+
+	/** @param longitude on the left side */
+	public int getLeftLongitude() {
+		final Landscape landscape = Ptolemy3D.getScene().getLandscape();
+		final int maxLon = landscape.getMaxLongitude();
+		if(tileLon < -maxLon) {
+			return -maxLon;
+		}
+		else {
+			return tileLon;
+		}
+	}
+	/** @param longitude on the right side */
+	public int getRightLongitude() {
+		final Landscape landscape = Ptolemy3D.getScene().getLandscape();
+		final int maxLon = landscape.getMaxLongitude();
+		
+		final int lon = tileLon + tileSize;
+		if(lon > maxLon) {
+			return maxLon;
+		}
+		else {
+			return lon;
+		}
+	}
+	public int getUpperLatitude() {
+		final Landscape landscape = Ptolemy3D.getScene().getLandscape();
+		final int maxLat = landscape.getMaxLatitude();
+		
+		if(tileLat < -maxLat) {
+			return maxLat;
+		}
+		else {
+			return -tileLat;
+		}
+	}
+	public int getLowerLatitude() {
+		final Landscape landscape = Ptolemy3D.getScene().getLandscape();
+		final int maxLat = landscape.getMaxLatitude();
+		
+		final int lat = tileLat + tileSize;
+		if(lat > maxLat) {
+			return -maxLat;
+		}
+		else {
+			return -lat;
+		}
 	}
 }

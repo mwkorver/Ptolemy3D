@@ -143,7 +143,9 @@ public class Frustum {
 		return true;
 	}
 	public boolean insideFrustum(double[] point0, double[] point1, double[] point2, double[] point3) {
-		for(double[] plane : sides) {
+		for(int i = 0; i < sides.length; i++) {
+			final double[] plane = sides[i];
+			
 			double dist;
 			dist = Vector3d.dot(point0, plane) + plane[3];
 			if(dist > 0) {

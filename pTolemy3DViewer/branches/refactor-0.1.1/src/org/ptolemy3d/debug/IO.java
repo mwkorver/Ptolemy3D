@@ -36,11 +36,11 @@ import org.ptolemy3d.view.Camera;
  * F3 : Show/Hide Profiler Hud
  * F4 :
  * F5 : Enable/Disable Wireframe rendering for Landscape.
- * F6 :
+ * F6 : Enable/Disable Z-Fight correction
  * F7 : 
  * F8 : Camera position
- * F9 : Force level ++
- * F10: Force level --
+ * F9 : Force layer ++
+ * F10: Force layer --
  * F11: Freeze visibility
  * F12: Test
  * </pre>
@@ -250,17 +250,21 @@ public class IO {
 							break;
 					}
 					break;
+				case KeyEvent.VK_F6:
+					ProfilerUtil.zFightCorrection = !ProfilerUtil.zFightCorrection;
+					println("Z-Fight correction: "+ProfilerUtil.zFightCorrection);
+					break;
 				case KeyEvent.VK_F8:
 					Camera camera = canvas.getCamera();
 					println(camera.toString());
 					break;
 				case KeyEvent.VK_F9:
-					ProfilerUtil.forceLevel++;
-					println("Force level: "+ProfilerUtil.forceLevel);
+					ProfilerUtil.forceLayer++;
+					println("Force layer: "+ProfilerUtil.forceLayer);
 					break;
 				case KeyEvent.VK_F10:
-					ProfilerUtil.forceLevel = -1;
-					println("Force level: "+ProfilerUtil.forceLevel);
+					ProfilerUtil.forceLayer = -1;
+					println("Force layer: "+ProfilerUtil.forceLayer);
 					break;
 				case KeyEvent.VK_F11:
 					ProfilerUtil.freezeVisibility = !ProfilerUtil.freezeVisibility;

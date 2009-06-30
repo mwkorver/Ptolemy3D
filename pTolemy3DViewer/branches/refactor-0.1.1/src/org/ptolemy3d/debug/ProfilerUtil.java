@@ -27,10 +27,12 @@ import java.util.Vector;
 import javax.media.opengl.GL;
 
 import org.ptolemy3d.Ptolemy3D;
+import org.ptolemy3d.Unit;
 import org.ptolemy3d.debug.Profiler.ProfilerEvent;
 import org.ptolemy3d.debug.Profiler.ProfilerEventReport;
 import org.ptolemy3d.globe.Globe;
 import org.ptolemy3d.globe.Layer;
+import org.ptolemy3d.globe.MapDataKey;
 import org.ptolemy3d.scene.Landscape;
 import org.ptolemy3d.scene.Scene;
 import org.ptolemy3d.util.FontRenderer;
@@ -72,9 +74,11 @@ public class ProfilerUtil
 	/** Tiles */
 	public static boolean renderTiles = true;
 	/** Force Level */
-	public static int forceLevel = -1;
+	public static int forceLayer = -1;
 	/** Freeze visibility */
 	public static boolean freezeVisibility = false;
+	/** Z-Fight correction */
+	public static boolean zFightCorrection = false; // No more needed
 	/** Variable used for misc test */
 	public static boolean test = false;
 
@@ -169,9 +173,14 @@ public class ProfilerUtil
 						bytesDownloaded = 0;
 						
 						float totalKO = (totalBytesDownloaded / 1024.f);
-						line = String.format("DL speed:%f ko|TotalDL:%f ko", koPerSec, totalKO);
+						final MapDataKey dlMap = Ptolemy3D.getMapDataManager().getDownloadingMap();
+						line = String.format("DL speed:%f ko|TotalDL:%f ko|DL map:%s", koPerSec, totalKO, format(dlMap));
 						break;
 					case 1:
+						final MapDataKey decodeMap = Ptolemy3D.getMapDataManager().getDecodingMap();
+						line = String.format("Decode map:%s", format(decodeMap));
+						break;
+					case 2:
 						float fps = getFPS();
 						ProfilerEventReport renderProf = ProfilerUtil.getReport(ProfilerEventInterface.Frame);
 						ProfilerEventReport landscapeProf = ProfilerUtil.getReport(ProfilerEventInterface.Landscape);
@@ -184,12 +193,12 @@ public class ProfilerUtil
 							line = String.format("Frame:%dFPS|Landscape:%dFPS", (int)fps, (int)landscapFPS);
 						}
 						break;
-					case 2:
+					case 3:
 						float memUsage = vertexMemoryUsage / 1024.f;
 						line = String.format("Tile:%d|Section:%d|Vtx:%d|VtxUsage:%.2f ko", tileCounter,
 								tileSectionCounter, vertexCounter, memUsage);
 						break;
-					case 3:
+					case 4:
 						final Globe globe = Ptolemy3D.getScene().getLandscape().globe;
 						final int numLayers = globe.getNumLayers();
 						//Format active layers in a list: (activeLayer0Id,activeLayer1Id,...)
@@ -209,13 +218,13 @@ public class ProfilerUtil
 						line = String.format("NumLayers:%d|ActiveLayers:%s",
 								numLayers, activeLayers);
 						break;
-					case 4:
+					case 5:
 						Camera camera = Ptolemy3D.getCanvas().getCamera();
 						Position pos = camera.getPosition();
 						line = String.format(Locale.US, "(lat,lon,alt): (%f,%f,%f)",
 								(float)pos.getLatitudeDD(), (float)pos.getLongitudeDD(), (float)pos.getAltitudeDD());
 						break;
-					case 5:
+					case 6:
 						Scene scene = Ptolemy3D.getScene();
 						Landscape landscape = scene.getLandscape();
 
@@ -254,6 +263,17 @@ public class ProfilerUtil
 			return report;
 		}
 		return null;
+	}
+	private static String format(MapDataKey key) {
+		if(key == null) {
+			return "None";
+		}
+		else {
+			return String.format("(%d, %.2f°, %.2f°)", key.layer, ddToDegree(key.lat), ddToDegree(key.lon));
+		}
+	}
+	private static float ddToDegree(int dd) {
+		return (float)Unit.ddToDegrees(dd);
 	}
 
 	public static void drawProfiler(GL gl) {

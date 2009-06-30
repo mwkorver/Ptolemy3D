@@ -17,14 +17,20 @@
  */
 package org.ptolemy3d.globe;
 
+import java.util.List;
+import java.util.Vector;
+
 import javax.media.opengl.GL;
 
 import org.ptolemy3d.DrawContext;
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.Unit;
+import org.ptolemy3d.debug.Config;
+import org.ptolemy3d.debug.ProfilerUtil;
 import org.ptolemy3d.manager.MapDataManager;
 import org.ptolemy3d.math.Math3D;
 import org.ptolemy3d.scene.Landscape;
+import org.ptolemy3d.view.Area;
 import org.ptolemy3d.view.Camera;
 
 /**
@@ -43,19 +49,15 @@ public class Layer {
 	public final static int LEVEL_NUMTILES = LEVEL_NUMTILE_LON * LEVEL_NUMTILE_LAT;
 
 	/** Level id */
-	private final int levelID;
+	private final int layerID;
 
 	/** List of tiles */
 	private Tile[/* LEVEL_NUMTILES */] tiles;
 
-	/** Upper left corner latitude */
-	private int upLeftLon;
-	/** Upper left corner longitude */
-	private int upLeftLat;
-	/** Upper right corner longitude */
-	private int lowRightLon;
-	/** Upper right corner latitude */
-	private int lowRightLat;
+	/** Center longitude */
+	private int centerLat;
+	/** Center latitude */
+	private int centerLon;
 	/** Tile's size */
 	private final int tileSize;
 	/** Layer visibility */
@@ -64,7 +66,7 @@ public class Layer {
 	private final int maxZoom;
 	/** Use for server efficiency storage and speed of map datas */
 	private final int divider;
-
+	
 	/**
 	 * Creates a new instance.
 	 *
@@ -74,15 +76,13 @@ public class Layer {
 	 * @param divider
 	 */
 	public Layer(int levelId, int tileSize, int maxVisibility, int divider) {
-		this.levelID = levelId;
+		this.layerID = levelId;
 		this.maxZoom = maxVisibility;
 		this.tileSize = tileSize;
 		this.divider = divider;
 
-		this.upLeftLon = 0;
-		this.upLeftLat = 0;
-		this.lowRightLon = 0;
-		this.lowRightLat = 0;
+		this.centerLat = 0;
+		this.centerLon = 0;
 
 		visible = false;
 
@@ -94,7 +94,7 @@ public class Layer {
 
 	@Override
 	public String toString() {
-		return super.toString()+"("+levelID+","+tileSize+","+maxZoom+","+divider+")";
+		return super.toString()+"("+layerID+","+tileSize+","+maxZoom+","+divider+")";
 	}
 	
 	/**
@@ -117,7 +117,7 @@ public class Layer {
 		final int maxLatitude = landscape.getMaxLatitude();
 
 		// Find bounds
-		int ySign = -1;
+		int latSign = -1;
 		int lonIncr = (maxLongitude / tileSize) * tileSize;
 
 		int leftMostTile = -((maxLongitude / tileSize) * tileSize);
@@ -125,46 +125,44 @@ public class Layer {
 			leftMostTile -= tileSize;
 		}
 
-		int minLon, maxLon;
-		minLon = ((int) (camera.getPosition().getLongitudeDD() / tileSize) * tileSize) - (tileSize * 4);
+		int minLon;
+		minLon = ((int) (camera.getPosition().getLongitudeDD() / tileSize) * tileSize) - (tileSize * (LEVEL_NUMTILE_LON/2));
 		if (minLon < leftMostTile) {
 			minLon += ((maxLongitude * 2) / tileSize) * tileSize;
 		}
-		maxLon = minLon + (tileSize * LEVEL_NUMTILE_LON);
 
 		int topTile = (maxLatitude / tileSize) * tileSize;
 		if (topTile != maxLatitude) {
 			topTile += tileSize;
 		}
 
-		int minLat, maxLat;
+		int minLat;
 		boolean wraps = false;
 		if ((tileSize * LEVEL_NUMTILE_LAT) > (maxLatitude * 2)) {
 			wraps = true;
 			minLat = topTile;
 		}
 		else {
-			minLat = ((int) (camera.getPosition().getLatitudeDD() / tileSize) * tileSize) + (tileSize * 4);
+			minLat = ((int) (camera.getPosition().getLatitudeDD() / tileSize) * tileSize) + (tileSize * (LEVEL_NUMTILE_LAT/2));
 			if (minLat > topTile) {
 				minLat = topTile - (((minLat - maxLatitude) / tileSize) * tileSize);
+				
 				if (minLon > 0) {
 					minLon -= lonIncr;
 				}
 				else {
 					minLon += lonIncr;
 				}
-				ySign *= -1;
+				
+				latSign *= -1;
 			}
 		}
-		maxLat = minLat + (tileSize * LEVEL_NUMTILE_LAT) * ySign;
-
+		
 		// Level bounds
-		upLeftLon = minLon;
-		upLeftLat = -minLat;
-		lowRightLon = maxLon;
-		lowRightLat = -maxLat;
-
-		//Correct tiles
+		centerLon = minLon + (tileSize * (LEVEL_NUMTILE_LON/2));
+		centerLat = -(minLat + (tileSize * (LEVEL_NUMTILE_LAT/2)) * latSign);
+		
+		// Create tiles
 		int k = 0;
 		int row = 0;
 		int vlat = minLat;
@@ -172,10 +170,9 @@ public class Layer {
 			int col = 0;
 			int vlon = minLon;
 			while (col < LEVEL_NUMTILE_LON) {
-				final int landscapeMaxAlt = landscape.getMaxLongitude();
-				if (vlon >= landscapeMaxAlt) {
-					vlon = (-landscapeMaxAlt / tileSize) * tileSize;
-					if (vlon != landscapeMaxAlt) {
+				if (vlon >= maxLongitude) {
+					vlon = (-maxLongitude / tileSize) * tileSize;
+					if (vlon != maxLongitude) {
 						vlon -= tileSize;
 					}
 				}
@@ -191,9 +188,9 @@ public class Layer {
 					col++;
 				}
 			}
-			vlat += tileSize * ySign;
+			vlat += tileSize * latSign;
 
-			if (vlat <= -landscape.getMaxLatitude()) {
+			if (vlat <= -maxLatitude) {
 				if (!wraps) {
 					vlat += tileSize;
 					if (minLon > 0) {
@@ -202,7 +199,7 @@ public class Layer {
 					else {
 						minLon += lonIncr;
 					}
-					ySign *= -1;
+					latSign *= -1;
 				}
 				else {
 					for (; k < LEVEL_NUMTILE_LON * LEVEL_NUMTILE_LAT; k++) {
@@ -220,7 +217,7 @@ public class Layer {
 				else {
 					minLon += lonIncr;
 				}
-				ySign *= -1;
+				latSign *= -1;
 			}
 			row++;
 		}
@@ -231,24 +228,33 @@ public class Layer {
 	 * Draw Level geometry
 	 */
 	public void draw(DrawContext drawContext) {
-		GL gl = drawContext.getGL();
-
 		if (!visible) {
 			return;
 		}
 
+		final GL gl = drawContext.getGL();
+		if(Config.DEBUG && ProfilerUtil.zFightCorrection) {
+			// GPU correction to correct bad tiling at pole (north-south)
+			gl.glEnable(GL.GL_POLYGON_OFFSET_FILL);
+			gl.glPolygonOffset(1, -500*layerID);
+		}
 		// Render layer tiles
 		for (int i = 0; i < LEVEL_NUMTILE_LAT; i++) {
 			for (int j = 0; j < LEVEL_NUMTILE_LON; j++) {
 				final int tileID = (i * LEVEL_NUMTILE_LON) + j;
 				final Tile tile = tiles[tileID];
 
+				final Tile right = (j == (LEVEL_NUMTILE_LON - 1)) ? null : tiles[(i * LEVEL_NUMTILE_LON) + j + 1];
+				final Tile below = (i == (LEVEL_NUMTILE_LAT - 1)) ? null : tiles[((i + 1) * LEVEL_NUMTILE_LON) + j];
+				final Tile left = (j == 0) ? null : tiles[(i * LEVEL_NUMTILE_LON) + j - 1];
+				final Tile above = (i == 0) ? null : tiles[((i - 1) * LEVEL_NUMTILE_LON) + j];
+				
 				// Display
-				tile.display(gl,
-						(j == (LEVEL_NUMTILE_LON - 1)) ? null : tiles[(i * LEVEL_NUMTILE_LON) + j + 1],
-								(i == (LEVEL_NUMTILE_LAT - 1)) ? null : tiles[((i + 1) * LEVEL_NUMTILE_LON) + j],
-										(j == 0) ? null : tiles[(i * LEVEL_NUMTILE_LON) + j - 1], (i == 0) ? null : tiles[((i - 1) * LEVEL_NUMTILE_LON) + j]);
+				tile.display(gl, right, below, left, above);
 			}
+		}
+		if(Config.DEBUG && ProfilerUtil.zFightCorrection) {
+			gl.glDisable(GL.GL_POLYGON_OFFSET_FILL);
 		}
 	}
 
@@ -270,7 +276,7 @@ public class Layer {
 		}
 
 		final MapDataManager mapDataManager = Ptolemy3D.getMapDataManager();
-		final MapData mapData = null;//mapDataManager.getMapDataHeader(levelID, tileSize, (int)lon, (int)lat);
+		final MapData mapData = null;//mapDataManager.request(levelID, (int)lon, (int)lat);	//FIXME
 		if (mapData == null) {
 			return null;
 		}
@@ -364,6 +370,112 @@ public class Layer {
 		}
 		return null;
 	}
+	
+	public int getHalfGlobeLongitude() {
+		final Landscape landscape = Ptolemy3D.getScene().getLandscape();
+		final int maxLon = landscape.getMaxLongitude();
+		final int halfLon = (maxLon / tileSize) * tileSize;
+		return halfLon;
+		
+	}
+	
+	public int getMaxTileLatitude() {
+		final Landscape landscape = Ptolemy3D.getScene().getLandscape();
+		final int maxLat = landscape.getMaxLatitude();
+		
+		int maxTileLat = (maxLat / tileSize) * tileSize;
+		if (maxTileLat != maxLat) {
+			maxTileLat += tileSize;
+		}
+		return maxTileLat;
+	}
+	
+	public List<Area> getAreas() {
+		final List<Area> areas = new Vector<Area>(2);
+		
+		final Landscape landscape = Ptolemy3D.getScene().getLandscape();
+		final int maxLat = landscape.getMaxLatitude();
+		final int topTileLat = getMaxTileLatitude();
+		final int halfLon = getHalfGlobeLongitude();
+		
+		final int latSign = (centerLat < maxLat) && (centerLat > -maxLat) ? -1 : 1;
+		
+		final int b_ulx_, b_lrx_, b_ulz_, b_lrz_;
+		b_ulx_ = centerLon - (tileSize * 4);
+		b_lrx_ = centerLon + (tileSize * 4);
+		b_ulz_ = centerLat + latSign * (tileSize * 4);
+		b_lrz_ = centerLat - latSign * (tileSize * 4);
+		
+		final boolean centerInBounds = (centerLat <= topTileLat) && (centerLat >= -topTileLat);
+		final boolean inBounds = (b_lrz_ <= topTileLat) && (b_lrz_ >= -topTileLat);
+		if (centerInBounds && inBounds) {
+			areas.add(new Area(b_ulz_, b_lrz_, b_ulx_, b_lrx_));
+		}
+		else {
+			final boolean northPole = b_ulz_ < 0 && b_lrz_ < 0;
+			
+			final int b_ulx, b_lrx, b_ulz, b_lrz;
+			final int b_ulx2, b_lrx2, b_ulz2, b_lrz2;
+			if(northPole) {
+				final boolean negZSide = b_ulx_ > 0 && b_lrx_ > 0;
+				if(negZSide) {
+					//One Half
+					b_ulx = b_ulx_ - halfLon;
+					b_lrx = b_lrx_ - halfLon;
+					b_ulz = -topTileLat;
+					b_lrz = -topTileLat - (b_lrz_ + topTileLat) - tileSize;
+					//Other half
+					b_ulx2 = b_ulx_;
+					b_lrx2 = b_lrx_;
+					b_ulz2 = -topTileLat;
+					b_lrz2 = -topTileLat + (b_ulz_ + topTileLat) + tileSize;
+				}
+				else {
+					//One Half
+					b_ulx = b_ulx_;
+					b_lrx = b_lrx_;
+					b_ulz2 = -topTileLat;
+					b_lrz2 = -topTileLat - (b_lrz_ + topTileLat) - tileSize;
+					//Other half
+					b_ulx2 = b_ulx_ + halfLon;
+					b_lrx2 = b_lrx_ + halfLon;
+					b_ulz = -topTileLat;
+					b_lrz = -topTileLat + (b_ulz_ + topTileLat) + tileSize;
+				}
+			}
+			else {
+				final boolean posZSide = b_ulx_ > 0 && b_lrx_ > 0;
+				if(posZSide) {
+					//One Half
+					b_ulx = b_ulx_;
+					b_lrx = b_lrx_;
+					b_ulz2 = topTileLat - (b_lrz_ - topTileLat);
+					b_lrz2 = topTileLat;
+					//Other half
+					b_ulx2 = b_ulx_ - halfLon;
+					b_lrx2 = b_lrx_ - halfLon;
+					b_ulz = topTileLat + (b_ulz_ - topTileLat);
+					b_lrz = topTileLat;
+				}
+				else {
+					//One Half
+					b_ulx = b_ulx_ + halfLon;
+					b_lrx = b_lrx_ + halfLon;
+					b_lrz = topTileLat;
+					b_ulz = topTileLat - (b_lrz_ - topTileLat);
+					//Other half
+					b_ulx2 = b_ulx_;
+					b_lrx2 = b_lrx_;
+					b_ulz2 = topTileLat + (b_ulz_ - topTileLat);
+					b_lrz2 = topTileLat;
+				}
+			}
+			
+			areas.add(new Area(b_ulz, b_lrz, b_ulx, b_lrx));
+			areas.add(new Area(b_ulz2, b_lrz2, b_ulx2, b_lrx2));
+		}
+		return areas;
+	}
 
 	// Getters
 	/**
@@ -371,39 +483,7 @@ public class Layer {
 	 * @return the level id (first is 0)
 	 */
 	public int getLevelID() {
-		return levelID;
-	}
-
-	/**
-	 * Upper left corner longitude
-	 * @return the upper left longitude
-	 */
-	public int getUpLeftLon() {
-		return upLeftLon;
-	}
-
-	/**
-	 * Upper left corner latitude
-	 * @return the upper left latitude
-	 */
-	public int getUpLeftLat() {
-		return upLeftLat;
-	}
-
-	/**
-	 * Lower right corner longitude
-	 * @return the lower right longitude
-	 */
-	public int getLowRightLon() {
-		return lowRightLon;
-	}
-
-	/**
-	 * Lower right corner latitude
-	 * @return the lower right latitude
-	 */
-	public int getLowRightLat() {
-		return lowRightLat;
+		return layerID;
 	}
 
 	/**
@@ -421,46 +501,12 @@ public class Layer {
 	public int getTileSize() {
 		return tileSize;
 	}
-
-	/**
-	 * @param tiles the tiles to set
-	 */
-	public void setTiles(Tile[/* LEVEL_NUMTILES */] tiles) {
-		this.tiles = tiles;
-	}
-
+	
 	/**
 	 * @return the tiles
 	 */
 	public Tile[/* LEVEL_NUMTILES */] getTiles() {
 		return tiles;
-	}
-
-	/**
-	 * @param upLeftLon the upLeftLon to set
-	 */
-	public void setUpLeftLon(int upLeftLon) {
-		this.upLeftLon = upLeftLon;
-	}
-
-	/** @param upLeftLat the upLeftLat to set */
-	public void setUpLeftLat(int upLeftLat) {
-		this.upLeftLat = upLeftLat;
-	}
-
-	/** @param lowRightLon the lowRightLon to set */
-	public void setLowRightLon(int lowRightLon) {
-		this.lowRightLon = lowRightLon;
-	}
-
-	/** @param lowRightLat the lowRightLat to set */
-	public void setLowRightLat(int lowRightLat) {
-		this.lowRightLat = lowRightLat;
-	}
-
-	/** @param visible the visible to set */
-	public void setVisible(boolean visible) {
-		this.visible = visible;
 	}
 
 	/** @return the visible */
@@ -476,5 +522,17 @@ public class Layer {
 	/** @return the divider */
 	public int getDivider() {
 		return divider;
+	}
+
+	public int getCenterLat() {
+		return centerLat;
+	}
+
+	public int getCenterLon() {
+		return centerLon;
+	}
+
+	public void setVisible(boolean visible) {
+		this.visible = visible;
 	}
 }

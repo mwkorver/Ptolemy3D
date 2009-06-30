@@ -27,7 +27,6 @@ import org.ptolemy3d.globe.MapDataKey;
 import org.ptolemy3d.io.MapDataFinder;
 import org.ptolemy3d.io.Stream;
 import org.ptolemy3d.jp2.Decoder;
-import org.ptolemy3d.jp2.JJ2000Decoder;
 import org.ptolemy3d.jp2.fast.JJ2000FastDecoder;
 
 /**

@@ -69,7 +69,7 @@ public class Globe {
 		return 0;
 	}
 	/*  */
-	@Deprecated private final static int MAX_DIFFERENT_LAYER = 3;
+	@Deprecated private final static int MAX_DIFFERENT_LAYER = 5;
 	private final boolean isVisibleAreaCovered(Camera camera, int lowest, int current) {
 		//FIXME Implement it
 		int numActive = lowest - current + 1;
@@ -80,8 +80,7 @@ public class Globe {
 	}
 
 	public void draw(DrawContext drawContext) {
-		for (int i = layers.length - 1; i >= 0; i--) {
-			final Layer layer = layers[i];
+		for (Layer layer : layers) {
 			layer.draw(drawContext);
 		}
 	}
@@ -163,11 +162,12 @@ public class Globe {
 		double dist = Math3D.distance2D(camLon, tileLon, camLat, tileLat);
 
 		final Landscape landscape = Ptolemy3D.getScene().getLandscape();
+		final int maxLon = landscape.getMaxLongitude();
 		if (camLon < 0) {
-			tileLon = camLon + (landscape.getMaxLongitude() - mapDataKey.lon) + (camLon + landscape.getMaxLongitude());
+			tileLon = camLon + (maxLon - mapDataKey.lon) + (camLon         + maxLon);
 		}
 		else {
-			tileLon = camLon + (landscape.getMaxLongitude() - camLon) + (mapDataKey.lon + landscape.getMaxLongitude());
+			tileLon = camLon + (maxLon - camLon        ) + (mapDataKey.lon + maxLon);
 		}
 
 		double dist2 = Math3D.distance2D(camLon, tileLon, camLat, tileLat);

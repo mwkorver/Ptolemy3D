@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.ptolemy3d.jp2;
+package org.ptolemy3d.jp2.jj2000;
 
 import java.awt.image.BufferedImage;
 import java.io.File;

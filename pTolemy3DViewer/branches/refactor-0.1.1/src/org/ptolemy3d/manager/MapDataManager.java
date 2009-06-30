@@ -39,6 +39,13 @@ public class MapDataManager {
 		decoderQueue.start();
 	}
 	
+	public MapDataKey getDownloadingMap() {
+		return decoderQueue.getDownloadingMap();
+	}
+	public MapDataKey getDecodingMap() {
+		return decoderQueue.getDecodingMap();
+	}
+	
 	/** Request a <code>MapData</code> for the given (<code>layer</code>,<code>lon</code>,<code>lat</code>)*/
 	public final MapData request(int layer, int lon, int lat) {
 		//Request exact layer

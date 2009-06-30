@@ -61,6 +61,13 @@ class MapDataDecoder {
 		decoderThread.start();
 	}
 	
+	public MapDataKey getDownloadingMap() {
+		return downloadDispatcher.mapDataKey;
+	}
+	public MapDataKey getDecodingMap() {
+		return decoderThread.mapDataKey;
+	}
+	
 	/** @return the <code>MapDecoderEntry</code> for the <code>key</code>, null if it did not exists */
 	public MapDecoderEntry getIfExist(MapDataKey key) {
 		final HashMap<MapDataKey, MapDecoderEntry> map = getHashMap(key.layer);
@@ -104,6 +111,8 @@ class MapDataDecoder {
 
 	/** */
 	class DownloadDispatcherThread extends Thread {
+		protected MapDataKey mapDataKey = null;
+		
 		public DownloadDispatcherThread() {
 			super("DownloadDispatcher");
 			setDaemon(true);
@@ -113,7 +122,9 @@ class MapDataDecoder {
 			while (true) {
 				final MapDecoderEntry entry = findCloserEntryToDownload();
 				if (entry != null) {
+					mapDataKey = entry.mapData.key;
 					final boolean downloaded = entry.download();
+					mapDataKey = null;
 					if(downloaded) {
 						notifyDecoder();
 					}
@@ -194,6 +205,8 @@ class MapDataDecoder {
 	
 	/** */
 	class DecoderThread extends Thread {
+		protected MapDataKey mapDataKey = null;
+		
 		public DecoderThread() {
 			super("Decoder");
 			setDaemon(true);
@@ -209,7 +222,9 @@ class MapDataDecoder {
 			final MapDecoderEntry entry = findEntryToDecode();
 			if (entry != null) {
 				try {
+					mapDataKey = entry.mapData.key;
 					final boolean decoded = entry.decode();
+					mapDataKey = null;
 					return decoded;
 				}
 				catch(OutOfMemoryError e) {

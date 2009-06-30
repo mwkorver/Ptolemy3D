@@ -46,10 +46,17 @@ public class Position {
 		this.altitude = alt;
 	}
 
-	public Position copy() {
+	@Override
+	public Position clone() {
 		return new Position(latitudeDD, longitudeDD, altitude);
 	}
 
+	@Override
+	public String toString() {
+		return "Lat: " + latitudeDD + ", Lon: " + longitudeDD + ", Alt: "
+				+ altitude;
+	}
+	
 	/**
 	 * @return latitude in DD.
 	 */
@@ -83,11 +90,4 @@ public class Position {
 	public void setAltitudeDD(double altDD) {
 		altitude = altDD;
 	}
-
-	@Override
-	public String toString() {
-		return "Lat: " + latitudeDD + ", Lon: " + longitudeDD + ", Alt: "
-				+ altitude;
-	}
-
 }

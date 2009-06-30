@@ -198,12 +198,12 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 	}
 
 	protected void drawDemSubsection_Textured(int xStart, int zStart, int xEnd, int zEnd) {
-		if (levelID > MAX_PRECOMPUTEDLEVEL) {
+		if (layerID > MAX_PRECOMPUTEDLEVEL) {
 			super.drawDemSubsection_Textured(xStart, zStart, xEnd, zEnd);
 			return;
 		}
-
-		final Layer drawLevel = landscape.globe.getLayer(drawZlevel);
+		
+		final Layer drawLevel = landscape.globe.getLayer(drawLevelID);
 		final byte[] dem = mapData.dem.demDatas;
 		final int numRows = mapData.dem.numRows;
 
@@ -244,7 +244,7 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 
 		int ul_corner = 0, ur_corner = 0, ll_corner = 0, lr_corner = 0;
 		double left_dem_slope = -1, right_dem_slope = -1, top_dem_slope = -1, bottom_dem_slope = -1;
-		final boolean eqZLevel = (drawZlevel == ZLevel);
+		final boolean eqZLevel = (drawLevelID == layerID);
 		if (eqZLevel && (xStart == upLeftX) && (xEnd == lowRightX) && (zStart == upLeftZ) && (zEnd == lowRightZ)) {
 			final int rowWidthMinusOne = rowWidth - 1;
 			final int rowWidthMinusTwo = rowWidth - 2;
@@ -255,16 +255,16 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 			ll_corner = (dem[i1] << 8) + (dem[i1 + 1] & 0xFF);
 			lr_corner = (dem[i1 + rowWidthMinusTwo] << 8) + (dem[i1 + rowWidthMinusOne] & 0xFF);
 
-			if ((leftTile == null) || (leftTile.mapData.key.layer != drawZlevel)) {
+			if ((leftTile == null) || (leftTile.mapData.key.layer != drawLevelID)) {
 				left_dem_slope = (ll_corner - ul_corner) * oneOverNrowsZ;
 			}
-			if ((rightTile == null) || (rightTile.mapData.key.layer != drawZlevel)) {
+			if ((rightTile == null) || (rightTile.mapData.key.layer != drawLevelID)) {
 				right_dem_slope = (lr_corner - ur_corner) * oneOverNrowsZ;
 			}
-			if ((aboveTile == null) || (aboveTile.mapData.key.layer != drawZlevel)) {
+			if ((aboveTile == null) || (aboveTile.mapData.key.layer != drawLevelID)) {
 				top_dem_slope = (ur_corner - ul_corner) * oneOverNrowsX;
 			}
-			if ((belowTile == null) || (belowTile.mapData.key.layer != drawZlevel)) {
+			if ((belowTile == null) || (belowTile.mapData.key.layer != drawLevelID)) {
 				bottom_dem_slope = (lr_corner - ll_corner) * oneOverNrowsX;
 			}
 		}
@@ -425,12 +425,12 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 	}
 
 	protected void drawDemSubsection(int xStart, int zStart, int xEnd, int zEnd) {
-		if (levelID > MAX_PRECOMPUTEDLEVEL) {
+		if (layerID > MAX_PRECOMPUTEDLEVEL) {
 			super.drawDemSubsection(xStart, zStart, xEnd, zEnd);
 			return;
 		}
 
-		final Layer drawLevel = landscape.globe.getLayer(drawZlevel);
+		final Layer drawLevel = landscape.globe.getLayer(drawLevelID);
 		final byte[] dem = mapData.dem.demDatas;
 		final int numRows = mapData.dem.numRows;
 		final boolean useColor = (landscape.getDisplayMode() == Landscape.DISPLAY_SHADEDDEM);
@@ -471,7 +471,7 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 
 		int ul_corner = 0, ur_corner = 0, ll_corner = 0, lr_corner = 0;
 		double left_dem_slope = -1, right_dem_slope = -1, top_dem_slope = -1, bottom_dem_slope = -1;
-		final boolean eqZLevel = (drawZlevel == ZLevel);
+		final boolean eqZLevel = (drawLevelID == layerID);
 		if (eqZLevel && (xStart == upLeftX) && (xEnd == lowRightX) && (zStart == upLeftZ) && (zEnd == lowRightZ)) {
 			final int rowWidthMinusOne = rowWidth - 1;
 			final int rowWidthMinusTwo = rowWidth - 2;
@@ -482,16 +482,16 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 			ll_corner = (dem[i1] << 8) + (dem[i1 + 1] & 0xFF);
 			lr_corner = (dem[i1 + rowWidthMinusTwo] << 8) + (dem[i1 + rowWidthMinusOne] & 0xFF);
 
-			if ((leftTile == null) || (leftTile.mapData.key.layer != drawZlevel)) {
+			if ((leftTile == null) || (leftTile.mapData.key.layer != drawLevelID)) {
 				left_dem_slope = (ll_corner - ul_corner) * oneOverNrowsZ;
 			}
-			if ((rightTile == null) || (rightTile.mapData.key.layer != drawZlevel)) {
+			if ((rightTile == null) || (rightTile.mapData.key.layer != drawLevelID)) {
 				right_dem_slope = (lr_corner - ur_corner) * oneOverNrowsZ;
 			}
-			if ((aboveTile == null) || (aboveTile.mapData.key.layer != drawZlevel)) {
+			if ((aboveTile == null) || (aboveTile.mapData.key.layer != drawLevelID)) {
 				top_dem_slope = (ur_corner - ul_corner) * oneOverNrowsX;
 			}
-			if ((belowTile == null) || (belowTile.mapData.key.layer != drawZlevel)) {
+			if ((belowTile == null) || (belowTile.mapData.key.layer != drawLevelID)) {
 				bottom_dem_slope = (lr_corner - ll_corner) * oneOverNrowsX;
 			}
 		}
@@ -647,48 +647,49 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 	}
 
 	protected final void drawSubsection_Textured(int xStart, int zStart, int xEnd, int zEnd) {
-		if (levelID > MAX_PRECOMPUTEDLEVEL) {
+		if (layerID > MAX_PRECOMPUTEDLEVEL) {
 			super.drawSubsection_Textured(xStart, zStart, xEnd, zEnd);
 			return;
 		}
 
-		final Layer drawLevel = landscape.globe.getLayer(drawZlevel);
+		final Layer drawLevel = landscape.globe.getLayer(drawLevelID);
 
-		int sizeX = (xEnd - xStart);
-		int sizeZ = (zEnd - zStart);
+		final int sizeX = (xEnd - xStart);
+		final int sizeZ = (zEnd - zStart);
 
 		// Precision
-		int n = (int) (((double) 50 * ((sizeX > sizeZ) ? sizeX : sizeZ) / landscape.getMaxLongitude()));
-		if (n <= 2) {
-			n = 4;
-		}
-
+//		final int nLon = Math.max((int)Math.ceil(getNumQuads() * sizeX / (float)tileSize), 1);
+//		final int nLat = Math.max((int)Math.ceil(getNumQuads() * sizeZ / (float)tileSize), 1);
+		final int nLon = Math.max(getNumQuads() * sizeX / tileSize, 1);
+		final int nLat = Math.max(getNumQuads() * sizeZ / tileSize, 1);
+		
 		// Texture coordinates
 		float txStart, tzStart;
-		final float txIncr,  tzIncr;
+		final float txIncr, tzIncr;
 		{
 			final float oneOverTileWidth = 1.0f / drawLevel.getTileSize();
-			final float oneOverTileWidthOverN = oneOverTileWidth / n;
+			final float oneOverTileWidthOverNLon = oneOverTileWidth / nLon;
+			final float oneOverTileWidthOverNLat = oneOverTileWidth / nLat;
 
 			txStart = (xStart - upLeftX) * oneOverTileWidth;
 			tzStart = (zStart - upLeftZ) * oneOverTileWidth;
 
-			txIncr = sizeX * oneOverTileWidthOverN;
-			tzIncr = sizeZ * oneOverTileWidthOverN;
+			txIncr = sizeX * oneOverTileWidthOverNLon;
+			tzIncr = sizeZ * oneOverTileWidthOverNLat;
 		}
 
 		// Vertex position
 		xStart += landscape.getMaxLongitude();
 		xEnd += landscape.getMaxLongitude();
-		final int xIncr = sizeX / n;
-		final int zIncr = sizeZ / n;
+		final int xIncr = sizeX / nLon;
+		final int zIncr = sizeZ / nLat;
 
 //		gl.glBegin(GL.GL_TRIANGLE_STRIP);
 		int lat1 = zStart;
 		double cosY1 = lookUpCos(lat1) * EARTH_RADIUS;
 		double sinY1 = -lookUpCos(angle90 - lat1) * EARTH_RADIUS;
 		float ty1 = tzStart;
-		for (int j = 0; j < n; j++) {
+		for (int j = 0; j < nLat; j++) {
 			final int lat2 = lat1 + zIncr;
 			double cosY2 = lookUpCos(lat2) * EARTH_RADIUS;
 			double sinY2 = -lookUpCos(angle90 - lat2) * EARTH_RADIUS;
@@ -699,7 +700,7 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 			float tx = txStart;
 
 			gl.glBegin(GL.GL_TRIANGLE_STRIP);
-			for (int i = 0; i <= n; i++) {
+			for (int i = 0; i <= nLon; i++) {
 				//setSphericalCoord(lon, lat1, dst1);
 				//setSphericalCoord(lon, lat2, dst2);
 
@@ -736,32 +737,32 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 //		gl.glEnd();
 
 		if(DEBUG) {
-			int numVertices = 2*n*(n+1);
+			int numVertices = 2*nLat*(nLon+1);
 			ProfilerUtil.vertexCounter += numVertices;
 			ProfilerUtil.vertexMemoryUsage += numVertices * (3 * 8 + 2 * 4);
 		}
 	}
 
 	protected final void drawSubsection(int xStart, int zStart, int xEnd, int zEnd) {
-		if (levelID > MAX_PRECOMPUTEDLEVEL) {
+		if (layerID > MAX_PRECOMPUTEDLEVEL) {
 			super.drawSubsection(xStart, zStart, xEnd, zEnd);
 			return;
 		}
 
-		int sizeX = (xEnd - xStart);
-		int sizeZ = (zEnd - zStart);
+		final int sizeX = (xEnd - xStart);
+		final int sizeZ = (zEnd - zStart);
 
 		// Precision
-		int n = (int) (((double) 50 * ((sizeX > sizeZ) ? sizeX : sizeZ) / landscape.getMaxLongitude()));
-		if (n <= 2) {
-			n = 4;
-		}
-
+//		final int nLon = Math.max((int)Math.ceil(getNumQuads() * sizeX / (float)tileSize), 1);
+//		final int nLat = Math.max((int)Math.ceil(getNumQuads() * sizeZ / (float)tileSize), 1);
+		final int nLon = Math.max(getNumQuads() * sizeX / tileSize, 1);
+		final int nLat = Math.max(getNumQuads() * sizeZ / tileSize, 1);
+		
 		// Vertex position
 		xStart += landscape.getMaxLongitude();
 		xEnd += landscape.getMaxLongitude();
-		final int xIncr = sizeX / n;
-		final int zIncr = sizeZ / n;
+		final int xIncr = sizeX / nLon;
+		final int zIncr = sizeZ / nLat;
 
 		final boolean useColor = (landscape.getDisplayMode() == Landscape.DISPLAY_SHADEDDEM);
 		if (useColor) {
@@ -772,7 +773,7 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 		int lat1 = zStart;
 		double cosY1 = lookUpCos(lat1) * EARTH_RADIUS;
 		double sinY1 = -lookUpCos(angle90 - lat1) * EARTH_RADIUS;
-		for (int j = 0; j < n; j++) {
+		for (int j = 0; j < nLat; j++) {
 			final int lat2 = lat1 + zIncr;
 			double cosY2 = lookUpCos(lat2) * EARTH_RADIUS;
 			double sinY2 = -lookUpCos(angle90 - lat2) * EARTH_RADIUS;
@@ -780,7 +781,7 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 			int lon = xStart;
 
 			gl.glBegin(GL.GL_TRIANGLE_STRIP);
-			for (int i = 0; i <= n; i++) {
+			for (int i = 0; i <= nLon; i++) {
 				//setSphericalCoord(lon, lat1, dst1);
 				//setSphericalCoord(lon, lat2, dst2);
 
@@ -813,7 +814,7 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 //		gl.glColor3f(1, 1, 1);	//This should be done somewhere
 
 		if(DEBUG) {
-			int numVertices = 2*n*(n+1);
+			int numVertices = 2*nLat*(nLon+1);
 			ProfilerUtil.vertexCounter += numVertices;
 			ProfilerUtil.vertexMemoryUsage += numVertices * (3 * 8);
 		}

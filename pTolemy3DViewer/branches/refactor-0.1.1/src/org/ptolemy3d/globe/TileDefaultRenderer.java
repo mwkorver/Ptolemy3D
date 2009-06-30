@@ -38,7 +38,7 @@ class TileDefaultRenderer implements TileRenderer {
 
 	private GL gl;
 	private MapData jtile;
-	private int drawZlevel;
+	private int drawLevelID;
 	private boolean texture;
 	private Tile leftTile;
 	private Tile aboveTile;
@@ -56,17 +56,17 @@ class TileDefaultRenderer implements TileRenderer {
 	private final void fillTemporaryVariables(Tile tile) {
 		gl = tile.gl;
 		jtile = tile.mapData;
-		drawZlevel = tile.drawZlevel;
+		drawLevelID = tile.drawLevelID;
 		texture = tile.texture;
 		leftTile = tile.left;
 		aboveTile = tile.above;
 		rightTile = tile.right;
 		belowTile = tile.below;
-		upLeftX = tile.getUpLeftLon();
-		upLeftZ = tile.getUpLeftLat();
-		lowRightX = tile.getLowRightLon();
-		lowRightZ = tile.getLowRightLat();
-		ZLevel = tile.getLevelID();
+		upLeftX = tile.getRenderingLeftLongitude();
+		upLeftZ = tile.getRenderingUpperLatitude();
+		lowRightX = tile.getRenderingRightLongitude();
+		lowRightZ = tile.getRenderingLowerLatitude();
+		ZLevel = tile.getLayerID();
 
 		landscape = Ptolemy3D.getScene().getLandscape();
 		tileColor = landscape.getTileColor();
@@ -107,16 +107,16 @@ class TileDefaultRenderer implements TileRenderer {
 		double left_dem_slope = -1, right_dem_slope = -1, top_dem_slope = -1, bottom_dem_slope = -1, dy;
 
 		// corners clockwise, from ul
-		if ((leftTile == null) || (leftTile.mapData.key.layer != drawZlevel)) {
+		if ((leftTile == null) || (leftTile.mapData.key.layer != drawLevelID)) {
 			left_dem_slope = (double) (jtile.tin.positions[3][1] - jtile.tin.positions[0][1]) / jtile.tin.w;
 		}
-		if ((rightTile == null) || (rightTile.mapData.key.layer != drawZlevel)) {
+		if ((rightTile == null) || (rightTile.mapData.key.layer != drawLevelID)) {
 			right_dem_slope = (double) (jtile.tin.positions[2][1] - jtile.tin.positions[1][1]) / jtile.tin.w;
 		}
-		if ((aboveTile == null) || (aboveTile.mapData.key.layer != drawZlevel)) {
+		if ((aboveTile == null) || (aboveTile.mapData.key.layer != drawLevelID)) {
 			top_dem_slope = (double) (jtile.tin.positions[1][1] - jtile.tin.positions[0][1]) / jtile.tin.w;
 		}
-		if ((belowTile == null) || (belowTile.mapData.key.layer != drawZlevel)) {
+		if ((belowTile == null) || (belowTile.mapData.key.layer != drawLevelID)) {
 			bottom_dem_slope = (double) (jtile.tin.positions[2][1] - jtile.tin.positions[3][1]) / jtile.tin.w;
 		}
 
@@ -191,7 +191,7 @@ class TileDefaultRenderer implements TileRenderer {
 	}
 
 	private final void drawSubsection_Dem(int x1, int z1, int x2, int z2) {
-		final Layer drawLevel = Ptolemy3D.getScene().getLandscape().globe.getLayer(drawZlevel);
+		final Layer drawLevel = Ptolemy3D.getScene().getLandscape().globe.getLayer(drawLevelID);
 		final byte[] dem = jtile.dem.demDatas;
 
 		double left_dem_slope = -1, right_dem_slope = -1, top_dem_slope = -1, bottom_dem_slope = -1;
@@ -235,22 +235,22 @@ class TileDefaultRenderer implements TileRenderer {
 		int nrows_x = endx - startx - 1;
 		int nrows_z = endz - startz;
 
-		if ((drawZlevel == ZLevel) && (x1 == upLeftX) && (x2 == lowRightX) && (z1 == upLeftZ) && (z2 == lowRightZ)) {
+		if ((drawLevelID == ZLevel) && (x1 == upLeftX) && (x2 == lowRightX) && (z1 == upLeftZ) && (z2 == lowRightZ)) {
 			ul_corner = ((dem[0] << 8) + (dem[1] & 0xFF));
 			ur_corner = ((dem[(row_width - 2)] << 8) + (dem[(row_width - 1)] & 0xFF));
 			ll_corner = ((dem[row_width * (numrows - 1)] << 8) + (dem[(row_width * (numrows - 1)) + 1] & 0xFF));
 			lr_corner = ((dem[row_width * (numrows - 1) + (row_width - 2)] << 8) + (dem[(row_width * (numrows - 1)) + (row_width - 1)] & 0xFF));
 
-			if ((leftTile == null) || (leftTile.mapData.key.layer != drawZlevel)) {
+			if ((leftTile == null) || (leftTile.mapData.key.layer != drawLevelID)) {
 				left_dem_slope = (ll_corner - ul_corner) / (nrows_z);
 			}
-			if ((rightTile == null) || (rightTile.mapData.key.layer != drawZlevel)) {
+			if ((rightTile == null) || (rightTile.mapData.key.layer != drawLevelID)) {
 				right_dem_slope = (lr_corner - ur_corner) / (nrows_z);
 			}
-			if ((aboveTile == null) || (aboveTile.mapData.key.layer != drawZlevel)) {
+			if ((aboveTile == null) || (aboveTile.mapData.key.layer != drawLevelID)) {
 				top_dem_slope = (ur_corner - ul_corner) / (nrows_x);
 			}
-			if ((belowTile == null) || (belowTile.mapData.key.layer != drawZlevel)) {
+			if ((belowTile == null) || (belowTile.mapData.key.layer != drawLevelID)) {
 				bottom_dem_slope = (lr_corner - ll_corner) / (nrows_x);
 			}
 		}
@@ -321,7 +321,7 @@ class TileDefaultRenderer implements TileRenderer {
 					pos_r2 = pos_d2;
 				}
 
-				if (drawZlevel == ZLevel) {
+				if (drawLevelID == ZLevel) {
 					if ((j == startx) && (left_dem_slope != -1)) {
 						dy1 = ul_corner + (i * left_dem_slope);
 						dy2 = ul_corner + ((i + 1) * left_dem_slope);
@@ -403,7 +403,7 @@ class TileDefaultRenderer implements TileRenderer {
 	}
 
 	private final void drawSubsection(int x1, int z1, int x2, int z2) {
-		final Layer drawLevel = Ptolemy3D.getScene().getLandscape().globe.getLayer(drawZlevel);
+		final Layer drawLevel = Ptolemy3D.getScene().getLandscape().globe.getLayer(drawLevelID);
 
 		double t1, t2, t3;
 		float tx, ty1, ty2;

@@ -50,7 +50,7 @@ public class MapDataManager {
 	public final MapData request(int layer, int lon, int lat) {
 		//Request exact layer
 		final MapDataKey exactKey = new MapDataKey(layer, lon, lat);
-		final MapDecoderEntry exactEntry = decoderQueue.getIfExist(exactKey);
+		final MapDataEntry exactEntry = decoderQueue.getIfExist(exactKey);
 		if((exactEntry != null) && (exactEntry.mapData.hasTexture())) {
 			return exactEntry.mapData;
 		}
@@ -71,7 +71,7 @@ public class MapDataManager {
 				}
 			}
 			
-			final MapDecoderEntry entry = decoderQueue.getIfExist(closeKey);
+			final MapDataEntry entry = decoderQueue.getIfExist(closeKey);
 			if(entry != null) {
 				final MapData curMapData = entry.mapData;
 				if(curMapData.hasTexture()) {
@@ -89,7 +89,7 @@ public class MapDataManager {
 		
 		//Request first layer
 		final MapDataKey firstKey = globe.getCloserMap(0, lon, lat);
-		final MapDecoderEntry firstEntry = decoderQueue.get(firstKey);
+		final MapDataEntry firstEntry = decoderQueue.get(firstKey);
 		return firstEntry.mapData;
 	}
 	

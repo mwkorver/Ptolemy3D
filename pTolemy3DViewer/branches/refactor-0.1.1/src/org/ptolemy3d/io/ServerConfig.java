@@ -17,7 +17,6 @@
  */
 package org.ptolemy3d.io;
 
-
 /**
  * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  */
@@ -31,7 +30,7 @@ public class ServerConfig {
 	/** */
 	private final String[] jp2Locations;
 	/** */
-	private final String[] DEMLocation;
+	private final String[] demLocations;
 	/** */
 	private final boolean keepAlives;
 	/** */
@@ -41,10 +40,10 @@ public class ServerConfig {
 			String[] locations, String[] DEMLocation,
 			boolean keepAlives, String urlAppends) {
 		this.headerKeys = headerKeys;
-		this.host = MapDataFinder.parseHost(dataServers);
-		this.port = MapDataFinder.parsePort(dataServers);
+		this.host = DataFinder.parseHost(dataServers);
+		this.port = DataFinder.parsePort(dataServers);
 		this.jp2Locations = locations;
-		this.DEMLocation = DEMLocation;
+		this.demLocations = DEMLocation;
 		this.keepAlives = keepAlives;
 		this.urlAppends = urlAppends;
 		
@@ -94,8 +93,8 @@ public class ServerConfig {
 	/**
 	 * @return the dEMLocation
 	 */
-	public String[] getDEMLocation() {
-		return DEMLocation;
+	public String[] getDemLocations() {
+		return demLocations;
 	}
 
 	/**

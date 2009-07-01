@@ -25,14 +25,14 @@ package org.ptolemy3d;
  * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  */
 public class Unit {
-
+	/** Earth radius from the center to the equator, in meter. */
+	private final static float REAL_EARTH_RADIUS = 6378136;
+	
     // Globe radius
-    public static final int EARTH_RADIUS = 500000; // 6378136;
+    public static final int EARTH_RADIUS = 500000; // REAL_EARTH_RADIUS;
     public static final int DEFAULT_DD_FACTOR = 1000000;
     private static int ddFactor = DEFAULT_DD_FACTOR;
-    private static int meterX = 0;	//FIXME Always 0, remove that ?
-    private static int meterZ = 0;	//FIXME Always 0, remove that ?
-    private static float coordSystemRatio = (float) EARTH_RADIUS / 6378136;
+    private static float coordSystemRatio = EARTH_RADIUS / REAL_EARTH_RADIUS;
 
     /**
      * Convert degrees to DD.
@@ -55,23 +55,7 @@ public class Unit {
     public static double ddToDegrees(int ddUnit) {
         return (double) ddUnit / ddFactor;
     }
-
-    public static int getMeterX() {
-        return meterX;
-    }
-
-    public static void setMeterX(int mx) {
-        meterX = mx;
-    }
-
-    public static int getMeterZ() {
-        return meterZ;
-    }
-
-    public static void setMeterZ(int mz) {
-        meterZ = mz;
-    }
-
+    
     public static float getCoordSystemRatio() {
         return coordSystemRatio;
     }

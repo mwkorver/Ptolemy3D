@@ -153,7 +153,6 @@ public class CityGmlPlugin implements Plugin {
 	public void draw(DrawContext drawContext) {
 
 		GL gl = drawContext.getGL();
-		Camera camera = drawContext.getCanvas().getCamera();
 
 		if (!status) {
 			return;

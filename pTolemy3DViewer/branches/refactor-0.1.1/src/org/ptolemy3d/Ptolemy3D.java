@@ -21,7 +21,7 @@ import netscape.javascript.JSObject;
 
 import org.ptolemy3d.debug.IO;
 import org.ptolemy3d.io.FileSystemCache;
-import org.ptolemy3d.io.MapDataFinder;
+import org.ptolemy3d.io.DataFinder;
 import org.ptolemy3d.manager.MapDataManager;
 import org.ptolemy3d.manager.TextureManager;
 import org.ptolemy3d.scene.Scene;
@@ -91,7 +91,7 @@ public final class Ptolemy3D {
 	private static Scene scene = new Scene();
 	private static TextureManager textureManager = null;
 	private static MapDataManager mapDataManager = null;
-	private static MapDataFinder mapDataFinder = null;
+	private static DataFinder dataFinder = null;
 	private static FileSystemCache cache = null;
 
 	// JavaScript function names
@@ -110,7 +110,7 @@ public final class Ptolemy3D {
 	public static void initialize(Configuration config) {
 		configuration = config;
 		textureManager = new TextureManager();
-		mapDataFinder = new MapDataFinder(configuration.getServer(),
+		dataFinder = new DataFinder(configuration.getServer(),
 				configuration.servers);
 		mapDataManager = new MapDataManager();
 		cache = new FileSystemCache();
@@ -231,8 +231,8 @@ public final class Ptolemy3D {
 	/**
 	 * @return the map data manager finder
 	 */
-	public static MapDataFinder getMapDataFinder() {
-		return mapDataFinder;
+	public static DataFinder getDataFinder() {
+		return dataFinder;
 	}
 
 	/**

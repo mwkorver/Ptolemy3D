@@ -507,7 +507,7 @@ public class Tile {
 	protected int getRenderingLeftLongitude() {
 		final int res;
 		if (layerID != mapData.key.layer) {
-			res = mapData.getLon() - Unit.getMeterX();
+			res = mapData.getLon();
 		}
 		else {
 			res = tileLon;
@@ -537,7 +537,7 @@ public class Tile {
 	protected int getRenderingUpperLatitude() {
 		final int res;
 		if (layerID != mapData.key.layer) {
-			res = Unit.getMeterZ() - mapData.getLat();
+			res = - mapData.getLat();
 		}
 		else {
 			res = tileLat;

@@ -44,12 +44,12 @@ class MapDataDecoder {
 	private final static int timeOut = 10 * 1000;
 	
 	/** Keep reference of all MapData */
-	private final HashMap<Integer, HashMap<MapDataKey, MapDecoderEntry>> decoders;
+	private final HashMap<Integer, HashMap<MapDataKey, MapDataEntry>> decoders;
 	private final DownloadDispatcherThread downloadDispatcher;
 	private final DecoderThread decoderThread;
 	
 	public MapDataDecoder() {
-		decoders = new HashMap<Integer, HashMap<MapDataKey, MapDecoderEntry>>();
+		decoders = new HashMap<Integer, HashMap<MapDataKey, MapDataEntry>>();
 		downloadDispatcher = new DownloadDispatcherThread();
 		decoderThread = new DecoderThread();
 	}
@@ -69,9 +69,9 @@ class MapDataDecoder {
 	}
 	
 	/** @return the <code>MapDecoderEntry</code> for the <code>key</code>, null if it did not exists */
-	public MapDecoderEntry getIfExist(MapDataKey key) {
-		final HashMap<MapDataKey, MapDecoderEntry> map = getHashMap(key.layer);
-		final MapDecoderEntry decoder = map.get(key);
+	public MapDataEntry getIfExist(MapDataKey key) {
+		final HashMap<MapDataKey, MapDataEntry> map = getHashMap(key.layer);
+		final MapDataEntry decoder = map.get(key);
 		if(decoder != null) {
 			decoder.onRequest();
 		}
@@ -79,11 +79,11 @@ class MapDataDecoder {
 	}
 	/** @return the <code>MapDecoderEntry</code> for the <code>key</code>.<BR>
 	 *  A new <code>MapDecoderEntry</code> is created if it did not exists for the given <code>key</code>. */
-	public MapDecoderEntry get(MapDataKey key) {
-		final HashMap<MapDataKey, MapDecoderEntry> map = getHashMap(key.layer);
-		MapDecoderEntry decoder = map.get(key);
+	public MapDataEntry get(MapDataKey key) {
+		final HashMap<MapDataKey, MapDataEntry> map = getHashMap(key.layer);
+		MapDataEntry decoder = map.get(key);
 		if (decoder == null) {
-			decoder = new MapDecoderEntry(key);
+			decoder = new MapDataEntry(key);
 			IO.printfManager("New MapData: %s\n", key);
 
 			synchronized(map) {	//Accessed from multiple threads
@@ -100,10 +100,10 @@ class MapDataDecoder {
 		decoder.onRequest();
 		return decoder;
 	}
-	protected final HashMap<MapDataKey, MapDecoderEntry> getHashMap(int layer) {
-		HashMap<MapDataKey, MapDecoderEntry> hashMap = decoders.get(layer);
+	protected final HashMap<MapDataKey, MapDataEntry> getHashMap(int layer) {
+		HashMap<MapDataKey, MapDataEntry> hashMap = decoders.get(layer);
 		if (hashMap == null) {
-			hashMap = new HashMap<MapDataKey, MapDecoderEntry>();
+			hashMap = new HashMap<MapDataKey, MapDataEntry>();
 			decoders.put(layer, hashMap);
 		}
 		return hashMap;
@@ -120,29 +120,37 @@ class MapDataDecoder {
 		
 		public void run() {
 			while (true) {
-				final MapDecoderEntry entry = findCloserEntryToDownload();
+				MapDataEntry entry = findCloserJp2ToDownload();
 				if (entry != null) {
 					mapDataKey = entry.mapData.key;
-					final boolean downloaded = entry.download();
+					final boolean downloaded = entry.downloadMap();
 					mapDataKey = null;
 					if(downloaded) {
 						notifyDecoder();
 					}
 				}
 				else {
-					synchronized(this) {	//Wait / notify events
-						try {
-							IO.printlnConnection("Download thread waiting ...");
-							wait(timeOut);
-							IO.printlnConnection("Download thread wake-up.");
-						} catch(IllegalMonitorStateException e) {
-							e.printStackTrace();
-						} catch(InterruptedException e) {
-							e.printStackTrace();
-						}
+					entry = findCloserDemToDownload();
+					if (entry != null) {
+						mapDataKey = entry.mapData.key;
+						entry.downloadDem();
+						mapDataKey = null;
 					}
-					resetDownloadStates();
-					notifyDecoder();
+					else {
+						synchronized(this) {	//Wait / notify events
+							try {
+								IO.printlnConnection("Download thread waiting ...");
+								wait(timeOut);
+								IO.printlnConnection("Download thread wake-up.");
+							} catch(IllegalMonitorStateException e) {
+								e.printStackTrace();
+							} catch(InterruptedException e) {
+								e.printStackTrace();
+							}
+						}
+						resetDownloadStates();
+						notifyDecoder();
+					}
 				}
 			}
 		}
@@ -155,13 +163,14 @@ class MapDataDecoder {
 				}
 			}
 		}
-		private MapDecoderEntry findCloserEntryToDownload() {
+		
+		private MapDataEntry findCloserJp2ToDownload() {
 			if(Ptolemy3D.getCanvas() == null) {
 				return null;
 			}
 			
 			double dist = Double.MAX_VALUE;
-			MapDecoderEntry closer = null;
+			MapDataEntry closer = null;
 			
 			final Landscape landscape = Ptolemy3D.getScene().getLandscape();
 			final Camera camera = Ptolemy3D.getCanvas().getCamera();
@@ -171,13 +180,13 @@ class MapDataDecoder {
 					return closer;
 				}
 				
-				final HashMap<MapDataKey, MapDecoderEntry> map = getHashMap(layer);
+				final HashMap<MapDataKey, MapDataEntry> map = getHashMap(layer);
 				synchronized(map) {	//Accessed from multiple threads
-					final Iterator<MapDecoderEntry> j = map.values().iterator();
+					final Iterator<MapDataEntry> j = map.values().iterator();
 					while (j.hasNext()) {
-						final MapDecoderEntry entry = j.next();
-						if (!entry.isDownloaded() && !entry.isDownloadFailed()) {
-							double entryDist = landscape.globe.getMapDistanceFromCamera(entry.mapData.key, camera);
+						final MapDataEntry entry = j.next();
+						if (!entry.isMapDownloaded() && !entry.isMapDownloadFailed()) {
+							final double entryDist = landscape.globe.getMapDistanceFromCamera(entry.mapData.key, camera);
 							if(entryDist < dist) {
 								closer = entry;
 								dist = entryDist;
@@ -188,14 +197,49 @@ class MapDataDecoder {
 			}
 			return closer;
 		}
+		
+		private MapDataEntry findCloserDemToDownload() {
+			if(Ptolemy3D.getCanvas() == null) {
+				return null;
+			}
+			
+			double dist = Double.MAX_VALUE;
+			MapDataEntry closer = null;
+			
+			final Landscape landscape = Ptolemy3D.getScene().getLandscape();
+			final Camera camera = Ptolemy3D.getCanvas().getCamera();
+			final int numLayers = landscape.globe.getNumLayers();
+			for(int layer = 0; layer < numLayers; layer++) {
+				if(closer != null) {
+					return closer;
+				}
+				
+				final HashMap<MapDataKey, MapDataEntry> map = getHashMap(layer);
+				synchronized(map) {	//Accessed from multiple threads
+					final Iterator<MapDataEntry> j = map.values().iterator();
+					while (j.hasNext()) {
+						final MapDataEntry entry = j.next();
+						if (!entry.isDemDownloaded() && !entry.isDemDownloadFailed()) {
+							final double entryDist = landscape.globe.getMapDistanceFromCamera(entry.mapData.key, camera);
+							if(entryDist < dist) {
+								closer = entry;
+								dist = entryDist;
+							}
+						}
+					}
+				}
+			}
+			return closer;
+		}
+		
 		private void resetDownloadStates() {
 			final int numLevels = Ptolemy3D.getScene().getLandscape().globe.getNumLayers();
 			for(int layer = 0; layer < numLevels; layer++) {
-				final HashMap<MapDataKey, MapDecoderEntry> map = getHashMap(layer);
+				final HashMap<MapDataKey, MapDataEntry> map = getHashMap(layer);
 				synchronized(map) {	//Accessed from multiple threads
-					final Iterator<MapDecoderEntry> j = map.values().iterator();
+					final Iterator<MapDataEntry> j = map.values().iterator();
 					while (j.hasNext()) {
-						final MapDecoderEntry entry = j.next();
+						final MapDataEntry entry = j.next();
 						entry.resetDownloadFails();
 					}
 				}
@@ -219,7 +263,7 @@ class MapDataDecoder {
 			}
 		}
 		private boolean decode() {
-			final MapDecoderEntry entry = findEntryToDecode();
+			final MapDataEntry entry = findEntryToDecode();
 			if (entry != null) {
 				try {
 					mapDataKey = entry.mapData.key;
@@ -249,11 +293,11 @@ class MapDataDecoder {
 				return false;
 			}
 		}
-		private MapDecoderEntry findEntryToDecode() {
+		private MapDataEntry findEntryToDecode() {
 			final int numLayers = Ptolemy3D.getScene().getLandscape().globe.getNumLayers();
 			for(int layer = 0; layer < numLayers; layer++) {
 				for(int resolution = 0; resolution < MapData.MAX_NUM_RESOLUTION; resolution++) {
-					final MapDecoderEntry entry = findEntryToDecode(layer, resolution);
+					final MapDataEntry entry = findEntryToDecode(layer, resolution);
 					if (entry != null) {
 						return entry;
 					}
@@ -261,13 +305,13 @@ class MapDataDecoder {
 			}
 			return null;
 		}
-		private MapDecoderEntry findEntryToDecode(int layer, int resolution) {
-			final HashMap<MapDataKey, MapDecoderEntry> map = getHashMap(layer);
+		private MapDataEntry findEntryToDecode(int layer, int resolution) {
+			final HashMap<MapDataKey, MapDataEntry> map = getHashMap(layer);
 			synchronized(map) {	//Accessed from multiple threads
-				final Iterator<MapDecoderEntry> j = map.values().iterator();
+				final Iterator<MapDataEntry> j = map.values().iterator();
 				while (j.hasNext()) {
-					final MapDecoderEntry entry = j.next();
-					if(entry.isDownloaded() &&
+					final MapDataEntry entry = j.next();
+					if(entry.isMapDownloaded() &&
 					  (entry.getNextResolution() == resolution)) {
 						return entry;
 					}
@@ -283,26 +327,26 @@ class MapDataDecoder {
 			}
 		}
 		private void dumpMap(int layer) {
-			final HashMap<MapDataKey, MapDecoderEntry> map = getHashMap(layer);
+			final HashMap<MapDataKey, MapDataEntry> map = getHashMap(layer);
 			synchronized(map) {	//Accessed from multiple threads
-				final Iterator<MapDecoderEntry> j = map.values().iterator();
+				final Iterator<MapDataEntry> j = map.values().iterator();
 				while (j.hasNext()) {
-					final MapDecoderEntry entry = j.next();
+					final MapDataEntry entry = j.next();
 					IO.printfManager("Layer: %d, Res: %d, DL: %s\n",
-							entry.mapData.key.layer, entry.mapData.mapResolution, entry.isDownloaded());
+							entry.mapData.key.layer, entry.mapData.mapResolution, entry.isMapDownloaded());
 				}
 			}
 		}
 	}
 	
 	protected void garbageCollect() {
-		final Iterator<HashMap<MapDataKey, MapDecoderEntry>> i = decoders.values().iterator();
+		final Iterator<HashMap<MapDataKey, MapDataEntry>> i = decoders.values().iterator();
 		while (i.hasNext()) {
-			final HashMap<MapDataKey, MapDecoderEntry> map = i.next();
+			final HashMap<MapDataKey, MapDataEntry> map = i.next();
 			synchronized(map) {	//Accessed from multiple threads
-				final Iterator<MapDecoderEntry> j = map.values().iterator();
+				final Iterator<MapDataEntry> j = map.values().iterator();
 				while (j.hasNext()) {
-					final MapDecoderEntry entry = j.next();
+					final MapDataEntry entry = j.next();
 					entry.freeDecoder();
 				}
 			}
@@ -311,19 +355,19 @@ class MapDataDecoder {
 	}
 	
 	public void freeUnused() {
-		final long t = MapDecoderEntry.getTime();
-		final long dt = MapDecoderEntry.getMaxTime();
+		final long t = MapDataEntry.getTime();
+		final long dt = MapDataEntry.getMaxTime();
 		
 		final Vector<MapDataKey> keys = new Vector<MapDataKey>();
 		
-		final Iterator<HashMap<MapDataKey, MapDecoderEntry>> i = decoders.values().iterator();
+		final Iterator<HashMap<MapDataKey, MapDataEntry>> i = decoders.values().iterator();
 		while (i.hasNext()) {
-			final HashMap<MapDataKey, MapDecoderEntry> map = i.next();
+			final HashMap<MapDataKey, MapDataEntry> map = i.next();
 			synchronized(map) {	//Accessed from multiple threads
-				final Iterator<Entry<MapDataKey,MapDecoderEntry>> j = map.entrySet().iterator();
+				final Iterator<Entry<MapDataKey,MapDataEntry>> j = map.entrySet().iterator();
 				while (j.hasNext()) {
-					final Entry<MapDataKey,MapDecoderEntry> entry = j.next();
-					final MapDecoderEntry mapEntry = entry.getValue();
+					final Entry<MapDataKey,MapDataEntry> entry = j.next();
+					final MapDataEntry mapEntry = entry.getValue();
 					if((t - mapEntry.getLastRequestTime()) > dt) {
 						keys.add(entry.getKey());
 					}
@@ -337,7 +381,7 @@ class MapDataDecoder {
 		}
 	}
 	public MapData remove(MapDataKey key) {
-		final MapDecoderEntry entry = getHashMap(key.layer).remove(key);
+		final MapDataEntry entry = getHashMap(key.layer).remove(key);
 		if(entry != null) {
 			IO.printfManager("Remove decoder: %s\n", key);
 			return entry.mapData;

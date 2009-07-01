@@ -167,7 +167,7 @@ public class IconPlugin implements Plugin {
 		gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
 
 		// Compute coordinates
-		double point[] = camera.computeCartesianSurfacePoint(lonDD, latDD);
+		double point[] = Camera.computeCartesianSurfacePoint(lonDD, latDD);
 
 		// Get screen coordinates before altering projection and modelview
 		// matrices.

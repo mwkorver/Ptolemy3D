@@ -29,8 +29,9 @@ import org.ptolemy3d.globe.MapData;
 
 /**
  * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
+ * @author Contributors
  */
-public class MapDataFinder {
+public class DataFinder {
 	/** List of servers */
 	private final String host;
 	/** List of servers */
@@ -38,7 +39,7 @@ public class MapDataFinder {
 	/** List of servers */
 	private final Vector<ServerConfig> servers;
 	
-	public MapDataFinder(String server, ServerConfig[] initialServerConfig) {
+	public DataFinder(String server, ServerConfig[] initialServerConfig) {
 		this.host = parseHost(server);
 		this.port = parsePort(server);
 		if(initialServerConfig != null) {
@@ -75,10 +76,12 @@ public class MapDataFinder {
 		servers.add(server);
 	}
 	
+	/* JP2 */
+	
 	/** Search map data texture on the available servers.
 	 *  @return the map data texture url */
-	public URL findMapDataTexture(MapData mapData) {
-		final String fileBase = getTextureFileBase(mapData) + ".jp2";
+	public URL findJp2(MapData mapData) {
+		final String fileBase = getFileBase(mapData) + ".jp2";
 		
 		for(ServerConfig serverConfig : servers) {
 			if(serverConfig.getJp2Locations() == null) {
@@ -102,7 +105,90 @@ public class MapDataFinder {
 		IO.printfConnection("Map not found: %s\n", mapData);
 		return null;
 	}
-	private final String getTextureFileBase(MapData mapData) {
+	
+	public Stream findJp2FromCache(MapData mapData) {
+		final String fileBase = getFileBase(mapData) + ".jp2";
+		for(ServerConfig serverConfig : servers) {
+			if(serverConfig.getJp2Locations() == null) {
+				continue;
+			}
+			
+			for(String location : serverConfig.getJp2Locations()) {
+				final String s = location + fileBase;
+				
+				final URI fromCache = Ptolemy3D.getFileSystemCache().getFromCache(s);
+				if (fromCache != null) {
+					IO.printfConnection("Found from cache: %s [%s]\n", mapData.key, fromCache);
+					return new Stream(Stream.uriToFile(fromCache));
+				}
+			}
+		}
+		return null;
+	}
+	
+	/* Elevation */
+	
+	public URL findDemData(MapData mapData) {
+		return findElevationData(mapData, "", "bdm");
+	}
+	public URL findTinData(MapData mapData) {
+		return findElevationData(mapData, "tin/", "tin");
+	}
+	public URL findElevationData(MapData mapData, String dir, String extension) {
+		final String fileBase = dir + getFileBase(mapData) + "." + extension;
+		
+		for(ServerConfig serverConfig : servers) {
+			if(serverConfig.getJp2Locations() == null) {
+				continue;
+			}
+			
+			for(String location : serverConfig.getDemLocations()) {
+				final String s = location + fileBase;
+				try {
+					final URL url = new URL("http", serverConfig.getHost(), serverConfig.getPort(), s);
+					url.openStream();
+					IO.printfConnection("Elevation found: %s [http://%s:%d%s]\n", mapData, host, port, s);
+					return url;
+				}
+				catch(Exception e) {
+					IO.printfConnection("Elevation not found: %s [http://%s:%d%s]\n", mapData, host, port, s);
+					continue;
+				}
+			}
+		}
+		IO.printfConnection("Map not found: %s\n", mapData);
+		return null;
+	}
+	
+	public Stream findDemFromCache(MapData mapData) {
+		return findElevationFromCache(mapData, "", "bdm");
+	}
+	public Stream findTinFromCache(MapData mapData) {
+		return findElevationFromCache(mapData, "tin/", "tin");
+	}
+	public Stream findElevationFromCache(MapData mapData, String dir, String extension) {
+		final String fileBase = dir + getFileBase(mapData) + "." + extension;
+		
+		for(ServerConfig serverConfig : servers) {
+			if(serverConfig.getJp2Locations() == null) {
+				continue;
+			}
+			
+			for(String location : serverConfig.getDemLocations()) {
+				final String s = location + fileBase;
+				
+				final URI fromCache = Ptolemy3D.getFileSystemCache().getFromCache(s);
+				if (fromCache != null) {
+					IO.printfConnection("Elevation found from cache: %s [%s]\n", mapData.key, fromCache);
+					return new Stream(Stream.uriToFile(fromCache));
+				}
+			}
+		}
+		return null;
+	}
+	
+	/** */
+	private final String getFileBase(MapData mapData) {
 		final Globe globe = Ptolemy3D.getScene().getLandscape().globe;
 		final Layer layer = globe.getLayer(mapData.key.layer);
 		
@@ -133,7 +219,7 @@ public class MapDataFinder {
 
 		return fileBase;
 	}
-	// converts integer to left-zero padded string, len  chars long.
+	/* converts integer to left-zero padded string, len  chars long. */
 	private static String padWithZeros(int i, int len) {
 		String s = Integer.toString(i);
 		if (s.length() > len) {
@@ -145,23 +231,5 @@ public class MapDataFinder {
 		else {
 			return s;
 		}
-	}
-	
-	public Stream findMapDataTextureFromCache(MapData mapData) {
-		final String fileBase = getTextureFileBase(mapData) + ".jp2";
-		for(ServerConfig serverConfig : servers) {
-			if(serverConfig.getJp2Locations() == null) {
-				continue;
-			}
-			
-			for(String location : serverConfig.getJp2Locations()) {
-				final URI fromCache = Ptolemy3D.getFileSystemCache().getFromCache(location + fileBase);
-				if (fromCache != null) {
-					IO.printfConnection("Found from cache: %s [%s]\n", mapData.key, fromCache);
-					return new Stream(Stream.uriToFile(fromCache));
-				}
-			}
-		}
-		return null;
 	}
 }

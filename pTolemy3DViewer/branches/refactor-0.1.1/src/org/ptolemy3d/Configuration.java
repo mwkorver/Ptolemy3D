@@ -59,9 +59,6 @@ public class Configuration {
 		public final static String LocationRoot = "LocationRoot";
 		public final static String Area = "Area";
 		public final static String DEM = "DEM";		
-		/* Unit */
-		public final static String CenterX = "CenterX";
-		public final static String CenterY = "CenterY";
 		/* Layers */
 		public final static String NumLayers = "NumLayers";
 		public final static String LayerWidth_ = "LayerWidth_";
@@ -169,11 +166,6 @@ public class Configuration {
 
         // Coordinate System Units
         try {
-            int meterX = getRequieredParameterInt(Requiered.CenterX, docelem);
-            int meterZ = getRequieredParameterInt(Requiered.CenterY, docelem);
-            Unit.setMeterX(meterX);
-            Unit.setMeterZ(meterZ);
-
             int dd = getOptionalParameterInt(Optional.DD, docelem);
             if (dd != -1) {
                 Unit.setDDFactor(dd);

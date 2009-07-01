@@ -107,16 +107,16 @@ class TileDefaultRenderer implements TileRenderer {
 		double left_dem_slope = -1, right_dem_slope = -1, top_dem_slope = -1, bottom_dem_slope = -1, dy;
 
 		// corners clockwise, from ul
-		if ((leftTile == null) || (leftTile.mapData.key.layer != drawLevelID)) {
+		if ((leftTile == null) || (leftTile.mapData != null && leftTile.mapData.key.layer != drawLevelID)) {
 			left_dem_slope = (double) (jtile.tin.positions[3][1] - jtile.tin.positions[0][1]) / jtile.tin.w;
 		}
-		if ((rightTile == null) || (rightTile.mapData.key.layer != drawLevelID)) {
+		if ((rightTile == null) || (rightTile.mapData != null && rightTile.mapData.key.layer != drawLevelID)) {
 			right_dem_slope = (double) (jtile.tin.positions[2][1] - jtile.tin.positions[1][1]) / jtile.tin.w;
 		}
-		if ((aboveTile == null) || (aboveTile.mapData.key.layer != drawLevelID)) {
+		if ((aboveTile == null) || (aboveTile.mapData != null && aboveTile.mapData.key.layer != drawLevelID)) {
 			top_dem_slope = (double) (jtile.tin.positions[1][1] - jtile.tin.positions[0][1]) / jtile.tin.w;
 		}
-		if ((belowTile == null) || (belowTile.mapData.key.layer != drawLevelID)) {
+		if ((belowTile == null) || (belowTile.mapData != null && belowTile.mapData.key.layer != drawLevelID)) {
 			bottom_dem_slope = (double) (jtile.tin.positions[2][1] - jtile.tin.positions[3][1]) / jtile.tin.w;
 		}
 
@@ -241,16 +241,16 @@ class TileDefaultRenderer implements TileRenderer {
 			ll_corner = ((dem[row_width * (numrows - 1)] << 8) + (dem[(row_width * (numrows - 1)) + 1] & 0xFF));
 			lr_corner = ((dem[row_width * (numrows - 1) + (row_width - 2)] << 8) + (dem[(row_width * (numrows - 1)) + (row_width - 1)] & 0xFF));
 
-			if ((leftTile == null) || (leftTile.mapData.key.layer != drawLevelID)) {
+			if ((leftTile == null) || (leftTile.mapData != null && leftTile.mapData.key.layer != drawLevelID)) {
 				left_dem_slope = (ll_corner - ul_corner) / (nrows_z);
 			}
-			if ((rightTile == null) || (rightTile.mapData.key.layer != drawLevelID)) {
+			if ((rightTile == null) || (rightTile.mapData != null && rightTile.mapData.key.layer != drawLevelID)) {
 				right_dem_slope = (lr_corner - ur_corner) / (nrows_z);
 			}
-			if ((aboveTile == null) || (aboveTile.mapData.key.layer != drawLevelID)) {
+			if ((aboveTile == null) || (aboveTile.mapData != null && aboveTile.mapData.key.layer != drawLevelID)) {
 				top_dem_slope = (ur_corner - ul_corner) / (nrows_x);
 			}
-			if ((belowTile == null) || (belowTile.mapData.key.layer != drawLevelID)) {
+			if ((belowTile == null) || (belowTile.mapData != null && belowTile.mapData.key.layer != drawLevelID)) {
 				bottom_dem_slope = (lr_corner - ll_corner) / (nrows_x);
 			}
 		}

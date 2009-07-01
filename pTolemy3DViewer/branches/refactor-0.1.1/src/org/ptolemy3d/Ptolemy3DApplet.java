@@ -26,7 +26,7 @@ import netscape.javascript.JSObject;
 
 
 /**
- * Ptolemy3D appletf.
+ * Ptolemy3D applet.
  * 
  * @author Antonio Santiago <asantiagop(at)gmail(dot)com>
  * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>

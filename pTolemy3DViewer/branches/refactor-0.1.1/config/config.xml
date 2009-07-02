@@ -1,7 +1,5 @@
 <entity>
 	<Orientation>39010000,-98730000,460000,0,-15</Orientation>
-	<CenterX>0</CenterX>
-	<CenterY>0</CenterY>
 
 	<Server>localhost:8080</Server>
 	<NumMapDataServers>1</NumMapDataServers>

@@ -2,8 +2,6 @@
 <root>
     <Orientation>138473040,34764185,15000000,313.312501475566,-58.4989908828571</Orientation>
 
-    <CenterX>0</CenterX>
-    <CenterY>0</CenterY>
     <DisplayRatio>1</DisplayRatio>
 
     <Server>demo.spatialcloud.com</Server>

@@ -1,7 +1,5 @@
 <entity>
 	<Orientation>132730000,35010000,1260000,0,-30</Orientation>
-	<CenterX>0</CenterX>
-	<CenterY>0</CenterY>
 
 	<Server>demo.spatialcloud.com</Server>
 	<NumMapDataServers>1</NumMapDataServers>

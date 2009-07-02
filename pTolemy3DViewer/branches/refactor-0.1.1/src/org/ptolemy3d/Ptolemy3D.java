@@ -83,6 +83,7 @@ import org.ptolemy3d.view.CameraMovement;
  * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  */
 public final class Ptolemy3D {
+
 	// TODO - canvas variable is only here temporaly to solve a reference
 	// problem in Jp2TileLoader. We must remove from here.
 	private static Ptolemy3DGLCanvas canvas = null;
@@ -97,8 +98,9 @@ public final class Ptolemy3D {
 	// JavaScript function names
 	private static String JS_START_FUNCTION = "ptolemyStart";
 	private static String JS_STOP_FUNCTION = "ptolemyStop";
+	private static String JS_SHUTDOWN_FUNCTION = "ptolemyShutdown";
 
-	private Ptolemy3D() {
+	public Ptolemy3D() {
 		System.out.println("Ptolemy created");
 	}
 
@@ -175,6 +177,9 @@ public final class Ptolemy3D {
 	public static void shutDown() {
 		stop();
 
+		// Call the stop JavaScript function
+		callJavascript(JS_SHUTDOWN_FUNCTION, null);
+		
 		// TODO - Test if necessary.
 		// // Stop and shutDown all the 3D
 		// if (canvas != null) {

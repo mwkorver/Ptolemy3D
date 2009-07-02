@@ -35,13 +35,17 @@ import org.ptolemy3d.view.Position;
 
 /**
  * CityGmlPlugin adds basic support for CityGML format. Allowed CityGML elements
- * it reads are Lod1MultiSurface and Lod1Solid, etc
+ * it reads are Lod1/2MultiSurface and Lod1/2Solid. <br/>
+ * The plugin accepts two parameters:
+ * <ul>
+ * <li>The 'altitude' parameter is used to decide which LOD to be show. When
+ * camera is under the 'altitude' value LOD1 is shown (if any exists), LOD2 is
+ * shown otherwise.</li>
  * 
- * The 'wfsServerUrl' is the query URL to a WFS server which must return a valid
- * CityGML document.
+ * <li>The 'wfsServerUrl' is the query URL to a WFS server which must return a
+ * valid CityGML document.</li>
  * 
- * The 'altitude' parameter is used to decide which LOD to be show. When camera
- * is under the 'altitude' value LOD1 is shown, LOD2 is shown otherwise.
+ * </ul>
  * 
  * @author Antonio Santiago <asantiagop@gmail.com>
  */
@@ -71,12 +75,7 @@ public class CityGmlPlugin implements Plugin {
 
 					URL url = null;
 					try {
-						// String server = Ptolemy3D.getConfiguration()
-						// .getServer();
-						// url = new URL("http://" + server + wfsServerUrl);
-						String s = "http://localhost:8080/openbd/CFML/pseudoWFS/wfs.cfm?SERVICE=wfs&REQUEST=GetFeature&bbox=-180,-90,180,90";
 						url = new URL(wfsServerUrl);
-
 						cityReader = new CityGmlReader();
 						cityReader.loadGML(url);
 						listBuildindData = cityReader.getBuildingData();

@@ -38,7 +38,15 @@ import com.sun.opengl.util.texture.TextureCoords;
 import com.sun.opengl.util.texture.TextureIO;
 
 /**
- * IconPlugin shows an image at the specified position.
+ * IconPlugin shows an image at the specified position.<br/>
+ * This plugins accepts three parameters:
+ * 
+ * <ul>
+ * <li>Image path, path relative to the 'Server' configuration element, that
+ * points to the image.</li>
+ * <li>latitude and longitude, position of the icon.</li>
+ * <li></li>
+ * </ul>
  * 
  * @author Antonio Santiago <asantiagop@gmail.com>
  */
@@ -178,7 +186,7 @@ public class IconPlugin implements Plugin {
 		Ptolemy3DGLCanvas canvas = drawContext.getCanvas();
 		viewport[0] = canvas.getX();
 		viewport[1] = canvas.getY();
-		viewport[2] = canvas.getWidth();		
+		viewport[2] = canvas.getWidth();
 		viewport[3] = canvas.getHeight();
 
 		gl.glMatrixMode(GL.GL_PROJECTION);

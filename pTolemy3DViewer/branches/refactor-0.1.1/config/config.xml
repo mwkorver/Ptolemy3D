@@ -58,13 +58,5 @@
 	
 	<PluginType_2>org.ptolemy3d.plugin.CityGmlPlugin</PluginType_2>
 	<PluginParam_2>100000,http://localhost:8080/openbd/CFML/pseudoWFS/wfs.cfm?SERVICE=wfs&amp;REQUEST=GetFeature&amp;bbox=-180,-90,180,90</PluginParam_2>
-	<!-- <PluginParam_2>/Ptolemy_test/SimpleLOD1Buildings.gml</PluginParam_2> -->
-	
-	<!--
-	Query to GeoServer. SRSNAME is special GS vendor parameter to reproject in WFS version 1
-	see: http://geoserver.org/display/GEOSDOC/WFS+vendor+parameters
-	http://localhost:8080/geoserver/wfs?SERVICE=WFS&VERSION=1.0.0&REQUEST=getfeature&TYPENAME=nyc_buildings&SRSNAME=EPSG:4326 
-	 -->
-	
 	
 </entity>

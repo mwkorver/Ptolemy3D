@@ -22,8 +22,9 @@ import java.awt.BorderLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import netscape.javascript.JSObject;
+import org.ptolemy3d.scene.Scene;
 
+import netscape.javascript.JSObject;
 
 /**
  * Ptolemy3D applet.
@@ -34,6 +35,11 @@ import netscape.javascript.JSObject;
 public class Ptolemy3DApplet extends Applet implements Ptolemy3DJavascript {
 	private static final long serialVersionUID = 1L;
 
+	// Dummy instance to allow return references to browser.
+	private Ptolemy3D ptolemy = new Ptolemy3D();
+	private Unit unit = new Unit();
+
+	//
 	private Ptolemy3DGLCanvas canvas = null;
 	private JSObject jsObject = null;
 
@@ -97,5 +103,21 @@ public class Ptolemy3DApplet extends Applet implements Ptolemy3DJavascript {
 
 	public JSObject getJSObject() {
 		return jsObject;
+	}
+
+	public Ptolemy3D getPtolemy() {
+		return ptolemy;
+	}
+
+	public Unit getUnit() {
+		return unit;
+	}
+
+	public Scene getScene() {
+		return Ptolemy3D.getScene();
+	}
+
+	public Ptolemy3DGLCanvas getCanvas() {
+		return canvas;
 	}
 }

@@ -86,8 +86,10 @@
              */
             function ptolemyStart(){
 
-                alert("ptolemyStart");
-                
+                var ptapplet = document.getElementById('pTolemy3D').getSubApplet();
+
+
+
                 // Create a Ptolemy instance from the applet element identifier
                 // in the HTML file.
                 ptolemy = new ptolemy3d('pTolemy3D');
@@ -157,7 +159,7 @@
                     <param name="cache_archive" VALUE="jogl.jar,gluegen-rt.jar,plugin.jar,ptolemy3d-1.0-SNAPSHOT.jar,ptolemy3dplugin-1.0-SNAPSHOT.jar">
                     <param name="cache_archive_ex" VALUE="jogl.jar;preload,gluegen-rt.jar;preload,plugin.jar;preload,ptolemy3d-1.0-SNAPSHOT.jar;preload,ptolemy3dplugin-1.0-SNAPSHOT.jar;preload">
 
-                    <param name="Orientation" value="132730000,35010000,1260000,0,-30">
+                    <param name="Orientation" value="39010000,-98730000,460000,0,-15">
                     <param name="CenterX" value="0">
                     <param name="CenterY" value="0">
                     <param name="DisplayRatio" value="1">

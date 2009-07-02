@@ -23,52 +23,58 @@ import org.ptolemy3d.DrawContext;
 import org.ptolemy3d.Ptolemy3D;
 
 /**
- * <H1>Overview</H1>
- * <BR>
+ * <H1>Overview</H1> <BR>
  * This is the interface between the plugin manager and a user-defined plugin.<BR>
- * The plugin manager, like the name indicates , manage plugins and do the link with Ptolemy3D viewer.
- *
+ * The plugin manager, like the name indicates , manage plugins and do the link
+ * with Ptolemy3D viewer.
+ * 
  * A Ptolemy3D plugin definition.
+ * 
+ * @author Antonio Santiago <asantiagop(at)gmail(dot)com>
+ * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  */
 public interface Plugin {
 
-    /** Initialize all OpenGL datas.<BR>
-     * <I>OpenGL Context is current.</I>
-     * @see #init(Ptolemy3D) */
-    public void initGL(DrawContext drawContext);
+	/**
+	 * Initialize all OpenGL datas.<BR>
+	 * <I>OpenGL Context is current.</I>
+	 * 
+	 * @see #init(Ptolemy3D)
+	 */
+	public void initGL(DrawContext drawContext);
 
-    /** Render OpenGL geometry. */
-    public void draw(DrawContext drawContext);
+	/** Render OpenGL geometry. */
+	public void draw(DrawContext drawContext);
 
-    /** Destroy all OpenGL Related Datas.<BR>
-     * <I>OpenGL Context is current.</I> */
-    public void destroyGL(DrawContext drawContext);
+	/**
+	 * Destroy all OpenGL Related Datas.<BR>
+	 * <I>OpenGL Context is current.</I>
+	 */
+	public void destroyGL(DrawContext drawContext);
 
-    /** Notify the index of the plugin.*/
-    public void setPluginIndex(int index);
+	/** Called a single time at initialisation. */
+	public void setPluginParameters(String param);
 
-    /** Called a single time at initialisation. */
-    public void setPluginParameters(String param);
+	/** Called when camera motion is stopped. */
+	public void motionStop(GL gl);
 
-    /** Called when camera motion is stopped. */
-    public void motionStop(GL gl);
+	/** Ray trace to find an intersection with the plugin geometry. */
+	public boolean pick(double[] intersectionPoint, double[][] ray);
 
-    /** Ray trace to find an intersection with the plugin geometry. */
-    public boolean pick(double[] intersectionPoint, double[][] ray);
+	/**
+	 * Called when the landscape has been picked.
+	 * 
+	 * @param intersectPoint
+	 *            picking intersection point.
+	 */
+	public boolean onPick(double[] intersectPoint);
 
-    /** Called when the landscape has been picked.
-     * @param intersectPoint picking intersection point. */
-    public boolean onPick(double[] intersectPoint);
+	// /** Call by the tile loader to let the plugin request data. */
+	// public void tileLoaderAction(Communicator JC) throws IOException;
 
-//    /** Call by the tile loader to let the plugin request data. */
-//    public void tileLoaderAction(Communicator JC) throws IOException;
-
-    /** Execute a plugin command.
-     * @param commandName command type
-     * @param commandParams command parameters
-     * @return if any value is returned, return it in a Stirng. */
-    public String pluginAction(String commandName, String commandParams);
-
-    /** Called when landscape status has been changed. Plugin must reload some data due to this change. */
-    public void reloadData();
+	/**
+	 * Called when landscape status has been changed. Plugin must reload some
+	 * data due to this change.
+	 */
+	public void reloadData();
 }

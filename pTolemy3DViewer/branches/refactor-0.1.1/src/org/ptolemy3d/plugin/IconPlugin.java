@@ -52,8 +52,6 @@ import com.sun.opengl.util.texture.TextureIO;
  */
 public class IconPlugin implements Plugin {
 
-	private static final String NAME = "ICON_PLUGIN_";
-	private int index = -1;
 	private boolean status = true;
 	//
 	private String imageName = "";
@@ -97,10 +95,6 @@ public class IconPlugin implements Plugin {
 	public void destroyGL(DrawContext drawContext) {
 	}
 
-	public void setPluginIndex(int index) {
-		this.index = index;
-	}
-
 	public void setPluginParameters(String params) {
 		String values[] = params.split(",");
 		imageName = values[0];
@@ -117,15 +111,6 @@ public class IconPlugin implements Plugin {
 
 	public boolean onPick(double[] intersectPoint) {
 		return false;
-	}
-
-	public String pluginAction(String commandname, String command_params) {
-		if (commandname.equalsIgnoreCase("status")) {
-			status = (Integer.parseInt(command_params) == 1) ? true : false;
-		} else if (commandname.equalsIgnoreCase("getLayerName")) {
-			return NAME + index;
-		}
-		return null;
 	}
 
 	public void reloadData() {

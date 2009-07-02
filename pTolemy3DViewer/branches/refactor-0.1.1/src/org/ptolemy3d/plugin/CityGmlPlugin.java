@@ -51,8 +51,6 @@ import org.ptolemy3d.view.Position;
  */
 public class CityGmlPlugin implements Plugin {
 
-	private static final String NAME = "CITY_GML_PLUGIN_";
-	private int index = -1;
 	private boolean status = true;
 	//
 	private String wfsServerUrl = "";
@@ -106,10 +104,6 @@ public class CityGmlPlugin implements Plugin {
 	public void destroyGL(DrawContext drawContext) {
 	}
 
-	public void setPluginIndex(int index) {
-		this.index = index;
-	}
-
 	public void setPluginParameters(String params) {
 		String[] parameters = params.split(",");
 		try {
@@ -130,15 +124,6 @@ public class CityGmlPlugin implements Plugin {
 
 	public boolean onPick(double[] intersectPoint) {
 		return false;
-	}
-
-	public String pluginAction(String commandname, String command_params) {
-		if (commandname.equalsIgnoreCase("status")) {
-			status = (Integer.parseInt(command_params) == 1) ? true : false;
-		} else if (commandname.equalsIgnoreCase("getLayerName")) {
-			return NAME + index;
-		}
-		return null;
 	}
 
 	public void reloadData() {

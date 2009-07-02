@@ -17,7 +17,8 @@
  */
 package org.ptolemy3d.scene;
 
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.media.opengl.GL;
 
@@ -26,222 +27,224 @@ import org.ptolemy3d.Ptolemy3DGLCanvas;
 import org.ptolemy3d.debug.IO;
 
 /**
- * <H1>Overview</H1>
- * <BR>
+ * <H1>Overview</H1> <BR>
  * Manage plugins and interface them with Ptolemy3D:<BR>
  * <ul>
  * <li>Initialize plugins</li>
  * <li>Load balance for plugins data downloading.</li>
- * <li>Plugins rendering: including visibility, geometry update with landscape incoming datas ...</li>
+ * <li>Plugins rendering: including visibility, geometry update with landscape
+ * incoming datas ...</li>
  * <li>Geometry picking: select plugin object with the mouse.</li>
  * </ul>
+ * 
+ * @author Antonio Santiago <asantiagop(at)gmail(dot)com>
+ * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  */
 public class Plugins {
 
-    /** Plugin list */
-    protected Vector<Plugin> plugins;
-    private int pluginCue = 0;		//TODO Don't know its uses ...
-    private int tl_rotation = 0;
-    private boolean running = false;
+	private List<Plugin> plugins;
+	private int pluginCue = 0; // TODO Don't know its uses ...
 
-    protected Plugins() {
-        this.plugins = new Vector<Plugin>();
-    }
+	// private int tl_rotation = 0;
+	// private boolean running = false;
 
-    /** Number of plugins.
-     * @return the number of plugins */
-    public final int getNumPlugins() {
-        return plugins.size();
-    }
+	public Plugins() {
+		this.plugins = new ArrayList<Plugin>();
+	}
 
-    /**
-     * Instanciate and add a plugin in the list.
-     * @param className the fully qualified name of the desired class.
-     * @param pluginParams plugin parameters
-     */
-    public final void addPlugin(String className, String pluginParams) {
-        Plugin plugin = null;
-        try {
-            Class<?> clazz = Class.forName(className);
-            Plugin pluginInstance = (Plugin) clazz.newInstance();
+	/**
+	 * Number of plugins.
+	 * 
+	 * @return the number of plugins
+	 */
+	public int getNumPlugins() {
+		return plugins.size();
+	}
 
-            plugin = pluginInstance;
-        }
-        catch (Exception e) {
-            IO.printlnError("Plugin not found: " + className);
-        }
+	/**
+	 * Adds a new plugin to the list.
+	 * 
+	 * @param plugin
+	 */
+	public boolean addPlugin(Plugin plugin) {
+		if (plugin != null) {
+			return plugins.add(plugin);
+		}
+		return false;
+	}
 
-        if (plugin != null) {
-            int index = plugins.size();
+	/**
+	 * Removes a plugin from the list.
+	 * 
+	 * @param plugin
+	 */
+	public boolean removePlugin(Plugin plugin) {
+		if (plugin != null) {
+			return plugins.remove(plugin);
+		}
+		return false;
+	}
 
-            try {
-                plugin.setPluginIndex(index);
-                plugin.setPluginParameters(pluginParams);
-            }
-            catch (Exception e) {
-                IO.printStackPlugin(e);
-            }
+	/**
+	 * Instanciate and add a plugin in the list.
+	 * 
+	 * @param className
+	 *            the fully qualified name of the desired class.
+	 * @param pluginParams
+	 *            plugin parameters
+	 */
+	public boolean addPlugin(String className, String pluginParams) {
 
-            plugins.add(plugin);
-        }
-    }
+		try {
+			Class<?> clazz = Class.forName(className);
+			Plugin plugin = (Plugin) clazz.newInstance();
 
-    protected final void initGL(DrawContext drawContext) {
+			if (plugin != null) {
+				plugin.setPluginParameters(pluginParams);
+				return plugins.add(plugin);
+			}
+		} catch (Exception e) {
+			IO.printlnError("Plugin not found: " + className);
+		}
+		return false;
+	}
 
-        if (plugins != null) {
-            for (Plugin plugin : plugins) {
-                if (plugin != null) {
-                    try {
-                        plugin.initGL(drawContext);
-                    }
-                    catch (Exception e) {
-                        IO.printStackPlugin(e);
-                    }
-                }
-            }
-        }
-    }
+	protected final void initGL(DrawContext drawContext) {
 
-    protected void prepareFrame(DrawContext drawContext) {
-        GL gl = drawContext.getGL();
-        Ptolemy3DGLCanvas canvas = drawContext.getCanvas();
+		if (plugins != null) {
+			for (Plugin plugin : plugins) {
+				if (plugin != null) {
+					try {
+						plugin.initGL(drawContext);
+					} catch (Exception e) {
+						IO.printStackPlugin(e);
+					}
+				}
+			}
+		}
+	}
 
-        running = true;
+	protected void prepareFrame(DrawContext drawContext) {
+		GL gl = drawContext.getGL();
+		Ptolemy3DGLCanvas canvas = drawContext.getCanvas();
 
-        boolean hasPlugins = plugins.size() > 0;
-        if (hasPlugins && (!canvas.getCameraMovement().isActive) && (canvas.getCameraMovement().inAutoPilot == 0)) {
-            try {
-                plugins.get(pluginCue++).motionStop(gl);
-            }
-            catch (Exception e) {
-                IO.printStackPlugin(e);
-            }
+		// running = true;
 
-            if (pluginCue >= plugins.size()) {
-                pluginCue = 0;
-            }
-        }
-    }
+		boolean hasPlugins = plugins.size() > 0;
+		if (hasPlugins && (!canvas.getCameraMovement().isActive)
+				&& (canvas.getCameraMovement().inAutoPilot == 0)) {
+			try {
+				plugins.get(pluginCue++).motionStop(gl);
+			} catch (Exception e) {
+				IO.printStackPlugin(e);
+			}
 
-    protected final void draw(DrawContext drawContext) {
-        int numPlugins = plugins.size();
-        for (int i = numPlugins - 1; i >= 0; i--) {
-            try {
-                plugins.get(i).draw(drawContext);
-            }
-            catch (Exception e) {
-                IO.printStackRenderer(e);
-            }
-        }
-    //FIXME Not handled
-//		for (int i = numPlugins - 1; i >= 0; i--) {
-//			if (plugins.get(i).getType() == Ptolemy3DPlugin.PLUGINTYPE_VECTOR) {
-//				((VectorPlugin) plugins.get(i)).drawVectorLabels();
-//			}
-//		}
-    }
+			if (pluginCue >= plugins.size()) {
+				pluginCue = 0;
+			}
+		}
+	}
 
-    protected final void destroyGL(DrawContext drawContext) {
+	protected final void draw(DrawContext drawContext) {
+		int numPlugins = plugins.size();
+		for (int i = numPlugins - 1; i >= 0; i--) {
+			try {
+				plugins.get(i).draw(drawContext);
+			} catch (Exception e) {
+				IO.printStackRenderer(e);
+			}
+		}
+		// FIXME Not handled
+		// for (int i = numPlugins - 1; i >= 0; i--) {
+		// if (plugins.get(i).getType() == Ptolemy3DPlugin.PLUGINTYPE_VECTOR) {
+		// ((VectorPlugin) plugins.get(i)).drawVectorLabels();
+		// }
+		// }
+	}
 
-        for (int h = 0; h < plugins.size(); h++) {
-            try {
-                plugins.get(h).destroyGL(drawContext);
-            }
-            catch (Exception e) {
-                IO.printStackPlugin(e);
-            }
-        }
-    }
+	protected final void destroyGL(DrawContext drawContext) {
 
-    /** Call by the tile loader to let the plugin request data. */
-//    public final void tileLoaderAction(Communicator JC) {
-//        if (!running) {
-//            return;
-//        }
-//        boolean hasPlugins = plugins.size() > 0;
-//        if (hasPlugins) {
-//            try {
-//                plugins.get(tl_rotation++).tileLoaderAction(JC);
-//            }
-//            catch (Exception e) {
-//                IO.printStackPlugin(e);
-//            }
-//            if (tl_rotation >= plugins.size()) {
-//                tl_rotation = 0;
-//            }
-//        }
-//    }
+		for (int h = 0; h < plugins.size(); h++) {
+			try {
+				plugins.get(h).destroyGL(drawContext);
+			} catch (Exception e) {
+				IO.printStackPlugin(e);
+			}
+		}
+	}
 
-    /** Execute a plugin command.
-     * @param commandName command type
-     * @param commandParams command parameters
-     * @return if any value is returned, return it in a Stirng. */
-    public final String pluginAction(int pluginIndex, String commandName, String commandParams) {
-        boolean hasPlugins = plugins.size() > 0;
-        if (!hasPlugins) {
-            return "NA";
-        }
-        if ((pluginIndex > plugins.size()) || (pluginIndex <= 0)) {
-            return "NA";
-        }
-        try {
-            return plugins.get(pluginIndex - 1).pluginAction(commandName, commandParams);
-        }
-        catch (RuntimeException e) {
-            IO.printStackPlugin(e);
-            return null;
-        }
-    }
+	/** Call by the tile loader to let the plugin request data. */
+	// public final void tileLoaderAction(Communicator JC) {
+	// if (!running) {
+	// return;
+	// }
+	// boolean hasPlugins = plugins.size() > 0;
+	// if (hasPlugins) {
+	// try {
+	// plugins.get(tl_rotation++).tileLoaderAction(JC);
+	// }
+	// catch (Exception e) {
+	// IO.printStackPlugin(e);
+	// }
+	// if (tl_rotation >= plugins.size()) {
+	// tl_rotation = 0;
+	// }
+	// }
+	// }
+	/**
+	 * Called when landscape status has been changed. Plugin must reload some
+	 * data due to this change.
+	 */
+	public final void reloadData() {
+		boolean hasPlugins = plugins.size() > 0;
+		if (hasPlugins) {
+			for (int i = 0; i < plugins.size(); i++) {
+				try {
+					plugins.get(i).reloadData();
+				} catch (RuntimeException e) {
+					IO.printStackPlugin(e);
+				}
+			}
+		}
+	}
 
-    /** Called when landscape status has been changed. Plugin must reload some data due to this change. */
-    public final void reloadData() {
-        boolean hasPlugins = plugins.size() > 0;
-        if (hasPlugins) {
-            for (int i = 0; i < plugins.size(); i++) {
-                try {
-                    plugins.get(i).reloadData();
-                }
-                catch (RuntimeException e) {
-                    IO.printStackPlugin(e);
-                }
-            }
-        }
-    }
+	/** Pick plugins. */
+	public final synchronized boolean pick(double[] intersectPoint,
+			double[][] ray) {
+		boolean hasPlugins = plugins.size() > 0;
+		if (hasPlugins) {
+			for (int i = plugins.size() - 1; i >= 0; i--) {
+				try {
+					if (plugins.get(i).pick(intersectPoint, ray)) {
+						return true;
+					}
+				} catch (RuntimeException e) {
+					IO.printStackPlugin(e);
+				}
+			}
+		}
+		return false;
+	}
 
-    /** Pick plugins. */
-    public final synchronized boolean pick(double[] intersectPoint, double[][] ray) {
-        boolean hasPlugins = plugins.size() > 0;
-        if (hasPlugins) {
-            for (int i = plugins.size() - 1; i >= 0; i--) {
-                try {
-                    if (plugins.get(i).pick(intersectPoint, ray)) {
-                        return true;
-                    }
-                }
-                catch (RuntimeException e) {
-                    IO.printStackPlugin(e);
-                }
-            }
-        }
-        return false;
-    }
-
-    /** Called when the landscape has been picked.
-     * @param intersectPoint picking intersection point. */
-    public synchronized boolean onPick(double[] intersectPoint) {
-        boolean hasPlugins = plugins.size() > 0;
-        if (hasPlugins) {
-            for (int i = plugins.size() - 1; i >= 0; i--) {
-                try {
-                    if (plugins.get(i).onPick(intersectPoint)) {
-                        return true;
-                    }
-                }
-                catch (RuntimeException e) {
-                    IO.printStackPlugin(e);
-                }
-            }
-        }
-        return false;
-    }
+	/**
+	 * Called when the landscape has been picked.
+	 * 
+	 * @param intersectPoint
+	 *            picking intersection point.
+	 */
+	public synchronized boolean onPick(double[] intersectPoint) {
+		boolean hasPlugins = plugins.size() > 0;
+		if (hasPlugins) {
+			for (int i = plugins.size() - 1; i >= 0; i--) {
+				try {
+					if (plugins.get(i).onPick(intersectPoint)) {
+						return true;
+					}
+				} catch (RuntimeException e) {
+					IO.printStackPlugin(e);
+				}
+			}
+		}
+		return false;
+	}
 }

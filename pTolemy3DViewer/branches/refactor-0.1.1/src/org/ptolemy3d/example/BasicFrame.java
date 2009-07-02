@@ -22,6 +22,8 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.lang.reflect.Constructor;
+
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -53,7 +55,7 @@ public class BasicFrame extends JFrame {
 
 		this.getRootPane().setLayout(new BorderLayout());
 		this.getRootPane().add(canvas, BorderLayout.CENTER);
-//		this.pack();
+		// this.pack();
 
 		canvas.addKeyListener(new KeyAdapter() {
 			@Override
@@ -75,6 +77,7 @@ public class BasicFrame extends JFrame {
 	}
 
 	public static void main(String[] args) {
+
 		// Parse command line
 		String xml = "config/config.xml";
 		int width = 640;

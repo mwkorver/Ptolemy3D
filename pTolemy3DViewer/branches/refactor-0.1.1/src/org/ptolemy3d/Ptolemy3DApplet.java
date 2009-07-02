@@ -21,13 +21,14 @@ import java.applet.Applet;
 import java.awt.BorderLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-
-import org.ptolemy3d.scene.Scene;
+import java.util.logging.Logger;
 
 import netscape.javascript.JSObject;
 
 /**
- * Ptolemy3D applet.
+ * Ptolemy3D applet. It has methods to get required reference to the ptolemy
+ * system, scene, canvas, etc. Also it provides a helpful way to create new
+ * object, useful to create new plugins instances.
  * 
  * @author Antonio Santiago <asantiagop(at)gmail(dot)com>
  * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
@@ -42,6 +43,8 @@ public class Ptolemy3DApplet extends Applet implements Ptolemy3DJavascript {
 	//
 	private Ptolemy3DGLCanvas canvas = null;
 	private JSObject jsObject = null;
+	private static final Logger logger = Logger.getLogger(Ptolemy3DApplet.class
+			.getName());
 
 	/**
 	 * Initialize the pTolemy applet.
@@ -97,27 +100,73 @@ public class Ptolemy3DApplet extends Applet implements Ptolemy3DJavascript {
 		Ptolemy3D.shutDown();
 	}
 
+	/**
+	 * Get a reference to the applet itself.
+	 */
 	public Applet getApplet() {
 		return this;
 	}
 
+	/**
+	 * Get a reference to the JSObject that uses the applet to comunicate with
+	 * the browser.
+	 */
 	public JSObject getJSObject() {
 		return jsObject;
 	}
 
+	/**
+	 * Get a Ptolemy3D singleton instance reference, it allows access to the
+	 * scene and so on.
+	 * 
+	 * @return
+	 */
 	public Ptolemy3D getPtolemy() {
 		return ptolemy;
 	}
 
+	/**
+	 * Get the Unit singleton instance reference.
+	 * 
+	 * @return
+	 */
 	public Unit getUnit() {
 		return unit;
 	}
 
-	public Scene getScene() {
-		return Ptolemy3D.getScene();
-	}
-
+	/**
+	 * Get a reference to the Ptolemy3DGLCanvas used in the applet.
+	 * 
+	 * @return
+	 */
 	public Ptolemy3DGLCanvas getCanvas() {
 		return canvas;
 	}
+
+	/**
+	 * Creates a new instance of the specified class. Useful to create new
+	 * plugins instances.
+	 * 
+	 * @param className
+	 *            fully qualified class name
+	 * @return New instance or null otherwise
+	 */
+	public Object getInstance(String className) {
+
+		try {
+			return Class.forName(className).newInstance();
+		} catch (ClassNotFoundException e) {
+			logger.severe(e.getMessage());
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			logger.severe(e.getMessage());
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			logger.severe(e.getMessage());
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+
 }

@@ -251,8 +251,7 @@ public class IO {
 					}
 					break;
 				case KeyEvent.VK_F6:
-					ProfilerUtil.zFightCorrection = !ProfilerUtil.zFightCorrection;
-					println("Z-Fight correction: "+ProfilerUtil.zFightCorrection);
+					landscape.setTerrainEnabled(!landscape.isTerrainEnabled());
 					break;
 				case KeyEvent.VK_F8:
 					Camera camera = canvas.getCamera();

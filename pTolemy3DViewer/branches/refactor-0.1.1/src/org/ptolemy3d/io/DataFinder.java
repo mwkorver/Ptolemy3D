@@ -128,10 +128,10 @@ public class DataFinder {
 	
 	/* Elevation */
 	
-	public URL findDemData(MapData mapData) {
+	public URL findDem(MapData mapData) {
 		return findElevationData(mapData, "", "bdm");
 	}
-	public URL findTinData(MapData mapData) {
+	public URL findTin(MapData mapData) {
 		return findElevationData(mapData, "tin/", "tin");
 	}
 	public URL findElevationData(MapData mapData, String dir, String extension) {

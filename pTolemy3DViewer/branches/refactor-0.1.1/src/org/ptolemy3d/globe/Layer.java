@@ -25,8 +25,6 @@ import javax.media.opengl.GL;
 import org.ptolemy3d.DrawContext;
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.Unit;
-import org.ptolemy3d.debug.Config;
-import org.ptolemy3d.debug.ProfilerUtil;
 import org.ptolemy3d.manager.MapDataManager;
 import org.ptolemy3d.math.Math3D;
 import org.ptolemy3d.scene.Landscape;
@@ -233,11 +231,6 @@ public class Layer {
 		}
 
 		final GL gl = drawContext.getGL();
-		if(Config.DEBUG && ProfilerUtil.zFightCorrection) {
-			// GPU correction to correct bad tiling at pole (north-south)
-			gl.glEnable(GL.GL_POLYGON_OFFSET_FILL);
-			gl.glPolygonOffset(1, -500*layerID);
-		}
 		// Render layer tiles
 		for (int i = 0; i < LEVEL_NUMTILE_LAT; i++) {
 			for (int j = 0; j < LEVEL_NUMTILE_LON; j++) {
@@ -252,9 +245,6 @@ public class Layer {
 				// Display
 				tile.display(gl, right, below, left, above);
 			}
-		}
-		if(Config.DEBUG && ProfilerUtil.zFightCorrection) {
-			gl.glDisable(GL.GL_POLYGON_OFFSET_FILL);
 		}
 	}
 

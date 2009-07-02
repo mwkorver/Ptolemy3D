@@ -132,9 +132,9 @@ class TileDirectModeRenderer implements TileRenderer {
 		final int rowWidth = numRows * 2;	// assuming we have a square tile
 		final float tex_inc = 1.0f / (numRows - 1);
 
-		final boolean xsinterpolate,  xeinterpolate,  zsinterpolate,  zeinterpolate;
-		final double startxcoord,  startzcoord,  endxcoord,  endzcoord;
-		final int startx,  startz; /*final*/ int endx, endz;
+		final boolean xsinterpolate, xeinterpolate, zsinterpolate, zeinterpolate;
+		final double startxcoord, startzcoord, endxcoord, endzcoord;
+		final int startx, startz; /*final*/ int endx, endz;
 		{
 			final double geom_inc = (double) (numRows - 1) / drawLevel.getTileSize();
 
@@ -177,16 +177,16 @@ class TileDirectModeRenderer implements TileRenderer {
 			ll_corner = (dem[i1] << 8) + (dem[i1 + 1] & 0xFF);
 			lr_corner = (dem[i1 + rowWidthMinusTwo] << 8) + (dem[i1 + rowWidthMinusOne] & 0xFF);
 
-			if ((leftTile == null) || (leftTile.mapData != null && leftTile.mapData.key.layer != drawLevelID)) {
+			if ((leftTile == null) || (leftTile.mapData == null) || (leftTile.mapData.key.layer != drawLevelID)) {
 				left_dem_slope = (ll_corner - ul_corner) * oneOverNrowsZ;
 			}
-			if ((rightTile == null) || (rightTile.mapData != null && rightTile.mapData.key.layer != drawLevelID)) {
+			if ((rightTile == null) || (rightTile.mapData == null) || (rightTile.mapData.key.layer != drawLevelID)) {
 				right_dem_slope = (lr_corner - ur_corner) * oneOverNrowsZ;
 			}
-			if ((aboveTile == null) || (aboveTile.mapData != null && aboveTile.mapData.key.layer != drawLevelID)) {
+			if ((aboveTile == null) || (aboveTile.mapData == null) || (aboveTile.mapData.key.layer != drawLevelID)) {
 				top_dem_slope = (ur_corner - ul_corner) * oneOverNrowsX;
 			}
-			if ((belowTile == null) || (belowTile.mapData != null && belowTile.mapData.key.layer != drawLevelID)) {
+			if ((belowTile == null) || (belowTile.mapData == null) || (belowTile.mapData.key.layer != drawLevelID)) {
 				bottom_dem_slope = (lr_corner - ll_corner) * oneOverNrowsX;
 			}
 		}
@@ -209,7 +209,7 @@ class TileDirectModeRenderer implements TileRenderer {
 			dPhiOverN = (phi2 - phi1) * oneOverNrowsZ;
 		}
 
-		final double dyScaler = terrainScaler;
+		final double dyScaler = Unit.getCoordSystemRatio() * terrainScaler;
 
 		double dz = phi1;
 		double cosZ = Math.cos(dz);
@@ -225,8 +225,8 @@ class TileDirectModeRenderer implements TileRenderer {
 			cos2Z = Math.cos(d2z);
 			sin2Z = Math.sin(d2z);
 
-			final float tex_z,  tex_z2;
-			final double t_sz_wt,  t_ez_wt,  b_sz_wt,  b_ez_wt;
+			final float tex_z, tex_z2;
+			final double t_sz_wt, t_ez_wt, b_sz_wt, b_ez_wt;
 			if ((i == startz) && (zsinterpolate)) {
 				tex_z = (float) (tex_inc * startzcoord);
 				t_ez_wt = startzcoord - startz;
@@ -412,16 +412,16 @@ class TileDirectModeRenderer implements TileRenderer {
 			ll_corner = (dem[i1] << 8) + (dem[i1 + 1] & 0xFF);
 			lr_corner = (dem[i1 + rowWidthMinusTwo] << 8) + (dem[i1 + rowWidthMinusOne] & 0xFF);
 
-			if ((leftTile == null) || (leftTile.mapData != null && leftTile.mapData.key.layer != drawLevelID)) {
+			if ((leftTile == null) || (leftTile.mapData == null) || (leftTile.mapData.key.layer != drawLevelID)) {
 				left_dem_slope = (ll_corner - ul_corner) * oneOverNrowsZ;
 			}
-			if ((rightTile == null) || (rightTile.mapData != null && rightTile.mapData.key.layer != drawLevelID)) {
+			if ((rightTile == null) || (rightTile.mapData == null) || (rightTile.mapData.key.layer != drawLevelID)) {
 				right_dem_slope = (lr_corner - ur_corner) * oneOverNrowsZ;
 			}
-			if ((aboveTile == null) || (aboveTile.mapData != null && aboveTile.mapData.key.layer != drawLevelID)) {
+			if ((aboveTile == null) || (aboveTile.mapData == null) || (aboveTile.mapData.key.layer != drawLevelID)) {
 				top_dem_slope = (ur_corner - ul_corner) * oneOverNrowsX;
 			}
-			if ((belowTile == null) || (belowTile.mapData != null && belowTile.mapData.key.layer != drawLevelID)) {
+			if ((belowTile == null) || (belowTile.mapData == null) || (belowTile.mapData.key.layer != drawLevelID)) {
 				bottom_dem_slope = (lr_corner - ll_corner) * oneOverNrowsX;
 			}
 		}

@@ -17,264 +17,106 @@
  */
 package org.ptolemy3d.manager;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
 
-import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.debug.IO;
-import org.ptolemy3d.globe.ElevationDem;
 import org.ptolemy3d.globe.MapData;
-import org.ptolemy3d.globe.MapDataKey;
 import org.ptolemy3d.io.DataFinder;
 import org.ptolemy3d.io.Stream;
-import org.ptolemy3d.jp2.Decoder;
-import org.ptolemy3d.jp2.fast.JJ2000FastDecoder;
 
 /**
  * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  */
-class MapDataEntry {
-	static class DownloadData {
-		/** Stream downloaded */
-		private Stream stream;
-		/** Track the number of file request fails */
-		public int streamNotFound;
-		/** Track number of file download fail */
-		public int downloadFail;
-		
-		public DownloadData() {
-			stream = null;
-			resetDownloadFails();
-		}
-		
-		public boolean isDownloaded() {
-			return (stream  != null) && (stream.isDownloaded());
-		}
-		public boolean isDownloadFailed() {
-			return (streamNotFound > 0) || (downloadFail > 0);
-		}
-		
-		public void resetDownloadFails() {
-			streamNotFound = 0;
-			downloadFail = 0;
-		}
-	}
-	
-	/* Avoid storing tile in memory */
-	private final static boolean AUTO_FREE = true;
-	
+public abstract class MapDataEntry {
 	/** */
 	public final MapData mapData;
 	
 	/** Stream downloaded */
-	private final DownloadData mapStream;
-	/** DEM downloaded */
-	private final DownloadData demStream;
+	private Stream stream;
+	/** Track the number of file request fails */
+	private int streamNotFound;
+	/** Track number of file download fail */
+	private int downloadFail;
 	
-	/** Decoder */
-	private Decoder decoder;
-	/** Number of wavelets to decode */
-	private int numWavelets;
-	
-	/** */
-	private long lastRequest;
-	
-	public MapDataEntry(MapDataKey key) {
-		this.mapData = new MapData(key);
-		
-		mapStream = new DownloadData();
-		demStream = new DownloadData();
-		
-		numWavelets = -1;
-	}
-	
-	protected void onRequest() {
-		lastRequest = getTime();
-	}
-	
-	protected long getLastRequestTime() {
-		return lastRequest;
-	}
-	protected static long getTime() {
-		return System.currentTimeMillis();
-	}
-	protected static long getMaxTime() {
-		return 5 * 1000;
-	}
-	
-	/** Marked as not failed */
-	public void resetDownloadFails() {
-		mapStream.resetDownloadFails();
-		demStream.resetDownloadFails();
+	public MapDataEntry(MapData mapData) {
+		this.mapData = mapData;
+		this.stream = null;
+		this.streamNotFound = 0;
+		this.downloadFail = 0;
 	}
 	
 	/* Map Download */
 
 	/** @return true if the map has been downloaded */
-	public boolean isMapDownloaded() {
-		if (mapStream.stream == null) {
+	public boolean isDownloaded() {
+		if (stream == null) {
 			// Attempt to get from cache
-			final DataFinder dataFinder = Ptolemy3D.getDataFinder();
-			mapStream.stream = dataFinder.findJp2FromCache(mapData);
+			stream = findDataFromCache(mapData);
 		}
-		return mapStream.isDownloaded();
+		return (stream != null) && (stream.isDownloaded());
 	}
 	
 	/** @return true if the map has been downloaded */
-	public boolean isMapDownloadFailed() {
-		return mapStream.isDownloadFailed();
+	public boolean isDownloadFailed() {
+		return (streamNotFound > 0) || (downloadFail > 0);
+	}
+	
+	/** Marked as not failed */
+	public void resetDownloadFails() {
+		streamNotFound = 0;
+		downloadFail = 0;
 	}
 	
 	/** @return true if the data has been downloaded */
-	public boolean downloadMap() {
-		if(isMapDownloaded()) {
+	public final boolean download() {
+		if(isDownloaded()) {
 			return true;
 		}
 		
-		if(mapStream.stream == null) {
-			final DataFinder dataFinder = Ptolemy3D.getDataFinder();
-			final URL url = dataFinder.findJp2(mapData);
+		if(stream == null) {
+			final URL url = findData(mapData);
 			if(url == null) {
-				mapStream.streamNotFound++;
+				streamNotFound++;
 				return false;
 			}
-			mapStream.stream = new Stream(url);
-			mapStream.streamNotFound = 0;
+			stream = new Stream(url);
+			streamNotFound = 0;
 		}
 		try {
-			final boolean downloaded = mapStream.stream.download();
+			final boolean downloaded = stream.download();
 			if(downloaded) {
-				mapStream.downloadFail = 0;
+				downloadFail = 0;
 			}
 			return downloaded;
 		}
 		catch(IOException e) {
-			mapStream.downloadFail++;
+			downloadFail++;
 			IO.printStackConnection(e);
 			return false;
 		}
 	}
 	
-	/* Map Decoding */
+	/** @return the Stream if it is donwload
+	 * @see #isDownloaded() */
+	public Stream getStream() {
+		return stream;
+	}
+	
+	/** @return the URL of the data
+	 * @see DataFinder */
+	public abstract URL findData(MapData mapData);
+	public abstract Stream findDataFromCache(MapData mapData);
+	
+	/* Data Decoding */
 	
 	/** @return the next resolution ID to decode */
-	public int getNextResolution() {
-		return mapData.mapResolution + 1;
-	}
-	
+	public abstract int getNextDecoderUnit();
+	/** @return true if decoded */
+	public abstract boolean isDecoded(int unit);
 	/** @return true if the resolution is or has been decoded */
-	public boolean decode() {
-		if(!isMapDownloaded()) {
-			return false;
-		}
-		
-		final int nextResolution = getNextResolution();
-		if((numWavelets >= 0) && (nextResolution >= numWavelets)) {
-			return true;
-		}
-		if(decoder == null) {
-			decoder = new JJ2000FastDecoder(mapStream.stream);	//A lighter / faster version of JJ200 Decoder
-//			decoder = new JJ2000Decoder(mapStream.stream);		//JJ200 Decoder
-			numWavelets = decoder.getNumWavelets();
-		}
-		
-		IO.printfParser("Parse wavelet: %s@%d/%d\n", mapData.key, (nextResolution + 1), numWavelets);
-		final Texture texture;
-		try {
-			texture = decoder.parseWavelet(nextResolution);
-		}
-		catch(OutOfMemoryError e) {
-			throw e;
-		}
-		if(AUTO_FREE) {
-			freeDecoder();
-		}
-		boolean decoded = (texture != null);
-		if(decoded) {
-			mapData.newTexture = texture;
-			mapData.mapResolution = nextResolution;
-		}
-		else {
-			//Invalidate cache
-			mapStream.stream.invalidateCache();
-		}
-		// Check if the decoded has more map
-		if(nextResolution >= numWavelets) {
-			IO.printlnParser("Decoding finished ...");
-			freeDecoder();
-		}
-		return decoded;
-	}
+	public abstract boolean decode();
+	/** */
+	public abstract void freeDecoder();
 	
-	protected void freeDecoder() {
-		decoder = null;
-	}
-	
-	/* DEM Downloading */
-	
-	/** @return true if the map has been downloaded */
-	public boolean isDemDownloaded() {
-		if (demStream.stream == null) {
-			// Attempt to get from cache
-			final DataFinder dataFinder = Ptolemy3D.getDataFinder();
-			demStream.stream = dataFinder.findDemFromCache(mapData);
-		}
-		final boolean downloaded = demStream.isDownloaded();
-		if (downloaded) {
-			decodeDem();
-		}
-		return downloaded;
-	}
-	
-	/** @return true if the map has been downloaded */
-	public boolean isDemDownloadFailed() {
-		return demStream.isDownloadFailed();
-	}
-	
-	/** @return true if the data has been downloaded */
-	public boolean downloadDem() {
-		if(isDemDownloaded()) {
-			return true;
-		}
-		
-		if(demStream.stream == null) {
-			final DataFinder dataFinder = Ptolemy3D.getDataFinder();
-			final URL url = dataFinder.findDemData(mapData);
-			if(url == null) {
-				demStream.streamNotFound++;
-				return false;
-			}
-			demStream.stream = new Stream(url);
-			demStream.streamNotFound = 0;
-		}
-		try {
-			final boolean downloaded = demStream.stream.download();
-			if(downloaded) {
-				demStream.downloadFail = 0;
-			}
-			return downloaded;
-		}
-		catch(IOException e) {
-			demStream.downloadFail++;
-			IO.printStackConnection(e);
-			return false;
-		}
-	}
-	
-	public void decodeDem() {
-		if (demStream.stream != null && mapData.dem == null) {
-			try {
-				File file = demStream.stream.createFile();
-				int length = (int)file.length();
-				byte[] b = new byte[length];
-				new FileInputStream(file).read(b);
-				mapData.dem = new ElevationDem(b);
-			}
-			catch(Throwable t) {
-				t.printStackTrace();
-			}
-		}
-	}
 }

@@ -100,9 +100,7 @@ public final class Ptolemy3D {
 	private static String JS_STOP_FUNCTION = "ptolemyStop";
 	private static String JS_SHUTDOWN_FUNCTION = "ptolemyShutdown";
 
-	public Ptolemy3D() {
-		System.out.println("Ptolemy created");
-	}
+	public Ptolemy3D() {}
 
 	/**
 	 * Initialized pTolemy3D system with the specified settings.
@@ -112,8 +110,7 @@ public final class Ptolemy3D {
 	public static void initialize(Configuration config) {
 		configuration = config;
 		textureManager = new TextureManager();
-		dataFinder = new DataFinder(configuration.getServer(),
-				configuration.servers);
+		dataFinder = new DataFinder(configuration.getServer(), configuration.servers);
 		mapDataManager = new MapDataManager();
 		cache = new FileSystemCache();
 	}

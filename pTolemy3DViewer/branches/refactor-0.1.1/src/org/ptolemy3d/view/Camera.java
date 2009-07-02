@@ -154,48 +154,38 @@ public class Camera {
 		final CameraMovement cameraController = canvas.getCameraMovement();
 		final Landscape landscape = Ptolemy3D.getScene().getLandscape();
 		final Sky sky = Ptolemy3D.getScene().getSky();
-		final int farClip = landscape.getFarClip();
 		final int fogRadius = sky.getFogRadius();
 		final double aspectRatio = canvas.getAspectRatio();
-
-		// maximize our precision
-		if (sky.fogStateOn) {
-			if (vertAlt > sky.horizonAlt) {
-				perspective.setPerspectiveProjection(fov, aspectRatio,
-						((sky.horizonAlt * Unit.getCoordSystemRatio()) / 2),
-						farClip);
-				sky.fogStateOn = false;
-			} else {
+		
+		float farClip = landscape.getFarClip();
+		float nearClip = 1f;
+		
+		if (vertAlt > sky.horizonAlt) {
+			nearClip = ((sky.horizonAlt * Unit.getCoordSystemRatio()) / 2);
+			sky.fogStateOn = false;
+		}
+		else {
+			if (sky.fogStateOn) {
 				// minimize our back z clip for precision
-				double gamma = 0.5235987756 - tilt;
+				final double gamma = 0.5235987756 - tilt;
 				if (gamma > Math3D.HALF_PI) {
-					perspective.setPerspectiveProjection(fov, aspectRatio, 1,
-							fogRadius + 10000);
-				} else {
-					double maxView = Math.tan(gamma)
-							* (position.getAltitudeDD() + cameraController.ground_ht)
-							* 2;
+					farClip = fogRadius + 10000;
+				}
+				else {
+					float maxView = (float)(Math.tan(gamma) * (position.getAltitudeDD() + cameraController.ground_ht) * 2);
 					if (maxView >= fogRadius + 10000) {
-						perspective.setPerspectiveProjection(fov, aspectRatio,
-								1, fogRadius + 10000);
-					} else {
-						perspective.setPerspectiveProjection(fov, aspectRatio,
-								1, maxView);
+						maxView = fogRadius + 10000;
+					}
+					farClip = maxView;
 				}
 			}
-		}
-		} else {
-			if (vertAlt > sky.horizonAlt) {
-				// On resize, force update aspectRatio
-				perspective.setPerspectiveProjection(fov, aspectRatio,
-						((sky.horizonAlt * Unit.getCoordSystemRatio()) / 2),
-						farClip);
-			} else {
-				perspective.setPerspectiveProjection(fov, aspectRatio, 1,
-						fogRadius + 10000);
+			else {
+				farClip = fogRadius + 10000;
 				sky.fogStateOn = true;
 			}
 		}
+		
+		perspective.setPerspectiveProjection(fov, aspectRatio, nearClip, farClip);
 	}
 
 	/**

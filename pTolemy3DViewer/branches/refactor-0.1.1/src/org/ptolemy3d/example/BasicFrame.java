@@ -22,10 +22,8 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.lang.reflect.Constructor;
 
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 
 import org.ptolemy3d.Configuration;
 import org.ptolemy3d.Ptolemy3D;

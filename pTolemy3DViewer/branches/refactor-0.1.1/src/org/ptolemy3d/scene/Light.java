@@ -51,9 +51,13 @@ public class Light {
 
     public void draw(DrawContext drawContext) {
         GL gl = drawContext.getGL();
-
+        
         gl.glLightfv(GL.GL_LIGHT0, GL.GL_POSITION, light0Position, 0);
         gl.glLightfv(GL.GL_LIGHT1, GL.GL_POSITION, light1Position, 0);
+        
+        gl.glEnable(GL.GL_LIGHTING);
+        gl.glEnable(GL.GL_LIGHT0);
+        gl.glEnable(GL.GL_LIGHT1);        
     }
 
     public void destroyGL(DrawContext drawContext) {

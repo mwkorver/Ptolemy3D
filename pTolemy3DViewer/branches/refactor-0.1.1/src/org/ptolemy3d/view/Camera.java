@@ -463,8 +463,8 @@ public class Camera {
 			final double yScaler = Unit.getCoordSystemRatio() * Ptolemy3D.getScene().getLandscape().getTerrainScaler();
 			height0 = tile.getUpLeftHeight() * yScaler;
 			height1 = tile.getBotLeftHeight() * yScaler;
-			height2 = tile.getUpRightHeight() * yScaler;
-			height3 = tile.getBotRightHeight() * yScaler;
+			height2 = tile.getBotRightHeight() * yScaler;
+			height3 = tile.getUpRightHeight() * yScaler;
 		}
 		else {
 			height0 = 0; height1 = 0; height2 = 0; height3 = 0;

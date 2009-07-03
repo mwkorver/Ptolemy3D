@@ -224,7 +224,7 @@ class MapDataDecoder {
 		
 		public void run() {
 			while (true) {
-				if (!findEntryToDecode()) {
+				if (!findCloserEntryToDecode()) {
 					synchronized(this) {	//Wait / notify events
 						try {
 							IO.printlnParser("Decoder thread waiting ...");
@@ -236,16 +236,23 @@ class MapDataDecoder {
 				}
 			}
 		}
-		private boolean findEntryToDecode() {
+		private boolean findCloserEntryToDecode() {
+			if(Ptolemy3D.getCanvas() == null) {
+				return false;
+			}
+			
 			final int numLayers = Ptolemy3D.getScene().getLandscape().globe.getNumLayers();
 			final int maxDecoderUnit = MapDataEntries.getMaxNumDecoderUnit();
 			
-			MapDataEntries entry = null;
-			int dataID = 0;
+			double closerDist = Double.MAX_VALUE;
+			MapDataEntries closerEntry = null;
+			int closerDataID = 0;
 			
+			final Landscape landscape = Ptolemy3D.getScene().getLandscape();
+			final Camera camera = Ptolemy3D.getCanvas().getCamera();
 search:		for(int layer = 0; layer < numLayers; layer++) {
 				for(int decoderUnit = 0; decoderUnit < maxDecoderUnit; decoderUnit++) {
-					for(dataID = 0; dataID < MapDataEntries.NUM_DATAS; dataID++) {
+					for(int dataID = 0; dataID < MapDataEntries.NUM_DATAS; dataID++) {
 						if(decoderUnit >= MapDataEntries.getNumDecoderUnit(dataID)) {
 							continue;
 						}
@@ -253,25 +260,32 @@ search:		for(int layer = 0; layer < numLayers; layer++) {
 						synchronized(map) {	//Accessed from multiple threads
 							final Iterator<MapDataEntries> j = map.values().iterator();
 							while (j.hasNext()) {
-								final MapDataEntries curEntry = j.next();
-								if(curEntry.isDownloaded(dataID) && (curEntry.getNextDecoderUnit(dataID) == decoderUnit)) {
-									entry = curEntry;
-									break search;
+								final MapDataEntries entry = j.next();
+								if(entry.isDownloaded(dataID) && (entry.getNextDecoderUnit(dataID) == decoderUnit)) {
+									final double dist = landscape.globe.getMapDistanceFromCamera(entry.mapData.key, camera);
+									if(dist < closerDist) {
+										closerEntry = entry;
+										closerDataID = dataID;
+										closerDist = dist;
+									}
 								}
 							}
+						}
+						if(closerEntry != null) {
+							break search;
 						}
 					}
 				}
 			}
 			
-			if (entry != null) {
+			if (closerEntry != null) {
 				try {
-					mapDataKey = entry.mapData.key;
-					entry.decode(dataID);
+					mapDataKey = closerEntry.mapData.key;
+					closerEntry.decode(closerDataID);
 					mapDataKey = null;
 				}
 				catch(OutOfMemoryError e) {
-					entry.freeDecoder();
+					closerEntry.freeDecoder();
 					garbageCollect();
 					IO.printStackParser(e);
 				}

@@ -205,7 +205,7 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 		
 		final Layer drawLevel = landscape.globe.getLayer(drawLevelID);
 		final byte[] dem = mapData.dem.demDatas;
-		final int numRows = mapData.dem.numRows;
+		final int numRows = mapData.dem.size;
 
 		final int rowWidth = numRows * 2;	// assuming we have a square tile
 		final float tex_inc = 1.0f / (numRows - 1);
@@ -432,7 +432,7 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 
 		final Layer drawLevel = landscape.globe.getLayer(drawLevelID);
 		final byte[] dem = mapData.dem.demDatas;
-		final int numRows = mapData.dem.numRows;
+		final int numRows = mapData.dem.size;
 		final boolean useColor = (landscape.getDisplayMode() == Landscape.DISPLAY_SHADEDDEM);
 
 		final int rowWidth = numRows * 2;	// assuming we have a square tile

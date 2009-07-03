@@ -133,12 +133,12 @@ class TileDefaultRenderer implements TileRenderer {
 		double dx, dz;
 		double tx, ty, tz;
 
-		for (int i = 0; i < jtile.tin.texCoords.length; i++) {
+		for (int i = 0; i < jtile.tin.indices.length; i++) {
 			setGLBegin();
-			for (int j = 0; j < jtile.tin.texCoords[i].length; j++) {
+			for (int j = 0; j < jtile.tin.indices[i].length; j++) {
 				int v;
 
-				v = jtile.tin.texCoords[i][j];
+				v = jtile.tin.indices[i][j];
 				dy = jtile.tin.positions[v][1];
 
 				if ((left_dem_slope != -1) && (jtile.tin.positions[v][0] == 0)) {
@@ -175,7 +175,7 @@ class TileDefaultRenderer implements TileRenderer {
 			setGLEnd();
 
 			if(DEBUG) {
-				int numVertices = jtile.tin.texCoords[i].length;
+				int numVertices = jtile.tin.indices[i].length;
 				ProfilerUtil.vertexCounter += numVertices;
 				if (texture) {
 					ProfilerUtil.vertexMemoryUsage += numVertices * (2 * 4 + 3 * 8);
@@ -196,7 +196,7 @@ class TileDefaultRenderer implements TileRenderer {
 
 		double left_dem_slope = -1, right_dem_slope = -1, top_dem_slope = -1, bottom_dem_slope = -1;
 
-		int numrows = jtile.dem.numRows;
+		int numrows = jtile.dem.size;
 		int row_width = numrows * 2; // assuming we have a square tile
 		double geom_inc = (double) drawLevel.getTileSize() / (numrows - 1);
 		float tex_inc = 1.0f / (numrows - 1);

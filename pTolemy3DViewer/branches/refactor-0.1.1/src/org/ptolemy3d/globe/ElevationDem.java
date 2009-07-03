@@ -18,17 +18,61 @@
 
 package org.ptolemy3d.globe;
 
+import org.ptolemy3d.Ptolemy3D;
+
 /**
- *
+ * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
+ * @author Contributors
  */
 public class ElevationDem {
+	/* 2: data are stored as unsigned short */
+	private final static int DATA_SIZE = 2;
+	
 	/** DEM Elevation raw datas */
 	public final byte[] demDatas;
-	/** */
-	public final int numRows;
+	/** Number of elevation point (square) */
+	public final int size;
 
 	public ElevationDem(byte[] datas) {
-		numRows = (int)Math.sqrt((datas.length / 2));
 		demDatas = datas;
+		size = (int)Math.sqrt((datas.length / 2));
+	}
+	
+	public double getUpLeftHeight(Tile tile) {
+		final int left = tile.getRenderingLeftLongitude();
+		final int up = tile.getRenderingUpperLatitude();
+		return getHeight(tile, left, up);
+	}
+	public double getBotLeftHeight(Tile tile) {
+		final int left = tile.getRenderingLeftLongitude();
+		final int lower = tile.getRenderingLowerLatitude();
+		return getHeight(tile, left, lower);
+	}
+	public double getUpRightHeight(Tile tile) {
+		final int right = tile.getRenderingRightLongitude();
+		final int up = tile.getRenderingUpperLatitude();
+		return getHeight(tile, right, up);
+	}
+	public double getBotRightHeight(Tile tile) {
+		final int right = tile.getRenderingRightLongitude();
+		final int lower = tile.getRenderingLowerLatitude();
+		return getHeight(tile, right, lower);
+	}
+	
+	public double getHeight(Tile tile, int lon, int lat) {
+		final int upLeftX = tile.getRenderingLeftLongitude();
+		final int upLeftZ = tile.getRenderingUpperLatitude();
+		
+		final Layer layer = Ptolemy3D.getScene().getLandscape().globe.getLayer(tile.mapData.key.layer);
+		final double geomIncr = (double) (size - 1) / layer.getTileSize();
+		final int x = (int) ((lon - upLeftX) * geomIncr);
+		final int z = (int) ((lat - upLeftZ) * geomIncr);
+		return getHeightFromIndex(x, z);
+	}
+	
+	private final double getHeightFromIndex(int lon, int lat) {
+		final int index = (lat * size * DATA_SIZE) + (lon * DATA_SIZE);
+		final int height = (demDatas[index] << 8) + (demDatas[index + 1] & 0xFF);
+		return height;
 	}
 }

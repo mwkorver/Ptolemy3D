@@ -65,6 +65,9 @@ public class Layer {
 	/** Use for server efficiency storage and speed of map datas */
 	private final int divider;
 	
+	/** Layer areas */
+	private final List<Area> areas = new Vector<Area>(2);
+	
 	/**
 	 * Creates a new instance.
 	 *
@@ -219,9 +222,100 @@ public class Layer {
 			}
 			row++;
 		}
+		
+		updateAreas();
 	}
-
-
+	/* */
+	private void updateAreas() {
+		final Landscape landscape = Ptolemy3D.getScene().getLandscape();
+		final int maxLat = landscape.getMaxLatitude();
+		final int topTileLat = getMaxTileLatitude();
+		final int halfLon = getHalfGlobeLongitude();
+		
+		final int latSign = (centerLat < maxLat) && (centerLat > -maxLat) ? -1 : 1;
+		
+		final int b_ulx_, b_lrx_, b_ulz_, b_lrz_;
+		b_ulx_ = centerLon - (tileSize * 4);
+		b_lrx_ = centerLon + (tileSize * 4);
+		b_ulz_ = centerLat + latSign * (tileSize * 4);
+		b_lrz_ = centerLat - latSign * (tileSize * 4);
+		
+		final boolean centerInBounds = (centerLat <= topTileLat) && (centerLat >= -topTileLat);
+		final boolean inBounds = (b_lrz_ <= topTileLat) && (b_lrz_ >= -topTileLat);
+		if (centerInBounds && inBounds) {
+			synchronized(areas) {
+				areas.clear();
+				areas.add(new Area(b_ulz_, b_lrz_, b_ulx_, b_lrx_));
+			}
+		}
+		else {
+			final boolean northPole = b_ulz_ < 0 && b_lrz_ < 0;
+			
+			final int b_ulx, b_lrx, b_ulz, b_lrz;
+			final int b_ulx2, b_lrx2, b_ulz2, b_lrz2;
+			if(northPole) {
+				final boolean negZSide = b_ulx_ > 0 && b_lrx_ > 0;
+				if(negZSide) {
+					//One Half
+					b_ulx = b_ulx_ - halfLon;
+					b_lrx = b_lrx_ - halfLon;
+					b_ulz = -topTileLat;
+					b_lrz = -topTileLat - (b_lrz_ + topTileLat) - tileSize;
+					//Other half
+					b_ulx2 = b_ulx_;
+					b_lrx2 = b_lrx_;
+					b_ulz2 = -topTileLat;
+					b_lrz2 = -topTileLat + (b_ulz_ + topTileLat) + tileSize;
+				}
+				else {
+					//One Half
+					b_ulx = b_ulx_;
+					b_lrx = b_lrx_;
+					b_ulz2 = -topTileLat;
+					b_lrz2 = -topTileLat - (b_lrz_ + topTileLat) - tileSize;
+					//Other half
+					b_ulx2 = b_ulx_ + halfLon;
+					b_lrx2 = b_lrx_ + halfLon;
+					b_ulz = -topTileLat;
+					b_lrz = -topTileLat + (b_ulz_ + topTileLat) + tileSize;
+				}
+			}
+			else {
+				final boolean posZSide = b_ulx_ > 0 && b_lrx_ > 0;
+				if(posZSide) {
+					//One Half
+					b_ulx = b_ulx_;
+					b_lrx = b_lrx_;
+					b_ulz2 = topTileLat - (b_lrz_ - topTileLat);
+					b_lrz2 = topTileLat;
+					//Other half
+					b_ulx2 = b_ulx_ - halfLon;
+					b_lrx2 = b_lrx_ - halfLon;
+					b_ulz = topTileLat + (b_ulz_ - topTileLat);
+					b_lrz = topTileLat;
+				}
+				else {
+					//One Half
+					b_ulx = b_ulx_ + halfLon;
+					b_lrx = b_lrx_ + halfLon;
+					b_lrz = topTileLat;
+					b_ulz = topTileLat - (b_lrz_ - topTileLat);
+					//Other half
+					b_ulx2 = b_ulx_;
+					b_lrx2 = b_lrx_;
+					b_ulz2 = topTileLat + (b_ulz_ - topTileLat);
+					b_lrz2 = topTileLat;
+				}
+			}
+			
+			synchronized(areas) {
+				areas.clear();
+				areas.add(new Area(b_ulz, b_lrz, b_ulx, b_lrx));
+				areas.add(new Area(b_ulz2, b_lrz2, b_ulx2, b_lrx2));
+			}
+		}
+	}
+	
 	/**
 	 * Draw Level geometry
 	 */
@@ -277,7 +371,7 @@ public class Layer {
 			 * DEM Elevation
 			 */
 			final byte[] dem = mapData.dem.demDatas;
-			final int numRows = mapData.dem.numRows;
+			final int numRows = mapData.dem.size;
 			final int rowWidth = numRows * 2; // assuming we have a square tile
 
 			float dw = (float) (numRows - 1) / tileSize;
@@ -340,17 +434,17 @@ public class Layer {
 			/*
 			 * TIN Elevation
 			 */
-			for (int k = 0; (k < mapData.tin.texCoords.length); k++) {
-				if (mapData.tin.texCoords[k] == null) {
+			for (int k = 0; (k < mapData.tin.indices.length); k++) {
+				if (mapData.tin.indices[k] == null) {
 					continue;
 				}
-				for (int j = 2; (j < mapData.tin.texCoords[k].length); j++) {
-					Math3D.setTriVert(0, mapData.getLon() + (mapData.tin.positions[mapData.tin.texCoords[k][j - 2]][0]),
-							mapData.tin.positions[mapData.tin.texCoords[k][j - 2]][1], mapData.getLat() - (mapData.tin.positions[mapData.tin.texCoords[k][j - 2]][2]));
-					Math3D.setTriVert(1, mapData.getLon() + (mapData.tin.positions[mapData.tin.texCoords[k][j - 1]][0]),
-							mapData.tin.positions[mapData.tin.texCoords[k][j - 1]][1], mapData.getLat() - (mapData.tin.positions[mapData.tin.texCoords[k][j - 1]][2]));
-					Math3D.setTriVert(2, mapData.getLon() + (mapData.tin.positions[mapData.tin.texCoords[k][j]][0]),
-							mapData.tin.positions[mapData.tin.texCoords[k][j]][1], mapData.getLat() - (mapData.tin.positions[mapData.tin.texCoords[k][j]][2]));
+				for (int j = 2; (j < mapData.tin.indices[k].length); j++) {
+					Math3D.setTriVert(0, mapData.getLon() + (mapData.tin.positions[mapData.tin.indices[k][j - 2]][0]),
+							mapData.tin.positions[mapData.tin.indices[k][j - 2]][1], mapData.getLat() - (mapData.tin.positions[mapData.tin.indices[k][j - 2]][2]));
+					Math3D.setTriVert(1, mapData.getLon() + (mapData.tin.positions[mapData.tin.indices[k][j - 1]][0]),
+							mapData.tin.positions[mapData.tin.indices[k][j - 1]][1], mapData.getLat() - (mapData.tin.positions[mapData.tin.indices[k][j - 1]][2]));
+					Math3D.setTriVert(2, mapData.getLon() + (mapData.tin.positions[mapData.tin.indices[k][j]][0]),
+							mapData.tin.positions[mapData.tin.indices[k][j]][1], mapData.getLat() - (mapData.tin.positions[mapData.tin.indices[k][j]][2]));
 					if (Math3D.rayIntersectTri(pickArr, ray) == 1) {
 						pickArr[1] *= Unit.getCoordSystemRatio();
 						return pickArr;
@@ -380,93 +474,6 @@ public class Layer {
 		return maxTileLat;
 	}
 	
-	public List<Area> getAreas() {
-		final List<Area> areas = new Vector<Area>(2);
-		
-		final Landscape landscape = Ptolemy3D.getScene().getLandscape();
-		final int maxLat = landscape.getMaxLatitude();
-		final int topTileLat = getMaxTileLatitude();
-		final int halfLon = getHalfGlobeLongitude();
-		
-		final int latSign = (centerLat < maxLat) && (centerLat > -maxLat) ? -1 : 1;
-		
-		final int b_ulx_, b_lrx_, b_ulz_, b_lrz_;
-		b_ulx_ = centerLon - (tileSize * 4);
-		b_lrx_ = centerLon + (tileSize * 4);
-		b_ulz_ = centerLat + latSign * (tileSize * 4);
-		b_lrz_ = centerLat - latSign * (tileSize * 4);
-		
-		final boolean centerInBounds = (centerLat <= topTileLat) && (centerLat >= -topTileLat);
-		final boolean inBounds = (b_lrz_ <= topTileLat) && (b_lrz_ >= -topTileLat);
-		if (centerInBounds && inBounds) {
-			areas.add(new Area(b_ulz_, b_lrz_, b_ulx_, b_lrx_));
-		}
-		else {
-			final boolean northPole = b_ulz_ < 0 && b_lrz_ < 0;
-			
-			final int b_ulx, b_lrx, b_ulz, b_lrz;
-			final int b_ulx2, b_lrx2, b_ulz2, b_lrz2;
-			if(northPole) {
-				final boolean negZSide = b_ulx_ > 0 && b_lrx_ > 0;
-				if(negZSide) {
-					//One Half
-					b_ulx = b_ulx_ - halfLon;
-					b_lrx = b_lrx_ - halfLon;
-					b_ulz = -topTileLat;
-					b_lrz = -topTileLat - (b_lrz_ + topTileLat) - tileSize;
-					//Other half
-					b_ulx2 = b_ulx_;
-					b_lrx2 = b_lrx_;
-					b_ulz2 = -topTileLat;
-					b_lrz2 = -topTileLat + (b_ulz_ + topTileLat) + tileSize;
-				}
-				else {
-					//One Half
-					b_ulx = b_ulx_;
-					b_lrx = b_lrx_;
-					b_ulz2 = -topTileLat;
-					b_lrz2 = -topTileLat - (b_lrz_ + topTileLat) - tileSize;
-					//Other half
-					b_ulx2 = b_ulx_ + halfLon;
-					b_lrx2 = b_lrx_ + halfLon;
-					b_ulz = -topTileLat;
-					b_lrz = -topTileLat + (b_ulz_ + topTileLat) + tileSize;
-				}
-			}
-			else {
-				final boolean posZSide = b_ulx_ > 0 && b_lrx_ > 0;
-				if(posZSide) {
-					//One Half
-					b_ulx = b_ulx_;
-					b_lrx = b_lrx_;
-					b_ulz2 = topTileLat - (b_lrz_ - topTileLat);
-					b_lrz2 = topTileLat;
-					//Other half
-					b_ulx2 = b_ulx_ - halfLon;
-					b_lrx2 = b_lrx_ - halfLon;
-					b_ulz = topTileLat + (b_ulz_ - topTileLat);
-					b_lrz = topTileLat;
-				}
-				else {
-					//One Half
-					b_ulx = b_ulx_ + halfLon;
-					b_lrx = b_lrx_ + halfLon;
-					b_lrz = topTileLat;
-					b_ulz = topTileLat - (b_lrz_ - topTileLat);
-					//Other half
-					b_ulx2 = b_ulx_;
-					b_lrx2 = b_lrx_;
-					b_ulz2 = topTileLat + (b_ulz_ - topTileLat);
-					b_lrz2 = topTileLat;
-				}
-			}
-			
-			areas.add(new Area(b_ulz, b_lrz, b_ulx, b_lrx));
-			areas.add(new Area(b_ulz2, b_lrz2, b_ulx2, b_lrx2));
-		}
-		return areas;
-	}
-
 	// Getters
 	/**
 	 * Level ID
@@ -524,5 +531,9 @@ public class Layer {
 
 	public void setVisible(boolean visible) {
 		this.visible = visible;
+	}
+	
+	public List<Area> getAreas() {
+		return areas;
 	}
 }

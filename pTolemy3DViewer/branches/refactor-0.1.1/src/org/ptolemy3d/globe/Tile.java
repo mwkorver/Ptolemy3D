@@ -20,8 +20,6 @@ package org.ptolemy3d.globe;
 import static org.ptolemy3d.debug.Config.DEBUG;
 import static org.ptolemy3d.Unit.EARTH_RADIUS;
 
-import java.util.List;
-
 import javax.media.opengl.GL;
 
 import org.ptolemy3d.Ptolemy3D;
@@ -119,8 +117,7 @@ public class Tile {
 		if (layerID < (globe.getNumLayers() - 1)) {	//Last layer don't have tile below
 			final Layer layerBelow = globe.getLayer(layerID + 1);
 			if (layerBelow.isVisible()) {
-				List<Area> areas = layerBelow.getAreas();
-				for(Area area : areas) {
+				for(Area area : layerBelow.getAreas()) {
 					if(clipWithArea(area)) {
 						return;
 					}
@@ -339,11 +336,11 @@ public class Tile {
 			}
 			double scaler = Unit.getCoordSystemRatio() * terrainScaler;
 
-			for (int i = 0; i < mapData.tin.texCoords.length; i++) {
-				for (int j = 0; j < mapData.tin.texCoords[i].length; j++) {
+			for (int i = 0; i < mapData.tin.indices.length; i++) {
+				for (int j = 0; j < mapData.tin.indices[i].length; j++) {
 					double dx, dz, dy;
 					{
-						final int v = mapData.tin.texCoords[i][j];
+						final int v = mapData.tin.indices[i][j];
 						final float[] p = mapData.tin.positions[v];
 
 						dx = theta1 + p[0] * dTetaOverN;
@@ -607,5 +604,50 @@ public class Tile {
 		else {
 			return -lat;
 		}
+	}
+	
+	public double getUpLeftHeight() {
+		if (mapData != null) {
+			if (mapData.tin != null) {
+				return mapData.tin.getUpLeftHeight(this);
+			}
+			else if(mapData.dem != null) {
+				return mapData.dem.getUpLeftHeight(this);
+			}
+		}
+		return 0;
+	}
+	public double getBotLeftHeight() {
+		if (mapData != null) {
+			if (mapData.tin != null) {
+				return mapData.tin.getBotLeftHeight(this);
+			}
+			else if(mapData.dem != null) {
+				return mapData.dem.getBotLeftHeight(this);
+			}
+		}
+		return 0;
+	}
+	public double getUpRightHeight() {
+		if (mapData != null) {
+			if (mapData.tin != null) {
+				return mapData.tin.getUpRightHeight(this);
+			}
+			else if(mapData.dem != null) {
+				return mapData.dem.getUpRightHeight(this);
+			}
+		}
+		return 0;
+	}
+	public double getBotRightHeight() {
+		if (mapData != null) {
+			if (mapData.tin != null) {
+				return mapData.tin.getBotRightHeight(this);
+			}
+			else if(mapData.dem != null) {
+				return mapData.dem.getBotRightHeight(this);
+			}
+		}
+		return 0;
 	}
 }

@@ -127,7 +127,7 @@ class TileDirectModeRenderer implements TileRenderer {
 	protected void drawDemSubsection_Textured(int x1, int z1, int x2, int z2) {
 		final Layer drawLevel = landscape.globe.getLayer(drawLevelID);
 		final byte[] dem = mapData.dem.demDatas;
-		final int numRows = mapData.dem.numRows;
+		final int numRows = mapData.dem.size;
 
 		final int rowWidth = numRows * 2;	// assuming we have a square tile
 		final float tex_inc = 1.0f / (numRows - 1);
@@ -362,7 +362,7 @@ class TileDirectModeRenderer implements TileRenderer {
 	protected void drawDemSubsection(int x1, int z1, int x2, int z2) {
 		final Layer drawLevel = landscape.globe.getLayer(drawLevelID);
 		final byte[] dem = mapData.dem.demDatas;
-		final int numRows = mapData.dem.numRows;
+		final int numRows = mapData.dem.size;
 		final boolean useColor = (landscape.getDisplayMode() == Landscape.DISPLAY_SHADEDDEM);
 
 		final int rowWidth = numRows * 2;	// assuming we have a square tile
@@ -790,11 +790,11 @@ class TileDirectModeRenderer implements TileRenderer {
 		{
 			double phi2, theta2;
 
-			theta1 = (x1 + landscape.getMaxLongitude()) * Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor();  // startx
+			theta1 = (x1 + landscape.getMaxLongitude()) * Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor(); // startx
 			theta2 = (x2 + landscape.getMaxLongitude()) * Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor(); // endx
 
-			phi1 = (z1) * Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor(); //starty
-			phi2 = (z2) * Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor();  //endy
+			phi1 = (z1) * Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor(); // starty
+			phi2 = (z2) * Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor(); // endy
 
 			double oneOverW = 1.0 / mapData.tin.w;
 			dThetaOverW = (theta2 - theta1) * oneOverW;
@@ -802,10 +802,10 @@ class TileDirectModeRenderer implements TileRenderer {
 		}
 
 		float oneOverW = 1.0f / mapData.tin.w;
-		for (int i = 0; i < mapData.tin.texCoords.length; i++) {
+		for (int i = 0; i < mapData.tin.indices.length; i++) {
 			gl.glBegin(GL.GL_TRIANGLE_STRIP);
-			for (int j = 0; j < mapData.tin.texCoords[i].length; j++) {
-				int v = mapData.tin.texCoords[i][j];
+			for (int j = 0; j < mapData.tin.indices[i].length; j++) {
+				int v = mapData.tin.indices[i][j];
 
 				double dx, dy, dz;
 				{
@@ -839,9 +839,9 @@ class TileDirectModeRenderer implements TileRenderer {
 					double sinX = Math.sin(dx);
 					double cosX = Math.cos(dx);
 
-					tx = dyE * cosZ * sinX;
+					tx =  dyE * cosZ * sinX;
 					ty = -dyE * sinZ;
-					tz = dyE * cosZ * cosX;
+					tz =  dyE * cosZ * cosX;
 				}
 
 				if (texture) {
@@ -855,7 +855,7 @@ class TileDirectModeRenderer implements TileRenderer {
 			gl.glEnd();
 
 			if (DEBUG) {
-				int numVertices = mapData.tin.texCoords[i].length;
+				int numVertices = mapData.tin.indices[i].length;
 				ProfilerUtil.vertexCounter += numVertices;
 				if (texture) {
 					ProfilerUtil.vertexMemoryUsage += numVertices * (2 * 4 + 3 * 8);

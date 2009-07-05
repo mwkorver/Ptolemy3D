@@ -50,8 +50,14 @@ public class Position {
 	 */
 	public Position(double lat, double lon, double alt) {
 		
-		// TODO - units must be degrees and meters, at least at creatino time
+		// TODO - units must be degrees and meters, at least at creation time
 		// Later we can works internally using DD.
+		
+		// ANSWER - Keep this constructor and create a static create
+		// function that takes as input degree/meter (function which call this
+		// constructor after converting units)
+		// We should need this direct access to store DD value to internal work
+		// without any precision loose (which is the only reason of DD unit).
 		
 		this.latitudeDD = lat;
 		this.longitudeDD = lon;

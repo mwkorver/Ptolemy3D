@@ -26,11 +26,11 @@ import org.ptolemy3d.DrawContext;
 public class Light {
 
     //Ambient light
-    protected float[] lightAmbient = {1.0f, 1.0f, 1.0f, 1.0f};
+    protected float[] lightAmbient = {0.8f, 0.8f, 0.8f, 1.0f};
 
     //Diffuse light
-    protected float[] light0Diffuse = {1.0f, 1.0f, 1.0f, 1.0f};
-    protected float[] light1Diffuse = {0.1f, 0.1f, 0.1f, 1.0f};
+    protected float[] light0Diffuse = {0.8f, 0.8f, 0.8f, 1.0f};
+    protected float[] light1Diffuse = {0.8f, 0.8f, 0.8f, 1.0f};
 
     //Light position
     public float[] light0Position = {0.5f, 0.8f, 0.5f, 0.0f};

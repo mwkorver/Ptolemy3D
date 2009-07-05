@@ -18,16 +18,23 @@
 package org.ptolemy3d.example;
 
 import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 import org.ptolemy3d.Configuration;
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.Ptolemy3DGLCanvas;
+import org.ptolemy3d.plugin.CityGmlPlugin;
+import org.ptolemy3d.view.CameraMovement;
 
 /**
  * Ptolemy3D example.
@@ -37,24 +44,24 @@ import org.ptolemy3d.Ptolemy3DGLCanvas;
 public class BasicFrame extends JFrame {
 	private static final long serialVersionUID = 1L;
 
+	private Ptolemy3DGLCanvas canvas = null;
+	private Configuration config = null;
+
 	public BasicFrame(String configFile) {
 		super("pTolemy3D Basic Frame");
 
 		// Load the configuration file.
-		Configuration config = new Configuration(configFile);
+		config = new Configuration(configFile);
 
 		// Initialize ptolemy system with the config file.
 		Ptolemy3D.initialize(config);
 
 		// Create the canvas and register it into Ptolemy3D system.
-		Ptolemy3DGLCanvas canvas = new Ptolemy3DGLCanvas();
+		canvas = new Ptolemy3DGLCanvas();
 		Ptolemy3D.registerCanvas(canvas);
 		Ptolemy3D.start();
 
-		this.getRootPane().setLayout(new BorderLayout());
-		this.getRootPane().add(canvas, BorderLayout.CENTER);
-		// this.pack();
-
+		// Register key listener for the canvas.
 		canvas.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyReleased(KeyEvent e) {
@@ -65,19 +72,69 @@ public class BasicFrame extends JFrame {
 				}
 			}
 		});
+
+		CityGmlPlugin cgp = new CityGmlPlugin();
+		cgp.setAltitude(100000);
+		cgp.setFileUrl("file:///opt/servers/jetty-6.1.14/webapps/Ptolemy_test/gml_big_test.xml");
+		Ptolemy3D.getScene().getPlugins().addPlugin(cgp);
+		
+		
+		// Add canvas and the menu panel
+		this.getRootPane().setLayout(new BorderLayout());
+		this.getRootPane().add(canvas, BorderLayout.CENTER);
+		JPanel menuPanel = new JPanel(new FlowLayout());
+		this.getRootPane().add(menuPanel, BorderLayout.NORTH);
+
+		// Listener to close the frame
 		this.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
 				System.out.println("Closing ptolemy...");
 				Ptolemy3D.shutDown();
+				System.exit(1);
 			}
 		});
+
+		// Add menu buttons
+		JButton quit = new JButton("Quit");
+		quit.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				System.out.println("Closing ptolemy...");
+				Ptolemy3D.shutDown();
+				System.exit(1);
+			}
+		});
+
+		JButton flyto = new JButton("Fly to...");
+		flyto.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				CameraMovement cm = canvas.getCameraMovement();
+				cm.flyTo(52331100, 13045000, 10);
+			}
+		});
+		
+		JButton flyto2 = new JButton("Fly to 2...");
+		flyto2.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				CameraMovement cm = canvas.getCameraMovement();
+				cm.flyTo(56293092, 14783110, 10);
+			}
+		});
+
+		menuPanel.add(flyto);
+		menuPanel.add(flyto2);
+		menuPanel.add(quit);
+
+		// TODO - Using pack I can't see any globe.
+//		this.pack();
 	}
 
 	public static void main(String[] args) {
 
 		// Parse command line
-		String xml = "config/config.xml";
+		String xml = "config/local_config.xml";
 		int width = 640;
 		int height = 500;
 		if (args.length > 0) {

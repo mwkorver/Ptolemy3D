@@ -17,6 +17,8 @@
  */
 package org.ptolemy3d;
 
+import java.util.logging.Logger;
+
 import netscape.javascript.JSObject;
 
 import org.ptolemy3d.debug.IO;
@@ -84,6 +86,9 @@ import org.ptolemy3d.view.CameraMovement;
  */
 public final class Ptolemy3D {
 
+	private static final Logger logger = Logger.getLogger(Ptolemy3D.class
+			.getName());
+
 	// TODO - canvas variable is only here temporaly to solve a reference
 	// problem in Jp2TileLoader. We must remove from here.
 	private static Ptolemy3DGLCanvas canvas = null;
@@ -100,7 +105,8 @@ public final class Ptolemy3D {
 	private static String JS_STOP_FUNCTION = "ptolemyStop";
 	private static String JS_SHUTDOWN_FUNCTION = "ptolemyShutdown";
 
-	public Ptolemy3D() {}
+	public Ptolemy3D() {
+	}
 
 	/**
 	 * Initialized pTolemy3D system with the specified settings.
@@ -110,7 +116,8 @@ public final class Ptolemy3D {
 	public static void initialize(Configuration config) {
 		configuration = config;
 		textureManager = new TextureManager();
-		dataFinder = new DataFinder(configuration.getServer(), configuration.servers);
+		dataFinder = new DataFinder(configuration.getServer(),
+				configuration.servers);
 		mapDataManager = new MapDataManager();
 		cache = new FileSystemCache();
 	}
@@ -176,7 +183,7 @@ public final class Ptolemy3D {
 
 		// Call the stop JavaScript function
 		callJavascript(JS_SHUTDOWN_FUNCTION, null);
-		
+
 		// TODO - Test if necessary.
 		// // Stop and shutDown all the 3D
 		// if (canvas != null) {
@@ -270,6 +277,32 @@ public final class Ptolemy3D {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Creates a new instance of the specified class. Useful to create new
+	 * plugins instances.
+	 * 
+	 * @param className
+	 *            fully qualified class name
+	 * @return New instance or null otherwise
+	 */
+	public Object createInstance(String className) {
+
+		try {
+			return Class.forName(className).newInstance();
+		} catch (ClassNotFoundException e) {
+			logger.severe(e.getMessage());
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			logger.severe(e.getMessage());
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			logger.severe(e.getMessage());
+			e.printStackTrace();
+		}
+
+		return null;
 	}
 	//
 	// /**

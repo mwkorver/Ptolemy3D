@@ -143,30 +143,6 @@ public class Ptolemy3DApplet extends Applet implements Ptolemy3DJavascript {
 		return canvas;
 	}
 
-	/**
-	 * Creates a new instance of the specified class. Useful to create new
-	 * plugins instances.
-	 * 
-	 * @param className
-	 *            fully qualified class name
-	 * @return New instance or null otherwise
-	 */
-	public Object getInstance(String className) {
 
-		try {
-			return Class.forName(className).newInstance();
-		} catch (ClassNotFoundException e) {
-			logger.severe(e.getMessage());
-			e.printStackTrace();
-		} catch (InstantiationException e) {
-			logger.severe(e.getMessage());
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			logger.severe(e.getMessage());
-			e.printStackTrace();
-		}
-
-		return null;
-	}
 
 }

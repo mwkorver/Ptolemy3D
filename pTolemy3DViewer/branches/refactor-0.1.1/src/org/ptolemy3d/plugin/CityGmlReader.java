@@ -17,27 +17,22 @@ import org.citygml4j.model.citygml.building.Building;
 import org.citygml4j.model.citygml.core.CityModel;
 import org.citygml4j.model.citygml.core.CityObject;
 import org.citygml4j.model.citygml.core.CityObjectMember;
-import org.citygml4j.model.gml.AbstractRing;
 import org.citygml4j.model.gml.AbstractSolid;
 import org.citygml4j.model.gml.AbstractSurface;
 import org.citygml4j.model.gml.CompositeSolid;
 import org.citygml4j.model.gml.CompositeSurface;
 import org.citygml4j.model.gml.GMLClass;
-import org.citygml4j.model.gml.LinearRing;
 import org.citygml4j.model.gml.MultiSurface;
 import org.citygml4j.model.gml.MultiSurfaceProperty;
 import org.citygml4j.model.gml.Polygon;
 import org.citygml4j.model.gml.Solid;
 import org.citygml4j.model.gml.SolidProperty;
 import org.citygml4j.model.gml.SurfaceProperty;
-import org.ptolemy3d.Unit;
-import org.ptolemy3d.view.Position;
 
 /**
  * Reads the content of a CityGML document.
  * 
  * @author Antonio Santiago <asantiagop@gmail.com>
- * 
  */
 public class CityGmlReader {
 
@@ -81,56 +76,6 @@ public class CityGmlReader {
 				// Read the building.
 				CityGmlBuildingData buildingData = loadBuilding(building);
 				listBuildindData.add(buildingData);
-			}
-		}
-
-		// Convert all building surfaces into positions to be represented by
-		// pTolemy
-		for (CityGmlBuildingData buildingData : listBuildindData) {
-
-			// Convert LOD1 surfaces to polygon points
-			List<Polygon> listSurfaces = buildingData.getLod1Surfaces();
-			for (Polygon polygon : listSurfaces) {
-				AbstractRing ring = polygon.getExterior().getRing();
-				if (ring instanceof LinearRing) {
-					LinearRing linRing = (LinearRing) ring;
-					List<Double> posValues = linRing.getPosList().getValue();
-
-					CityPolygon cityPolygon = new CityPolygon();
-					for (int j = 0; j < posValues.size(); j++) {
-						// TODO - Supose the polygon as dimension 3.
-						Double d1 = posValues.get(j++);
-						Double d2 = posValues.get(j++);
-						Double d3 = posValues.get(j);
-						cityPolygon.addPosition(new Position(d1
-								* Unit.getDDFactor(), d2 * Unit.getDDFactor(),
-								d3 * Unit.getCoordSystemRatio()));
-					}
-					buildingData.addLod1Polygon(cityPolygon);
-				}
-			}
-
-			// Convert LOD2 surfaces to polygon points
-			listSurfaces = buildingData.getLod2Surfaces();
-			for (Polygon polygon : listSurfaces) {
-				AbstractRing ring = polygon.getExterior().getRing();
-				if (ring instanceof LinearRing) {
-					LinearRing linRing = (LinearRing) ring;
-					List<Double> posValues = linRing.getPosList().getValue();
-
-					CityPolygon cityPolygon = new CityPolygon();
-					for (int j = 0; j < posValues.size(); j++) {
-						// TODO - Supose the polygon as dimension 3.
-						Double d1 = posValues.get(j++);
-						Double d2 = posValues.get(j++);
-						Double d3 = posValues.get(j);
-						Position position = new Position(d1
-								* Unit.getDDFactor(), d2 * Unit.getDDFactor(),
-								d3 * Unit.getCoordSystemRatio());
-						cityPolygon.addPosition(position);
-					}
-					buildingData.addLod2Polygon(cityPolygon);
-				}
 			}
 		}
 	}

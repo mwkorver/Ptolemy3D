@@ -20,6 +20,7 @@ package org.ptolemy3d.plugin;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.DoubleBuffer;
+import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -28,10 +29,7 @@ import javax.media.opengl.GL;
 import javax.xml.bind.JAXBException;
 
 import org.ptolemy3d.DrawContext;
-import org.ptolemy3d.debug.IO;
 import org.ptolemy3d.scene.Plugin;
-import org.ptolemy3d.view.Camera;
-import org.ptolemy3d.view.Position;
 
 /**
  * CityGmlPlugin adds basic support for CityGML format. Allowed CityGML elements
@@ -54,6 +52,7 @@ public class CityGmlPlugin implements Plugin {
 	private boolean status = true;
 	//
 	private String wfsServerUrl = "";
+	private String fileUrl = null;
 	private double altitude = 0;
 	//
 	private boolean fileLoaded = false;
@@ -61,7 +60,7 @@ public class CityGmlPlugin implements Plugin {
 	private CityGmlReader cityReader = null;
 	//
 	private ArrayList<CityGmlBuildingData> listBuildindData = new ArrayList<CityGmlBuildingData>();
-	private boolean isVertexArrayInitialized = false;
+	private boolean vertexInitialized = false;
 
 	public void initGL(DrawContext drawContext) {
 		if (!fileLoaded) {
@@ -69,11 +68,17 @@ public class CityGmlPlugin implements Plugin {
 			Thread newThread = new Thread(new Runnable() {
 
 				public void run() {
-					IO.printlnDebug("Started CityGML loader thread...");
+					Logger.getLogger(CityGmlPlugin.class.getName()).info(
+							"Started CityGML loader thread...");
 
 					URL url = null;
 					try {
-						url = new URL(wfsServerUrl);
+						if (fileUrl != null && !fileUrl.equals("")) {
+							url = new URL(fileUrl);
+						} else {
+							url = new URL(wfsServerUrl);
+						}
+
 						cityReader = new CityGmlReader();
 						cityReader.loadGML(url);
 						listBuildindData = cityReader.getBuildingData();
@@ -92,7 +97,8 @@ public class CityGmlPlugin implements Plugin {
 								Level.WARNING, ex.getMessage());
 					} finally {
 						fileLoaded = true;
-						IO.printlnDebug("Finished CityGML loader thread.");
+						Logger.getLogger(CityGmlPlugin.class.getName()).info(
+								"Finished CityGML loader thread...");
 					}
 				}
 			}, "CityGmlPluginThread");
@@ -156,59 +162,35 @@ public class CityGmlPlugin implements Plugin {
 
 		// Store attributes that will change
 		gl.glPushAttrib(GL.GL_CURRENT_BIT | GL.GL_ENABLE_BIT
-				| GL.GL_COLOR_BUFFER_BIT);
+				| GL.GL_COLOR_BUFFER_BIT | GL.GL_LIGHTING_BIT);
 
+		gl.glDisable(GL.GL_TEXTURE_2D);
 		gl.glDisable(GL.GL_CULL_FACE);
-		gl.glEnable(GL.GL_BLEND);
-		gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
+		gl.glShadeModel(GL.GL_FLAT);
+		gl.glDisable(GL.GL_BLEND);
 
-		gl.glColor4f(0.7f, 0.5f, 0.5f, 0.9f);
+		float color[] = { 0.0f, 0.0f, 1.0f, 1.0f };
+		gl.glColor4fv(color, 0);
 
-		// Initialize the vertex array of all buildings
-		if (!isVertexArrayInitialized) {
+		// Compute the buildings vertices if they are not computed previously.
+		if (!vertexInitialized) {
 			for (CityGmlBuildingData buildingData : listBuildindData) {
-				ArrayList<CityPolygon> listCityPolygonsLod1 = buildingData
-						.getLod1Polygons();
-				ArrayList<CityPolygon> listCityPolygonsLod2 = buildingData
-						.getLod2Polygons();
-
-				// For each polygon initiale its vertex array.
-				for (CityPolygon cityPolygon : listCityPolygonsLod1) {
-					cityPolygon.initVertexArray(cityPolygon.getPositions()
-							.size() * 3);
-					for (Position position : cityPolygon.getPositions()) {
-						double[] d = Camera.computeCartesianPoint(position
-								.getLongitudeDD(), position.getLatitudeDD(),
-								position.getAltitudeDD());
-						cityPolygon.addVertex(d[0]);
-						cityPolygon.addVertex(d[1]);
-						cityPolygon.addVertex(d[2]);
-					}
-				}
-				for (CityPolygon cityPolygon : listCityPolygonsLod2) {
-					cityPolygon.initVertexArray(cityPolygon.getPositions()
-							.size() * 3);
-					for (Position position : cityPolygon.getPositions()) {
-						double[] d = Camera.computeCartesianPoint(position
-								.getLongitudeDD(), position.getLatitudeDD(),
-								position.getAltitudeDD());
-						cityPolygon.addVertex(d[0]);
-						cityPolygon.addVertex(d[1]);
-						cityPolygon.addVertex(d[2]);
-					}
-				}
+				// Compute vertex array and normals for every polygon in the
+				// building.
+				buildingData.computeVertexAndNormals();
 			}
-			isVertexArrayInitialized = true;
+			vertexInitialized = true;
 		}
 
 		// Enable vertex array
 		gl.glEnableClientState(GL.GL_VERTEX_ARRAY);
+		gl.glEnableClientState(GL.GL_NORMAL_ARRAY);
 
-		// For each buildings decide which LOD and draws it
+		// For each buildings decide which LOD must be drawn depending on the
+		// altitude parameter.
 		for (CityGmlBuildingData buildingData : listBuildindData) {
 
 			ArrayList<CityPolygon> listCityPolygons = null;
-
 			// Decide if show LOD1 or LOD2 depending on the altitude
 			double camAltitude = drawContext.getCanvas().getCamera()
 					.getPosition().getAltitudeDD();
@@ -218,17 +200,21 @@ public class CityGmlPlugin implements Plugin {
 			} else {
 				listCityPolygons = buildingData.getLod2Polygons();
 			}
-
 			for (CityPolygon cityPolygon : listCityPolygons) {
 				DoubleBuffer db = cityPolygon.getVertex();
 				db.rewind();
+				FloatBuffer fb = cityPolygon.getNormals();
+				fb.rewind();
+
 				gl.glVertexPointer(3, GL.GL_DOUBLE, 0, db);
+				gl.glNormalPointer(GL.GL_FLOAT, 0, fb);
 				gl.glDrawArrays(GL.GL_POLYGON, 0, db.capacity());
 			}
 		}
 
 		// Disable vertex array
 		gl.glDisableClientState(GL.GL_VERTEX_ARRAY);
+		gl.glDisableClientState(GL.GL_NORMAL_ARRAY);
 
 		// Restore attributes
 		gl.glPopAttrib();
@@ -238,6 +224,51 @@ public class CityGmlPlugin implements Plugin {
 		gl.glPopMatrix();
 		gl.glMatrixMode(GL.GL_PROJECTION);
 		gl.glPopMatrix();
+	}
+
+	/**
+	 * @param altitude
+	 *            the altitude to set
+	 */
+	public void setAltitude(double altitude) {
+		this.altitude = altitude;
+	}
+
+	/**
+	 * @return the altitude
+	 */
+	public double getAltitude() {
+		return altitude;
+	}
+
+	/**
+	 * @param wfsServerUrl
+	 *            the wfsServerUrl to set
+	 */
+	public void setWfsServerUrl(String wfsServerUrl) {
+		this.wfsServerUrl = wfsServerUrl;
+	}
+
+	/**
+	 * @return the wfsServerUrl
+	 */
+	public String getWfsServerUrl() {
+		return wfsServerUrl;
+	}
+
+	/**
+	 * @param fileUrl
+	 *            the fileUrl to set
+	 */
+	public void setFileUrl(String fileUrl) {
+		this.fileUrl = fileUrl;
+	}
+
+	/**
+	 * @return the fileUrl
+	 */
+	public String getFileUrl() {
+		return fileUrl;
 	}
 
 }

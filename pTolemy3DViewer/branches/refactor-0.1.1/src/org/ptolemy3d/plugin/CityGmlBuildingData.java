@@ -3,8 +3,17 @@ package org.ptolemy3d.plugin;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.citygml4j.model.gml.AbstractRing;
+import org.citygml4j.model.gml.LinearRing;
 import org.citygml4j.model.gml.Polygon;
+import org.ptolemy3d.Unit;
+import org.ptolemy3d.view.Camera;
 
+/**
+ * Stores information for one single building object: ID, LOD1, LOD2.
+ * 
+ * @author Antonio Santiago <asantiagop@gmail.com>
+ */
 public class CityGmlBuildingData {
 	private String id = "";
 	private ArrayList<Polygon> lod1Polygonsurfaces = new ArrayList<Polygon>();
@@ -57,12 +66,6 @@ public class CityGmlBuildingData {
 		return lod2PolygonSurfaces.addAll(surfaces);
 	}
 
-	/**
-	 * Get positions
-	 * 
-	 * @param position
-	 * @return
-	 */
 	public boolean addLod1Polygon(CityPolygon polygon) {
 		return lod1polygons.add(polygon);
 	}
@@ -77,5 +80,70 @@ public class CityGmlBuildingData {
 
 	public ArrayList<CityPolygon> getLod2Polygons() {
 		return lod2polygons;
+	}
+
+	/**
+	 * Convert all building surfaces into vertex that can be rendered by the
+	 * viewer. Also computes the normals.
+	 */
+	public void computeVertexAndNormals() {
+
+		// Convert LOD1 surfaces to polygon points
+		List<Polygon> listSurfaces = this.getLod1Surfaces();
+		for (Polygon polygon : listSurfaces) {
+			AbstractRing ring = polygon.getExterior().getRing();
+			if (ring instanceof LinearRing) {
+				LinearRing linRing = (LinearRing) ring;
+				List<Double> posValues = linRing.getPosList().getValue();
+
+				// Store polygon vertices and compute its normals.
+				CityPolygon cityPolygon = new CityPolygon(posValues.size());
+				for (int j = 0; j < posValues.size(); j += 3) {
+					// TODO - Supose the polygon as dimension 3.
+					Double lat = posValues.get(j) * Unit.getDDFactor();
+					Double lon = posValues.get(j + 1) * Unit.getDDFactor();
+					Double alt = posValues.get(j + 2)
+							* Unit.getCoordSystemRatio();
+
+					double[] d = Camera.computeCartesianPoint(lat, lon, alt);
+
+					cityPolygon.addVertex(d[0]);
+					cityPolygon.addVertex(d[1]);
+					cityPolygon.addVertex(d[2]);
+				}
+				cityPolygon.computeNormals();
+
+				this.addLod1Polygon(cityPolygon);
+			}
+		}
+
+		// Convert LOD2 surfaces to polygon points
+		listSurfaces = this.getLod2Surfaces();
+		for (Polygon polygon : listSurfaces) {
+			AbstractRing ring = polygon.getExterior().getRing();
+			if (ring instanceof LinearRing) {
+				LinearRing linRing = (LinearRing) ring;
+				List<Double> posValues = linRing.getPosList().getValue();
+
+				// Store polygon vertices and compute its normals.
+				CityPolygon cityPolygon = new CityPolygon(posValues.size());
+				for (int j = 0; j < posValues.size(); j += 3) {
+					// TODO - Supose the polygon as dimension 3.
+					Double lat = posValues.get(j) * Unit.getDDFactor();
+					Double lon = posValues.get(j + 1) * Unit.getDDFactor();
+					Double alt = posValues.get(j + 2)
+							* Unit.getCoordSystemRatio();
+
+					double[] d = Camera.computeCartesianPoint(lon, lat, alt);
+
+					cityPolygon.addVertex(d[0]);
+					cityPolygon.addVertex(d[1]);
+					cityPolygon.addVertex(d[2]);
+				}
+				cityPolygon.computeNormals();
+
+				this.addLod2Polygon(cityPolygon);
+			}
+		}
 	}
 }

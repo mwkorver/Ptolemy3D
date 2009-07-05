@@ -26,14 +26,22 @@ package org.ptolemy3d.view;
 public class Position {
 
 	// Latitude of the view point.
-	private double latitudeDD;
+	private double latitudeDD = 0;
 	// Longitude of the view point.
-	private double longitudeDD;
+	private double longitudeDD = 0;
 	// Distance from the view point. May not be vertical (distance not
 	// altitude).
-	private double altitude;
+	private double altitude = 0;
 
 	/**
+	 * Creates a new default instance.
+	 */
+	public Position() {
+
+	}
+
+	/**
+	 * Creates a new instance with specified DD values.
 	 * @param lat
 	 *            unit is DD
 	 * @param lon
@@ -41,6 +49,10 @@ public class Position {
 	 * @param alt
 	 */
 	public Position(double lat, double lon, double alt) {
+		
+		// TODO - units must be degrees and meters, at least at creatino time
+		// Later we can works internally using DD.
+		
 		this.latitudeDD = lat;
 		this.longitudeDD = lon;
 		this.altitude = alt;
@@ -56,7 +68,7 @@ public class Position {
 		return "Lat: " + latitudeDD + ", Lon: " + longitudeDD + ", Alt: "
 				+ altitude;
 	}
-	
+
 	/**
 	 * @return latitude in DD.
 	 */

@@ -253,6 +253,8 @@ public class Landscape {
 
         gl.glTexEnvf(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_DECAL);
         gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
+        
+        gl.glEnable(GL.GL_COLOR_MATERIAL);
     }
 
     /** Landscape Prepare */
@@ -272,7 +274,7 @@ public class Landscape {
         if (!drawLandscape) {
             return;
         }
-
+        
         // Display mode states
         if (displayMode == DISPLAY_MESH) {
             gl.glColor3f(meshColor, meshColor, meshColor);
@@ -287,6 +289,11 @@ public class Landscape {
         else if (displayMode == DISPLAY_JP2RES || displayMode == DISPLAY_TILEID || displayMode == DISPLAY_LEVELID) {
             gl.glDisable(GL.GL_TEXTURE_2D);
         }
+        else {
+            gl.glEnable(GL.GL_TEXTURE_2D);
+        }
+        gl.glColor3f(1, 1, 1);
+        gl.glDisable(GL.GL_LIGHTING);
 
         // Render levels
         globe.draw(drawContext);
@@ -298,8 +305,9 @@ public class Landscape {
         else if (displayMode == DISPLAY_SHADEDDEM) {
             gl.glShadeModel(GL.GL_FLAT);
         }
+        
         gl.glColor3f(1, 1, 1);
-        gl.glEnable(GL.GL_TEXTURE_2D);
+        gl.glDisable(GL.GL_TEXTURE_2D);
     }
 
     public double groundHeight(double lon, double lat, int minLevel) {

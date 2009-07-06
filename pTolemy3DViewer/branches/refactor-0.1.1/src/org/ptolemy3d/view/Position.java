@@ -75,8 +75,7 @@ public class Position {
 
 	@Override
 	public Position clone() {
-		return new Position(latitudeDD / Unit.getDDFactor(), longitudeDD
-				/ Unit.getDDFactor(), altitude / Unit.getCoordSystemRatio());
+		return new Position(latitudeDD, longitudeDD, altitude);
 	}
 
 	@Override

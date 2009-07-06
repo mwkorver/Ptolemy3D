@@ -75,10 +75,10 @@ public class BasicFrame extends JFrame {
 
 		CityGmlPlugin cgp = new CityGmlPlugin();
 		cgp.setAltitude(100000);
-		cgp.setFileUrl("file:///opt/servers/jetty-6.1.14/webapps/Ptolemy_test/gml_big_test.xml");
+		cgp
+				.setFileUrl("file:///opt/servers/jetty-6.1.14/webapps/Ptolemy_test/gml_big_test.xml");
 		Ptolemy3D.getScene().getPlugins().addPlugin(cgp);
-		
-		
+
 		// Add canvas and the menu panel
 		this.getRootPane().setLayout(new BorderLayout());
 		this.getRootPane().add(canvas, BorderLayout.CENTER);
@@ -105,21 +105,21 @@ public class BasicFrame extends JFrame {
 			}
 		});
 
-		JButton flyto = new JButton("Fly to...");
+		JButton flyto = new JButton("Fly to 1...");
 		flyto.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
 				CameraMovement cm = canvas.getCameraMovement();
-				cm.flyTo(52331100, 13045000, 10);
+				cm.flyTo(52.331100, 13.045000, 10);
 			}
 		});
-		
+
 		JButton flyto2 = new JButton("Fly to 2...");
 		flyto2.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
 				CameraMovement cm = canvas.getCameraMovement();
-				cm.flyTo(56293092, 14783110, 10);
+				cm.flyTo(56.293092, 14.783110, 10);
 			}
 		});
 
@@ -128,7 +128,7 @@ public class BasicFrame extends JFrame {
 		menuPanel.add(quit);
 
 		// TODO - Using pack I can't see any globe.
-//		this.pack();
+		// this.pack();
 	}
 
 	public static void main(String[] args) {

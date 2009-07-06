@@ -1048,16 +1048,29 @@ public class CameraMovement {
 		}
 	}
 
+	/**
+	 * Fly to specifying a target in meters and degrees.
+	 * 
+	 * @param lat
+	 * @param lon
+	 * @param alt
+	 */
 	public void flyTo(double lat, double lon, double alt) {
-		Position position = new Position(lat, lon, alt
-				/ Unit.getCoordSystemRatio());
+		Position position = Position.fromLatLonAlt(lat, lon, alt);
 		flyTo(position, -1, 0, 0, 0, 0);
 	}
 
+	/**
+	 * Fly to specifying a target in meters and degrees.
+	 * 
+	 * @param lat
+	 * @param lon
+	 * @param alt
+	 */
 	public void flyTo(double lat, double lon, double alt, int speed,
 			int ld_angle, int fly_angle, int type, int arc_angle) {
 
-		Position position = new Position(lat, lon, alt);
+		Position position = Position.fromLatLonAlt(lat, lon, alt);
 		flyTo(position, speed, ld_angle, fly_angle, type, arc_angle);
 	}
 

@@ -275,11 +275,11 @@ public class Configuration {
 					try {
 						double lat = Double.parseDouble(values[0]);
 						double lon = Double.parseDouble(values[1]);
-						double alt = Double.parseDouble(values[2])
-								/ Unit.getCoordSystemRatio();
+						double alt = Double.parseDouble(values[2]);
 						double dir = Double.parseDouble(values[3]);
 						double pitch = Double.parseDouble(values[4]);
-						initialCameraPosition = new Position(lat, lon, alt);
+						initialCameraPosition = Position.fromLatLonAlt(lat,
+								lon, alt);
 						initialCameraDirection = dir;
 						initialCameraPitch = pitch;
 					} catch (NumberFormatException e) {

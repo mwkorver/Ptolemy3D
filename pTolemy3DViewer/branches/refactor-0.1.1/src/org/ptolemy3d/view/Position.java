@@ -17,6 +17,8 @@
  */
 package org.ptolemy3d.view;
 
+import org.ptolemy3d.Unit;
+
 /**
  * Position represented by lat/lon/altitude.
  * 
@@ -34,39 +36,47 @@ public class Position {
 	private double altitude = 0;
 
 	/**
-	 * Creates a new default instance.
+	 * Creates a new Position instance using degrees and meter units
+	 * 
+	 * @param lat
+	 *            units in degrees
+	 * @param lon
+	 *            units in degrees
+	 * @param alt
+	 *            units in meters
+	 * @return
 	 */
-	public Position() {
-
+	public static final Position fromLatLonAlt(double lat, double lon,
+			double alt) {
+		return new Position(lat * Unit.getDDFactor(), lon * Unit.getDDFactor(),
+				alt / Unit.getCoordSystemRatio());
 	}
 
 	/**
-	 * Creates a new instance with specified DD values.
+	 * Creates a new default instance.
+	 */
+	public Position() {
+	}
+
+	/**
+	 * Creates a new instance with specified degrees values.
+	 * 
 	 * @param lat
 	 *            unit is DD
 	 * @param lon
 	 *            unit is DD
 	 * @param alt
 	 */
-	public Position(double lat, double lon, double alt) {
-		
-		// TODO - units must be degrees and meters, at least at creation time
-		// Later we can works internally using DD.
-		
-		// ANSWER - Keep this constructor and create a static create
-		// function that takes as input degree/meter (function which call this
-		// constructor after converting units)
-		// We should need this direct access to store DD value to internal work
-		// without any precision loose (which is the only reason of DD unit).
-		
-		this.latitudeDD = lat;
-		this.longitudeDD = lon;
-		this.altitude = alt;
+	public Position(double latDD, double lonDD, double altDD) {
+		this.latitudeDD = latDD;
+		this.longitudeDD = lonDD;
+		this.altitude = altDD;
 	}
 
 	@Override
 	public Position clone() {
-		return new Position(latitudeDD, longitudeDD, altitude);
+		return new Position(latitudeDD / Unit.getDDFactor(), longitudeDD
+				/ Unit.getDDFactor(), altitude / Unit.getCoordSystemRatio());
 	}
 
 	@Override
@@ -82,6 +92,14 @@ public class Position {
 		return latitudeDD;
 	}
 
+	public double getLatitude() {
+		return latitudeDD / Unit.getDDFactor();
+	}
+
+	public void setLatitude(double lat) {
+		latitudeDD = lat * Unit.getDDFactor();
+	}
+
 	public void setLatitudeDD(double latDD) {
 		latitudeDD = latDD;
 	}
@@ -91,6 +109,14 @@ public class Position {
 	 */
 	public double getLongitudeDD() {
 		return longitudeDD;
+	}
+
+	public double getLongitude() {
+		return longitudeDD / Unit.getDDFactor();
+	}
+
+	public void setLongitude(double lon) {
+		longitudeDD = lon * Unit.getDDFactor();
 	}
 
 	public void setLongitudeDD(double lonDD) {
@@ -103,6 +129,14 @@ public class Position {
 	 */
 	public double getAltitudeDD() {
 		return altitude;
+	}
+
+	public double getAltitude() {
+		return altitude / Unit.getCoordSystemRatio();
+	}
+
+	public void setAltitude(double alt) {
+		altitude = alt * Unit.getCoordSystemRatio();
 	}
 
 	public void setAltitudeDD(double altDD) {

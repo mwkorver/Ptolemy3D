@@ -31,36 +31,47 @@ import org.ptolemy3d.plugin.Sky;
 import org.ptolemy3d.scene.Landscape;
 
 /**
- * <H1>Camera Coordinate System</H1>
+ * <H1>Camera Coordinate System</H1> <BR>
+ * The view position is defined with the position (longitude, latitude,
+ * altitude, direction, tilt).<BR>
  * <BR>
- * The view position is defined with the position (longitude, latitude, altitude, direction, tilt).<BR>
+ * The longitude and latitude components are angles in the ranges respectively
+ * [-180�;180�] and [-90�;90�]. Those two angles define every position on the
+ * globe.<BR>
  * <BR>
- * The longitude and latitude components are angles in the ranges respectively [-180�;180�] and [-90�;90�].
- * Those two angles define every position on the globe.<BR>
- * <BR>
- * <div align="center"><img src="../../../ViewCoordinateSystem-LongitudeLatitude.jpg" width=256 height=256><BR>
+ * <div align="center"><img
+ * src="../../../ViewCoordinateSystem-LongitudeLatitude.jpg" width=256
+ * height=256><BR>
  * Longitude / Latitude angles</div><BR>
  * <BR>
- * The view always look towards that position, but from any possible orientation.
- * The view orientation is describe with the two angles (direction, tilt).<BR>
+ * The view always look towards that position, but from any possible
+ * orientation. The view orientation is describe with the two angles (direction,
+ * tilt).<BR>
  * <BR>
- * The reference view orientation is as follow: the view up direction is tangent to the longitude line, the view forward is in direction to the globe center.<BR>
+ * The reference view orientation is as follow: the view up direction is tangent
+ * to the longitude line, the view forward is in direction to the globe center.<BR>
  * The view vectors are represented on the next picture:<BR>
- * <div align="center"><img src="../../../ViewCoordinateSystem-RefDirectionPitch.jpg" width=256 height=256></div><BR>
+ * <div align="center"><img
+ * src="../../../ViewCoordinateSystem-RefDirectionPitch.jpg" width=256
+ * height=256></div><BR>
  * <BR>
- * The first angle <code>direction</code> defines the rotation around the vertical (upward) direction:<BR>
- * <div align="center"><img src="../../../ViewCoordinateSystem-Direction.jpg" width=256 height=256></div><BR>
+ * The first angle <code>direction</code> defines the rotation around the
+ * vertical (upward) direction:<BR>
+ * <div align="center"><img src="../../../ViewCoordinateSystem-Direction.jpg"
+ * width=256 height=256></div><BR>
  * <BR>
  * The second angle <code>tilt</code> is the rotation around the side vector:<BR>
- * <div align="center"><img src="../../../ViewCoordinateSystem-Tilt.jpg" width=256 height=256></div><BR>
+ * <div align="center"><img src="../../../ViewCoordinateSystem-Tilt.jpg"
+ * width=256 height=256></div><BR>
  * <BR>
- * Finally the altitude tell how far we are from the position on the globe, along the view forward vector.<BR>
+ * Finally the altitude tell how far we are from the position on the globe,
+ * along the view forward vector.<BR>
  * This last picture represents the view vectors and the view position:<BR>
- * <div align="center"><img src="../../../ViewCoordinateSystem-Altitude.jpg" width=256 height=256></div><BR>
+ * <div align="center"><img src="../../../ViewCoordinateSystem-Altitude.jpg"
+ * width=256 height=256></div><BR>
  * <BR>
  * <BR>
- * <H1>Camera & Cartesian Coordinate System Relation</H1>
- * <BR>
+ * <H1>Camera & Cartesian Coordinate System Relation</H1> <BR>
  * Here are relations between cartesian axis and longitude/latitude:<BR>
  * <ul>
  * <li>X axis: longitude=180�, latitude=0�</li>
@@ -74,19 +85,25 @@ import org.ptolemy3d.scene.Landscape;
  * <li>-Z axis: longitude=-90�, latitude=0�</li>
  * </ul>
  * <BR>
- * <i><u>Remark:</u> All angles are expressed modulos 360� (180� equals to -180� and 540� ...)</i><BR>
+ * <i><u>Remark:</u> All angles are expressed modulos 360� (180� equals to -180�
+ * and 540� ...)</i><BR>
  * <BR>
  * <BR>
- * <H1>Positioning</H1>
+ * <H1>Positioning</H1> <BR>
+ * View movements are controlled in the coordinate system describe in the
+ * previous paragraph.<BR>
+ * View movements is controlled from CameraMovement, for more information, see
+ * the <a href="CameraMovement.html">CameraMovement documentation</a>.<BR>
  * <BR>
- * View movements are controlled in the coordinate system describe in the previous paragraph.<BR>
- * View movements is controlled from CameraMovement, for more information, see the <a href="CameraMovement.html">CameraMovement documentation</a>.<BR>
- * <BR>
- * Sometimes you'll may find usefull to convert that position into another coordinate system.<BR>
- * You can get the equivalent cartesian coordinates (x,y,z), using the method <code>getCartesianPosition</code>.<BR>
+ * Sometimes you'll may find usefull to convert that position into another
+ * coordinate system.<BR>
+ * You can get the equivalent cartesian coordinates (x,y,z), using the method
+ * <code>getCartesianPosition</code>.<BR>
  * Axis system of cartesian coordinate system is shown in the final picture:<BR>
- * <div align="center"><img src="../../../ViewCoordinateSystem-Cartesian.jpg" width=256 height=256></div><BR>
+ * <div align="center"><img src="../../../ViewCoordinateSystem-Cartesian.jpg"
+ * width=256 height=256></div><BR>
  * <BR>
+ * 
  * @see CameraMovement
  * @see #getCartesianPosition
  */
@@ -156,36 +173,35 @@ public class Camera {
 		final Sky sky = Ptolemy3D.getScene().getSky();
 		final int fogRadius = sky.getFogRadius();
 		final double aspectRatio = canvas.getAspectRatio();
-		
+
 		float farClip = landscape.getFarClip();
 		float nearClip = 1f;
-		
+
 		if (vertAlt > sky.horizonAlt) {
 			nearClip = ((sky.horizonAlt * Unit.getCoordSystemRatio()) / 2);
 			sky.fogStateOn = false;
-		}
-		else {
+		} else {
 			if (sky.fogStateOn) {
 				// minimize our back z clip for precision
 				final double gamma = 0.5235987756 - tilt;
 				if (gamma > Math3D.HALF_PI) {
 					farClip = fogRadius + 10000;
-				}
-				else {
-					float maxView = (float)(Math.tan(gamma) * (position.getAltitudeDD() + cameraController.ground_ht) * 2);
+				} else {
+					float maxView = (float) (Math.tan(gamma)
+							* (position.getAltitudeDD() + cameraController.ground_ht) * 2);
 					if (maxView >= fogRadius + 10000) {
 						maxView = fogRadius + 10000;
 					}
 					farClip = maxView;
 				}
-			}
-			else {
+			} else {
 				farClip = fogRadius + 10000;
 				sky.fogStateOn = true;
 			}
 		}
-		
-		perspective.setPerspectiveProjection(fov, aspectRatio, nearClip, farClip);
+
+		perspective.setPerspectiveProjection(fov, aspectRatio, nearClip,
+				farClip);
 	}
 
 	/**
@@ -264,15 +280,17 @@ public class Camera {
 		getForward(forward);
 		getUp(up);
 		getLeft(left);
-		return String.format(
-				"lat:%f, lon:%f, alt:%f, dir:%f, tilt:%f, x:%f, y:%f, z:%f, forX: %f, forY: %f, forZ: %f, upX: %f, upY: %f, upZ: %f, leftX: %f, leftY: %f, leftZ: %f",
-				(float) position.getLatitudeDD(), (float) position.getLongitudeDD(),
-				(float) position.getAltitudeDD(), (float) getDirection(), tilt,
-				(float) cameraPos[0], (float) cameraPos[1], (float) cameraPos[2],
-				(float) forward[0], (float) forward[1], (float) forward[2],
-				(float) up[0], (float) up[1], (float) up[2],
-				(float) left[0], (float) left[1], (float) left[2]
-				);
+		return String
+				.format(
+						"lat:%f, lon:%f, alt:%f, dir:%f, tilt:%f, x:%f, y:%f, z:%f, forX: %f, forY: %f, forZ: %f, upX: %f, upY: %f, upZ: %f, leftX: %f, leftY: %f, leftZ: %f",
+						(float) position.getLatitudeDD(), (float) position
+								.getLongitudeDD(), (float) position
+								.getAltitudeDD(), (float) getDirection(), tilt,
+						(float) cameraPos[0], (float) cameraPos[1],
+						(float) cameraPos[2], (float) forward[0],
+						(float) forward[1], (float) forward[2], (float) up[0],
+						(float) up[1], (float) up[2], (float) left[0],
+						(float) left[1], (float) left[2]);
 	}
 
 	/**
@@ -373,9 +391,12 @@ public class Camera {
 	}
 
 	/**
-	 * @param lon longitude in DD
-	 * @param lat latitude in DD
-	 * @return true if the point is the visible side of the globe and in the view sight (frustum volume).
+	 * @param lon
+	 *            longitude in DD
+	 * @param lat
+	 *            latitude in DD
+	 * @return true if the point is the visible side of the globe and in the
+	 *         view sight (frustum volume).
 	 */
 	public boolean isPointInView(double lon, double lat) {
 		// Normal direction of the point( lon, lat) on the globe
@@ -385,33 +406,38 @@ public class Camera {
 	}
 
 	/**
-	 * @param point cartesian coordinate of the point on the globe
-	 * @return true if the point is the visible side of the globe and in the view sight (frustum volume).
+	 * @param point
+	 *            cartesian coordinate of the point on the globe
+	 * @return true if the point is the visible side of the globe and in the
+	 *         view sight (frustum volume).
 	 */
 	public boolean isCartesianPointInView(double[] point) {
 		// View forward vector
 		double[] posToPoint = new double[3];
-		//Direction from the viewer to the point
+		// Direction from the viewer to the point
 		getCartesianPosition(posToPoint);
 		posToPoint[0] = point[0] - posToPoint[0];
 		posToPoint[1] = point[1] - posToPoint[1];
 		posToPoint[2] = point[2] - posToPoint[2];
 
 		// Dot product between the vectors (front/back face test)
-		double dot = (posToPoint[0] * point[0]) + (posToPoint[1] * point[1]) + (posToPoint[2] * point[2]);
+		double dot = (posToPoint[0] * point[0]) + (posToPoint[1] * point[1])
+				+ (posToPoint[2] * point[2]);
 		if (dot <= 0) {
-			// Visible if the forward vector is pointing in the other direction than the globe normal
+			// Visible if the forward vector is pointing in the other direction
+			// than the globe normal
 			// And the point is inside the view frustum volume
 			return frustum.insideFrustum(point);
-		}
-		else {
+		} else {
 			return false;
 		}
 	}
 
 	/**
-	 * @param lon longitude in DD
-	 * @param lat latitude in DD
+	 * @param lon
+	 *            longitude in DD
+	 * @param lat
+	 *            latitude in DD
 	 * @return true if the (lon, lat) point is on the visible side of the globe
 	 */
 	public boolean isPointInVisibleSide(double lon, double lat) {
@@ -422,75 +448,87 @@ public class Camera {
 	}
 
 	/**
-	 * @param point cartesian coordinate of the point on the globe
+	 * @param point
+	 *            cartesian coordinate of the point on the globe
 	 * @return true if the point is on the visible side of the globe
 	 */
 	public boolean isCartesianPointInVisibleSide(double[] point) {
 		// View forward vector
 		double[] posToPoint = new double[3];
-		//Direction from the viewer to the point
+		// Direction from the viewer to the point
 		getCartesianPosition(posToPoint);
 		posToPoint[0] = point[0] - posToPoint[0];
 		posToPoint[1] = point[1] - posToPoint[1];
 		posToPoint[2] = point[2] - posToPoint[2];
 
 		// Dot product between the vectors (front/back face test)
-		final double dot = (posToPoint[0] * point[0]) + (posToPoint[1] * point[1]) + (posToPoint[2] * point[2]);
+		final double dot = (posToPoint[0] * point[0])
+				+ (posToPoint[1] * point[1]) + (posToPoint[2] * point[2]);
 		if (dot <= 0) {
-			// Visible if the forward vector is pointing in the other direction than the globe normal
+			// Visible if the forward vector is pointing in the other direction
+			// than the globe normal
 			return true;
-		}
-		else {
+		} else {
 			return false;
 		}
 	}
-	
+
 	/**
-	 * @param lon longitude
-	 * @param lat latitude
-	 * @param tileSize tile size (square: size == width == height)
-	 * @return true if the tile is on the visible side of the globe and in the view sight (frustum volume)
+	 * @param lon
+	 *            longitude
+	 * @param lat
+	 *            latitude
+	 * @param tileSize
+	 *            tile size (square: size == width == height)
+	 * @return true if the tile is on the visible side of the globe and in the
+	 *         view sight (frustum volume)
 	 */
 	public boolean isTileInView(Tile tile) {
 		final int leftLon = tile.getLeftLongitude();
 		final int rightLon = tile.getRightLongitude();
 		final int upLat = tile.getUpperLatitude();
 		final int botLat = tile.getLowerLatitude();
-		
+
 		final Landscape landscape = Ptolemy3D.getScene().getLandscape();
 		final double height0, height1, height2, height3;
-		if(landscape.isTerrainEnabled()) {
-			final double yScaler = Unit.getCoordSystemRatio() * Ptolemy3D.getScene().getLandscape().getTerrainScaler();
+		if (landscape.isTerrainEnabled()) {
+			final double yScaler = Unit.getCoordSystemRatio()
+					* Ptolemy3D.getScene().getLandscape().getTerrainScaler();
 			height0 = tile.getUpLeftHeight() * yScaler;
 			height1 = tile.getBotLeftHeight() * yScaler;
 			height2 = tile.getBotRightHeight() * yScaler;
 			height3 = tile.getUpRightHeight() * yScaler;
+		} else {
+			height0 = 0;
+			height1 = 0;
+			height2 = 0;
+			height3 = 0;
 		}
-		else {
-			height0 = 0; height1 = 0; height2 = 0; height3 = 0;
-		}
-		
+
 		// Tile corners
 		double[] point0 = new double[3];
 		double[] point1 = new double[3];
 		double[] point2 = new double[3];
 		double[] point3 = new double[3];
-		Math3D.setSphericalCoord(leftLon, upLat, Unit.EARTH_RADIUS + height0, point0);
-		Math3D.setSphericalCoord(leftLon, botLat, Unit.EARTH_RADIUS + height1, point1);
-		Math3D.setSphericalCoord(rightLon, botLat, Unit.EARTH_RADIUS + height2, point2);
-		Math3D.setSphericalCoord(rightLon, upLat, Unit.EARTH_RADIUS + height3, point3);
-		
-		if(isCartesianPointInVisibleSide(point0) ||
-		   isCartesianPointInVisibleSide(point1) ||
-		   isCartesianPointInVisibleSide(point2) ||
-		   isCartesianPointInVisibleSide(point3)) {
+		Math3D.setSphericalCoord(leftLon, upLat, Unit.EARTH_RADIUS + height0,
+				point0);
+		Math3D.setSphericalCoord(leftLon, botLat, Unit.EARTH_RADIUS + height1,
+				point1);
+		Math3D.setSphericalCoord(rightLon, botLat, Unit.EARTH_RADIUS + height2,
+				point2);
+		Math3D.setSphericalCoord(rightLon, upLat, Unit.EARTH_RADIUS + height3,
+				point3);
+
+		if (isCartesianPointInVisibleSide(point0)
+				|| isCartesianPointInVisibleSide(point1)
+				|| isCartesianPointInVisibleSide(point2)
+				|| isCartesianPointInVisibleSide(point3)) {
 			return frustum.insideFrustum(point0, point1, point2, point3);
-		}
-		else {
+		} else {
 			return false;
 		}
 	}
-	
+
 	public boolean realPointInView(double lon, double alt, double lat,
 			int MAXANGLE) {
 		double[] coord = new double[3];
@@ -528,13 +566,15 @@ public class Camera {
 	}
 
 	/**
-	 * Converts a lat/lot position into a cartesian space situated in the globe surface.
+	 * Converts a lat/lot position into a cartesian space situated in the globe
+	 * surface.
 	 * 
 	 * @param latDD
 	 * @param lonDD
 	 * @return
 	 */
-	public static double[] computeCartesianSurfacePoint(double lonDD, double latDD) {
+	public static double[] computeCartesianSurfacePoint(double lonDD,
+			double latDD) {
 
 		Landscape landscape = Ptolemy3D.getScene().getLandscape();
 
@@ -548,15 +588,17 @@ public class Camera {
 
 		return point;
 	}
-	
+
 	/**
-	 * Converts a lat/lot position into a cartesian space situated in the globe surface.
+	 * Converts a lat/lot position into a cartesian space situated in the globe
+	 * surface.
 	 * 
 	 * @param latDD
 	 * @param lonDD
 	 * @return
 	 */
-	public static double[] computeCartesianPoint(double lonDD, double latDD, double altitude) {
+	public static double[] computeCartesianPoint(double lonDD, double latDD,
+			double altitude) {
 
 		// Transform from lat/lon to cartesion coordinates.
 		double point[] = new double[3];

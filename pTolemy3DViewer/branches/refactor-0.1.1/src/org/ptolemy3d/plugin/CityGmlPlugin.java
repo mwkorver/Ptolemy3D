@@ -164,11 +164,18 @@ public class CityGmlPlugin implements Plugin {
 		gl.glPushAttrib(GL.GL_CURRENT_BIT | GL.GL_ENABLE_BIT
 				| GL.GL_COLOR_BUFFER_BIT | GL.GL_LIGHTING_BIT);
 
+		// Disable some flags
 		gl.glDisable(GL.GL_TEXTURE_2D);
-		gl.glDisable(GL.GL_CULL_FACE);
-		gl.glShadeModel(GL.GL_FLAT);
+		gl.glDisable(GL.GL_CULL_FACE);		
 		gl.glDisable(GL.GL_BLEND);
+		gl.glEnable(GL.GL_COLOR_MATERIAL);
 
+		// Set FLAT shade
+		gl.glShadeModel(GL.GL_FLAT);
+		
+		// Enable lights
+		gl.glEnable(GL.GL_LIGHTING);
+		
 		float color[] = { 0.0f, 0.0f, 1.0f, 1.0f };
 		gl.glColor4fv(color, 0);
 

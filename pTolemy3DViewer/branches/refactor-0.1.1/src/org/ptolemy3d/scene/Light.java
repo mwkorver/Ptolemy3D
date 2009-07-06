@@ -26,7 +26,9 @@ import org.ptolemy3d.DrawContext;
 public class Light {
 
     //Ambient light
-    protected float[] lightAmbient = {0.8f, 0.8f, 0.8f, 1.0f};
+    protected float[] globalAmbient = {0.5f, 0.5f, 0.5f, 1.0f};
+    protected float[] light0Ambient = {0.0f, 0.0f, 0.0f, 1.0f};
+    protected float[] light1Ambient = light0Ambient;
 
     //Diffuse light
     protected float[] light0Diffuse = {0.8f, 0.8f, 0.8f, 1.0f};
@@ -42,10 +44,12 @@ public class Light {
     public void initGL(DrawContext drawContext) {
         GL gl = drawContext.getGL();
 
-        gl.glLightfv(GL.GL_LIGHT0, GL.GL_AMBIENT, lightAmbient, 0);
+        gl.glLightModelfv(GL.GL_LIGHT_MODEL_AMBIENT, globalAmbient, 0);
+        
+        gl.glLightfv(GL.GL_LIGHT0, GL.GL_AMBIENT, light0Ambient, 0);
         gl.glLightfv(GL.GL_LIGHT0, GL.GL_DIFFUSE, light0Diffuse, 0);
 
-        gl.glLightfv(GL.GL_LIGHT1, GL.GL_AMBIENT, lightAmbient, 0);
+        gl.glLightfv(GL.GL_LIGHT1, GL.GL_AMBIENT, light0Ambient, 0);
         gl.glLightfv(GL.GL_LIGHT1, GL.GL_DIFFUSE, light1Diffuse, 0);
     }
 

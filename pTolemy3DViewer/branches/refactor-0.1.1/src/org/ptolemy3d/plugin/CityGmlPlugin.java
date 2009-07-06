@@ -215,7 +215,7 @@ public class CityGmlPlugin implements Plugin {
 				fb.rewind();
 				gl.glVertexPointer(3, GL.GL_DOUBLE, 0, db);
 				gl.glNormalPointer(GL.GL_FLOAT, 0, fb);
-				gl.glDrawArrays(GL.GL_POLYGON, 0, db.capacity());
+				gl.glDrawArrays(GL.GL_POLYGON, 0, db.capacity() / 3);
 			}
 		}
 

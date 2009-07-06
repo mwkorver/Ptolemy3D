@@ -76,7 +76,7 @@ public class BasicFrame extends JFrame {
 		CityGmlPlugin cgp = new CityGmlPlugin();
 		cgp.setAltitude(100000);
 		cgp
-				.setFileUrl("file:///opt/servers/jetty-6.1.14/webapps/Ptolemy_test/gml_big_test.xml");
+				.setFileUrl("file:///opt/servers/jetty-6.1.14/webapps/Ptolemy_test/gml_test.xml");
 		Ptolemy3D.getScene().getPlugins().addPlugin(cgp);
 
 		// Add canvas and the menu panel

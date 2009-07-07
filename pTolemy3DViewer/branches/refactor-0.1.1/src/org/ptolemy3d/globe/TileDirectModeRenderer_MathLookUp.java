@@ -261,7 +261,7 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 			if ((rightTile == null) || (rightTile.mapData == null) || (rightTile.mapData.key.layer != drawLevelID)) {
 				right_dem_slope = (lr_corner - ur_corner) * oneOverNrowsZ;
 			}
-			if ((aboveTile == null) || (belowTile.mapData == null) || (aboveTile.mapData.key.layer != drawLevelID)) {
+			if ((aboveTile == null) || (aboveTile.mapData == null) || (aboveTile.mapData.key.layer != drawLevelID)) {
 				top_dem_slope = (ur_corner - ul_corner) * oneOverNrowsX;
 			}
 			if ((belowTile == null) || (belowTile.mapData == null) || (belowTile.mapData.key.layer != drawLevelID)) {

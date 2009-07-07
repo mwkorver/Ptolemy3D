@@ -8,6 +8,7 @@
 
         <script type="text/javascript" src="js/jquery-1.3.2.min.js"></script>
         <script type="text/javascript" src="js/jquery-ui-1.7.2.custom.min.js"></script>
+        <script type="text/javascript" src="ptolemy.js"></script>
         <script type="text/javascript">
             $(function(){
                 // Accordion
@@ -15,6 +16,13 @@
                     header: "h3",
                     clearStyle: true,
                     autoHeight: false
+                });
+
+                // Tabs. Immediately select the just added tab.
+                $("#tabs").tabs({
+                    spinner: 'Retrieving data...',
+                    add: function(event, ui) { $("#tabs").tabs('select', '#' + ui.panel.id); },
+                    fx: { height: 'show', opacity: 'show' }
                 });
 
                 // NOTE: The dialog plugin is avoided due problems shown on
@@ -47,6 +55,9 @@
                 $("#freecode").resizable();
                 $(".map3dcontainer").resizable();
 
+                // Set the initial content of text area
+                reset();
+
                 // Check if Java plugin is available
                 if(checkJava()==false){
                     $(".map3dcontainer").css("background-color","silver");
@@ -65,70 +76,15 @@
                 return javaEnabled;
             }
 
-            // Reference to pTolemy object.
-            var ptolemy = null;
 
-            var init_lat = 132.730000;
-            var init_lon = 35.010000;
-            var init_alt = 1260000;
-            var init_dir = 0;
-            var init_pitch = -30;
-            var init_atmos = true;
-            var init_camx = 0;
-            var init_camy = 0;
-            var init_terrain_follow = true;
-            var init_terrain_scale = 1;
-            var init_terrain_status = true;
-            var init_horizon = 10000;
-
-            /**
-             * Called once the applet is initialized and started.
+            /*
+             * Reset. Set the initial content of textarea.
              */
-            function ptolemyStart(){
-
-                var ptapplet = document.getElementById('pTolemy3D').getSubApplet();
-
-
-
-                // Create a Ptolemy instance from the applet element identifier
-                // in the HTML file.
-                ptolemy = new ptolemy3d('pTolemy3D');
-
-                // TODO - Seems to return undefinied values.
-                // Store inital params to allow reset the scene.
-                init_lat = ptolemy.getCamera().getLatitude();
-                init_lon = ptolemy.getCamera().getLongitude();
-                init_alt = ptolemy.getCamera().getAltitude();
-                init_dir = ptolemy.getCamera().getDirection();
-                init_pitch = ptolemy.getCamera().getPitch();
-                init_camx = ptolemy.getCamera().getCameraPositionX();
-                init_camy = ptolemy.getCamera().getCameraPositionY();
-                init_terrain_follow = ptolemy.getCamera().getTerrainFollowMode();
-                init_atmos = ptolemy.getTerrain().getAtmosphere();
-                init_terrain_scale = ptolemy.getTerrain().getTerrainScale();
-                init_terrain_status = ptolemy.getTerrain().getTerrainStatus();
-                init_horizon = ptolemy.getTerrain().getHorizonAlt();
-            }
-
-            function ptolemyStop(){
-                alert("ptolemyStop");
-            }
-
             function reset(){
-
-                //ptolemy.getCamera().setOrientation(init_lat, init_lon, init_alt, init_dir, init_pitch);
-                ptolemy.getCamera().setLatitude(init_lat);
-                ptolemy.getCamera().setLongitude(init_lon);
-                ptolemy.getCamera().setAltitude(init_alt);
-                ptolemy.getCamera().setDirection(init_dir);
-                ptolemy.getCamera().setPitch(init_pitch);
-                ptolemy.getCamera().setTerrainFollowMode(init_terrain_follow);
-                ptolemy.getTerrain().setTerrainStatus(init_terrain_status);
-                ptolemy.getTerrain().setAtmosphere(init_atmos);
-                ptolemy.getTerrain().setHorizonAlt(init_horizon);
-
-                var example = "// Use the 'ptolemy' object to interact with the viewer.\n// Put your code here...\n";
-                $('#freecode').val(example);
+                ptolemyStart();
+                $('#freecode').load('./code/reset.js','',function (responseText, textStatus, XMLHttpRequest) {
+                    $('#freecode').val(responseText);
+                });
             }
         </script>
     </head>
@@ -159,7 +115,7 @@
                     <param name="cache_archive" VALUE="jogl.jar,gluegen-rt.jar,plugin.jar,ptolemy3d-1.0-SNAPSHOT.jar,ptolemy3dplugin-1.0-SNAPSHOT.jar">
                     <param name="cache_archive_ex" VALUE="jogl.jar;preload,gluegen-rt.jar;preload,plugin.jar;preload,ptolemy3d-1.0-SNAPSHOT.jar;preload,ptolemy3dplugin-1.0-SNAPSHOT.jar;preload">
 
-                    <param name="Orientation" value="39010000,-98730000,460000,0,-15">
+                    <param name="Orientation" value="0,0,500000,0,0">
                     <param name="CenterX" value="0">
                     <param name="CenterY" value="0">
                     <param name="DisplayRatio" value="1">
@@ -213,13 +169,14 @@
                     <param name="LayerDivider_5" value="0">
 
                     <param name="NumPlugins" value="0">
-
+                        
+<!-- We create plugins once ptolemy system is started
                     <param name="PluginType_1" value="org.ptolemy3d.plugin.IconPlugin">
                     <param name="PluginParam_1" value="/Ptolemy_test/new.png,40,0">
 
                     <param name="PluginType_2" value="org.ptolemy3d.plugin.CityGmlPlugin">
                     <param name="PluginParam_2" value="100000,http://localhost:8080/openbd/CFML/pseudoWFS/wfs.cfm?SERVICE=wfs&amp;REQUEST=GetFeature&amp;bbox=-180,-90,180,90">
-
+-->
                 </applet>
             </div>
 
@@ -281,8 +238,19 @@
 
                     </td>
                     <td valign="top">
-                        <textarea id="freecode" cols="110" rows="15">// Use the 'ptolemy' object to interact with the viewer.&#13;// Put your code here...&#13;</textarea><br/>
-                        <button id="run_freecode">Run...</button><button id="reset_ptolemy" onclick="reset();">Reset...</button>
+
+                        <div id="tabs">
+                            <ul>
+                                <li><a href="#tabs-code">Code Area</a></li>
+                            </ul>
+                            <div id="tabs-code">
+                                <table border="0">
+                                    <tr><td><textarea id="freecode" cols="120" rows="14"></textarea></td></tr>
+                                    <tr><td><button id="run_freecode">Run...</button><button id="reset_ptolemy" onclick="reset();">Reset...</button></td></tr>
+                                </table>
+                            </div>
+                        </div>
+
                     </td>
                 </tr>
             </table>

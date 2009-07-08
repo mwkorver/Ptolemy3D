@@ -55,9 +55,6 @@
                 $("#freecode").resizable();
                 $(".map3dcontainer").resizable();
 
-                // Set the initial content of text area
-                reset();
-
                 // Check if Java plugin is available
                 if(checkJava()==false){
                     $(".map3dcontainer").css("background-color","silver");
@@ -191,20 +188,30 @@
                                 <h3><a href="#">Camera:</a></h3>
                                 <div>
                                     <ul>
-                                        <li><a href="#" onClick="$('#freecode').load('./code/simpleFlight.js','',function (responseText, textStatus, XMLHttpRequest) {$('#freecode').val(responseText);});">Simple flight.</a></li>
-                                        <li><a href="#" onclick="$('#freecode').load('./code/complexFlight.js','',function (responseText, textStatus, XMLHttpRequest) {$('#freecode').val(responseText);});">Complex flight.</a></li>
-                                        <li><a href="#" onclick="$('#freecode').load('./code/positioning.js','',function (responseText, textStatus, XMLHttpRequest) {$('#freecode').val(responseText);});">Positioning.</a></li>
+                                        <li><a href="#" onClick="$('#freecode').load('./code/positioning.js','',function (responseText, textStatus, XMLHttpRequest) {$('#freecode').val(responseText);});">Positioning</a></li>
+                                        <li><a href="#" onclick="$('#freecode').load('./code/complexFlight.js','',function (responseText, textStatus, XMLHttpRequest) {$('#freecode').val(responseText);});">Flight</a></li>
+                                        <li><a href="#" onclick="$('#freecode').load('./code/positioning.js','',function (responseText, textStatus, XMLHttpRequest) {$('#freecode').val(responseText);});">Flight Control</a></li>
+                                        <li><a href="#" onclick="$('#freecode').load('./code/positioning.js','',function (responseText, textStatus, XMLHttpRequest) {$('#freecode').val(responseText);});">Some Parameters</a></li>
                                     </ul>
                                 </div>
                             </div>
                             <div>
-                                <h3><a href="#">Options:</a></h3>
+                                <h3><a href="#">Terrain:</a></h3>
                                 <div>
                                     <ul>
                                         <li><a href="#" onclick="$('#freecode').load('./code/cameraFlightType.js','',function (responseText, textStatus, XMLHttpRequest) {$('#freecode').val(responseText);});">Camera flight type.</a></li>
                                         <li><a href="#" onclick="$('#freecode').load('./code/terrainOptions.js','',function (responseText, textStatus, XMLHttpRequest) {$('#freecode').val(responseText);});">Terrain options.</a></li>
                                         <li><a href="#" onclick="$('#freecode').load('./code/flightMode.js','',function (responseText, textStatus, XMLHttpRequest) {$('#freecode').val(responseText);});">Terrain flight mode.</a></li>
                                         <li><a href="#" onclick="$('#freecode').load('./code/clickMode.js','',function (responseText, textStatus, XMLHttpRequest) {$('#freecode').val(responseText);});">Click mode.</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div>
+                                <h3><a href="#">Plugins:</a></h3>
+                                <div>
+                                    <ul>
+                                        <li><a href="#" onclick="$('#freecode').load('./code/IconPlugin.js','',function (responseText, textStatus, XMLHttpRequest) {$('#freecode').val(responseText);});">Icons Plugin.</a></li>
+                                        <li><a href="#" onclick="$('#freecode').load('./code/CityGmlPlugin.js','',function (responseText, textStatus, XMLHttpRequest) {$('#freecode').val(responseText);});">CityGML Plugin.</a></li>
                                     </ul>
                                 </div>
                             </div>

@@ -23,7 +23,6 @@ import org.ptolemy3d.DrawContext;
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.Ptolemy3DGLCanvas;
 import org.ptolemy3d.Unit;
-import org.ptolemy3d.globe.Tile;
 import org.ptolemy3d.math.Math3D;
 import org.ptolemy3d.math.Matrix16d;
 import org.ptolemy3d.math.Matrix9d;
@@ -483,47 +482,23 @@ public class Camera {
 	 * @return true if the tile is on the visible side of the globe and in the
 	 *         view sight (frustum volume)
 	 */
-	public boolean isTileInView(Tile tile) {
-		final int leftLon = tile.getLeftLongitude();
-		final int rightLon = tile.getRightLongitude();
-		final int upLat = tile.getUpperLatitude();
-		final int botLat = tile.getLowerLatitude();
-
-		final Landscape landscape = Ptolemy3D.getScene().getLandscape();
-		final double height0, height1, height2, height3;
-		if (landscape.isTerrainEnabled()) {
-			final double yScaler = Unit.getCoordSystemRatio()
-					* Ptolemy3D.getScene().getLandscape().getTerrainScaler();
-			height0 = tile.getUpLeftHeight() * yScaler;
-			height1 = tile.getBotLeftHeight() * yScaler;
-			height2 = tile.getBotRightHeight() * yScaler;
-			height3 = tile.getUpRightHeight() * yScaler;
-		} else {
-			height0 = 0;
-			height1 = 0;
-			height2 = 0;
-			height3 = 0;
-		}
-
+	public boolean isTileInView(int leftLon, int rightLon, int upLat, int botLat,
+			double upLeftHeight, double botLeftHeight, double botRightHeight, double upRightHeight) {
 		// Tile corners
-		double[] point0 = new double[3];
-		double[] point1 = new double[3];
-		double[] point2 = new double[3];
-		double[] point3 = new double[3];
-		Math3D.setSphericalCoord(leftLon, upLat, Unit.EARTH_RADIUS + height0,
-				point0);
-		Math3D.setSphericalCoord(leftLon, botLat, Unit.EARTH_RADIUS + height1,
-				point1);
-		Math3D.setSphericalCoord(rightLon, botLat, Unit.EARTH_RADIUS + height2,
-				point2);
-		Math3D.setSphericalCoord(rightLon, upLat, Unit.EARTH_RADIUS + height3,
-				point3);
+		double[] upLeft = new double[3];
+		double[] botLeft = new double[3];
+		double[] botRight = new double[3];
+		double[] upRight = new double[3];
+		Math3D.setSphericalCoord(leftLon, upLat, Unit.EARTH_RADIUS + upLeftHeight, upLeft);
+		Math3D.setSphericalCoord(leftLon, botLat, Unit.EARTH_RADIUS + botLeftHeight, botLeft);
+		Math3D.setSphericalCoord(rightLon, botLat, Unit.EARTH_RADIUS + botRightHeight, botRight);
+		Math3D.setSphericalCoord(rightLon, upLat, Unit.EARTH_RADIUS + upRightHeight, upRight);
 
-		if (isCartesianPointInVisibleSide(point0)
-				|| isCartesianPointInVisibleSide(point1)
-				|| isCartesianPointInVisibleSide(point2)
-				|| isCartesianPointInVisibleSide(point3)) {
-			return frustum.insideFrustum(point0, point1, point2, point3);
+		if (isCartesianPointInVisibleSide(upLeft)
+				|| isCartesianPointInVisibleSide(botLeft)
+				|| isCartesianPointInVisibleSide(botRight)
+				|| isCartesianPointInVisibleSide(upRight)) {
+			return frustum.insideFrustum(upLeft, botLeft, botRight, upRight);
 		} else {
 			return false;
 		}
@@ -573,8 +548,7 @@ public class Camera {
 	 * @param lonDD
 	 * @return
 	 */
-	public static double[] computeCartesianSurfacePoint(double lonDD,
-			double latDD) {
+	public static double[] computeCartesianSurfacePoint(double lonDD, double latDD) {
 
 		Landscape landscape = Ptolemy3D.getScene().getLandscape();
 
@@ -583,8 +557,7 @@ public class Camera {
 
 		// Transform from lat/lon to cartesion coordinates.
 		double point[] = new double[3];
-		Math3D.setSphericalCoord(lonDD, latDD, Unit.EARTH_RADIUS + terrainElev,
-				point);
+		Math3D.setSphericalCoord(lonDD, latDD, Unit.EARTH_RADIUS + terrainElev, point);
 
 		return point;
 	}
@@ -597,13 +570,11 @@ public class Camera {
 	 * @param lonDD
 	 * @return
 	 */
-	public static double[] computeCartesianPoint(double lonDD, double latDD,
-			double altitude) {
+	public static double[] computeCartesianPoint(double lonDD, double latDD, double altitude) {
 
 		// Transform from lat/lon to cartesion coordinates.
 		double point[] = new double[3];
-		Math3D.setSphericalCoord(lonDD, latDD, Unit.EARTH_RADIUS + altitude,
-				point);
+		Math3D.setSphericalCoord(lonDD, latDD, Unit.EARTH_RADIUS + altitude, point);
 
 		return point;
 	}

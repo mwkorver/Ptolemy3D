@@ -25,6 +25,7 @@ import javax.media.opengl.GL;
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.Unit;
 import org.ptolemy3d.debug.ProfilerUtil;
+import org.ptolemy3d.globe.Tile.SubTile;
 import org.ptolemy3d.globe.Tile.TileRenderer;
 import org.ptolemy3d.math.Math3D;
 import org.ptolemy3d.scene.Landscape;
@@ -76,7 +77,11 @@ class TileDefaultRenderer implements TileRenderer {
 		meshColor = landscape.getMeshColor();
 	}
 
-	public void drawSubsection(Tile tile, int x1, int z1, int x2, int z2) {
+	public void drawSubsection(Tile tile, SubTile subTile) {
+		final int x1 = subTile.ulx;
+		final int z1 = subTile.ulz;
+		final int x2 = subTile.lrx;
+		final int z2 = subTile.lrz;
 		if ((x1 == x2) || (z1 == z2)) {
 			return;
 		}

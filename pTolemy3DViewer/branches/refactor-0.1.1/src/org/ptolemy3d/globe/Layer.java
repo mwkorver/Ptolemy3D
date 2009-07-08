@@ -316,16 +316,11 @@ public class Layer {
 		}
 	}
 	
-	/**
-	 * Draw Level geometry
-	 */
-	public void draw(DrawContext drawContext) {
-		if (!visible) {
+	protected void processClipping() {
+		if(!isVisible()) {
 			return;
 		}
-
-		final GL gl = drawContext.getGL();
-		// Render layer tiles
+		
 		for (int i = 0; i < LEVEL_NUMTILE_LAT; i++) {
 			for (int j = 0; j < LEVEL_NUMTILE_LON; j++) {
 				final int tileID = (i * LEVEL_NUMTILE_LON) + j;
@@ -337,8 +332,23 @@ public class Layer {
 				final Tile above = (i == 0) ? null : tiles[((i - 1) * LEVEL_NUMTILE_LON) + j];
 				
 				// Display
-				tile.display(gl, right, below, left, above);
+				tile.processClipping(right, below, left, above);
 			}
+		}
+	}
+	
+	/**
+	 * Draw Level geometry
+	 */
+	public void draw(DrawContext drawContext) {
+		if (!visible) {
+			return;
+		}
+
+		// Render layer tiles
+		final GL gl = drawContext.getGL();
+		for (Tile tile : tiles) {
+			tile.display(gl);
 		}
 	}
 

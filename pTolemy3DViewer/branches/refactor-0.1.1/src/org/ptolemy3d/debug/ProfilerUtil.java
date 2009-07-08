@@ -77,6 +77,8 @@ public class ProfilerUtil
 	public static int forceLayer = -1;
 	/** Freeze visibility */
 	public static boolean freezeVisibility = false;
+	/** Freeze decoding */
+	public static boolean freezeDecoding = false;
 	/** Variable used for misc test */
 	public static boolean test = false;
 

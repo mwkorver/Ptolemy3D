@@ -23,7 +23,9 @@ import java.util.Vector;
 import java.util.Map.Entry;
 
 import org.ptolemy3d.Ptolemy3D;
+import org.ptolemy3d.debug.Config;
 import org.ptolemy3d.debug.IO;
+import org.ptolemy3d.debug.ProfilerUtil;
 import org.ptolemy3d.globe.MapData;
 import org.ptolemy3d.globe.MapDataKey;
 import org.ptolemy3d.scene.Landscape;
@@ -237,6 +239,9 @@ class MapDataDecoder {
 			}
 		}
 		private boolean findCloserEntryToDecode() {
+			if(Config.DEBUG && ProfilerUtil.freezeDecoding) {
+				return false;
+			}
 			if(Ptolemy3D.getCanvas() == null) {
 				return false;
 			}

@@ -252,6 +252,11 @@ public class IO {
 					break;
 				case KeyEvent.VK_F6:
 					landscape.setTerrainEnabled(!landscape.isTerrainEnabled());
+					println("Elevation: "+landscape.isTerrainEnabled());
+					break;
+				case KeyEvent.VK_F7:
+					ProfilerUtil.freezeDecoding = !ProfilerUtil.freezeDecoding;
+					println("Decoding freezed: "+ProfilerUtil.freezeDecoding);
 					break;
 				case KeyEvent.VK_F8:
 					Camera camera = canvas.getCamera();

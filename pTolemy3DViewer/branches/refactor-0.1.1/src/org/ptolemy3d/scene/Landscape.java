@@ -266,6 +266,19 @@ public class Landscape {
         	}
         }
     }
+    
+    public final int clampLeftLongitude(int lon) {
+    	return Math.max(lon, -maxLongitude);
+    }
+    public final int clampRightLongitude(int lon) {
+    	return Math.min(lon, maxLongitude);
+    }
+    public final int clampUpperLatitude(int lat) {
+    	return Math.max(lat, -maxLatitude);
+    }
+    public final int clampLowerLatitude(int lat) {
+    	return Math.min(lat, maxLatitude);
+    }
 
     /** Landscape Rendering */
     protected void draw(DrawContext drawContext) {

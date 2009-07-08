@@ -25,6 +25,7 @@ import javax.media.opengl.GL;
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.Unit;
 import org.ptolemy3d.debug.ProfilerUtil;
+import org.ptolemy3d.globe.Tile.SubTile;
 import org.ptolemy3d.globe.Tile.TileRenderer;
 import org.ptolemy3d.math.Math3D;
 import org.ptolemy3d.scene.Landscape;
@@ -82,7 +83,11 @@ class TileDirectModeRenderer implements TileRenderer {
 		terrainScaler = landscape.getTerrainScaler();
 	}
 
-	public void drawSubsection(Tile tile, int x1, int z1, int x2, int z2) {
+	public void drawSubsection(Tile tile, SubTile subTile) {
+		final int x1 = subTile.ulx;
+		final int z1 = subTile.ulz;
+		final int x2 = subTile.lrx;
+		final int z2 = subTile.lrz;
 		if ((x1 == x2) || (z1 == z2)) {
 			return;
 		}
@@ -177,16 +182,16 @@ class TileDirectModeRenderer implements TileRenderer {
 			ll_corner = (dem[i1] << 8) + (dem[i1 + 1] & 0xFF);
 			lr_corner = (dem[i1 + rowWidthMinusTwo] << 8) + (dem[i1 + rowWidthMinusOne] & 0xFF);
 
-			if ((leftTile == null) || (leftTile.mapData == null) || (leftTile.mapData.key.layer != drawLevelID)) {
+			if ((leftTile == null) || (leftTile.mapData == null || leftTile.mapData.dem == null) || (leftTile.mapData.key.layer != drawLevelID)) {
 				left_dem_slope = (ll_corner - ul_corner) * oneOverNrowsZ;
 			}
-			if ((rightTile == null) || (rightTile.mapData == null) || (rightTile.mapData.key.layer != drawLevelID)) {
+			if ((rightTile == null) || (rightTile.mapData == null || rightTile.mapData.dem == null) || (rightTile.mapData.key.layer != drawLevelID)) {
 				right_dem_slope = (lr_corner - ur_corner) * oneOverNrowsZ;
 			}
-			if ((aboveTile == null) || (aboveTile.mapData == null) || (aboveTile.mapData.key.layer != drawLevelID)) {
+			if ((aboveTile == null) || (aboveTile.mapData == null || aboveTile.mapData.dem == null) || (aboveTile.mapData.key.layer != drawLevelID)) {
 				top_dem_slope = (ur_corner - ul_corner) * oneOverNrowsX;
 			}
-			if ((belowTile == null) || (belowTile.mapData == null) || (belowTile.mapData.key.layer != drawLevelID)) {
+			if ((belowTile == null) || (belowTile.mapData == null || belowTile.mapData.dem == null) || (belowTile.mapData.key.layer != drawLevelID)) {
 				bottom_dem_slope = (lr_corner - ll_corner) * oneOverNrowsX;
 			}
 		}

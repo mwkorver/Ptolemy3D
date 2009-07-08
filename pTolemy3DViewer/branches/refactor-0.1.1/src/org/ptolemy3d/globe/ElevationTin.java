@@ -17,9 +17,6 @@
  */
 package org.ptolemy3d.globe;
 
-import javax.media.opengl.GL;
-
-import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.util.ByteReader;
 
 /**

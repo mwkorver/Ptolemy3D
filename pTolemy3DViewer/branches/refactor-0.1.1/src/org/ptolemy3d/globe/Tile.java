@@ -36,7 +36,24 @@ import org.ptolemy3d.view.Camera;
  * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  * @author Contributors
  */
-public class Tile {
+class Tile {
+	/** Tile may be divided in  */
+	static class SubTile {
+		protected int ulx, ulz, lrx, lrz;
+		protected boolean active;
+		
+		public void set(SubTile subtile) {
+			set(subtile.ulx, subtile.ulz, subtile.lrx, subtile.lrz);
+		}
+		public void set(int ulx, int ulz, int lrx, int lrz) {
+			this.ulx = ulx;
+			this.ulz = ulz;
+			this.lrx = lrx;
+			this.lrz = lrz;
+			this.active = true;
+		}
+	}
+	
 	private final int tileID;
 
 	/* Tile.processVisibility */
@@ -47,6 +64,10 @@ public class Tile {
 	protected boolean visible;
 	protected MapData mapData;
 
+	/* Tile.processClipping */
+	private final SubTile thisTile;
+	private final SubTile[] subTiles;
+	
 	/* Tile.display */
 	protected GL gl;
 	protected int drawLevelID;
@@ -57,86 +78,93 @@ public class Tile {
 //	private static final TileRenderer renderer = new TileDefaultRenderer();					//First clean version
 //	private static final TileRenderer renderer = new TileDirectModeRenderer();				//CPU Optimizations
 	private static final TileRenderer renderer = new TileDirectModeRenderer_MathLookUp();	//Cos/Sin table lookup
-	protected interface TileRenderer { public void drawSubsection(Tile tile, int x1, int z1, int x2, int z2); }
+	protected interface TileRenderer { public void drawSubsection(Tile tile, SubTile subTile); }
 
 	protected Tile(int tileID) {
 		this.tileID = tileID;
+		this.thisTile = new SubTile();
+		this.subTiles = new SubTile[4];
+		for(int i = 0; i < subTiles.length; i++) {
+			subTiles[i] = new SubTile();
+		}
 	}
 
-	protected void processVisibility(Camera camera, Layer layer, int lon, int lat) {
+	public void processVisibility(Camera camera, Layer layer, int lon, int lat) {
+		final Landscape landscape = Ptolemy3D.getScene().getLandscape();
+		
 		layerID = layer.getLevelID();
 		tileSize = layer.getTileSize();
 		
 		tileLon = lon;
 		tileLat = lat;
-		
-		visible = camera.isTileInView(this);
+
+		// Visibility test
+		{
+			final int leftLon = landscape.clampLeftLongitude(tileLon);
+			final int rightLon = landscape.clampRightLongitude(tileLon + tileSize);
+			final int upLat = -landscape.clampUpperLatitude(tileLat);
+			final int botLat = -landscape.clampLowerLatitude(tileLat + tileSize);
+			
+			final double upLeft, botLeft, botRight, upRight;
+			if (landscape.isTerrainEnabled()) {
+				final double yScaler = Unit.getCoordSystemRatio() * Ptolemy3D.getScene().getLandscape().getTerrainScaler();
+				upLeft = getUpLeftHeight() * yScaler;
+				botLeft = getBotLeftHeight() * yScaler;
+				botRight = getBotRightHeight() * yScaler;
+				upRight = getUpRightHeight() * yScaler;
+			} else {
+				upLeft = 0;
+				botLeft = 0;
+				botRight = 0;
+				upRight = 0;
+			}
+			
+			visible = camera.isTileInView(leftLon, rightLon, upLat, botLat, upLeft, botLeft, botRight, upRight);
+		}
 		
 		if (visible) {
 			final MapDataManager mapDataManager = Ptolemy3D.getMapDataManager();
 			this.mapData = mapDataManager.request(layerID, lon, -lat);
 			drawLevelID = mapData.key.layer;
+			
+			final int ulx = landscape.clampLeftLongitude(tileLon);
+			final int lrx = landscape.clampRightLongitude(tileLon + tileSize);
+			final int ulz = landscape.clampUpperLatitude(tileLat);
+			final int lrz = landscape.clampLowerLatitude(tileLat + tileSize);
+			thisTile.set(ulx, ulz, lrx, lrz);
+			for(SubTile subTile : subTiles) {
+				subTile.active = false;
+			}
 		}
 	}
-
-	protected void display(GL gl, Tile rightTile, Tile belowTile, Tile leftTile, Tile aboveTile) {
+	
+	public void processClipping(Tile rightTile, Tile belowTile, Tile leftTile, Tile aboveTile) {
 		if (!visible) {
 			return;
 		}
-
-		if (DEBUG) {
-			ProfilerUtil.tileCounter++;
-		}
-
-		final MapDataManager mapDataManager = Ptolemy3D.getMapDataManager();
-		final int textureID = mapDataManager.getTextureID(gl, mapData);
-		gl.glBindTexture(GL.GL_TEXTURE_2D, textureID);
-
-		final Landscape landscape = Ptolemy3D.getScene().getLandscape();
-		final Globe globe = landscape.globe;
-
-		this.gl = gl;
-		this.texture = (textureID != 0);
+		
 		this.right = rightTile;
 		this.below = belowTile;
 		this.left = leftTile;
 		this.above = aboveTile;
 		
-		if (!texture) {
-			final float[] tileColor = landscape.getTileColor();
-			gl.glColor3f(tileColor[0], tileColor[1], tileColor[2]);
-		}
+		final Landscape landscape = Ptolemy3D.getScene().getLandscape();
+		final Globe globe = landscape.globe;
 		
-		if (DEBUG) {
-//			if (ProfilerUtil.forceLayer != -1 && ProfilerUtil.forceLayer != drawLevelID) {	//Select map layer
-			if (ProfilerUtil.forceLayer != -1 && ProfilerUtil.forceLayer != layerID) {		//Select mesh layer
-				return;
-			}
-		}
-
 		if (layerID < (globe.getNumLayers() - 1)) {	//Last layer don't have tile below
 			final Layer layerBelow = globe.getLayer(layerID + 1);
 			if (layerBelow.isVisible()) {
 				for(Area area : layerBelow.getAreas()) {
-					if(clipWithArea(area)) {
+					if(checkClipWithArea(area)) {
 						return;
 					}
 				}
 			}
 		}
 		
-		final int maxLon = landscape.getMaxLongitude();
-		final int maxLat = landscape.getMaxLatitude();
-		
-		final int ulx, ulz, lrx, lrz;
-		ulx = Math.max(tileLon, -maxLon);
-		ulz = Math.max(tileLat, -maxLat);
-		lrx = Math.min(tileLon + tileSize, maxLon);
-		lrz = Math.min(tileLat + tileSize, maxLat);
-		renderer.drawSubsection(this, ulx, ulz, lrx, lrz);
+		subTiles[0].set(thisTile);
 	}
-
-	private boolean clipWithArea(Area belowArea) {
+	private boolean checkClipWithArea(Area belowArea) {
 		int ulxBelow = belowArea.getMinLongitude();
 		int lrxBelow = belowArea.getMaxLongitude();
 		int ulzBelow = belowArea.getMinLatitude();
@@ -144,20 +172,18 @@ public class Tile {
 		
 		final Landscape landscape = Ptolemy3D.getScene().getLandscape();
 		final int maxLon = landscape.getMaxLongitude();
-		final int maxLat = landscape.getMaxLatitude();
 		
         final Layer layerBelow = landscape.globe.getLayer(layerID + 1);
 		final int topTileLat = layerBelow.getMaxTileLatitude();
 		
-		final int ulx, ulz, lrx, lrz;
-		ulx = Math.max(tileLon, -maxLon);
-		ulz = Math.max(tileLat, -maxLat);
-		lrx = Math.min(tileLon + tileSize, maxLon);
-		lrz = Math.min(tileLat + tileSize, maxLat);
+		final int ulx = thisTile.ulx;
+		final int lrx = thisTile.lrx;
+		final int ulz = thisTile.ulz;
+		final int lrz = thisTile.lrz;
         
         if ((lrzBelow <= topTileLat) && (lrzBelow > -topTileLat)) {
 			if ((lrx > ulxBelow) && (ulx < lrxBelow) && (lrz > ulzBelow) && (ulz < lrzBelow)) {
-				displayClipped(ulx, ulz, lrx, lrz, ulxBelow, ulzBelow, lrxBelow, lrzBelow);
+				clipWithArea(ulx, ulz, lrx, lrz, ulxBelow, ulzBelow, lrxBelow, lrzBelow);
 				return true;
 			}
 
@@ -172,14 +198,14 @@ public class Tile {
 				lrxBelow = ulxBelow + (past * layerBelow.getTileSize());
 
 				if (!((lrx <= ulxBelow) || (ulx >= lrxBelow) || (lrz <= ulzBelow) || (ulz >= lrzBelow))) {
-                    displayClipped(ulx, ulz, lrx, lrz, ulxBelow, ulzBelow, lrxBelow, lrzBelow);
+                    clipWithArea(ulx, ulz, lrx, lrz, ulxBelow, ulzBelow, lrxBelow, lrzBelow);
 					return true;
 				}
 			}
 		}
 		return false;
 	}
-	private void displayClipped(int ulx, int ulz, int lrx, int lrz, int c_ulx, int c_ulz, int c_lrx, int c_lrz) {
+	private void clipWithArea(int ulx, int ulz, int lrx, int lrz, int c_ulx, int c_ulz, int c_lrx, int c_lrz) {
 		final boolean ul = inBounds(ulx, ulz, c_ulx, c_ulz, c_lrx, c_lrz);
 		final boolean ur = inBounds(lrx, ulz, c_ulx, c_ulz, c_lrx, c_lrz);
 		final boolean ll = inBounds(ulx, lrz, c_ulx, c_ulz, c_lrx, c_lrz);
@@ -190,42 +216,77 @@ public class Tile {
 		}
 		
 		if (ul && ur) {
-			renderer.drawSubsection(this, ulx, c_lrz, lrx, lrz);
+			subTiles[0].set(ulx, c_lrz, lrx, lrz);
 		}
 		else if (ur && lr) {
-			renderer.drawSubsection(this, ulx, ulz, c_ulx, lrz);
+			subTiles[0].set(ulx, ulz, c_ulx, lrz);
 		}
 		else if (ll && lr) {
-			renderer.drawSubsection(this, ulx, ulz, lrx, c_ulz);
+			subTiles[0].set(ulx, ulz, lrx, c_ulz);
 		}
 		else if (ul && ll) {
-			renderer.drawSubsection(this, c_lrx, ulz, lrx, lrz);
+			subTiles[0].set(c_lrx, ulz, lrx, lrz);
 		}
 		else if (ul) {
-			renderer.drawSubsection(this, c_lrx, ulz, lrx, c_lrz);
-			renderer.drawSubsection(this, ulx, c_lrz, lrx, lrz);
+			subTiles[0].set(c_lrx, ulz, lrx, c_lrz);
+			subTiles[1].set(ulx, c_lrz, lrx, lrz);
 		}
 		else if (ur) {
-			renderer.drawSubsection(this, ulx, ulz, c_ulx, c_lrz);
-			renderer.drawSubsection(this, ulx, c_lrz, lrx, lrz);
+			subTiles[0].set(ulx, ulz, c_ulx, c_lrz);
+			subTiles[1].set(ulx, c_lrz, lrx, lrz);
 		}
 		else if (ll) {
-			renderer.drawSubsection(this, ulx, ulz, lrx, c_ulz);
-			renderer.drawSubsection(this, c_lrx, c_ulz, lrx, lrz);
+			subTiles[0].set(ulx, ulz, lrx, c_ulz);
+			subTiles[1].set(c_lrx, c_ulz, lrx, lrz);
 		}
 		else if (lr) {
-			renderer.drawSubsection(this, ulx, ulz, lrx, c_ulz);
-			renderer.drawSubsection(this, ulx, c_ulz, c_ulx, lrz);
+			subTiles[0].set(ulx, ulz, lrx, c_ulz);
+			subTiles[1].set(ulx, c_ulz, c_ulx, lrz);
 		}
 		else {
-			renderer.drawSubsection(this, ulx, ulz, lrx, c_ulz);
-			renderer.drawSubsection(this, ulx, c_lrz, lrx, lrz);
-			renderer.drawSubsection(this, ulx, c_ulz, c_ulx, c_lrz);
-			renderer.drawSubsection(this, c_lrx, c_ulz, lrx, c_lrz);
+			subTiles[0].set(ulx, ulz, lrx, c_ulz);
+			subTiles[1].set(ulx, c_lrz, lrx, lrz);
+			subTiles[2].set(ulx, c_ulz, c_ulx, c_lrz);
+			subTiles[3].set(c_lrx, c_ulz, lrx, c_lrz);
 		}
 	}
 	private final boolean inBounds(int x, int z, int c_ulx, int c_ulz, int c_lrx, int c_lrz) {
 		return (x >= c_ulx) && (x <= c_lrx) && (z >= c_ulz) && (z <= c_lrz);
+	}
+	
+	public void display(GL gl) {
+		if (!visible) {
+			return;
+		}
+
+		if (DEBUG) {
+			ProfilerUtil.tileCounter++;
+			
+//			if (ProfilerUtil.forceLayer != -1 && ProfilerUtil.forceLayer != drawLevelID) {	//Select map layer
+			if (ProfilerUtil.forceLayer != -1 && ProfilerUtil.forceLayer != layerID) {		//Select mesh layer
+				return;
+			}
+		}
+
+
+		final MapDataManager mapDataManager = Ptolemy3D.getMapDataManager();
+		final int textureID = mapDataManager.getTextureID(gl, mapData);
+		gl.glBindTexture(GL.GL_TEXTURE_2D, textureID);
+
+		this.gl = gl;
+		this.texture = (textureID != 0);
+		
+		if (!texture) {
+			final Landscape landscape = Ptolemy3D.getScene().getLandscape();
+			final float[] tileColor = landscape.getTileColor();
+			gl.glColor3f(tileColor[0], tileColor[1], tileColor[2]);
+		}
+		
+		for (SubTile subTile : subTiles) {
+			if (subTile.active) {
+				renderer.drawSubsection(this, subTile);
+			}
+		}
 	}
 
 	/** Tile Picking */
@@ -534,7 +595,7 @@ public class Tile {
 	protected int getRenderingUpperLatitude() {
 		final int res;
 		if (layerID != mapData.key.layer) {
-			res = - mapData.getLat();
+			res = -mapData.getLat();
 		}
 		else {
 			res = tileLat;
@@ -557,54 +618,8 @@ public class Tile {
 		}
 		return res;
 	}
-
-	/** @param longitude on the left side */
-	public int getLeftLongitude() {
-		final Landscape landscape = Ptolemy3D.getScene().getLandscape();
-		final int maxLon = landscape.getMaxLongitude();
-		if(tileLon < -maxLon) {
-			return -maxLon;
-		}
-		else {
-			return tileLon;
-		}
-	}
-	/** @param longitude on the right side */
-	public int getRightLongitude() {
-		final Landscape landscape = Ptolemy3D.getScene().getLandscape();
-		final int maxLon = landscape.getMaxLongitude();
-		
-		final int lon = tileLon + tileSize;
-		if(lon > maxLon) {
-			return maxLon;
-		}
-		else {
-			return lon;
-		}
-	}
-	public int getUpperLatitude() {
-		final Landscape landscape = Ptolemy3D.getScene().getLandscape();
-		final int maxLat = landscape.getMaxLatitude();
-		
-		if(tileLat < -maxLat) {
-			return maxLat;
-		}
-		else {
-			return -tileLat;
-		}
-	}
-	public int getLowerLatitude() {
-		final Landscape landscape = Ptolemy3D.getScene().getLandscape();
-		final int maxLat = landscape.getMaxLatitude();
-		
-		final int lat = tileLat + tileSize;
-		if(lat > maxLat) {
-			return -maxLat;
-		}
-		else {
-			return -lat;
-		}
-	}
+	
+	/* Height getters */
 	
 	public double getUpLeftHeight() {
 		if (mapData != null) {

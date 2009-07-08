@@ -52,6 +52,8 @@ public class Globe {
 				layer.processVisibility(drawContext);
 			}
 		}
+		
+		processClipping();
 	}
 	/* Find the lowest visible layer (smaller tiles) */
 	private final int findLowestLayer(Camera camera) {
@@ -79,6 +81,15 @@ public class Globe {
 		return false;
 	}
 
+	/** Resolve tile clipping.
+	 * Tile from different layer may override */
+	private void processClipping() {
+		for (int i = 0; i < layers.length; i++) {	//Don't change order (always from 0 to max)
+			final Layer layer = layers[i];
+			layer.processClipping();
+		}
+	}
+	
 	public void draw(DrawContext drawContext) {
 		for (Layer layer : layers) {
 			layer.draw(drawContext);

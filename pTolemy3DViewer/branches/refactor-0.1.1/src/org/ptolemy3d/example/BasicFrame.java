@@ -34,7 +34,9 @@ import org.ptolemy3d.Configuration;
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.Ptolemy3DGLCanvas;
 import org.ptolemy3d.plugin.CityGmlPlugin;
+import org.ptolemy3d.plugin.IconPlugin;
 import org.ptolemy3d.view.CameraMovement;
+import org.ptolemy3d.view.Position;
 
 /**
  * Ptolemy3D example.
@@ -78,6 +80,12 @@ public class BasicFrame extends JFrame {
 		cgp
 				.setFileUrl("file:///opt/servers/jetty-6.1.14/webapps/Ptolemy_test/gml_test.xml");
 		Ptolemy3D.getScene().getPlugins().addPlugin(cgp);
+
+		IconPlugin ip = new IconPlugin();
+		ip
+				.setFileUrl("file:///opt/servers/jetty-6.1.14/webapps/Ptolemy_test/new.png");
+		ip.setPosition(Position.fromLatLonAlt(40, 0, 0));
+		Ptolemy3D.getScene().getPlugins().addPlugin(ip);
 
 		// Add canvas and the menu panel
 		this.getRootPane().setLayout(new BorderLayout());

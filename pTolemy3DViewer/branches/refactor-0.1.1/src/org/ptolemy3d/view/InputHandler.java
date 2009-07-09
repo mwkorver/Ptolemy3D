@@ -281,7 +281,7 @@ public class InputHandler implements KeyListener, MouseListener, MouseMotionList
 			Point oldMousePoint = mousePoint;
 			mousePoint = e.getPoint();
 
-			if(cameraMovement.fmode == 0) {
+			if(cameraMovement.getRealisticFlight() == 0) {
 				cameraMovement.mouse_lr_rot_velocity = (double)(oldMousePoint.x - mousePoint.x) / 150;
 				cameraMovement.mouse_ud_rot_velocity = (double)(mousePoint.y - oldMousePoint.y) / 150;
 			}

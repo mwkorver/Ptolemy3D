@@ -53,7 +53,7 @@
 
 	<!-- 
 	<PluginType_1>org.ptolemy3d.plugin.IconPlugin</PluginType_1>
-	<PluginParam_1>/Ptolemy_test/new.png,40,0</PluginParam_1>
+	<PluginParam_1>http://localhost:8080/Ptolemy_test/new.png,40,0</PluginParam_1>
 	
 	<PluginType_2>org.ptolemy3d.plugin.CityGmlPlugin</PluginType_2>
 	<PluginParam_2>100000,http://localhost:8080/openbd/CFML/pseudoWFS/wfs.cfm?SERVICE=wfs&amp;REQUEST=GetFeature&amp;bbox=-180,-90,180,90</PluginParam_2>

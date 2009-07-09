@@ -308,6 +308,14 @@ public class Camera {
 	}
 
 	/**
+	 * @param direction
+	 *            the direction in degreesto set
+	 */
+	public void setDirectionDegrees(double direction) {
+		this.direction = direction * Math3D.DEGREE_TO_RADIAN;
+	}
+
+	/**
 	 * @return the direction
 	 */
 	public double getDirection() {
@@ -320,6 +328,14 @@ public class Camera {
 	 */
 	public void setTilt(double tilt) {
 		this.tilt = tilt;
+	}
+
+	/**
+	 * @param tilt
+	 *            the tilt in degreesto set
+	 */
+	public void setTiltDegrees(double tilt) {
+		this.tilt = tilt * Math3D.DEGREE_TO_RADIAN;
 	}
 
 	/**

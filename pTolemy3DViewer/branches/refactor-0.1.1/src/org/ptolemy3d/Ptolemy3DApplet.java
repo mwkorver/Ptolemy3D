@@ -36,11 +36,16 @@ import netscape.javascript.JSObject;
 public class Ptolemy3DApplet extends Applet implements Ptolemy3DJavascript {
 	private static final long serialVersionUID = 1L;
 
+	// JavaScript function names
+	private static String JS_START_FUNCTION = "ptolemyStart";
+	private static String JS_STOP_FUNCTION = "ptolemyStop";
+	private static String JS_SHUTDOWN_FUNCTION = "ptolemyShutdown";
+
 	// Dummy instance to allow return references to browser.
 	private Ptolemy3D ptolemy = new Ptolemy3D();
 	private Unit unit = new Unit();
 
-	//
+	// Canvas reference
 	private Ptolemy3DGLCanvas canvas = null;
 	private JSObject jsObject = null;
 	private static final Logger logger = Logger.getLogger(Ptolemy3DApplet.class
@@ -84,20 +89,41 @@ public class Ptolemy3DApplet extends Applet implements Ptolemy3DJavascript {
 		}
 	}
 
+	/**
+	 * Applet start. Calls JavaScript 'ptolemyStart' function once the Ptolemy3D
+	 * system is started.
+	 */
 	@Override
 	public void start() {
 		Ptolemy3D.start();
 		requestFocus();
+
+		// Call the start JavaScript function
+		Ptolemy3D.callJavascript(JS_START_FUNCTION, null);
 	}
 
+	/**
+	 * Applet stop. Calls JavaScript 'ptolemyStop' function once the Ptolemy3D
+	 * system is stopped.
+	 */
 	@Override
 	public void stop() {
 		Ptolemy3D.stop();
+
+		// Call the stop JavaScript function
+		Ptolemy3D.callJavascript(JS_STOP_FUNCTION, null);
 	}
 
+	/**
+	 * Applet destroy. Calls JavaScript 'ptolemyShutdown' function once the
+	 * Ptolemy3D system is stopped.
+	 */
 	@Override
 	public void destroy() {
 		Ptolemy3D.shutDown();
+
+		// Call the stop JavaScript function
+		Ptolemy3D.callJavascript(JS_SHUTDOWN_FUNCTION, null);
 	}
 
 	/**
@@ -142,7 +168,4 @@ public class Ptolemy3DApplet extends Applet implements Ptolemy3DJavascript {
 	public Ptolemy3DGLCanvas getCanvas() {
 		return canvas;
 	}
-
-
-
 }

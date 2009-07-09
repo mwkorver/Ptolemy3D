@@ -78,13 +78,14 @@ public class CameraMovement {
 	public static int MAXIMUM_ALTITUDE = 250000;
 
 	// Flight mode
-	protected short fmode = 1;
+	private short flightMode = 1;
+
 	// Some variable modified by InputHandler
 	protected double mouse_lr_rot_velocity = 0, mouse_ud_rot_velocity = 0;
 	protected double ud_rot_velocity = 0, lr_rot_velocity = 0;
 
 	// Result of picking
-	protected double[] intersectPoint = new double[3];
+	private double[] intersectPoint = new double[3];
 	private Matrix9d rotMat = new Matrix9d();
 	private Matrix9d cloneMat = new Matrix9d(); // these are used by outside
 	// canvas
@@ -137,7 +138,7 @@ public class CameraMovement {
 	public void init() {
 		final Landscape landscape = Ptolemy3D.getScene().getLandscape();
 
-		fmode = 0;// 1;
+		flightMode = 0;// 1;
 		accel = (int) mmx;
 		rot_accel = rotAng;
 
@@ -175,7 +176,7 @@ public class CameraMovement {
 			int vh_accel = accel;
 			double vh_mmx = mmx;
 
-			if (fmode == 0) {
+			if (flightMode == 0) {
 				// alter velocity and accel according to current altitude.
 				mmx = accel = (int) ((2 * (Math.tan(0.5235987756) * (camera
 						.getPosition().getAltitudeDD() + 1))) * 25 * relspdmult);
@@ -389,7 +390,7 @@ public class CameraMovement {
 				double rot_x = -(ud_rot_velocity * rot_vel_scaler / 10)
 						* Math3D.DEGREE_TO_RADIAN;
 
-				if (fmode == 0) {
+				if (flightMode == 0) {
 					final double GL_WIDTH = canvas.getWidth();
 					final double GL_HEIGHT = canvas.getHeight();
 
@@ -629,6 +630,70 @@ public class CameraMovement {
 		// String.valueOf(dispout[1]), String.valueOf(dispout[2]));
 	}
 
+	public Position getPosition() {
+		final Camera camera = canvas.getCamera();
+		return camera.getPosition();
+	}
+
+	public double getPitch() {
+		final Camera camera = canvas.getCamera();
+		return camera.getPitchDegrees();
+	}
+
+	public double getDirection() {
+		final Camera camera = canvas.getCamera();
+		return camera.getDirectionDegrees();
+	}
+
+	/**
+	 * Sets camera position
+	 * 
+	 * @param lat
+	 *            degrees
+	 * @param lon
+	 *            degrees
+	 * @param alt
+	 *            meters
+	 */
+	public void setPosition(double lat, double lon, double alt) {
+		Position p = Position.fromLatLonAlt(lat, lon, alt);
+		this.setPosition(p);
+	}
+
+	/**
+	 * Sets the camera position.
+	 * 
+	 * @param position
+	 */
+	public void setPosition(Position position) {
+		final Camera camera = canvas.getCamera();
+
+		double dir = camera.getDirectionDegrees();
+		double pit = camera.getPitchDegrees();
+
+		this.setOrientation(position, dir, pit);
+	}
+
+	/**
+	 * Sets the camera direction
+	 * 
+	 * @param dir
+	 *            degrees
+	 */
+	public void setDirection(double dir) {
+		final Camera camera = canvas.getCamera();
+		setOrientation(camera.getPosition(), dir, camera.getPitchDegrees());
+	}
+
+	/**
+	 * Set the camera position
+	 * 
+	 * @param position
+	 * @param dir
+	 *            direction in degrees
+	 * @param pit
+	 *            pitch in degrees (from 0 to -90)
+	 */
 	public void setOrientation(Position position, double dir, double pit) {
 		final Camera camera = canvas.getCamera();
 
@@ -691,15 +756,15 @@ public class CameraMovement {
 
 	/**
 	 * Switch between two fly movement behavior. Key behavior and acceleration
-	 * is dependsant of the mode choosed. Default value is 0.
+	 * is dependant of the mode choosed. Default value is 0.
 	 */
-	public void setRealisticFlight(int v) {
-		if (v == 0) {
-			fmode = (short) 0;
+	public void setRealisticFlight(boolean v) {
+		if (!v) {
+			flightMode = (short) 0;
 			accel = (int) mmx;
 			rot_accel = rotAng;
 		} else {
-			fmode = (short) 1;
+			flightMode = (short) 1;
 			accel = Accel;
 			mmx = default_mmx;
 			rot_accel = default_rot_accel;
@@ -707,7 +772,7 @@ public class CameraMovement {
 	}
 
 	public int getRealisticFlight() {
-		return fmode;
+		return flightMode;
 	}
 
 	/**
@@ -723,9 +788,26 @@ public class CameraMovement {
 		return rot_vel_scaler * rotAng;
 	}
 
-	public void setPitchDegrees(double newPitchDegrees,
-			double newPitchDegreesIncrement) {
-		desiredTilt = newPitchDegrees * Math3D.DEGREE_TO_RADIAN;
+	/**
+	 * Change the pitch of the camera.
+	 * 
+	 * @param newPitch
+	 *            New pitch specifyed in degrees
+	 */
+	public void setPitch(double newPitch) {
+		this.setPitch(newPitch, desiredTiltIncrement);
+	}
+
+	/**
+	 * Change the pitch of the camera.
+	 * 
+	 * @param newPitch
+	 *            New pitch specifyed in degrees
+	 * @param newPitchIncrement
+	 *            New pitch increment in degrees.
+	 */
+	public void setPitch(double newPitch, double newPitchIncrement) {
+		desiredTilt = newPitch * Math3D.DEGREE_TO_RADIAN;
 		if (desiredTilt > 0) {
 			desiredTilt = 0;
 		}
@@ -733,7 +815,7 @@ public class CameraMovement {
 			desiredTilt = -Math3D.HALF_PI;
 		}
 
-		desiredTiltIncrement = newPitchDegreesIncrement;
+		desiredTiltIncrement = newPitchIncrement;
 		if (desiredTiltIncrement < 1) {
 			desiredTiltIncrement = 1;
 		} else if (desiredTiltIncrement > 45) {

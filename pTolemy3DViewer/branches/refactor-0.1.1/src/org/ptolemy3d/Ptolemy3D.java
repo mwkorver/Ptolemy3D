@@ -100,11 +100,6 @@ public final class Ptolemy3D {
 	private static DataFinder dataFinder = null;
 	private static FileSystemCache cache = null;
 
-	// JavaScript function names
-	private static String JS_START_FUNCTION = "ptolemyStart";
-	private static String JS_STOP_FUNCTION = "ptolemyStop";
-	private static String JS_SHUTDOWN_FUNCTION = "ptolemyShutdown";
-
 	public Ptolemy3D() {
 	}
 
@@ -160,9 +155,6 @@ public final class Ptolemy3D {
 	 */
 	public static void start() {
 		canvas.startRenderingLoop();
-
-		// Call the start JavaScript function
-		callJavascript(JS_START_FUNCTION, null);
 	}
 
 	/**
@@ -170,9 +162,6 @@ public final class Ptolemy3D {
 	 */
 	public static void stop() {
 		canvas.stopRenderingLoop();
-
-		// Call the stop JavaScript function
-		callJavascript(JS_STOP_FUNCTION, null);
 	}
 
 	/**
@@ -180,9 +169,6 @@ public final class Ptolemy3D {
 	 */
 	public static void shutDown() {
 		stop();
-
-		// Call the stop JavaScript function
-		callJavascript(JS_SHUTDOWN_FUNCTION, null);
 
 		// TODO - Test if necessary.
 		// // Stop and shutDown all the 3D

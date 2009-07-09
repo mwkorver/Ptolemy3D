@@ -27,11 +27,11 @@ import javax.imageio.ImageIO;
 import javax.media.opengl.GL;
 
 import org.ptolemy3d.DrawContext;
-import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.Ptolemy3DGLCanvas;
 import org.ptolemy3d.Unit;
 import org.ptolemy3d.scene.Plugin;
 import org.ptolemy3d.view.Camera;
+import org.ptolemy3d.view.Position;
 
 import com.sun.opengl.util.texture.Texture;
 import com.sun.opengl.util.texture.TextureCoords;
@@ -54,15 +54,55 @@ public class IconPlugin implements Plugin {
 
 	private boolean status = true;
 	//
-	private String imageName = "";
+	private String fileUrl = "";
 	private double latitude = 0;
 	private double longitude = 0;
+	private double altitude = 0;
 	//
 	private boolean iconLoaded = false;
 	private boolean errorLoading = false;
 	private boolean initTexture = false;
 	private BufferedImage bufferedImage = null;
 	private Texture texture = null;
+
+	/**
+	 * Default constructor.
+	 */
+	public IconPlugin() {
+
+	}
+
+	/**
+	 * Creates a new instance with the specified image.
+	 * 
+	 * @param fileUrl
+	 */
+	public IconPlugin(String fileUrl, Position position) {
+		this.fileUrl = fileUrl;
+		this.latitude = position.getLatitude();
+		this.longitude = position.getLongitude();
+		this.altitude = position.getAltitude();
+	}
+
+	/**
+	 * Set the image url to be used as the icon.
+	 * 
+	 * @param fileUrl
+	 */
+	public void setFileUrl(String fileUrl) {
+		this.fileUrl = fileUrl;
+	}
+
+	/**
+	 * Specified the icon position.
+	 * 
+	 * @param position
+	 */
+	public void setPosition(Position position) {
+		this.latitude = position.getLatitude();
+		this.longitude = position.getLongitude();
+		this.altitude = position.getAltitude();
+	}
 
 	public void initGL(DrawContext drawContext) {
 		if (!iconLoaded) {
@@ -72,9 +112,7 @@ public class IconPlugin implements Plugin {
 				public void run() {
 					URL url = null;
 					try {
-						String server = Ptolemy3D.getConfiguration()
-								.getServer();
-						url = new URL("http://" + server + imageName);
+						url = new URL(fileUrl);
 						bufferedImage = ImageIO.read(url);
 					} catch (IOException ex) {
 						Logger.getLogger(IconPlugin.class.getName()).warning(
@@ -97,9 +135,9 @@ public class IconPlugin implements Plugin {
 
 	public void setPluginParameters(String params) {
 		String values[] = params.split(",");
-		imageName = values[0];
-		latitude = Double.valueOf(values[1]);
-		longitude = Double.valueOf(values[2]);
+		this.fileUrl = values[0];
+		this.latitude = Double.valueOf(values[1]);
+		this.longitude = Double.valueOf(values[2]);
 	}
 
 	public void motionStop(GL gl) {
@@ -156,6 +194,7 @@ public class IconPlugin implements Plugin {
 		gl.glPushAttrib(GL.GL_CURRENT_BIT | GL.GL_ENABLE_BIT
 				| GL.GL_COLOR_BUFFER_BIT);
 
+		gl.glEnable(GL.GL_TEXTURE_2D);
 		gl.glEnable(GL.GL_BLEND);
 		gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
 

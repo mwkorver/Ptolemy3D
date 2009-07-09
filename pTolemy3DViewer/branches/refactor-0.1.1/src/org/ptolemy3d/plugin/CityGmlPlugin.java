@@ -153,7 +153,17 @@ public class CityGmlPlugin implements Plugin {
 		if (!fileLoaded || errorLoading || cityReader == null) {
 			return;
 		}
-		
+
+		// Compute the buildings vertices if they are not computed previously.
+		if (!vertexInitialized) {
+			for (CityGmlBuildingData buildingData : listBuildindData) {
+				// Compute vertex array and normals for every polygon in the
+				// building.
+				buildingData.computeVertexAndNormals();
+			}
+			vertexInitialized = true;
+		}
+
 		// Store previous matrices
 		gl.glMatrixMode(GL.GL_PROJECTION);
 		gl.glPushMatrix();
@@ -166,15 +176,15 @@ public class CityGmlPlugin implements Plugin {
 
 		// Disable some flags
 		gl.glDisable(GL.GL_TEXTURE_2D);
-		gl.glDisable(GL.GL_CULL_FACE);		
+		gl.glDisable(GL.GL_CULL_FACE);
 		gl.glDisable(GL.GL_BLEND);
 		gl.glDisable(GL.GL_COLOR_MATERIAL);
 
 		// Enable lights
 		gl.glEnable(GL.GL_LIGHTING);
-		
+
 		// Set FLAT shade
-		gl.glShadeModel(GL.GL_FLAT);		
+		gl.glShadeModel(GL.GL_FLAT);
 
 		// Set color
 		float color[] = { 0.0f, 0.0f, 1.0f, 1.0f };
@@ -184,16 +194,6 @@ public class CityGmlPlugin implements Plugin {
 		gl.glEnableClientState(GL.GL_VERTEX_ARRAY);
 		gl.glEnableClientState(GL.GL_NORMAL_ARRAY);
 
-		// Compute the buildings vertices if they are not computed previously.
-		if (!vertexInitialized) {
-			for (CityGmlBuildingData buildingData : listBuildindData) {
-				// Compute vertex array and normals for every polygon in the
-				// building.
-				buildingData.computeVertexAndNormals();
-			}
-			vertexInitialized = true;
-		}
-		
 		// For each buildings decide which LOD must be drawn depending on the
 		// altitude parameter.
 		for (CityGmlBuildingData buildingData : listBuildindData) {
@@ -213,6 +213,7 @@ public class CityGmlPlugin implements Plugin {
 				db.rewind();
 				FloatBuffer fb = cityPolygon.getNormals();
 				fb.rewind();
+
 				gl.glVertexPointer(3, GL.GL_DOUBLE, 0, db);
 				gl.glNormalPointer(GL.GL_FLOAT, 0, fb);
 				gl.glDrawArrays(GL.GL_POLYGON, 0, db.capacity() / 3);

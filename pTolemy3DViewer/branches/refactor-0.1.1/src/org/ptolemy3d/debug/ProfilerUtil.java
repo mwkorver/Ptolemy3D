@@ -269,7 +269,7 @@ public class ProfilerUtil
 			return "None";
 		}
 		else {
-			return String.format("(%d, %.2f°, %.2f°)", key.layer, ddToDegree(key.lat), ddToDegree(key.lon));
+			return String.format("(%d, %.2f, %.2f)", key.layer, ddToDegree(key.lat), ddToDegree(key.lon));
 		}
 	}
 	private static float ddToDegree(int dd) {

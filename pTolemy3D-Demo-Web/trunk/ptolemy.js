@@ -40,7 +40,7 @@ function ptolemyStart(){
  * Called once the applet is stopped.
  */
 function ptolemyStop(){
-    // Do nothing
+// Do nothing
 }
 
 /*
@@ -56,7 +56,7 @@ function reset(){
 /*
  * Moves the camera.
  */
-function exexCameraMoveCode(){
+function execCameraMoveCode(){
 
     // Get parameters
     var lat = document.getElementById("latitude").value;
@@ -83,7 +83,7 @@ function exexCameraMoveCode(){
 /*
  * Moves the camera flight
  */
-function exexCameraFlyCode(){
+function execCameraFlyCode(){
 
     // Get parameters
     var lat = document.getElementById("latitude").value;
@@ -101,10 +101,10 @@ function exexCameraFlyCode(){
 
     // Set new position
     camera.flyTo(lat, lon, alt);
-    //    camera.setDirection(dir);
-    //    camera.setPitch(pit);
-    //    camera.setRealisticFlight(realflight);
-    //    camera.setFollowDem(followdem);
+//    camera.setDirection(dir);
+//    camera.setPitch(pit);
+//    camera.setRealisticFlight(realflight);
+//    camera.setFollowDem(followdem);
 }
 
 /*
@@ -113,6 +113,14 @@ function exexCameraFlyCode(){
 function seeCameraCode(){
 
     $("#tabs").tabs('select', 0);
+
+    var lat = document.getElementById("latitude").value;
+    var lon = document.getElementById("longitude").value;
+    var alt = document.getElementById("altitude").value;
+    var dir = document.getElementById("direction").value;
+    var pit = document.getElementById("pitch").value;
+    var realflight = document.getElementById("realflight").checked;
+    var followdem = document.getElementById("followdem").checked;
 
     $('#freecode').val('// Get parameters \n\
 var lat = document.getElementById("latitude").value; \n\
@@ -129,11 +137,13 @@ canvas = ptapplet.getCanvas(); \n\
 camera = canvas.getCameraMovement(); \n\
  \n\
 // Set new position \n\
-camera.setPosition(lat, lon, alt); \n\
-camera.setDirection(dir); \n\
-camera.setPitch(pit); \n\
-camera.setRealisticFlight(realflight); \n\
-camera.setFollowDem(followdem); \n\
+camera.setPosition('+lat+', '+lon+', '+alt+'); \n\
+camera.setDirection('+dir+'); \n\
+camera.setPitch('+pit+'); \n\
+camera.setRealisticFlight('+realflight+'); \n\
+camera.setFollowDem('+followdem+');\n\
+\n\
+// Also you can use the camera.flyTo(lat, lon, alt) method to fly to the desired position.\n\
 ');
 
 }
@@ -141,7 +151,7 @@ camera.setFollowDem(followdem); \n\
 /*
  * Execute terrain code
  */
-function exexTerrainCode(){
+function execTerrainCode(){
 
     // Get parameters
     var terrainEnabled = document.getElementById("terrainEnabled").checked;
@@ -164,6 +174,9 @@ function seeTerrainCode(){
 
     $("#tabs").tabs('select', 0);
 
+    var terrainEnabled = document.getElementById("terrainEnabled").checked;
+    var terrainScaler = document.getElementById("terrainScaler").value;
+
     $('#freecode').val('// Get parameters\n\
 var terrainEnabled = document.getElementById("terrainEnabled").checked;\n\
 var terrainScaler = document.getElementById("terrainScaler").value;\n\
@@ -174,8 +187,78 @@ ptolemy = ptapplet.getPtolemy();\n\
 scene = ptolemy.getScene();\n\
 land = scene.getLandscape();\n\
 \n\
-land.setTerrainEnabled(terrainEnabled);\n\
-land.setTerrainScaler(terrainScaler);');
+land.setTerrainEnabled('+terrainEnabled+');\n\
+land.setTerrainScaler('+terrainScaler+');\n\
+\n\
+// You can use the getter methods land.isTerrainEnabled() and land.getTerrainSacler() the get the current values.\n\
+');
 
 }
 
+/*
+ * Execute Icon Plugin code
+ */
+function execPluginIconCode(){
+    
+    // Get parameters
+    var url = document.getElementById("iconUrl").value;
+    var lat = document.getElementById("iconLatitude").value;
+    var lon = document.getElementById("iconLongitude").value;    
+
+    // Get ptolemy references
+    ptapplet = document.getElementById("pTolemy3D").getSubApplet();
+    ptolemy = ptapplet.getPtolemy();
+    scene = ptolemy.getScene();
+
+    // Create position object
+    position = ptolemy.createInstance("org.ptolemy3d.view.Position");
+    position.setLatitude(lat);
+    position.setLongitude(lon);
+    position.setAltitude(0);
+
+    // Create icon plugin
+    iconPlugin = ptolemy.createInstance("org.ptolemy3d.plugin.IconPlugin");
+    iconPlugin.setFileUrl(url);
+    iconPlugin.setPosition(position);
+
+    // Add plugin to the scene.
+    scene.getPlugins().addPlugin(iconPlugin);
+}
+
+/*
+ * Put icon code in the code area
+ */
+function seePluginIconCode(){
+
+    $("#tabs").tabs('select', 0);
+
+    var url = document.getElementById("iconUrl").value;
+    var lat = document.getElementById("iconLatitude").value;
+    var lon = document.getElementById("iconLongitude").value;
+
+    $('#freecode').val('// Get parameters \n\
+var url = document.getElementById("iconUrl").value; \n\
+var lat = document.getElementById("iconLatitude").value; \n\
+var lon = document.getElementById("iconLongitude").value;    \n\
+ \n\
+// Get ptolemy references \n\
+ptapplet = document.getElementById("pTolemy3D").getSubApplet(); \n\
+ptolemy = ptapplet.getPtolemy(); \n\
+scene = ptolemy.getScene(); \n\
+ \n\
+// Create position object \n\
+position = ptolemy.createInstance("org.ptolemy3d.view.Position"); \n\
+position.setLatitude('+lat+'); \n\
+position.setLongitude('+lon+'); \n\
+position.setAltitude(0); \n\
+ \n\
+// Create icon plugin \n\
+iconPlugin = ptolemy.createInstance("org.ptolemy3d.plugin.IconPlugin"); \n\
+iconPlugin.setFileUrl("'+url+'"); \n\
+iconPlugin.setPosition(position); \n\
+ \n\
+// Add plugin to the scene. \n\
+scene.getPlugins().addPlugin(iconPlugin); \n\
+');
+
+}

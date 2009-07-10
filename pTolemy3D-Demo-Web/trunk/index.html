@@ -28,6 +28,8 @@
 
                 // Forms validation
                 $("#cameraForm").validate();
+                $("#terrainForm").validate();
+                $("#pluginForm").validate();
 
                 // NOTE: The dialog plugin is avoided due problems shown on
                 // top of the applet.
@@ -176,7 +178,7 @@
                                     pTolemy3D is the open source 3D viewer.
                                     <p>Use the <i>code area</i> tab to test your own code. Use the
                                         different tabs to know the available options and learn
-                                    to code.</p>
+                                    how to code.</p>
                                 </div>
                             </div>
 
@@ -216,7 +218,8 @@
                                 <li><a href="#tab-code">Code Area</a></li>
                                 <li><a href="#tab-camera">Camera</a></li>
                                 <li><a href="#tab-terrain">Terrain</a></li>
-                                <li><a href="#tab-plugins">Plugins</a></li>
+                                <li><a href="#tab-icon-plugin">Icon Plugin</a></li>
+                                <li><a href="#tab-citygml-plugin">CityGML Plugin</a></li>
                             </ul>
 
                             <div id="tab-code">
@@ -232,19 +235,26 @@
                                             <form id="cameraForm" method="POST">
                                                 <table border="0">
                                                     <tr>
-                                                        <td>Latitude (Degrees):</td><td><input type="text" value="30.0" class="required number" id="latitude" /> </td> <td width="5px"></td><td>Realistic Flight: <input id="realflight" type="checkbox"></td>
+                                                        <td>Latitude (Degrees):</td>
+                                                        <td><input type="text" value="30.0" class="required number" id="latitude" /> </td>
+                                                        <td width="5px"></td><td>Realistic Flight: <input id="realflight" type="checkbox"></td>
                                                     </tr>
                                                     <tr>
-                                                        <td>Longitude (Degrees):</td><td><input type="text" value="30.0" class="required number" id="longitude" /> </td> <td width="5px"></td><td>Follow Terrain: <input id="followdem" type="checkbox"></td>
+                                                        <td>Longitude (Degrees):</td>
+                                                        <td><input type="text" value="30.0" class="required number" id="longitude" /> </td>
+                                                        <td width="5px"></td><td>Follow Terrain: <input id="followdem" type="checkbox"></td>
                                                     </tr>
                                                     <tr>
-                                                        <td>Altitude (Meters):</td><td><input type="text" value="1500000.0" class="required number" id="altitude" /> </td>
+                                                        <td>Altitude (Meters):</td>
+                                                        <td><input type="text" value="1500000.0" class="required number" id="altitude" /> </td>
                                                     </tr>
                                                     <tr>
-                                                        <td>Direction  (Degrees):</td><td><input type="text" value="0.0" class="required number" id="direction" /> </td>
+                                                        <td>Direction  (Degrees):</td>
+                                                        <td><input type="text" value="0.0" class="required number" id="direction" /> </td>
                                                     </tr>
                                                     <tr>
-                                                        <td>Pitch  (Degrees):</td><td><input type="text" value="-40.0" class="required number" id="pitch" /> </td>
+                                                        <td>Pitch  (Degrees):</td>
+                                                        <td><input type="text" value="-40.0" class="required number" id="pitch" /> </td>
                                                     </tr>
                                                     <tr></tr>
                                                 </table>
@@ -252,8 +262,8 @@
                                             <table>
                                                 <tr>
                                                     <td>
-                                                        <button onclick="exexCameraMoveCode();">Move</button>
-                                                        <button onclick="exexCameraFlyCode();">Fly</button>
+                                                        <button onclick="execCameraMoveCode();">Move</button>
+                                                        <button onclick="execCameraFlyCode();">Fly</button>
                                                         <button onclick="seeCameraCode();">See the code</button>
                                                     </td>
                                                 </tr>
@@ -268,10 +278,12 @@
                                             <form id="terrainForm" method="POST">
                                                 <table border="0">
                                                     <tr>
-                                                        <td>Terrain enabled: </td><td><input id="terrainEnabled" type="checkbox" checked="true" /></td>
+                                                        <td>Terrain enabled: </td>
+                                                        <td><input id="terrainEnabled" type="checkbox" checked="true" /></td>
                                                     </tr>
                                                     <tr>
-                                                        <td>Terrain scaler: </td><td><input type="text" value="1.0" class="required number" id="terrainScaler" /> </td>
+                                                        <td>Terrain scaler: </td>
+                                                        <td><input type="text" value="1.0" class="required number" id="terrainScaler" /> </td>
                                                     </tr>
                                                     <tr></tr>
                                                 </table>
@@ -279,7 +291,7 @@
                                             <table>
                                                 <tr>
                                                     <td>
-                                                        <button onclick="exexTerrainCode();">Apply changes</button>
+                                                        <button onclick="execTerrainCode();">Apply changes</button>
                                                         <button onclick="seeTerrainCode();">See the code</button>
                                                     </td>
                                                 </tr>
@@ -288,8 +300,75 @@
                                 </table>
                             </div>
 
-                            <div id="tab-plugins">
+                            <div id="tab-icon-plugin">
+                                <table border="0">
+                                    <tr><td>
+                                            <form id="pluginIconForm" method="POST">
+                                                <b>Icon Plugin</b> allows to put icons in the globe:
+                                                <table border="0">
+                                                    <tr>
+                                                        <td>Icon URL:</td>
+                                                        <td><input type="text" value="http://demo.spatialcloud.com/pTolemy3D-Demo-Web/images/pTolemy3D_logo.png" size="50"  class="required text" id="iconUrl" /> </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Latitude (Degrees):</td>
+                                                        <td><input type="text" value="30.0" class="required number" id="iconLatitude" /></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Longitude (Degrees):</td>
+                                                        <td><input type="text" value="30.0" class="required number" id="iconLongitude" /></td>
+                                                    </tr>
+                                                    <tr></tr>
+                                                </table>
+                                            </form>
+                                            <table>
+                                                <tr>
+                                                    <td>
+                                                        <button onclick="execPluginIconCode();">Apply changes</button>
+                                                        <button onclick="seePluginIconCode();">See the code</button>
+                                                    </td>
+                                                </tr>
+                                            </table>
 
+                                    </td></tr>
+                                </table>
+                            </div>
+
+                            <div id="tab-citygml-plugin">
+                                <table border="0">
+                                    <tr><td>
+
+                                            <form id="pluginCityGmlForm" method="POST">
+                                                <b>CityGML Plugin</b> allows to query a WFS server for CityGML data:
+                                                <table border="0">
+                                                    <tr>
+                                                        <td>Icon URL:</td><td colspan="4"><input type="text" value="http://demo.spatialcloud.com/pTolemy3D-Demo-Web/images/pTolemy3D_logo.png" size="60" class="required text" id="latitude" /> </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Min. Longitude (Degrees):</td>
+                                                        <td><input type="text" value="-180.0" class="required number" id="minLongitude" /></td>
+                                                        <td>Max. Longitude (Degrees):</td> <td width="5px"></td>
+                                                        <td><input type="text" value="180.0" class="required number" id="minLongitude" /></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Min. Latitude (Degrees):</td>
+                                                        <td><input type="text" value="-90.0" class="required number" id="minLatitude" /></td>
+                                                        <td>Max. Latitude (Degrees):</td> <td width="5px"></td>
+                                                        <td><input type="text" value="90.0" class="required number" id="minLongitude" /></td>
+                                                    </tr>
+                                                    <tr></tr>
+                                                </table>
+                                            </form>
+                                            <table>
+                                                <tr>
+                                                    <td>
+                                                        <button onclick="execPluginCityGmlCode();">Apply changes</button>
+                                                        <button onclick="seePluginCityGmlCode();">See the code</button>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                    </td></tr>
+                                </table>
                             </div>
 
                         </div>

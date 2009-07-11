@@ -17,9 +17,7 @@
  */
 package org.ptolemy3d.globe;
 
-import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.globe.Tile.SubTile;
-import org.ptolemy3d.scene.Landscape;
 
 /**
  * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
@@ -38,8 +36,6 @@ class ElevationNone {
 	public final int polySizeLonOffsetEnd, polySizeLatOffsetEnd;
 	
 	public ElevationNone(Tile tile, SubTile subTile) {
-		final Landscape landscape = Ptolemy3D.getScene().getLandscape();
-		
 		this.tile = tile;
 		this.subTile = subTile;
 		
@@ -48,10 +44,10 @@ class ElevationNone {
 		polySizeLon = getPolygonSize();
 		polySizeLat = getPolygonSize();
 		
-		polyLonStart = (subTile.ulx + landscape.getMaxLongitude());
+		polyLonStart = subTile.ulx;
 		polyLatStart = subTile.ulz;
 		
-		polyLonEnd = (subTile.lrx + landscape.getMaxLongitude());
+		polyLonEnd = subTile.lrx;
 		polyLatEnd = subTile.lrz;
 		
 		polySizeLonOffsetStart = getPolygonSizeLonOffsetStart();

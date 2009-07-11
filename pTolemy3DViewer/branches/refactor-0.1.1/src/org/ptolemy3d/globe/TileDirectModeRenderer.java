@@ -62,9 +62,16 @@ class TileDirectModeRenderer implements TileRenderer {
 	
 	protected void fillLocalVariables(Tile tile, SubTile subTile) {
 		gl = tile.gl;
-		mapData = tile.mapData;
 
+		landscape = Ptolemy3D.getScene().getLandscape();
+		tileColor = landscape.getTileColor();
+		colratios = landscape.getColorRatios();
+		terrainScaler = landscape.getTerrainScaler();
+		
+		oneOverDDToRad = Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor();
+		
 		this.tile = tile;
+		this.mapData = tile.mapData;
 		this.subTile = subTile;
 		
 		drawLevelID = tile.drawLevelID;
@@ -78,13 +85,6 @@ class TileDirectModeRenderer implements TileRenderer {
 		upLeftZ = tile.getRenderingUpperLatitude();
 		lowRightX = tile.getRenderingRightLongitude();
 		lowRightZ = tile.getRenderingLowerLatitude();
-
-		landscape = Ptolemy3D.getScene().getLandscape();
-		tileColor = landscape.getTileColor();
-		colratios = landscape.getColorRatios();
-		terrainScaler = landscape.getTerrainScaler();
-		
-		oneOverDDToRad = Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor();
 	}
 
 	public void renderSubTile(Tile tile, SubTile subTile) {
@@ -205,8 +205,8 @@ class TileDirectModeRenderer implements TileRenderer {
 		{
 			double theta2, phi2;
 
-			theta1 = (x1 + landscape.getMaxLongitude()) * oneOverDDToRad;
-			theta2 = (x2 + landscape.getMaxLongitude()) * oneOverDDToRad;
+			theta1 = x1 * oneOverDDToRad;
+			theta2 = x2 * oneOverDDToRad;
 
 			phi1 = z1 * oneOverDDToRad;
 			phi2 = z2 * oneOverDDToRad;
@@ -437,8 +437,8 @@ class TileDirectModeRenderer implements TileRenderer {
 		{
 			double theta2, phi2;
 
-			theta1 = (x1 + landscape.getMaxLongitude()) * oneOverDDToRad;
-			theta2 = (x2 + landscape.getMaxLongitude()) * oneOverDDToRad;
+			theta1 = x1 * oneOverDDToRad;
+			theta2 = x2 * oneOverDDToRad;
 
 			phi1 = z1 * oneOverDDToRad;
 			phi2 = z2 * oneOverDDToRad;
@@ -800,11 +800,11 @@ class TileDirectModeRenderer implements TileRenderer {
 		{
 			double phi2, theta2;
 			
-			theta1 = (x1 + landscape.getMaxLongitude()) * oneOverDDToRad; // startx
-			theta2 = (x2 + landscape.getMaxLongitude()) * oneOverDDToRad; // endx
+			theta1 = x1 * oneOverDDToRad; // startx
+			theta2 = x2 * oneOverDDToRad; // endx
 
-			phi1 = (z1) * oneOverDDToRad; // starty
-			phi2 = (z2) * oneOverDDToRad; // endy
+			phi1 = z1 * oneOverDDToRad; // starty
+			phi2 = z2 * oneOverDDToRad; // endy
 
 			double oneOverW = 1.0 / mapData.tin.w;
 			dThetaOverW = (theta2 - theta1) * oneOverW;

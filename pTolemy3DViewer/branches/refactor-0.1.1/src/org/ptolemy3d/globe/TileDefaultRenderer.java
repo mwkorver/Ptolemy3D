@@ -128,11 +128,11 @@ class TileDefaultRenderer implements TileRenderer {
 		double theta1 = 0, theta2 = 0;
 		double phi1 = 0, phi2 = 0;
 		{
-			theta1 = (x1 + landscape.getMaxLongitude()) * Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor();  // startx
-			theta2 = (x2 + landscape.getMaxLongitude()) * Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor(); // endx
+			theta1 = x1 * Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor();  // startx
+			theta2 = x2 * Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor(); // endx
 
-			phi1 = (z1) * Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor(); //starty
-			phi2 = (z2) * Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor();  //endy
+			phi1 = z1 * Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor(); //starty
+			phi2 = z2 * Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor();  //endy
 		}
 
 		double dx, dz;
@@ -263,11 +263,11 @@ class TileDefaultRenderer implements TileRenderer {
 		double theta1 = 0, theta2 = 0;
 		double phi1 = 0, phi2 = 0;
 		{
-			theta1 = (x1 + landscape.getMaxLongitude()) * Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor();  // startx
-			theta2 = (x2 + landscape.getMaxLongitude()) * Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor(); // endx
+			theta1 = x1 * Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor();  // startx
+			theta2 = x2 * Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor(); // endx
 
-			phi1 = (z1) * Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor(); //starty
-			phi2 = (z2) * Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor();  //endy
+			phi1 = z1 * Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor(); //starty
+			phi2 = z2 * Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor();  //endy
 		}
 
 		for (int i = startz; i < endz; i++) {
@@ -437,11 +437,11 @@ class TileDefaultRenderer implements TileRenderer {
 		double theta1 = 0, theta2 = 0;
 		double phi1 = 0, phi2 = 0;
 		{
-			theta1 = (x1 + landscape.getMaxLongitude()) * Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor();  // startx
-			theta2 = (x2 + landscape.getMaxLongitude()) * Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor(); // endx
+			theta1 = x1 * Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor();  // startx
+			theta2 = x2 * Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor(); // endx
 
-			phi1 = (z1) * Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor(); //starty
-			phi2 = (z2) * Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor();  //endy
+			phi1 = z1 * Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor(); //starty
+			phi2 = z2 * Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor();  //endy
 		}
 
 		for (int j = 0; j < n; j++) {

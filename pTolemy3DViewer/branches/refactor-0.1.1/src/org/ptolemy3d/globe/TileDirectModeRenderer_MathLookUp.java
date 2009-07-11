@@ -262,9 +262,6 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 			}
 		}
 
-		xStart += landscape.getMaxLongitude();
-		xEnd += landscape.getMaxLongitude();
-
 		int dx = (xEnd - xStart) / (endx - startx - 1);
 		int dz = (zEnd - zStart) / (endz - startz);
 
@@ -488,9 +485,6 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 				bottom_dem_slope = (lr_corner - ll_corner) * oneOverNrowsX;
 			}
 		}
-
-		xStart += landscape.getMaxLongitude();
-		xEnd += landscape.getMaxLongitude();
 
 		int dx = (xEnd - xStart) / (endx - startx - 1);
 		int dz = (zEnd - zStart) / (endz - startz);

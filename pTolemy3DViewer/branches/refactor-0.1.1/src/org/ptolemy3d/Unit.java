@@ -41,7 +41,7 @@ public class Unit {
      * @return the angle mesured in DD unit
      * @see #ddToDegrees
      */
-    public static int degreesToDD(double degrees) {
+    public static final int degreesToDD(double degrees) {
         return (int) (degrees * ddFactor);
     }
 
@@ -60,11 +60,11 @@ public class Unit {
         return coordSystemRatio;
     }
 
-    public static int getDDFactor() {
+    public static final int getDDFactor() {
         return ddFactor;
     }
 
-    public static void setDDFactor(int ddf) {
+    public static final void setDDFactor(int ddf) {
         ddFactor = ddf;
     }
 }

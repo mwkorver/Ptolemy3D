@@ -31,10 +31,10 @@ import org.ptolemy3d.math.Math3D;
 import org.ptolemy3d.scene.Landscape;
 
 /**
- * Original version a little improved. Please keep it to track regression.
+ * Old version, please keep it to track regression.
  */
 class TileDefaultRenderer implements TileRenderer {
-	/* All of that are temporary datas that are used in drawSubsection.
+	/* All of that are temporary datas that are used in renderSubTile.
 	 * They must be restore in each entering */
 
 	private GL gl;
@@ -77,7 +77,7 @@ class TileDefaultRenderer implements TileRenderer {
 		meshColor = landscape.getMeshColor();
 	}
 
-	public void drawSubsection(Tile tile, SubTile subTile) {
+	public void renderSubTile(Tile tile, SubTile subTile) {
 		final int x1 = subTile.ulx;
 		final int z1 = subTile.ulz;
 		final int x2 = subTile.lrx;
@@ -98,17 +98,17 @@ class TileDefaultRenderer implements TileRenderer {
 		boolean useTin = ((jtile != null) && (jtile.tin != null) && (landscape.isTerrainEnabled())) ? true : false;
 
 		if (useTin) {
-			drawSubsection_Tin(x1, z1, x2, z2);
+			renderSubTile_Tin(x1, z1, x2, z2);
 		}
 		else if (useDem) {
-			drawSubsection_Dem(x1, z1, x2, z2);
+			renderSubTile_Dem(x1, z1, x2, z2);
 		}
 		else {
-			drawSubsection(x1, z1, x2, z2);
+			renderSubTile(x1, z1, x2, z2);
 		}
 	}
 
-	private final void drawSubsection_Tin(int x1, int z1, int x2, int z2) {
+	private final void renderSubTile_Tin(int x1, int z1, int x2, int z2) {
 		double left_dem_slope = -1, right_dem_slope = -1, top_dem_slope = -1, bottom_dem_slope = -1, dy;
 
 		// corners clockwise, from ul
@@ -195,7 +195,7 @@ class TileDefaultRenderer implements TileRenderer {
 		}
 	}
 
-	private final void drawSubsection_Dem(int x1, int z1, int x2, int z2) {
+	private final void renderSubTile_Dem(int x1, int z1, int x2, int z2) {
 		final Layer drawLevel = Ptolemy3D.getScene().getLandscape().globe.getLayer(drawLevelID);
 		final byte[] dem = jtile.dem.demDatas;
 
@@ -407,7 +407,7 @@ class TileDefaultRenderer implements TileRenderer {
 		}
 	}
 
-	private final void drawSubsection(int x1, int z1, int x2, int z2) {
+	private final void renderSubTile(int x1, int z1, int x2, int z2) {
 		final Layer drawLevel = Ptolemy3D.getScene().getLandscape().globe.getLayer(drawLevelID);
 
 		double t1, t2, t3;

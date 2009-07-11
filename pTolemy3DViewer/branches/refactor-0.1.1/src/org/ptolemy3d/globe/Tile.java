@@ -78,7 +78,7 @@ class Tile {
 //	private static final TileRenderer renderer = new TileDefaultRenderer();					//First clean version
 //	private static final TileRenderer renderer = new TileDirectModeRenderer();				//CPU Optimizations
 	private static final TileRenderer renderer = new TileDirectModeRenderer_MathLookUp();	//Cos/Sin table lookup
-	protected interface TileRenderer { public void drawSubsection(Tile tile, SubTile subTile); }
+	protected interface TileRenderer { public void renderSubTile(Tile tile, SubTile subTile); }
 
 	protected Tile(int tileID) {
 		this.tileID = tileID;
@@ -212,6 +212,7 @@ class Tile {
 		final boolean lr = inBounds(lrx, lrz, c_ulx, c_ulz, c_lrx, c_lrz);
 
 		if (ul && ur && ll && lr) {
+			visible = false;
 			return;
 		}
 		
@@ -284,7 +285,7 @@ class Tile {
 		
 		for (SubTile subTile : subTiles) {
 			if (subTile.active) {
-				renderer.drawSubsection(this, subTile);
+				renderer.renderSubTile(this, subTile);
 			}
 		}
 	}
@@ -438,12 +439,7 @@ class Tile {
 		else if (useDem) {
 			final byte[] dem = mapData.dem.demDatas;
 
-			final int row_width = (int) Math.sqrt((dem.length / 2)) * 2; // assuming
-			// we
-			// have
-			// a
-			// square
-			// tile
+			final int row_width = (int) Math.sqrt((dem.length / 2)) * 2;
 			final int numrows = row_width / 2;
 
 			int startx = 0;

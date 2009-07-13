@@ -122,16 +122,7 @@ function seeCameraCode(){
     var realflight = document.getElementById("realflight").checked;
     var followdem = document.getElementById("followdem").checked;
 
-    $('#freecode').val('// Get parameters \n\
-var lat = document.getElementById("latitude").value; \n\
-var lon = document.getElementById("longitude").value; \n\
-var alt = document.getElementById("altitude").value; \n\
-var dir = document.getElementById("direction").value; \n\
-var pit = document.getElementById("pitch").value; \n\
-var realflight = document.getElementById("realflight").checked; \n\
-var followdem = document.getElementById("followdem").checked; \n\
- \n\
-// Get ptolemy references \n\
+    $('#freecode').val('// Get ptolemy references \n\
 ptapplet = document.getElementById("pTolemy3D").getSubApplet(); \n\
 canvas = ptapplet.getCanvas(); \n\
 camera = canvas.getCameraMovement(); \n\
@@ -177,11 +168,7 @@ function seeTerrainCode(){
     var terrainEnabled = document.getElementById("terrainEnabled").checked;
     var terrainScaler = document.getElementById("terrainScaler").value;
 
-    $('#freecode').val('// Get parameters\n\
-var terrainEnabled = document.getElementById("terrainEnabled").checked;\n\
-var terrainScaler = document.getElementById("terrainScaler").value;\n\
-\n\
-// Get main references\n\
+    $('#freecode').val('// Get main references\n\
 ptapplet = document.getElementById("pTolemy3D").getSubApplet();\n\
 ptolemy = ptapplet.getPtolemy();\n\
 scene = ptolemy.getScene();\n\
@@ -236,12 +223,7 @@ function seePluginIconCode(){
     var lat = document.getElementById("iconLatitude").value;
     var lon = document.getElementById("iconLongitude").value;
 
-    $('#freecode').val('// Get parameters \n\
-var url = document.getElementById("iconUrl").value; \n\
-var lat = document.getElementById("iconLatitude").value; \n\
-var lon = document.getElementById("iconLongitude").value;    \n\
- \n\
-// Get ptolemy references \n\
+    $('#freecode').val('// Get ptolemy references \n\
 ptapplet = document.getElementById("pTolemy3D").getSubApplet(); \n\
 ptolemy = ptapplet.getPtolemy(); \n\
 scene = ptolemy.getScene(); \n\
@@ -278,7 +260,7 @@ function execPluginCityGmlCode(){
 
     // Create icon plugin
     cityPlugin = ptolemy.createInstance("org.ptolemy3d.plugin.CityGmlPlugin");
-    cityPlugin.setWfsServerUrl(url);
+    cityPlugin.setFileUrl(url);
     cityPlugin.setAltitude(alt);
 
     // Add plugin to the scene.
@@ -295,18 +277,14 @@ function seePluginCityGmlCode(){
     var url = document.getElementById("cityUrl").value;
     var alt = document.getElementById("cityAltitude").value;
 
-    $('#freecode').val('// Get parameters\n\
-var url = document.getElementById("cityUrl").value;\n\
-var alt = document.getElementById("cityAltitude").value;\n\
-\n\
-// Get ptolemy references\n\
+    $('#freecode').val('// Get ptolemy references\n\
 ptapplet = document.getElementById("pTolemy3D").getSubApplet();\n\
 ptolemy = ptapplet.getPtolemy();\n\
 scene = ptolemy.getScene();\n\
 \n\
 // Create icon plugin\n\
 cityPlugin = ptolemy.createInstance("org.ptolemy3d.plugin.CityGmlPlugin");\n\
-cityPlugin.setWfsServerUrl("'+url+'");\n\
+cityPlugin.setFileUrl("'+url+'");\n\
 cityPlugin.setAltitude('+alt+');\n\
 \n\
 // Add plugin to the scene.\n\

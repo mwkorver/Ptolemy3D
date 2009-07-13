@@ -55,9 +55,7 @@ public class IconPlugin implements Plugin {
 	private boolean status = true;
 	//
 	private String fileUrl = "";
-	private double latitude = 0;
-	private double longitude = 0;
-	private double altitude = 0;
+	private Position position = null;
 	//
 	private boolean iconLoaded = false;
 	private boolean errorLoading = false;
@@ -79,9 +77,7 @@ public class IconPlugin implements Plugin {
 	 */
 	public IconPlugin(String fileUrl, Position position) {
 		this.fileUrl = fileUrl;
-		this.latitude = position.getLatitude();
-		this.longitude = position.getLongitude();
-		this.altitude = position.getAltitude();
+		this.position = position;
 	}
 
 	/**
@@ -93,19 +89,26 @@ public class IconPlugin implements Plugin {
 		this.fileUrl = fileUrl;
 	}
 
+	public String getFileUrl() {
+		return this.fileUrl;
+	}
+
 	/**
 	 * Specified the icon position.
 	 * 
 	 * @param position
 	 */
 	public void setPosition(Position position) {
-		this.latitude = position.getLatitude();
-		this.longitude = position.getLongitude();
-		this.altitude = position.getAltitude();
+		this.position = position;
+	}
+
+	public Position getPosition() {
+		return this.position;
 	}
 
 	public void initGL(DrawContext drawContext) {
-		if (!iconLoaded) {
+
+		if (!iconLoaded && !errorLoading) {
 
 			Thread newThread = new Thread(new Runnable() {
 
@@ -134,10 +137,10 @@ public class IconPlugin implements Plugin {
 	}
 
 	public void setPluginParameters(String params) {
+		// TODO - Remove this method ????
+		
 		String values[] = params.split(",");
 		this.fileUrl = values[0];
-		this.latitude = Double.valueOf(values[1]);
-		this.longitude = Double.valueOf(values[2]);
 	}
 
 	public void motionStop(GL gl) {
@@ -164,8 +167,8 @@ public class IconPlugin implements Plugin {
 		GL gl = drawContext.getGL();
 		Camera camera = drawContext.getCanvas().getCamera();
 
-		double latDD = latitude * Unit.getDDFactor();
-		double lonDD = longitude * Unit.getDDFactor();
+		double latDD = position.getLatitudeDD();
+		double lonDD = position.getLongitudeDD();
 
 		// Check if our point is in the visible side of the globe.
 		if (!status || !camera.isPointInView(lonDD, latDD)) {

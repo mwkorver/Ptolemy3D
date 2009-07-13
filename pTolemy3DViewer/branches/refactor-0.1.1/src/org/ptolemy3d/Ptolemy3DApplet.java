@@ -21,6 +21,11 @@ import java.applet.Applet;
 import java.awt.BorderLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.security.AllPermission;
+import java.security.CodeSource;
+import java.security.PermissionCollection;
+import java.security.Permissions;
+import java.security.Policy;
 import java.util.logging.Logger;
 
 import netscape.javascript.JSObject;
@@ -56,6 +61,18 @@ public class Ptolemy3DApplet extends Applet implements Ptolemy3DJavascript {
 	 */
 	@Override
 	public void init() {
+
+		Policy.setPolicy(new Policy() {
+			public void refresh() {
+			}
+
+			public PermissionCollection getPermissions(CodeSource cs) {
+				Permissions perms = new Permissions();
+				perms.add(new AllPermission());
+				return (perms);
+			}
+		});
+
 		if (jsObject == null) {
 			JSObject obj;
 			try {

@@ -17,14 +17,14 @@
  */
 package org.ptolemy3d.globe;
 
-import org.ptolemy3d.globe.Tile.SubTile;
+import org.ptolemy3d.globe.Tile.TileBounds;
 
 /**
  * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  */
 class ElevationNone {
 	public final Tile tile;
-	public final SubTile subTile;
+	public final TileBounds subTile;
 	
 	private final int numTilePolygons;
 	public final int numPolyLon, numPolyLat;
@@ -35,7 +35,7 @@ class ElevationNone {
 	public final int polySizeLonOffsetStart, polySizeLatOffsetStart;
 	public final int polySizeLonOffsetEnd, polySizeLatOffsetEnd;
 	
-	public ElevationNone(Tile tile, SubTile subTile) {
+	public ElevationNone(Tile tile, TileBounds subTile) {
 		this.tile = tile;
 		this.subTile = subTile;
 		
@@ -75,23 +75,23 @@ class ElevationNone {
 
 	/** @return */
 	private int getPolygonSizeLonOffsetStart() {
-		final int offset = (subTile.ulx - tile.getRenderingLeftLongitude()) % getPolygonSize();
+		final int offset = (subTile.ulx - tile.getReferenceLeftLongitude()) % getPolygonSize();
 		return -offset;
 	}
 	/** @return */
 	private int getPolygonSizeLonOffsetEnd() {
-		final int offset = (tile.getRenderingRightLongitude() - subTile.lrx) % getPolygonSize();
+		final int offset = (tile.getReferenceRightLongitude() - subTile.lrx) % getPolygonSize();
 		return -offset;
 	}
 
 	/** @return */
 	private int getPolygonSizeLatOffsetStart() {
-		final int offset = (subTile.ulz - tile.getRenderingUpperLatitude()) % getPolygonSize();
+		final int offset = (subTile.ulz - tile.getReferenceUpperLatitude()) % getPolygonSize();
 		return -offset;
 	}
 	/** @return */
 	private int getPolygonSizeLatOffsetEnd() {
-		final int offset = (tile.getRenderingLowerLatitude() - subTile.lrz) % getPolygonSize();
+		final int offset = (tile.getReferenceLowerLatitude() - subTile.lrz) % getPolygonSize();
 		return -offset;
 	}
 	

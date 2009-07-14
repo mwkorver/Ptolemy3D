@@ -25,7 +25,7 @@ import javax.media.opengl.GL;
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.Unit;
 import org.ptolemy3d.debug.ProfilerUtil;
-import org.ptolemy3d.globe.Tile.SubTile;
+import org.ptolemy3d.globe.Tile.TileBounds;
 import org.ptolemy3d.globe.Tile.TileRenderer;
 import org.ptolemy3d.math.Math3D;
 import org.ptolemy3d.scene.Landscape;
@@ -43,24 +43,23 @@ class TileDirectModeRenderer implements TileRenderer {
 
 	//From the Tile
 	protected Tile tile;
-	protected SubTile subTile;
+	protected TileBounds subTile;
 	protected int drawLevelID;
 	protected int layerID;
 	protected Tile leftTile;
 	protected Tile aboveTile;
 	protected Tile rightTile;
 	protected Tile belowTile;
-	protected int upLeftX, upLeftZ;
-	protected int lowRightX, lowRightZ;
+	protected int refLeftLon, refUpLat;
+	protected int refRightLon, refLowLat;
 	protected int tileSize;
 	protected Landscape landscape;
 	protected float[] tileColor;
 	protected float[] colratios;
 	protected double terrainScaler;
-	
 	protected double oneOverDDToRad;
 	
-	protected void fillLocalVariables(Tile tile, SubTile subTile) {
+	protected void fillLocalVariables(Tile tile, TileBounds subTile) {
 		gl = tile.gl;
 
 		landscape = Ptolemy3D.getScene().getLandscape();
@@ -81,13 +80,13 @@ class TileDirectModeRenderer implements TileRenderer {
 		aboveTile = tile.above;
 		rightTile = tile.right;
 		belowTile = tile.below;
-		upLeftX = tile.getRenderingLeftLongitude();
-		upLeftZ = tile.getRenderingUpperLatitude();
-		lowRightX = tile.getRenderingRightLongitude();
-		lowRightZ = tile.getRenderingLowerLatitude();
+		refLeftLon = tile.getReferenceLeftLongitude();
+		refUpLat = tile.getReferenceUpperLatitude();
+		refRightLon = tile.getReferenceRightLongitude();
+		refLowLat = tile.getReferenceLowerLatitude();
 	}
 
-	public void renderSubTile(Tile tile, SubTile subTile) {
+	public void renderSubTile(Tile tile, TileBounds subTile) {
 		final int x1 = subTile.ulx;
 		final int z1 = subTile.ulz;
 		final int x2 = subTile.lrx;
@@ -147,22 +146,22 @@ class TileDirectModeRenderer implements TileRenderer {
 		{
 			final double geom_inc = (double) (numRows - 1) / drawLevel.getTileSize();
 
-			startxcoord = ((x1 - upLeftX) * geom_inc);
+			startxcoord = ((x1 - refLeftLon) * geom_inc);
 			startx = (int) startxcoord;
 			xsinterpolate = (startx != startxcoord);
 
-			startzcoord = ((z1 - upLeftZ) * geom_inc);
+			startzcoord = ((z1 - refUpLat) * geom_inc);
 			startz = (int) startzcoord;
 			zsinterpolate = (startz != startzcoord);
 
-			endxcoord = ((x2 - upLeftX) * geom_inc) + 1;
+			endxcoord = ((x2 - refLeftLon) * geom_inc) + 1;
 			endx = (int) endxcoord;
 			xeinterpolate = (endxcoord != endx);
 			if (xeinterpolate) {
 				endx++;
 			}
 
-			endzcoord = ((z2 - upLeftZ) * geom_inc);
+			endzcoord = ((z2 - refUpLat) * geom_inc);
 			endz = (int) endzcoord;
 			zeinterpolate = (endzcoord != endz);
 			if (zeinterpolate) {
@@ -176,7 +175,7 @@ class TileDirectModeRenderer implements TileRenderer {
 		int ul_corner = 0, ur_corner = 0, ll_corner = 0, lr_corner = 0;
 		double left_dem_slope = -1, right_dem_slope = -1, top_dem_slope = -1, bottom_dem_slope = -1;
 		final boolean eqZLevel = (drawLevelID == layerID);
-		if (eqZLevel && (x1 == upLeftX) && (x2 == lowRightX) && (z1 == upLeftZ) && (z2 == lowRightZ)) {
+		if (eqZLevel && (x1 == refLeftLon) && (x2 == refRightLon) && (z1 == refUpLat) && (z2 == refLowLat)) {
 			final int rowWidthMinusOne = rowWidth - 1;
 			final int rowWidthMinusTwo = rowWidth - 2;
 			final int i1 = rowWidth * (numRows - 1);
@@ -379,22 +378,22 @@ class TileDirectModeRenderer implements TileRenderer {
 		{
 			final double geom_inc = (double) (numRows - 1) / drawLevel.getTileSize();
 
-			startxcoord = ((x1 - upLeftX) * geom_inc);
+			startxcoord = ((x1 - refLeftLon) * geom_inc);
 			startx = (int) startxcoord;
 			xsinterpolate = (startx != startxcoord);
 
-			startzcoord = ((z1 - upLeftZ) * geom_inc);
+			startzcoord = ((z1 - refUpLat) * geom_inc);
 			startz = (int) startzcoord;
 			zsinterpolate = (startz != startzcoord);
 
-			endxcoord = ((x2 - upLeftX) * geom_inc) + 1;
+			endxcoord = ((x2 - refLeftLon) * geom_inc) + 1;
 			endx = (int) endxcoord;
 			xeinterpolate = (endxcoord != endx);
 			if (xeinterpolate) {
 				endx++;
 			}
 
-			endzcoord = ((z2 - upLeftZ) * geom_inc);
+			endzcoord = ((z2 - refUpLat) * geom_inc);
 			endz = (int) endzcoord;
 			zeinterpolate = (endzcoord != endz);
 			if (zeinterpolate) {
@@ -408,7 +407,7 @@ class TileDirectModeRenderer implements TileRenderer {
 		int ul_corner = 0, ur_corner = 0, ll_corner = 0, lr_corner = 0;
 		double left_dem_slope = -1, right_dem_slope = -1, top_dem_slope = -1, bottom_dem_slope = -1;
 		final boolean eqZLevel = (drawLevelID == layerID);
-		if (eqZLevel && (x1 == upLeftX) && (x2 == lowRightX) && (z1 == upLeftZ) && (z2 == lowRightZ)) {
+		if (eqZLevel && (x1 == refLeftLon) && (x2 == refRightLon) && (z1 == refUpLat) && (z2 == refLowLat)) {
 			final int rowWidthMinusOne = rowWidth - 1;
 			final int rowWidthMinusTwo = rowWidth - 2;
 			final int i1 = rowWidth * (numRows - 1);
@@ -613,8 +612,8 @@ class TileDirectModeRenderer implements TileRenderer {
 		final Layer drawLevel = landscape.globe.getLayer(drawLevelID);
 		final float oneOverTileWidth = 1.0f / drawLevel.getTileSize();
 		
-		float uvLonStart = (subTile.ulx - upLeftX) * oneOverTileWidth;
-		float uvLatStart = (subTile.ulz - upLeftZ) * oneOverTileWidth;
+		float uvLonStart = (subTile.ulx - refLeftLon) * oneOverTileWidth;
+		float uvLatStart = (subTile.ulz - refUpLat) * oneOverTileWidth;
 
 		float dUvLon = elevation.polySizeLon * oneOverTileWidth;
 		float dUvLat = elevation.polySizeLat * oneOverTileWidth;

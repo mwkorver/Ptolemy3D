@@ -46,11 +46,19 @@ public class MapDataManager {
 		return decoderQueue.getDecodingMap();
 	}
 	
-	/** Request a <code>MapData</code> for the given (<code>layer</code>,<code>lon</code>,<code>lat</code>)*/
+	/** Request a <code>MapData</code> for the given (<code>layer</code>,<code>lon</code>,<code>lat</code>) and return the closer. */
 	public final MapData request(int layer, int lon, int lat) {
+		return get(layer, lon, lat, true);
+	}
+	/** Get if exist the closer <code>MapData</code> for the given (<code>layer</code>,<code>lon</code>,<code>lat</code>) */
+	public final MapData getIfExist(int layer, int lon, int lat) {
+		return get(layer, lon, lat, false);
+	}
+	/** Request a <code>MapData</code> for the given (<code>layer</code>,<code>lon</code>,<code>lat</code>) */
+	private final MapData get(int layer, int lon, int lat, boolean request) {
 		//Request exact layer
 		final MapDataKey exactKey = new MapDataKey(layer, lon, lat);
-		final MapDataEntries exactEntry = decoderQueue.getIfExist(exactKey);
+		final MapDataEntries exactEntry = decoderQueue.getIfExist(exactKey, request);
 		if((exactEntry != null) && (exactEntry.mapData.hasTexture())) {
 			return exactEntry.mapData;
 		}
@@ -71,12 +79,14 @@ public class MapDataManager {
 				}
 			}
 			
-			final MapDataEntries entry = decoderQueue.getIfExist(closeKey);
+			final MapDataEntries entry = decoderQueue.getIfExist(closeKey, request);
 			if(entry != null) {
 				final MapData curMapData = entry.mapData;
 				if(curMapData.hasTexture()) {
-					//Request level below
-					decoderQueue.get(prevKey);
+					if(request) {
+						//Request level below
+						decoderQueue.get(prevKey);
+					}
 					return curMapData;
 				}
 			}
@@ -84,13 +94,17 @@ public class MapDataManager {
 			prevKey = closeKey;
 		}
 		
-		//Request layer below
-		decoderQueue.get(prevKey);
+		if(request) {
+			//Request layer below
+			decoderQueue.get(prevKey);
+			
+			//Request first layer
+			final MapDataKey firstKey = globe.getCloserMap(0, lon, lat);
+			final MapDataEntries firstEntry = decoderQueue.get(firstKey);
+			return firstEntry.mapData;
+		}
 		
-		//Request first layer
-		final MapDataKey firstKey = globe.getCloserMap(0, lon, lat);
-		final MapDataEntries firstEntry = decoderQueue.get(firstKey);
-		return firstEntry.mapData;
+		return null;
 	}
 	
 	/** @return the texture ID for the <code>MapData</code>. */

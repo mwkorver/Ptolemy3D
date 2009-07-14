@@ -25,7 +25,7 @@ import javax.media.opengl.GL;
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.Unit;
 import org.ptolemy3d.debug.ProfilerUtil;
-import org.ptolemy3d.globe.Tile.SubTile;
+import org.ptolemy3d.globe.Tile.TileBounds;
 import org.ptolemy3d.globe.Tile.TileRenderer;
 import org.ptolemy3d.math.Math3D;
 import org.ptolemy3d.scene.Landscape;
@@ -46,15 +46,18 @@ class TileDefaultRenderer implements TileRenderer {
 	private Tile rightTile;
 	private Tile belowTile;
 	private int ZLevel;
-	private int upLeftX,  upLeftZ;
-	private int lowRightX,  lowRightZ;
+	private int refLeftLon,  refUpLat;
+	private int refRightLon,  refLowLat;
 	private Landscape landscape;
 	private float[] tileColor;
 	private float[] colratios;
 	private double terrainScaler;
 	private float meshColor;
+	protected double oneOverDDToRad;
 
 	private final void fillTemporaryVariables(Tile tile) {
+		oneOverDDToRad = Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor();
+		
 		gl = tile.gl;
 		jtile = tile.mapData;
 		drawLevelID = tile.drawLevelID;
@@ -63,10 +66,10 @@ class TileDefaultRenderer implements TileRenderer {
 		aboveTile = tile.above;
 		rightTile = tile.right;
 		belowTile = tile.below;
-		upLeftX = tile.getRenderingLeftLongitude();
-		upLeftZ = tile.getRenderingUpperLatitude();
-		lowRightX = tile.getRenderingRightLongitude();
-		lowRightZ = tile.getRenderingLowerLatitude();
+		refLeftLon = tile.getReferenceLeftLongitude();
+		refUpLat = tile.getReferenceUpperLatitude();
+		refRightLon = tile.getReferenceRightLongitude();
+		refLowLat = tile.getReferenceLowerLatitude();
 		ZLevel = tile.getLayerID();
 
 		landscape = Ptolemy3D.getScene().getLandscape();
@@ -77,7 +80,7 @@ class TileDefaultRenderer implements TileRenderer {
 		meshColor = landscape.getMeshColor();
 	}
 
-	public void renderSubTile(Tile tile, SubTile subTile) {
+	public void renderSubTile(Tile tile, TileBounds subTile) {
 		final int x1 = subTile.ulx;
 		final int z1 = subTile.ulz;
 		final int x2 = subTile.lrx;
@@ -128,11 +131,11 @@ class TileDefaultRenderer implements TileRenderer {
 		double theta1 = 0, theta2 = 0;
 		double phi1 = 0, phi2 = 0;
 		{
-			theta1 = x1 * Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor();  // startx
-			theta2 = x2 * Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor(); // endx
+			theta1 = x1 * oneOverDDToRad;  // startx
+			theta2 = x2 * oneOverDDToRad; // endx
 
-			phi1 = z1 * Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor(); //starty
-			phi2 = z2 * Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor();  //endy
+			phi1 = z1 * oneOverDDToRad; //starty
+			phi2 = z2 * oneOverDDToRad;  //endy
 		}
 
 		double dx, dz;
@@ -214,23 +217,23 @@ class TileDefaultRenderer implements TileRenderer {
 
 		boolean xsinterpolate = false, xeinterpolate = false, zsinterpolate = false, zeinterpolate = false;
 
-		double startxcoord = ((x1 - upLeftX) / geom_inc);
+		double startxcoord = ((x1 - refLeftLon) / geom_inc);
 		int startx = (int) startxcoord;
 		if (startx != startxcoord) {
 			xsinterpolate = true;
 		}
-		double startzcoord = ((z1 - upLeftZ) / geom_inc);
+		double startzcoord = ((z1 - refUpLat) / geom_inc);
 		int startz = (int) startzcoord;
 		if (startz != startzcoord) {
 			zsinterpolate = true;
 		}
-		double endxcoord = ((x2 - upLeftX) / geom_inc) + 1;
+		double endxcoord = ((x2 - refLeftLon) / geom_inc) + 1;
 		int endx = (int) endxcoord;
 		if (endxcoord != endx) {
 			endx++;
 			xeinterpolate = true;
 		}
-		double endzcoord = ((z2 - upLeftZ) / geom_inc);
+		double endzcoord = ((z2 - refUpLat) / geom_inc);
 		int endz = (int) endzcoord;
 		if (endzcoord != endz) {
 			endz++;
@@ -240,7 +243,7 @@ class TileDefaultRenderer implements TileRenderer {
 		int nrows_x = endx - startx - 1;
 		int nrows_z = endz - startz;
 
-		if ((drawLevelID == ZLevel) && (x1 == upLeftX) && (x2 == lowRightX) && (z1 == upLeftZ) && (z2 == lowRightZ)) {
+		if ((drawLevelID == ZLevel) && (x1 == refLeftLon) && (x2 == refRightLon) && (z1 == refUpLat) && (z2 == refLowLat)) {
 			ul_corner = ((dem[0] << 8) + (dem[1] & 0xFF));
 			ur_corner = ((dem[(row_width - 2)] << 8) + (dem[(row_width - 1)] & 0xFF));
 			ll_corner = ((dem[row_width * (numrows - 1)] << 8) + (dem[(row_width * (numrows - 1)) + 1] & 0xFF));
@@ -263,11 +266,11 @@ class TileDefaultRenderer implements TileRenderer {
 		double theta1 = 0, theta2 = 0;
 		double phi1 = 0, phi2 = 0;
 		{
-			theta1 = x1 * Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor();  // startx
-			theta2 = x2 * Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor(); // endx
+			theta1 = x1 * oneOverDDToRad;  // startx
+			theta2 = x2 * oneOverDDToRad; // endx
 
-			phi1 = z1 * Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor(); //starty
-			phi2 = z2 * Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor();  //endy
+			phi1 = z1 * oneOverDDToRad; //starty
+			phi2 = z2 * oneOverDDToRad;  //endy
 		}
 
 		for (int i = startz; i < endz; i++) {
@@ -416,8 +419,8 @@ class TileDefaultRenderer implements TileRenderer {
 		int z_w = (z2 - z1);
 
 		// texture ratios
-		float tx_start = ((float) (x1 - upLeftX) / drawLevel.getTileSize());
-		float tz_start = ((float) (z1 - upLeftZ) / drawLevel.getTileSize());
+		float tx_start = ((float) (x1 - refLeftLon) / drawLevel.getTileSize());
+		float tz_start = ((float) (z1 - refUpLat) / drawLevel.getTileSize());
 
 		double cx1, cy1, cz1, cx2, cy2, cz2;
 
@@ -437,11 +440,11 @@ class TileDefaultRenderer implements TileRenderer {
 		double theta1 = 0, theta2 = 0;
 		double phi1 = 0, phi2 = 0;
 		{
-			theta1 = x1 * Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor();  // startx
-			theta2 = x2 * Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor(); // endx
+			theta1 = x1 * oneOverDDToRad;  // startx
+			theta2 = x2 * oneOverDDToRad; // endx
 
-			phi1 = z1 * Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor(); //starty
-			phi2 = z2 * Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor();  //endy
+			phi1 = z1 * oneOverDDToRad; //starty
+			phi2 = z2 * oneOverDDToRad;  //endy
 		}
 
 		for (int j = 0; j < n; j++) {

@@ -69,10 +69,10 @@ class MapDataDecoder {
 	}
 	
 	/** @return the <code>MapDecoderEntry</code> for the <code>key</code>, null if it did not exists */
-	public MapDataEntries getIfExist(MapDataKey key) {
+	public MapDataEntries getIfExist(MapDataKey key, boolean request) {
 		final HashMap<MapDataKey, MapDataEntries> map = getHashMap(key.layer);
 		final MapDataEntries decoder = map.get(key);
-		if(decoder != null) {
+		if(request && (decoder != null)) {
 			decoder.onRequest();
 		}
 		return decoder;

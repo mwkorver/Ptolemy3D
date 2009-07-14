@@ -39,39 +39,39 @@ public class ElevationDem {
 	}
 	
 	public double getUpLeftHeight(Tile tile) {
-		final int left = tile.getRenderingLeftLongitude();
-		final int up = tile.getRenderingUpperLatitude();
+		final int left = tile.getBounds().ulx;
+		final int up = tile.getBounds().lrz;
 		return getHeight(tile, left, up);
 	}
 	public double getBotLeftHeight(Tile tile) {
-		final int left = tile.getRenderingLeftLongitude();
-		final int lower = tile.getRenderingLowerLatitude();
+		final int left = tile.getBounds().ulx;
+		final int lower = tile.getBounds().ulz;
 		return getHeight(tile, left, lower);
 	}
 	public double getUpRightHeight(Tile tile) {
-		final int right = tile.getRenderingRightLongitude();
-		final int up = tile.getRenderingUpperLatitude();
+		final int right = tile.getBounds().lrx;
+		final int up = tile.getBounds().lrz;
 		return getHeight(tile, right, up);
 	}
 	public double getBotRightHeight(Tile tile) {
-		final int right = tile.getRenderingRightLongitude();
-		final int lower = tile.getRenderingLowerLatitude();
+		final int right = tile.getBounds().lrx;
+		final int lower = tile.getBounds().ulz;
 		return getHeight(tile, right, lower);
 	}
 	
 	public double getHeight(Tile tile, int lon, int lat) {
-		final int upLeftX = tile.getRenderingLeftLongitude();
-		final int upLeftZ = tile.getRenderingUpperLatitude();
+		final int refLeftLon = tile.getReferenceLeftLongitude();
+		final int refUpLat = tile.getReferenceUpperLatitude();
 		
 		final Layer layer = Ptolemy3D.getScene().getLandscape().globe.getLayer(tile.mapData.key.layer);
 		final double geomIncr = (double) (size - 1) / layer.getTileSize();
-		final int x = (int) ((lon - upLeftX) * geomIncr);
-		final int z = (int) ((lat - upLeftZ) * geomIncr);
+		final int x = (int)((lon - refLeftLon) * geomIncr);
+		final int z = (int)((lat - refUpLat) * geomIncr);
 		return getHeightFromIndex(x, z);
 	}
 	
 	private final double getHeightFromIndex(int lon, int lat) {
-		final int index = (lat * size * DATA_SIZE) + (lon * DATA_SIZE);
+		final int index = (lat * size + lon) * DATA_SIZE;
 		final int height = (demDatas[index] << 8) + (demDatas[index + 1] & 0xFF);
 		return height;
 	}

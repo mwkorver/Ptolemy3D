@@ -59,23 +59,23 @@ public class ElevationTin {
 	}
 	
 	public double getUpLeftHeight(Tile tile) {
-		final int left = tile.getRenderingLeftLongitude();
-		final int up = tile.getRenderingUpperLatitude();
+		final int left = tile.getBounds().ulx;
+		final int up = tile.getBounds().lrz;
 		return getHeight(tile, left, up);
 	}
 	public double getBotLeftHeight(Tile tile) {
-		final int left = tile.getRenderingLeftLongitude();
-		final int lower = tile.getRenderingLowerLatitude();
+		final int left = tile.getBounds().ulx;
+		final int lower = tile.getBounds().ulz;
 		return getHeight(tile, left, lower);
 	}
 	public double getUpRightHeight(Tile tile) {
-		final int right = tile.getRenderingRightLongitude();
-		final int up = tile.getRenderingUpperLatitude();
+		final int right = tile.getBounds().lrx;
+		final int up = tile.getBounds().lrz;
 		return getHeight(tile, right, up);
 	}
 	public double getBotRightHeight(Tile tile) {
-		final int right = tile.getRenderingRightLongitude();
-		final int lower = tile.getRenderingLowerLatitude();
+		final int right = tile.getBounds().lrx;
+		final int lower = tile.getBounds().ulz;
 		return getHeight(tile, right, lower);
 	}
 	
@@ -84,13 +84,13 @@ public class ElevationTin {
 	 */
 	
 	public double getHeight(Tile tile, int lon, int lat) {
-		final int left = tile.getRenderingLeftLongitude();
-		final int upper = tile.getRenderingUpperLatitude();
-		final int right = tile.getRenderingRightLongitude();
-		final int lower = tile.getRenderingLowerLatitude();
+		final int refLeftLon = tile.getReferenceLeftLongitude();
+		final int refUpLat = tile.getReferenceUpperLatitude();
+		final int refRightLon = tile.getReferenceRightLongitude();
+		final int refLowerLat = tile.getReferenceLowerLatitude();
 		
-		final int x = w * (lon - left) / (right - left);
-		final int z = w * (lat - upper) / (lower - upper);
+		final int x = w * (lon - refLeftLon) / (refRightLon - refLeftLon);
+		final int z = w * (lat - refUpLat) / (refLowerLat - refUpLat);
 		return getHeightFromIndex(x, z);
 	}
 	

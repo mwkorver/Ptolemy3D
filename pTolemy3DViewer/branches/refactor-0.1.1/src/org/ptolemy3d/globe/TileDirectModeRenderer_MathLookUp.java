@@ -24,7 +24,7 @@ import javax.media.opengl.GL;
 
 import org.ptolemy3d.Unit;
 import org.ptolemy3d.debug.ProfilerUtil;
-import org.ptolemy3d.globe.Tile.SubTile;
+import org.ptolemy3d.globe.Tile.TileBounds;
 import org.ptolemy3d.scene.Landscape;
 
 //FIXME Optimize for tin
@@ -182,7 +182,7 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 	public TileDirectModeRenderer_MathLookUp() {
 	}
 
-	protected void fillLocalVariables(Tile tile, SubTile subTile) {
+	protected void fillLocalVariables(Tile tile, TileBounds subTile) {
 		super.fillLocalVariables(tile, subTile);
 
 		if (!isInit) {
@@ -209,22 +209,22 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 		{
 			final double geom_inc = (double) (numRows - 1) / drawLevel.getTileSize();
 
-			startxcoord = ((xStart - upLeftX) * geom_inc);
+			startxcoord = ((xStart - refLeftLon) * geom_inc);
 			startx = (int) startxcoord;
 			xsinterpolate = (startx != startxcoord);
 
-			startzcoord = ((zStart - upLeftZ) * geom_inc);
+			startzcoord = ((zStart - refUpLat) * geom_inc);
 			startz = (int) startzcoord;
 			zsinterpolate = (startz != startzcoord);
 
-			endxcoord = ((xEnd - upLeftX) * geom_inc) + 1;
+			endxcoord = ((xEnd - refLeftLon) * geom_inc) + 1;
 			endx = (int) endxcoord;
 			xeinterpolate = (endxcoord != endx);
 			if (xeinterpolate) {
 				endx++;
 			}
 
-			endzcoord = ((zEnd - upLeftZ) * geom_inc);
+			endzcoord = ((zEnd - refUpLat) * geom_inc);
 			endz = (int) endzcoord;
 			zeinterpolate = (endzcoord != endz);
 			if (zeinterpolate) {
@@ -238,7 +238,7 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 		int ul_corner = 0, ur_corner = 0, ll_corner = 0, lr_corner = 0;
 		double left_dem_slope = -1, right_dem_slope = -1, top_dem_slope = -1, bottom_dem_slope = -1;
 		final boolean eqZLevel = (drawLevelID == layerID);
-		if (eqZLevel && (xStart == upLeftX) && (xEnd == lowRightX) && (zStart == upLeftZ) && (zEnd == lowRightZ)) {
+		if (eqZLevel && (xStart == refLeftLon) && (xEnd == refRightLon) && (zStart == refUpLat) && (zEnd == refLowLat)) {
 			final int rowWidthMinusOne = rowWidth - 1;
 			final int rowWidthMinusTwo = rowWidth - 2;
 			final int i1 = rowWidth * (numRows - 1);
@@ -433,22 +433,22 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 		{
 			final double geom_inc = (double) (numRows - 1) / drawLevel.getTileSize();
 
-			startxcoord = ((xStart - upLeftX) * geom_inc);
+			startxcoord = ((xStart - refLeftLon) * geom_inc);
 			startx = (int) startxcoord;
 			xsinterpolate = (startx != startxcoord);
 
-			startzcoord = ((zStart - upLeftZ) * geom_inc);
+			startzcoord = ((zStart - refUpLat) * geom_inc);
 			startz = (int) startzcoord;
 			zsinterpolate = (startz != startzcoord);
 
-			endxcoord = ((xEnd - upLeftX) * geom_inc) + 1;
+			endxcoord = ((xEnd - refLeftLon) * geom_inc) + 1;
 			endx = (int) endxcoord;
 			xeinterpolate = (endxcoord != endx);
 			if (xeinterpolate) {
 				endx++;
 			}
 
-			endzcoord = ((zEnd - upLeftZ) * geom_inc);
+			endzcoord = ((zEnd - refUpLat) * geom_inc);
 			endz = (int) endzcoord;
 			zeinterpolate = (endzcoord != endz);
 			if (zeinterpolate) {
@@ -462,7 +462,7 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 		int ul_corner = 0, ur_corner = 0, ll_corner = 0, lr_corner = 0;
 		double left_dem_slope = -1, right_dem_slope = -1, top_dem_slope = -1, bottom_dem_slope = -1;
 		final boolean eqZLevel = (drawLevelID == layerID);
-		if (eqZLevel && (xStart == upLeftX) && (xEnd == lowRightX) && (zStart == upLeftZ) && (zEnd == lowRightZ)) {
+		if (eqZLevel && (xStart == refLeftLon) && (xEnd == refRightLon) && (zStart == refUpLat) && (zEnd == refLowLat)) {
 			final int rowWidthMinusOne = rowWidth - 1;
 			final int rowWidthMinusTwo = rowWidth - 2;
 			final int i1 = rowWidth * (numRows - 1);
@@ -660,8 +660,8 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 		final Layer drawLevel = landscape.globe.getLayer(drawLevelID);
 		final float oneOverTileWidth = 1.0f / drawLevel.getTileSize();
 		
-		float uvLonStart = (subTile.ulx - upLeftX) * oneOverTileWidth;
-		float uvLatStart = (subTile.ulz - upLeftZ) * oneOverTileWidth;
+		float uvLonStart = (subTile.ulx - refLeftLon) * oneOverTileWidth;
+		float uvLatStart = (subTile.ulz - refUpLat) * oneOverTileWidth;
 
 //		gl.glBegin(GL.GL_TRIANGLE_STRIP);
 		int lat1 = startLat;

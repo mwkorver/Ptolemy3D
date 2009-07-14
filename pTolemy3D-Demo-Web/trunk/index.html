@@ -98,14 +98,14 @@
                         align="center" width="100%" height="100%"
                         id="pTolemy3D" Name="pTolemy3DViewer"
                         codebase="./applet/"
-                        archive="./jogl.jar,./gluegen-rt.jar,./plugin.jar,./ptolemy-refactor-0.1.1.jar,./citygml4j-0.2.1.jar,./jaxb-api.jar,./jaxb-impl.jar,./activation.jar" MAYSCRIPT>
+                        archive="./jogl.jar,./gluegen-rt.jar,./plugin.jar,./ptolemy-refactor-0.1.1.jar,./citygml4j-0.2.1.jar,./jaxb-api.jar,./jaxb-impl.jar,./activation.jar,./jsr173_1.0_api.jar" MAYSCRIPT>
                     <param name="subapplet.classname" VALUE="org.ptolemy3d.Ptolemy3DApplet">
                     <param name="subapplet.displayname" VALUE="pTolemy3D Viewer">
                     <param name="progressbar" value="true">
                     <param name="noddraw.check" value="true">
                     <param name="noddraw.check.silent" value="true">
-                    <param name="cache_archive" VALUE="jogl.jar,gluegen-rt.jar,plugin.jar,ptolemy-refactor-0.1.1.jar,citygml4j-0.2.1.jar,jaxb-api.jar,jaxb-impl.jar,activation.jar">
-                    <param name="cache_archive_ex" VALUE="jogl.jar;preload,gluegen-rt.jar;preload,plugin.jar;preload,ptolemy-refactor-0.1.1.jar;preload,citygml4j-0.2.1.jar;preload,jaxb-api.jar;preload,jaxb-impl.jar;preload,activation.jar:preload">
+                    <param name="cache_archive" VALUE="jogl.jar,gluegen-rt.jar,plugin.jar,ptolemy-refactor-0.1.1.jar,citygml4j-0.2.1.jar,jaxb-api.jar,jaxb-impl.jar,activation.jar,jsr173_1.0_api.jar">
+                    <param name="cache_archive_ex" VALUE="jogl.jar;preload,gluegen-rt.jar;preload,plugin.jar;preload,ptolemy-refactor-0.1.1.jar;preload,citygml4j-0.2.1.jar;preload,jaxb-api.jar;preload,jaxb-impl.jar;preload,activation.jar:preload,jsr173_1.0_api.jar:preload">
 
                     <param name="Orientation" value="0,0,500000,0,0">
                     <param name="CenterX" value="0">
@@ -342,10 +342,29 @@
                                                 <b>CityGML Plugin</b> allows to query a WFS server for CityGML data:
                                                 <table border="0">
                                                     <tr>
-                                                        <td>CityGML document URL:</td><td colspan="4"><input type="text" value="http://demo.spatialcloud.com/pTolemy3D-Demo-Web2/data/epsg_3068/CityGML_British_Ordnance_Survey_v1.0.0_EPSG_3068.xml" size="80" class="required text" id="cityUrl" /> </td>
+                                                        <td>CityGML document URL:</td>
+                                                        <td colspan="4"><input type="text" value="http://demo.spatialcloud.com/pTolemy3D-Demo-Web2/data/epsg_3068/CityGML_British_Ordnance_Survey_v1.0.0_EPSG_3068.xml" size="80" class="required text" id="cityUrl" /> </td>
                                                     </tr>
                                                     <tr>
-                                                        <td>Altitude (meters):</td><td><input type="text" value="100000" class="required number" id="cityAltitude" /></td>
+                                                        <td>Altitude (meter):</td>
+                                                        <td><input type="text" value="100000" class="required number" id="cityAltitude" /></td>
+                                                        <td align="left">Determines the change between LOD1 and LOD2.</td>
+                                                    </tr>
+                                                </table>
+                                                <table>
+                                                    <tr><td><b>Fly to the city at coordinates:</b></td></tr>
+                                                    <tr>
+                                                        <td>Latitude (Degrees):</td>
+                                                        <td><input type="text" value="56.294092" class="required number" id="cityLatPos" /> </td>
+
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Longitude (Degrees):</td>
+                                                        <td><input type="text" value="14.777110" class="required number" id="cityLonPos" /> </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Altitude (Meters):</td>
+                                                        <td><input type="text" value="50.0" class="required number" id="cityAltPos" /> </td>
                                                     </tr>
                                                     <tr></tr>
                                                 </table>

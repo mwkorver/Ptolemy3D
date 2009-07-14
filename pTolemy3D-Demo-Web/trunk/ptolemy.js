@@ -252,11 +252,16 @@ function execPluginCityGmlCode(){
     // Get parameters
     var url = document.getElementById("cityUrl").value;
     var alt = document.getElementById("cityAltitude").value;
+    var citylat = document.getElementById("cityLatPos").value;
+    var citylon = document.getElementById("cityLonPos").value;
+    var cityalt = document.getElementById("cityAltPos").value;
 
     // Get ptolemy references
     ptapplet = document.getElementById("pTolemy3D").getSubApplet();
     ptolemy = ptapplet.getPtolemy();
     scene = ptolemy.getScene();
+    canvas = ptapplet.getCanvas();
+    camera = canvas.getCameraMovement();
 
     // Create icon plugin
     cityPlugin = ptolemy.createInstance("org.ptolemy3d.plugin.CityGmlPlugin");
@@ -265,6 +270,9 @@ function execPluginCityGmlCode(){
 
     // Add plugin to the scene.
     scene.getPlugins().addPlugin(cityPlugin);
+
+    // Fly to city coordinates
+    camera.flyTo(citylat, citylon, cityalt);
 }
 
 /*
@@ -276,11 +284,16 @@ function seePluginCityGmlCode(){
 
     var url = document.getElementById("cityUrl").value;
     var alt = document.getElementById("cityAltitude").value;
+    var citylat = document.getElementById("cityLatPos").value;
+    var citylon = document.getElementById("cityLonPos").value;
+    var cityalt = document.getElementById("cityAltPos").value;
 
     $('#freecode').val('// Get ptolemy references\n\
 ptapplet = document.getElementById("pTolemy3D").getSubApplet();\n\
 ptolemy = ptapplet.getPtolemy();\n\
 scene = ptolemy.getScene();\n\
+canvas = ptapplet.getCanvas();\n\
+camera = canvas.getCameraMovement();\n\
 \n\
 // Create icon plugin\n\
 cityPlugin = ptolemy.createInstance("org.ptolemy3d.plugin.CityGmlPlugin");\n\
@@ -289,6 +302,8 @@ cityPlugin.setAltitude('+alt+');\n\
 \n\
 // Add plugin to the scene.\n\
 scene.getPlugins().addPlugin(cityPlugin);\n\
+// Fly to city coordinates\n\
+camera.flyTo(citylat, citylon, cityalt);\n\
 ');
 }
 

@@ -84,7 +84,7 @@ public class BasicFrame extends JFrame {
 		IconPlugin ip = new IconPlugin();
 		ip
 				.setFileUrl("file:///opt/servers/jetty-6.1.14/webapps/Ptolemy_test/new.png");
-		//ip.setPosition(Position.fromLatLonAlt(40, 0, 0));
+//		ip.setPosition(Position.fromLatLonAlt(40, 0, 0));
 		Position iconp = new Position();
 		iconp.setLatitude(40);
 		iconp.setLongitude(0);

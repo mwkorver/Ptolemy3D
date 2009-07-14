@@ -55,56 +55,15 @@ public class CityGmlPlugin implements Plugin {
 	private String fileUrl = null;
 	private double altitude = 0;
 	//
-	private boolean fileLoaded = false;
-	private boolean errorLoading = false;
+	private volatile boolean fileLoading = false;
+	private volatile boolean fileLoaded = false;
+	private volatile boolean errorLoading = false;
 	private CityGmlReader cityReader = null;
 	//
 	private ArrayList<CityGmlBuildingData> listBuildindData = new ArrayList<CityGmlBuildingData>();
 	private boolean vertexInitialized = false;
 
 	public void initGL(DrawContext drawContext) {
-		if (!fileLoaded) {
-
-			Thread newThread = new Thread(new Runnable() {
-
-				public void run() {
-					Logger.getLogger(CityGmlPlugin.class.getName()).info(
-							"Started CityGML loader thread...");
-
-					URL url = null;
-					try {
-						if (fileUrl != null && !fileUrl.equals("")) {
-							url = new URL(fileUrl);
-						} else {
-							url = new URL(wfsServerUrl);
-						}
-
-						cityReader = new CityGmlReader();
-						cityReader.loadGML(url);
-						listBuildindData = cityReader.getBuildingData();
-					} catch (IOException ex) {
-						Logger.getLogger(CityGmlPlugin.class.getName())
-								.warning("Can't load GML file: '" + url + "'");
-						Logger.getLogger(CityGmlPlugin.class.getName()).log(
-								Level.WARNING, ex.getMessage());
-						errorLoading = true;
-					} catch (JAXBException ex) {
-						Logger.getLogger(CityGmlPlugin.class.getName())
-								.warning(
-										"Problems loading GML file: '" + url
-												+ "'");
-						Logger.getLogger(CityGmlPlugin.class.getName()).log(
-								Level.WARNING, ex.getMessage());
-					} finally {
-						fileLoaded = true;
-						Logger.getLogger(CityGmlPlugin.class.getName()).info(
-								"Finished CityGML loader thread...");
-					}
-				}
-			}, "CityGmlPluginThread");
-
-			newThread.start();
-		}
 	}
 
 	public void destroyGL(DrawContext drawContext) {
@@ -136,21 +95,73 @@ public class CityGmlPlugin implements Plugin {
 	}
 
 	/**
+	 * Starts a new thread to load CityGML document.
+	 */
+	private void loadData() {
+
+		Thread newThread = new Thread(new Runnable() {
+
+			public void run() {
+				fileLoading = true;
+
+				Logger.getLogger(CityGmlPlugin.class.getName()).info(
+						"Started CityGML loader thread...");
+
+				URL url = null;
+				try {
+					if (fileUrl != null && !fileUrl.equals("")) {
+						url = new URL(fileUrl);
+					} else {
+						url = new URL(wfsServerUrl);
+					}
+
+					cityReader = new CityGmlReader();
+					cityReader.loadGML(url);
+					listBuildindData = cityReader.getBuildingData();
+				} catch (IOException ex) {
+					Logger.getLogger(CityGmlPlugin.class.getName()).warning(
+							"Can't load GML file: '" + url + "'");
+					Logger.getLogger(CityGmlPlugin.class.getName()).log(
+							Level.WARNING, ex.getMessage());
+					errorLoading = true;
+				} catch (JAXBException ex) {
+					Logger.getLogger(CityGmlPlugin.class.getName()).warning(
+							"Problems loading GML file: '" + url + "'");
+					Logger.getLogger(CityGmlPlugin.class.getName()).log(
+							Level.WARNING, ex.getMessage());
+				} finally {
+					fileLoaded = true;
+					fileLoading = false;
+					Logger.getLogger(CityGmlPlugin.class.getName()).info(
+							"Finished CityGML loader thread...");
+				}
+			}
+		}, "CityGmlPluginThread");
+
+		newThread.start();
+	}
+
+	/**
 	 * Renders the GML.
 	 * 
 	 * @param drawContext
 	 */
 	public void draw(DrawContext drawContext) {
 
-		GL gl = drawContext.getGL();
-
-		if (!status) {
-			return;
+		// Load data
+		if (!fileLoading && !fileLoaded && !errorLoading) {
+			loadData();
 		}
 
 		// If the gml file is not loaded return or there was an error loading
 		// it then returns.
 		if (!fileLoaded || errorLoading || cityReader == null) {
+			return;
+		}
+
+		GL gl = drawContext.getGL();
+
+		if (!status) {
 			return;
 		}
 

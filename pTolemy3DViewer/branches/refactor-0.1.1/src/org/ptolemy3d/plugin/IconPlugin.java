@@ -57,8 +57,9 @@ public class IconPlugin implements Plugin {
 	private String fileUrl = "";
 	private Position position = null;
 	//
-	private boolean iconLoaded = false;
-	private boolean errorLoading = false;
+	private volatile boolean iconLoading = false;
+	private volatile boolean iconLoaded = false;
+	private volatile boolean errorLoading = false;
 	private boolean initTexture = false;
 	private BufferedImage bufferedImage = null;
 	private Texture texture = null;
@@ -107,30 +108,6 @@ public class IconPlugin implements Plugin {
 	}
 
 	public void initGL(DrawContext drawContext) {
-
-		if (!iconLoaded && !errorLoading) {
-
-			Thread newThread = new Thread(new Runnable() {
-
-				public void run() {
-					URL url = null;
-					try {
-						url = new URL(fileUrl);
-						bufferedImage = ImageIO.read(url);
-					} catch (IOException ex) {
-						Logger.getLogger(IconPlugin.class.getName()).warning(
-								"Can't load icon: '" + url + "'");
-						Logger.getLogger(IconPlugin.class.getName()).log(
-								Level.WARNING, null, ex);
-						errorLoading = true;
-					} finally {
-						iconLoaded = true;
-					}
-				}
-			}, "IconPluginThread");
-
-			newThread.start();
-		}
 	}
 
 	public void destroyGL(DrawContext drawContext) {
@@ -138,7 +115,7 @@ public class IconPlugin implements Plugin {
 
 	public void setPluginParameters(String params) {
 		// TODO - Remove this method ????
-		
+
 		String values[] = params.split(",");
 		this.fileUrl = values[0];
 	}
@@ -158,11 +135,52 @@ public class IconPlugin implements Plugin {
 	}
 
 	/**
+	 * Starts a new thread to load the icon image.
+	 */
+	private void loadData() {
+
+		Thread newThread = new Thread(new Runnable() {
+
+			public void run() {
+				iconLoading = true;
+				
+				URL url = null;
+				try {
+					url = new URL(fileUrl);
+					bufferedImage = ImageIO.read(url);
+				} catch (IOException ex) {
+					errorLoading = true;
+					Logger.getLogger(IconPlugin.class.getName()).warning(
+							"Can't load icon: '" + url + "'");
+					Logger.getLogger(IconPlugin.class.getName()).log(
+							Level.WARNING, null, ex);
+				} finally {
+					iconLoaded = true;
+					iconLoading = false;
+				}
+			}
+		}, "IconPluginThread");
+
+		newThread.start();
+	}
+
+	/**
 	 * Renders the icon.
 	 * 
 	 * @param drawContext
 	 */
 	public void draw(DrawContext drawContext) {
+
+		// Load data
+		if (!iconLoading && !iconLoaded && !errorLoading) {
+			loadData();
+		}
+
+		// If the icon image is not loaded or there was an error loading
+		// it then returns.
+		if (!iconLoaded || errorLoading) {
+			return;
+		}
 
 		GL gl = drawContext.getGL();
 		Camera camera = drawContext.getCanvas().getCamera();
@@ -172,12 +190,6 @@ public class IconPlugin implements Plugin {
 
 		// Check if our point is in the visible side of the globe.
 		if (!status || !camera.isPointInView(lonDD, latDD)) {
-			return;
-		}
-
-		// If the icon image is not loaded return or there was an error loading
-		// it then returns.
-		if (!iconLoaded || errorLoading) {
 			return;
 		}
 

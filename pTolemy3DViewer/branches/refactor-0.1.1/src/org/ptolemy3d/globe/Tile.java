@@ -41,13 +41,22 @@ import org.ptolemy3d.view.Camera;
  */
 class Tile {
 	/** Tile may be divided in  */
-	static class TileBounds {
+	static class TileArea {
 		protected int ulx, ulz, lrx, lrz;
 		protected boolean active;
 		
-		protected TileBounds() {}
+		protected Tile tile;
+		protected final List<TileArea> left, above, right, below;
 		
-		protected TileBounds set(int ulx, int ulz, int lrx, int lrz) {
+		protected TileArea(Tile tile) {
+			this.tile = tile;
+			left = new Vector<TileArea>(4);
+			above = new Vector<TileArea>(4);
+			right = new Vector<TileArea>(4);
+			below = new Vector<TileArea>(4);
+		}
+		
+		protected final void setBounds(int ulx, int ulz, int lrx, int lrz) {
 			final Landscape landscape = Ptolemy3D.getScene().getLandscape();
 			
 			this.ulx = ulx + landscape.getMaxLongitude();
@@ -57,18 +66,59 @@ class Tile {
 			
 			this.active = true;
 			
-			return this;
+			this.left.clear();
+			this.above.clear();
+			this.right.clear();
+			this.below.clear();
 		}
 		
-		protected TileBounds set(TileBounds from) {
+		protected final void setBounds(TileArea from) {
 			this.ulx = from.ulx;
 			this.ulz = from.ulz;
 			this.lrx = from.lrx;
 			this.lrz = from.lrz;
 			
 			this.active = true;
-			
-			return this;
+		}
+		
+		protected final void setNeighbour(Tile right, Tile below, Tile left, Tile above) {
+			//FIXME getArea
+			if(left != null && left.visible) {
+				this.left.add(left.getArea());
+			}
+			if(above != null && above.visible) {
+				this.above.add(above.getArea());
+			}
+			if(right != null && right.visible) {
+				this.right.add(right.getArea());
+			}
+			if(below != null && below.visible) {
+				this.below.add(below.getArea());
+			}
+		}
+		protected final void addAbove(TileArea above) {
+			if(above != null && above.active) {
+				this.above.add(above);
+				above.above.add(this);
+			}
+		}
+		protected final void addBelow(TileArea below) {
+			if(below != null && below.active) {
+				this.below.add(below);
+				below.below.add(this);
+			}
+		}
+		protected final void addRight(TileArea right) {
+			if(right != null && right.active) {
+				this.right.add(right);
+				right.right.add(this);
+			}
+		}
+		protected final void addLeft(TileArea left) {
+			if(left != null && left.active) {
+				this.left.add(left);
+				left.above.add(this);
+			}
 		}
 	}
 	
@@ -83,27 +133,26 @@ class Tile {
 	protected MapData mapData;
 
 	/* Tile.processClipping */
-	private final TileBounds bounds;
-	private final TileBounds[] subTiles;
+	private final TileArea bounds;
+	private final TileArea[] subTiles;
 	
 	/* Tile.display */
 	protected GL gl;
 	protected int drawLevelID;
 	protected boolean texture;
-	protected Tile left, above, right, below;
 
 	/* TexTile renderer */
 //	private static final TileRenderer renderer = new TileDefaultRenderer();					//First clean version
 //	private static final TileRenderer renderer = new TileDirectModeRenderer();				//CPU Optimizations
 	private static final TileRenderer renderer = new TileDirectModeRenderer_MathLookUp();	//Cos/Sin table lookup
-	protected interface TileRenderer { public void renderSubTile(Tile tile, TileBounds subTile); }
+	protected interface TileRenderer { public void renderSubTile(TileArea subTile); }
 
 	protected Tile(int tileID) {
 		this.tileID = tileID;
-		this.bounds = new TileBounds();
-		this.subTiles = new TileBounds[4];
+		this.bounds = new TileArea(this);
+		this.subTiles = new TileArea[4];
 		for(int i = 0; i < subTiles.length; i++) {
-			subTiles[i] = new TileBounds();
+			subTiles[i] = new TileArea(this);
 		}
 	}
 
@@ -123,7 +172,7 @@ class Tile {
 		final int rightLon = landscape.clampRightLongitude(tileLon + tileSize);
 		final int upLat = landscape.clampUpperLatitude(tileLat);
 		final int botLat = landscape.clampLowerLatitude(tileLat + tileSize);
-		bounds.set(leftLon, upLat, rightLon, botLat);
+		bounds.setBounds(leftLon, upLat, rightLon, botLat);
 		
 		// Visibility test
 		{
@@ -148,21 +197,16 @@ class Tile {
 			mapData = mapDataManager.request(layerID, lon, -lat);
 			drawLevelID = mapData.key.layer;
 			
-			for(TileBounds subTile : subTiles) {
+			for(TileArea subTile : subTiles) {
 				subTile.active = false;
 			}
 		}
 	}
 	
-	public void processClipping(Tile rightTile, Tile belowTile, Tile leftTile, Tile aboveTile) {
+	public void processClipping(Tile right, Tile below, Tile left, Tile above) {
 		if (!visible) {
 			return;
 		}
-		
-		this.right = rightTile;
-		this.below = belowTile;
-		this.left = leftTile;
-		this.above = aboveTile;
 		
 		final Landscape landscape = Ptolemy3D.getScene().getLandscape();
 		final Globe globe = landscape.globe;
@@ -171,16 +215,20 @@ class Tile {
 			final Layer layerBelow = globe.getLayer(layerID + 1);
 			if (layerBelow.isVisible()) {
 				for(Area area : layerBelow.getAreas()) {
-					if(checkClipWithArea(area)) {
+					if(checkClipWithArea(right, below, left, above, area)) {
 						return;
 					}
 				}
 			}
 		}
 		
-		subTiles[0].set(bounds);
+		subTiles[0].setBounds(bounds);
+		subTiles[0].setNeighbour(right, below, left, above);
 	}
-	private boolean checkClipWithArea(Area belowArea) {
+	
+	private boolean checkClipWithArea(
+			Tile right, Tile below, Tile left, Tile above,
+			Area belowArea) {
 		int ulxBelow = belowArea.getMinLongitude();
 		int lrxBelow = belowArea.getMaxLongitude();
 		int ulzBelow = belowArea.getMinLatitude();
@@ -199,7 +247,7 @@ class Tile {
         
         if ((lrzBelow <= topTileLat) && (lrzBelow > -topTileLat)) {
 			if ((lrx > ulxBelow) && (ulx < lrxBelow) && (lrz > ulzBelow) && (ulz < lrzBelow)) {
-				clipWithArea(ulx, ulz, lrx, lrz, ulxBelow, ulzBelow, lrxBelow, lrzBelow);
+				clipWithArea(right, below, left, above, ulx, ulz, lrx, lrz, ulxBelow, ulzBelow, lrxBelow, lrzBelow);
 				return true;
 			}
 
@@ -209,23 +257,31 @@ class Tile {
 			}
 			
 			if (lrxBelow > maxX) {
-				int past = Layer.LEVEL_NUMTILE_LON - ((maxLon - ulxBelow) / layerBelow.getTileSize()) - 1;
+				int past = Layer.NUMTILE_LON - ((maxLon - ulxBelow) / layerBelow.getTileSize()) - 1;
 				ulxBelow = -maxX;
 				lrxBelow = ulxBelow + (past * layerBelow.getTileSize());
 
 				if (!((lrx <= ulxBelow) || (ulx >= lrxBelow) || (lrz <= ulzBelow) || (ulz >= lrzBelow))) {
-                    clipWithArea(ulx, ulz, lrx, lrz, ulxBelow, ulzBelow, lrxBelow, lrzBelow);
+                    clipWithArea(right, below, left, above, ulx, ulz, lrx, lrz, ulxBelow, ulzBelow, lrxBelow, lrzBelow);
 					return true;
 				}
 			}
 		}
 		return false;
 	}
-	private void clipWithArea(int ulx, int ulz, int lrx, int lrz, int c_ulx, int c_ulz, int c_lrx, int c_lrz) {
-		final boolean ul = inBounds(ulx, ulz, c_ulx, c_ulz, c_lrx, c_lrz);
-		final boolean ur = inBounds(lrx, ulz, c_ulx, c_ulz, c_lrx, c_lrz);
-		final boolean ll = inBounds(ulx, lrz, c_ulx, c_ulz, c_lrx, c_lrz);
-		final boolean lr = inBounds(lrx, lrz, c_ulx, c_ulz, c_lrx, c_lrz);
+	/**
+	 * Clip two rectangular in (longitude,latitude) coordinate system.<BR>
+	 * The two areas are defined by (ulx, ulz, lrx, lrz) and (clip_ulx, clip_ulz, clip_lrx, clip_lrz)<BR>
+	 * <BR>
+	 * The results can be 0 to 4 rectangular tiles<BR>
+	 */
+	private void clipWithArea(Tile right, Tile below, Tile left, Tile above,
+			int ulx, int ulz, int lrx, int lrz,
+			int clip_ulx, int clip_ulz, int clip_lrx, int clip_lrz) {
+		final boolean ul = inBounds(ulx, ulz, clip_ulx, clip_ulz, clip_lrx, clip_lrz);
+		final boolean ur = inBounds(lrx, ulz, clip_ulx, clip_ulz, clip_lrx, clip_lrz);
+		final boolean ll = inBounds(ulx, lrz, clip_ulx, clip_ulz, clip_lrx, clip_lrz);
+		final boolean lr = inBounds(lrx, lrz, clip_ulx, clip_ulz, clip_lrx, clip_lrz);
 
 		if (ul && ur && ll && lr) {
 			visible = false;
@@ -233,42 +289,100 @@ class Tile {
 		}
 		
 		if (ul && ur) {
-			subTiles[0].set(ulx, c_lrz, lrx, lrz);
+			subTiles[0].setBounds(ulx, clip_lrz, lrx, lrz);
+			subTiles[0].setNeighbour(right, below, left, null);
 		}
 		else if (ur && lr) {
-			subTiles[0].set(ulx, ulz, c_ulx, lrz);
+			subTiles[0].setBounds(ulx, ulz, clip_ulx, lrz);
+			subTiles[0].setNeighbour(null, below, left, above);
 		}
 		else if (ll && lr) {
-			subTiles[0].set(ulx, ulz, lrx, c_ulz);
+			subTiles[0].setBounds(ulx, ulz, lrx, clip_ulz);
+			subTiles[0].setNeighbour(right, null, left, above);
 		}
 		else if (ul && ll) {
-			subTiles[0].set(c_lrx, ulz, lrx, lrz);
+			subTiles[0].setBounds(clip_lrx, ulz, lrx, lrz);
+			subTiles[0].setNeighbour(right, below, null, above);
 		}
 		else if (ul) {
-			subTiles[0].set(c_lrx, ulz, lrx, c_lrz);
-			subTiles[1].set(ulx, c_lrz, lrx, lrz);
+			subTiles[0].setBounds(clip_lrx, ulz, lrx, clip_lrz);
+			subTiles[0].setNeighbour(right, null, null, above);
+			
+			subTiles[1].setBounds(ulx, clip_lrz, lrx, lrz);
+			subTiles[1].setNeighbour(right, below, left, null);
 		}
 		else if (ur) {
-			subTiles[0].set(ulx, ulz, c_ulx, c_lrz);
-			subTiles[1].set(ulx, c_lrz, lrx, lrz);
+			subTiles[0].setBounds(ulx, ulz, clip_ulx, clip_lrz);
+			subTiles[0].setNeighbour(null, null, left, above);
+			
+			subTiles[1].setBounds(ulx, clip_lrz, lrx, lrz);
+			subTiles[1].setNeighbour(right, below, left, null);
 		}
 		else if (ll) {
-			subTiles[0].set(ulx, ulz, lrx, c_ulz);
-			subTiles[1].set(c_lrx, c_ulz, lrx, lrz);
+			subTiles[0].setBounds(ulx, ulz, lrx, clip_ulz);
+			subTiles[0].setNeighbour(right, null, left, above);
+			
+			subTiles[1].setBounds(clip_lrx, clip_ulz, lrx, lrz);
+			subTiles[1].setNeighbour(right, below, null, null);
 		}
 		else if (lr) {
-			subTiles[0].set(ulx, ulz, lrx, c_ulz);
-			subTiles[1].set(ulx, c_ulz, c_ulx, lrz);
+			subTiles[0].setBounds(ulx, ulz, lrx, clip_ulz);
+			subTiles[0].setNeighbour(right, null, left, above);
+			
+			subTiles[1].setBounds(ulx, clip_ulz, clip_ulx, lrz);
+			subTiles[1].setNeighbour(null, below, left, null);
 		}
 		else {
-			subTiles[0].set(ulx, ulz, lrx, c_ulz);
-			subTiles[1].set(ulx, c_lrz, lrx, lrz);
-			subTiles[2].set(ulx, c_ulz, c_ulx, c_lrz);
-			subTiles[3].set(c_lrx, c_ulz, lrx, c_lrz);
+			subTiles[0].setBounds(ulx, ulz, lrx, clip_ulz);
+			subTiles[0].setNeighbour(right, null, left, above);
+			
+			subTiles[1].setBounds(ulx, clip_lrz, lrx, lrz);
+			subTiles[1].setNeighbour(right, below, left, null);
+			
+			subTiles[2].setBounds(ulx, clip_ulz, clip_ulx, clip_lrz);
+			subTiles[2].setNeighbour(null, null, left, null);
+			
+			subTiles[3].setBounds(clip_lrx, clip_ulz, lrx, clip_lrz);
+			subTiles[3].setNeighbour(right, null, null, null);
 		}
 	}
-	private final boolean inBounds(int x, int z, int c_ulx, int c_ulz, int c_lrx, int c_lrz) {
-		return (x >= c_ulx) && (x <= c_lrx) && (z >= c_ulz) && (z <= c_lrz);
+	private final boolean inBounds(int longitude, int latitude, int ulx, int ulz, int lrx, int lrz) {
+		return (longitude >= ulx) && (longitude <= lrx) && (latitude >= ulz) && (latitude <= lrz);
+	}
+	
+	protected void linkTiles(Layer layerBelow) {
+		if (!visible) {
+			return;
+		}
+		for (TileArea area : getAreas()) {
+			for(int i = 0; i < Layer.NUMTILES; i++) {
+				final Tile tile = layerBelow.getTile(i);
+				tile.linkTiles(area);
+			}
+		}
+	}
+	
+	private void linkTiles(TileArea area) {
+		if(!visible) {
+			return;
+		}
+		for(TileArea belowArea : getAreas()) {
+			final boolean lonInRange = (area.ulx <= belowArea.ulx && belowArea.ulx <= area.lrx) || (area.ulx <= belowArea.lrx && belowArea.lrx <= area.lrx);
+			final boolean latInRange = (area.ulz <= belowArea.ulz && belowArea.ulz <= area.lrz) || (area.ulz <= belowArea.lrz && belowArea.lrz <= area.lrz);
+			
+			if (belowArea.lrz == area.ulz && lonInRange) {
+				area.addAbove(belowArea);
+			}
+			else if (belowArea.ulz == area.lrz && lonInRange) {
+				area.addBelow(belowArea);
+			}
+			else if (belowArea.ulx == area.lrx && latInRange) {
+				area.addRight(belowArea);
+			}
+			else if (belowArea.lrx == area.ulx && latInRange) {
+				area.addLeft(belowArea);
+			}
+		}
 	}
 	
 	public void display(GL gl) {
@@ -299,9 +413,56 @@ class Tile {
 			gl.glColor3f(tileColor[0], tileColor[1], tileColor[2]);
 		}
 		
-		for (TileBounds subTile : subTiles) {
+		for (TileArea subTile : subTiles) {
 			if (subTile.active) {
-				renderer.renderSubTile(this, subTile);
+				if(DEBUG) {
+					final Landscape landscape = Ptolemy3D.getScene().getLandscape();
+					if(landscape.getDisplayMode() == Landscape.DISPLAY_TILENEIGHBOUR) {
+						if(ProfilerUtil.tileSelected == ProfilerUtil.tileCounter) {
+							/*
+							 * FIXME can be along the same level but visibility change later
+							 * this explain the visibile check
+							 * SHOULD BE WELL HANDLED AND INVISIBLE TILE SHOULD BE REMOVED FROM THE LIST !!
+							 */
+							gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_FILL);
+							for(TileArea t : subTile.above) {
+								if(t.tile.visible) {
+									t.tile.gl = gl;
+									renderer.renderSubTile(t);
+								}
+							}
+							for(TileArea t : subTile.below) {
+								if(t.tile.visible) {
+									t.tile.gl = gl;
+									renderer.renderSubTile(t);
+								}
+							}
+							for(TileArea t : subTile.right) {
+								if(t.tile.visible) {
+									t.tile.gl = gl;
+									renderer.renderSubTile(t);
+								}
+							}
+							for(TileArea t : subTile.left) {
+								if(t.tile.visible) {
+									t.tile.gl = gl;
+									renderer.renderSubTile(t);
+								}
+							}
+						}
+					}
+
+				}
+				renderer.renderSubTile(subTile);
+				
+				if(DEBUG) {
+					final Landscape landscape = Ptolemy3D.getScene().getLandscape();
+					if(landscape.getDisplayMode() == Landscape.DISPLAY_TILENEIGHBOUR) {
+						if(ProfilerUtil.tileSelected == ProfilerUtil.tileCounter) {
+							gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE);
+						}
+					}
+				}
 			}
 		}
 	}
@@ -570,12 +731,16 @@ class Tile {
 		return tileSize;
 	}
 	
-	public TileBounds getBounds() {
+	public TileArea getArea() {
 		return bounds;
 	}
-	private List<TileBounds> getSubBounds() {	//Not used for now
-		List<TileBounds> boundsList = new Vector<TileBounds>(4);
-		for (TileBounds subTile : subTiles) {
+	public List<TileArea> getAreas() {	//Not used for now
+		if(!visible) {
+			throw new RuntimeException();
+		}
+		
+		List<TileArea> boundsList = new Vector<TileArea>(4);
+		for (TileArea subTile : subTiles) {
 			if (subTile.active) {
 				boundsList.add(subTile);
 			}

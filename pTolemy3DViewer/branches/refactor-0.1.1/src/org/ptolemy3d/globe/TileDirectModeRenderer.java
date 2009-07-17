@@ -25,7 +25,7 @@ import javax.media.opengl.GL;
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.Unit;
 import org.ptolemy3d.debug.ProfilerUtil;
-import org.ptolemy3d.globe.Tile.TileBounds;
+import org.ptolemy3d.globe.Tile.TileArea;
 import org.ptolemy3d.globe.Tile.TileRenderer;
 import org.ptolemy3d.math.Math3D;
 import org.ptolemy3d.scene.Landscape;
@@ -42,8 +42,7 @@ class TileDirectModeRenderer implements TileRenderer {
 	protected MapData mapData;
 
 	//From the Tile
-	protected Tile tile;
-	protected TileBounds subTile;
+	protected TileArea subTile;
 	protected int drawLevelID;
 	protected int layerID;
 	protected Tile leftTile;
@@ -59,7 +58,9 @@ class TileDirectModeRenderer implements TileRenderer {
 	protected double terrainScaler;
 	protected double oneOverDDToRad;
 	
-	protected void fillLocalVariables(Tile tile, TileBounds subTile) {
+	protected void fillLocalVariables(TileArea subTile) {
+		final Tile tile = subTile.tile;
+		
 		gl = tile.gl;
 
 		landscape = Ptolemy3D.getScene().getLandscape();
@@ -69,24 +70,38 @@ class TileDirectModeRenderer implements TileRenderer {
 		
 		oneOverDDToRad = Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor();
 		
-		this.tile = tile;
 		this.mapData = tile.mapData;
 		this.subTile = subTile;
 		
 		drawLevelID = tile.drawLevelID;
 		layerID = tile.getLayerID();
 		tileSize = tile.getTileSize();
-		leftTile = tile.left;
-		aboveTile = tile.above;
-		rightTile = tile.right;
-		belowTile = tile.below;
-		refLeftLon = tile.getReferenceLeftLongitude();
-		refUpLat = tile.getReferenceUpperLatitude();
-		refRightLon = tile.getReferenceRightLongitude();
-		refLowLat = tile.getReferenceLowerLatitude();
+		try {
+			refLeftLon = tile.getReferenceLeftLongitude();
+			refUpLat = tile.getReferenceUpperLatitude();
+			refRightLon = tile.getReferenceRightLongitude();
+			refLowLat = tile.getReferenceLowerLatitude();
+		}
+		catch(RuntimeException e) {
+			System.out.println(subTile.tile.visible+" "+subTile.active);
+			throw e;
+		}
 	}
 
-	public void renderSubTile(Tile tile, TileBounds subTile) {
+	public final void renderSubTile(TileArea subTile) {
+		if (subTile.left.size() > 0) {
+			leftTile = subTile.left.get(0).tile;
+		} else { leftTile = null;}
+		if (subTile.above.size() > 0) {
+			aboveTile = subTile.above.get(0).tile;
+		} else { aboveTile = null;}
+		if (subTile.right.size() > 0) {
+			rightTile = subTile.right.get(0).tile;
+		} else { rightTile = null;}
+		if (subTile.below.size() > 0) {
+			belowTile = subTile.below.get(0).tile;
+		} else { belowTile = null;}
+		
 		final int x1 = subTile.ulx;
 		final int z1 = subTile.ulz;
 		final int x2 = subTile.lrx;
@@ -101,13 +116,13 @@ class TileDirectModeRenderer implements TileRenderer {
 			}
 			ProfilerUtil.tileSectionCounter++;
 		}
-		fillLocalVariables(tile, subTile);
+		fillLocalVariables(subTile);
 
 		boolean lookForElevation = (mapData != null) && (landscape.isTerrainEnabled());
 		boolean useDem = lookForElevation && (mapData.dem != null);
 		boolean useTin = lookForElevation && (mapData.tin != null);
 
-		boolean texture = loadGLState(tile.texture);
+		boolean texture = loadGLState(subTile.tile.texture);
 		if (texture) {
 			if (useDem) {
 				renderSubTile_DemTextured(x1, z1, x2, z2);
@@ -592,7 +607,7 @@ class TileDirectModeRenderer implements TileRenderer {
 
 	protected void renderSubTile_Textured() {
 		// Elevation
-		final ElevationNone elevation = new ElevationNone(tile, subTile);
+		final ElevationNone elevation = new ElevationNone(subTile);
 		
 		final int nLon = elevation.numPolyLon;
 		final int nLat = elevation.numPolyLat;
@@ -697,7 +712,7 @@ class TileDirectModeRenderer implements TileRenderer {
 
 	protected void renderSubTile() {
 		// Elevation
-		final ElevationNone elevation = new ElevationNone(tile, subTile);
+		final ElevationNone elevation = new ElevationNone(subTile);
 		
 		final int nLon = elevation.numPolyLon;
 		final int nLat = elevation.numPolyLat;
@@ -1034,20 +1049,20 @@ class TileDirectModeRenderer implements TileRenderer {
 	}
 
 	protected final boolean loadGLState(boolean texture) {
-		if (landscape.getDisplayMode() == Landscape.DISPLAY_JP2RES) {
+		final byte displayMode = landscape.getDisplayMode();
+		if (displayMode == Landscape.DISPLAY_JP2RES) {
 			setJP2ResolutionColor();
 			return false;
 		}
-		else if (landscape.getDisplayMode() == Landscape.DISPLAY_TILEID) {
+		else if (displayMode == Landscape.DISPLAY_TILEID || displayMode == Landscape.DISPLAY_TILENEIGHBOUR) {
 			setTileIDColor();
 			return false;
 		}
-		else if (landscape.getDisplayMode() == Landscape.DISPLAY_LEVELID) {
+		else if (displayMode == Landscape.DISPLAY_LEVELID) {
 			setLevelIDColor();
 			return false;
 		}
-		else if (landscape.getDisplayMode() == Landscape.DISPLAY_MESH ||
-				landscape.getDisplayMode() == Landscape.DISPLAY_SHADEDDEM) {
+		else if (displayMode == Landscape.DISPLAY_MESH || displayMode == Landscape.DISPLAY_SHADEDDEM) {
 			return false;
 		}
 		if (texture) {

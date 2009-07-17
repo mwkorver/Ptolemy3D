@@ -25,7 +25,7 @@ import javax.media.opengl.GL;
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.Unit;
 import org.ptolemy3d.debug.ProfilerUtil;
-import org.ptolemy3d.globe.Tile.TileBounds;
+import org.ptolemy3d.globe.Tile.TileArea;
 import org.ptolemy3d.globe.Tile.TileRenderer;
 import org.ptolemy3d.math.Math3D;
 import org.ptolemy3d.scene.Landscape;
@@ -55,17 +55,14 @@ class TileDefaultRenderer implements TileRenderer {
 	private float meshColor;
 	protected double oneOverDDToRad;
 
-	private final void fillTemporaryVariables(Tile tile) {
+	private final void fillTemporaryVariables(TileArea subTile) {
 		oneOverDDToRad = Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor();
 		
+		final Tile tile = subTile.tile;
 		gl = tile.gl;
 		jtile = tile.mapData;
 		drawLevelID = tile.drawLevelID;
 		texture = tile.texture;
-		leftTile = tile.left;
-		aboveTile = tile.above;
-		rightTile = tile.right;
-		belowTile = tile.below;
 		refLeftLon = tile.getReferenceLeftLongitude();
 		refUpLat = tile.getReferenceUpperLatitude();
 		refRightLon = tile.getReferenceRightLongitude();
@@ -80,7 +77,20 @@ class TileDefaultRenderer implements TileRenderer {
 		meshColor = landscape.getMeshColor();
 	}
 
-	public void renderSubTile(Tile tile, TileBounds subTile) {
+	public final void renderSubTile(TileArea subTile) {
+		if (subTile.left.size() > 0) {
+			leftTile = subTile.left.get(0).tile;
+		} else { leftTile = null;}
+		if (subTile.above.size() > 0) {
+			aboveTile = subTile.above.get(0).tile;
+		} else { aboveTile = null;}
+		if (subTile.right.size() > 0) {
+			rightTile = subTile.right.get(0).tile;
+		} else { rightTile = null;}
+		if (subTile.below.size() > 0) {
+			belowTile = subTile.below.get(0).tile;
+		} else { belowTile = null;}
+		
 		final int x1 = subTile.ulx;
 		final int z1 = subTile.ulz;
 		final int x2 = subTile.lrx;
@@ -95,7 +105,7 @@ class TileDefaultRenderer implements TileRenderer {
 			}
 			ProfilerUtil.tileSectionCounter++;
 		}
-		fillTemporaryVariables(tile);
+		fillTemporaryVariables(subTile);
 
 		boolean useDem = ((jtile != null) && (jtile.dem != null) && (landscape.isTerrainEnabled())) ? true : false;
 		boolean useTin = ((jtile != null) && (jtile.tin != null) && (landscape.isTerrainEnabled())) ? true : false;

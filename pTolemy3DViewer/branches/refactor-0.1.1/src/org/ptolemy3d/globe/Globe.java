@@ -54,6 +54,7 @@ public class Globe {
 		}
 		
 		processClipping();
+		linkTiles();
 	}
 	/* Find the lowest visible layer (smaller tiles) */
 	private final int findLowestLayer(Camera camera) {
@@ -87,6 +88,15 @@ public class Globe {
 		for (int i = 0; i < layers.length; i++) {	//Don't change order (always from 0 to max)
 			final Layer layer = layers[i];
 			layer.processClipping();
+		}
+	}
+	
+	/** Link neighboor tiles */
+	private void linkTiles() {
+		for (int i = 0; i < layers.length - 1; i++) {	//Don't change order (always from 0 to max)
+			final Layer layer = layers[i];
+			final Layer layerBelow = layers[i+1];
+			layer.linkTiles(layerBelow);
 		}
 	}
 	

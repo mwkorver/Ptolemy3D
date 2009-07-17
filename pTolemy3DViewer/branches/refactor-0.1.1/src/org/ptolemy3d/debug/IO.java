@@ -34,11 +34,11 @@ import org.ptolemy3d.view.Camera;
  * F1 : Show/Hide Landscape
  * F2 : Show/Hide Landscape Tiles
  * F3 : Show/Hide Profiler Hud
- * F4 :
+ * F4 : Camera position
  * F5 : Enable/Disable Wireframe rendering for Landscape.
- * F6 : Enable/Disable Z-Fight correction
- * F7 : 
- * F8 : Camera position
+ * F6 : Enable/Disable terrain elevation
+ * F7 : Freeze download / decoding
+ * F8 : 
  * F9 : Force layer ++
  * F10: Force layer --
  * F11: Freeze visibility
@@ -214,8 +214,8 @@ public class IO {
 	/* Debug keyboard */
 	public final static void keyReleasedDebug(Ptolemy3DGLCanvas canvas, int keyCode) {
 		if (DEBUG) {
-			Scene scene = Ptolemy3D.getScene();
-			Landscape landscape = scene.getLandscape();
+			final Scene scene = Ptolemy3D.getScene();
+			final Landscape landscape = scene.getLandscape();
 
 			switch (keyCode) {
 				case KeyEvent.VK_F1:
@@ -227,6 +227,10 @@ public class IO {
 					break;
 				case KeyEvent.VK_F3:
 					ProfilerUtil.printProfiler = !ProfilerUtil.printProfiler;
+					break;
+				case KeyEvent.VK_F4:
+					Camera camera = canvas.getCamera();
+					println(camera.toString());
 					break;
 				case KeyEvent.VK_F5:
 					switch (landscape.getDisplayMode()) {
@@ -246,6 +250,9 @@ public class IO {
 							landscape.setDisplayMode(Landscape.DISPLAY_LEVELID);
 							break;
 						case Landscape.DISPLAY_LEVELID:
+							landscape.setDisplayMode(Landscape.DISPLAY_TILENEIGHBOUR);
+							break;
+						case Landscape.DISPLAY_TILENEIGHBOUR:
 							landscape.setDisplayMode(Landscape.DISPLAY_STANDARD);
 							break;
 					}
@@ -258,17 +265,28 @@ public class IO {
 					ProfilerUtil.freezeDecoding = !ProfilerUtil.freezeDecoding;
 					println("Decoding freezed: "+ProfilerUtil.freezeDecoding);
 					break;
-				case KeyEvent.VK_F8:
-					Camera camera = canvas.getCamera();
-					println(camera.toString());
-					break;
 				case KeyEvent.VK_F9:
-					ProfilerUtil.forceLayer++;
-					println("Force layer: "+ProfilerUtil.forceLayer);
+					if(landscape.getDisplayMode() == Landscape.DISPLAY_TILENEIGHBOUR) {
+						ProfilerUtil.tileSelected++;
+						println("Tile selected: "+ProfilerUtil.tileSelected);
+					}
+					else {
+						ProfilerUtil.forceLayer++;
+						println("Force layer: "+ProfilerUtil.forceLayer);
+					}
 					break;
 				case KeyEvent.VK_F10:
-					ProfilerUtil.forceLayer = -1;
-					println("Force layer: "+ProfilerUtil.forceLayer);
+					if(landscape.getDisplayMode() == Landscape.DISPLAY_TILENEIGHBOUR) {
+						ProfilerUtil.tileSelected--;
+						if(ProfilerUtil.tileSelected < 1) {
+							ProfilerUtil.tileSelected = 1;
+						}
+						println("Tile selected: "+ProfilerUtil.tileSelected);
+					}
+					else {
+						ProfilerUtil.forceLayer = -1;
+						println("Force layer: "+ProfilerUtil.forceLayer);
+					}
 					break;
 				case KeyEvent.VK_F11:
 					ProfilerUtil.freezeVisibility = !ProfilerUtil.freezeVisibility;

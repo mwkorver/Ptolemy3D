@@ -24,7 +24,7 @@ import javax.media.opengl.GL;
 
 import org.ptolemy3d.Unit;
 import org.ptolemy3d.debug.ProfilerUtil;
-import org.ptolemy3d.globe.Tile.TileBounds;
+import org.ptolemy3d.globe.Tile.TileArea;
 import org.ptolemy3d.scene.Landscape;
 
 //FIXME Optimize for tin
@@ -182,14 +182,16 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 	public TileDirectModeRenderer_MathLookUp() {
 	}
 
-	protected void fillLocalVariables(Tile tile, TileBounds subTile) {
-		super.fillLocalVariables(tile, subTile);
+	@Override
+	protected void fillLocalVariables(TileArea subTile) {
+		super.fillLocalVariables(subTile);
 
 		if (!isInit) {
 			init(landscape);
 		}
 	}
 
+	@Override
 	protected void renderSubTile_DemTextured(int xStart, int zStart, int xEnd, int zEnd) {
 		if (layerID > MAX_PRECOMPUTEDLEVEL) {
 			super.renderSubTile_DemTextured(xStart, zStart, xEnd, zEnd);
@@ -414,6 +416,7 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 		}
 	}
 
+	@Override
 	protected void renderSubTile_Dem(int xStart, int zStart, int xEnd, int zEnd) {
 		if (layerID > MAX_PRECOMPUTEDLEVEL) {
 			super.renderSubTile_Dem(xStart, zStart, xEnd, zEnd);
@@ -633,6 +636,7 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 		}
 	}
 
+	@Override
 	protected final void renderSubTile_Textured() {
 		if (layerID > MAX_PRECOMPUTEDLEVEL) {
 			super.renderSubTile_Textured();
@@ -640,7 +644,7 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 		}
 
 		// Elevation
-		final ElevationNone elevation = new ElevationNone(tile, subTile);
+		final ElevationNone elevation = new ElevationNone(subTile);
 		
 		final int nLon = elevation.numPolyLon;
 		final int nLat = elevation.numPolyLat;
@@ -737,6 +741,7 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 		}
 	}
 
+	@Override
 	protected final void renderSubTile() {
 		if (layerID > MAX_PRECOMPUTEDLEVEL) {
 			super.renderSubTile();
@@ -744,7 +749,7 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 		}
 
 		// Elevation
-		final ElevationNone elevation = new ElevationNone(tile, subTile);
+		final ElevationNone elevation = new ElevationNone(subTile);
 		
 		final int nLon = elevation.numPolyLon;
 		final int nLat = elevation.numPolyLat;

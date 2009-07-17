@@ -180,6 +180,8 @@ public class Landscape {
     public final static byte DISPLAY_TILEID = (byte) 4;
     // Tile color is the level id
     public final static byte DISPLAY_LEVELID = (byte) 5;
+    // Tile color is the level id
+    public final static byte DISPLAY_TILENEIGHBOUR = (byte) 6;
     
     private final static int LANDSCAPE_MAXLONGITUDE_ANGLE = 180;
     private final static int LANDSCAPE_MAXLATITUDE_ANGLE = 90;
@@ -302,6 +304,10 @@ public class Landscape {
         else if (displayMode == DISPLAY_JP2RES || displayMode == DISPLAY_TILEID || displayMode == DISPLAY_LEVELID) {
             gl.glDisable(GL.GL_TEXTURE_2D);
         }
+        else if (displayMode == DISPLAY_TILENEIGHBOUR) {
+            gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE);
+            gl.glDisable(GL.GL_TEXTURE_2D);
+        }
         else {
             gl.glEnable(GL.GL_TEXTURE_2D);
         }
@@ -312,7 +318,7 @@ public class Landscape {
         globe.draw(drawContext);
 
         // Restore defautl states
-        if (displayMode == DISPLAY_MESH) {
+        if (displayMode == DISPLAY_MESH || displayMode == DISPLAY_TILENEIGHBOUR) {
             gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_FILL);
         }
         else if (displayMode == DISPLAY_SHADEDDEM) {

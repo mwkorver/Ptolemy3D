@@ -39,23 +39,23 @@ public class ElevationDem {
 	}
 	
 	public double getUpLeftHeight(Tile tile) {
-		final int left = tile.getBounds().ulx;
-		final int up = tile.getBounds().lrz;
+		final int left = tile.getArea().ulx;
+		final int up = tile.getArea().lrz;
 		return getHeight(tile, left, up);
 	}
 	public double getBotLeftHeight(Tile tile) {
-		final int left = tile.getBounds().ulx;
-		final int lower = tile.getBounds().ulz;
+		final int left = tile.getArea().ulx;
+		final int lower = tile.getArea().ulz;
 		return getHeight(tile, left, lower);
 	}
 	public double getUpRightHeight(Tile tile) {
-		final int right = tile.getBounds().lrx;
-		final int up = tile.getBounds().lrz;
+		final int right = tile.getArea().lrx;
+		final int up = tile.getArea().lrz;
 		return getHeight(tile, right, up);
 	}
 	public double getBotRightHeight(Tile tile) {
-		final int right = tile.getBounds().lrx;
-		final int lower = tile.getBounds().ulz;
+		final int right = tile.getArea().lrx;
+		final int lower = tile.getArea().ulz;
 		return getHeight(tile, right, lower);
 	}
 	

@@ -40,11 +40,11 @@ import org.ptolemy3d.view.Camera;
  */
 public class Layer {
 	/** Number of tiles in longitude direction */
-	public final static int LEVEL_NUMTILE_LON = 8;
+	public final static int NUMTILE_LON = 8;
 	/** Number of tiles in latitude direction */
-	public final static int LEVEL_NUMTILE_LAT = 8;
+	public final static int NUMTILE_LAT = 8;
 	/** Total number of tiles in the level. */
-	public final static int LEVEL_NUMTILES = LEVEL_NUMTILE_LON * LEVEL_NUMTILE_LAT;
+	public final static int NUMTILES = NUMTILE_LON * NUMTILE_LAT;
 
 	/** Level id */
 	private final int layerID;
@@ -87,8 +87,8 @@ public class Layer {
 
 		visible = false;
 
-		tiles = new Tile[LEVEL_NUMTILES];
-		for (int i = 0; i < LEVEL_NUMTILES; i++) {
+		tiles = new Tile[NUMTILES];
+		for (int i = 0; i < NUMTILES; i++) {
 			tiles[i] = new Tile(i);
 		}
 	}
@@ -127,7 +127,7 @@ public class Layer {
 		}
 
 		int minLon;
-		minLon = ((int) (camera.getPosition().getLongitudeDD() / tileSize) * tileSize) - (tileSize * (LEVEL_NUMTILE_LON/2));
+		minLon = ((int) (camera.getPosition().getLongitudeDD() / tileSize) * tileSize) - (tileSize * (NUMTILE_LON/2));
 		if (minLon < leftMostTile) {
 			minLon += ((maxLongitude * 2) / tileSize) * tileSize;
 		}
@@ -139,12 +139,12 @@ public class Layer {
 
 		int minLat;
 		boolean wraps = false;
-		if ((tileSize * LEVEL_NUMTILE_LAT) > (maxLatitude * 2)) {
+		if ((tileSize * NUMTILE_LAT) > (maxLatitude * 2)) {
 			wraps = true;
 			minLat = topTile;
 		}
 		else {
-			minLat = ((int) (camera.getPosition().getLatitudeDD() / tileSize) * tileSize) + (tileSize * (LEVEL_NUMTILE_LAT/2));
+			minLat = ((int) (camera.getPosition().getLatitudeDD() / tileSize) * tileSize) + (tileSize * (NUMTILE_LAT/2));
 			if (minLat > topTile) {
 				minLat = topTile - (((minLat - maxLatitude) / tileSize) * tileSize);
 				
@@ -160,17 +160,21 @@ public class Layer {
 		}
 		
 		// Level bounds
-		centerLon = minLon + (tileSize * (LEVEL_NUMTILE_LON/2));
-		centerLat = -(minLat + (tileSize * (LEVEL_NUMTILE_LAT/2)) * latSign);
+		centerLon = minLon + (tileSize * (NUMTILE_LON/2));
+		centerLat = -(minLat + (tileSize * (NUMTILE_LAT/2)) * latSign);
+		
+		/*
+		 * TODO Clean up needed here !
+		 */
 		
 		// Create tiles
 		int k = 0;
 		int row = 0;
 		int vlat = minLat;
-		while (row < LEVEL_NUMTILE_LAT) {
+		while (row < NUMTILE_LAT) {
 			int col = 0;
 			int vlon = minLon;
-			while (col < LEVEL_NUMTILE_LON) {
+			while (col < NUMTILE_LON) {
 				if (vlon >= maxLongitude) {
 					vlon = (-maxLongitude / tileSize) * tileSize;
 					if (vlon != maxLongitude) {
@@ -179,7 +183,7 @@ public class Layer {
 				}
 
 				if ((vlon == minLon) && (col != 0)) {
-					for (; col < LEVEL_NUMTILE_LON; col++) {
+					for (; col < NUMTILE_LON; col++) {
 						tiles[k++].visible = false;
 					}
 				}
@@ -203,7 +207,7 @@ public class Layer {
 					latSign *= -1;
 				}
 				else {
-					for (; k < LEVEL_NUMTILE_LON * LEVEL_NUMTILE_LAT; k++) {
+					for (; k < NUMTILE_LON * NUMTILE_LAT; k++) {
 						tiles[k].visible = false;
 					}
 					break;
@@ -243,7 +247,7 @@ public class Layer {
 		final boolean centerInBounds = (centerLat <= topTileLat) && (centerLat >= -topTileLat);
 		final boolean inBounds = (b_lrz_ <= topTileLat) && (b_lrz_ >= -topTileLat);
 		if (centerInBounds && inBounds) {
-			synchronized(areas) {
+			/*synchronized(areas) */{
 				areas.clear();
 				areas.add(new Area(b_ulz_, b_lrz_, b_ulx_, b_lrx_));
 			}
@@ -271,13 +275,13 @@ public class Layer {
 					//One Half
 					b_ulx = b_ulx_;
 					b_lrx = b_lrx_;
-					b_ulz2 = -topTileLat;
-					b_lrz2 = -topTileLat - (b_lrz_ + topTileLat) - tileSize;
+					b_ulz = -topTileLat;
+					b_lrz = -topTileLat + (b_ulz_ + topTileLat) + tileSize;
 					//Other half
 					b_ulx2 = b_ulx_ + halfLon;
 					b_lrx2 = b_lrx_ + halfLon;
-					b_ulz = -topTileLat;
-					b_lrz = -topTileLat + (b_ulz_ + topTileLat) + tileSize;
+					b_ulz2 = -topTileLat;
+					b_lrz2 = -topTileLat - (b_lrz_ + topTileLat) - tileSize;
 				}
 			}
 			else {
@@ -286,13 +290,13 @@ public class Layer {
 					//One Half
 					b_ulx = b_ulx_;
 					b_lrx = b_lrx_;
-					b_ulz2 = topTileLat - (b_lrz_ - topTileLat);
-					b_lrz2 = topTileLat;
+					b_ulz = topTileLat + (b_ulz_ - topTileLat);
+					b_lrz = topTileLat;
 					//Other half
 					b_ulx2 = b_ulx_ - halfLon;
 					b_lrx2 = b_lrx_ - halfLon;
-					b_ulz = topTileLat + (b_ulz_ - topTileLat);
-					b_lrz = topTileLat;
+					b_ulz2 = topTileLat - (b_lrz_ - topTileLat);
+					b_lrz2 = topTileLat;
 				}
 				else {
 					//One Half
@@ -308,7 +312,7 @@ public class Layer {
 				}
 			}
 			
-			synchronized(areas) {
+			/*synchronized(areas) */{
 				areas.clear();
 				areas.add(new Area(b_ulz, b_lrz, b_ulx, b_lrx));
 				areas.add(new Area(b_ulz2, b_lrz2, b_ulx2, b_lrx2));
@@ -321,19 +325,29 @@ public class Layer {
 			return;
 		}
 		
-		for (int i = 0; i < LEVEL_NUMTILE_LAT; i++) {
-			for (int j = 0; j < LEVEL_NUMTILE_LON; j++) {
-				final int tileID = (i * LEVEL_NUMTILE_LON) + j;
+		for (int i = 0; i < NUMTILE_LAT; i++) {
+			for (int j = 0; j < NUMTILE_LON; j++) {
+				final int tileID = (i * NUMTILE_LON) + j;
 				final Tile tile = tiles[tileID];
 
-				final Tile right = (j == (LEVEL_NUMTILE_LON - 1)) ? null : tiles[(i * LEVEL_NUMTILE_LON) + j + 1];
-				final Tile below = (i == (LEVEL_NUMTILE_LAT - 1)) ? null : tiles[((i + 1) * LEVEL_NUMTILE_LON) + j];
-				final Tile left = (j == 0) ? null : tiles[(i * LEVEL_NUMTILE_LON) + j - 1];
-				final Tile above = (i == 0) ? null : tiles[((i - 1) * LEVEL_NUMTILE_LON) + j];
+				final Tile right = (j == (NUMTILE_LON - 1)) ? null : tiles[(i * NUMTILE_LON) + j + 1];
+				final Tile below = (i == (NUMTILE_LAT - 1)) ? null : tiles[((i + 1) * NUMTILE_LON) + j];
+				final Tile left = (j == 0) ? null : tiles[(i * NUMTILE_LON) + j - 1];
+				final Tile above = (i == 0) ? null : tiles[((i - 1) * NUMTILE_LON) + j];
 				
 				// Display
 				tile.processClipping(right, below, left, above);
 			}
+		}
+	}
+	
+	protected void linkTiles(Layer layerBelow) {
+		if(!isVisible() || !layerBelow.isVisible()) {
+			return;
+		}
+		for (int i = 0; i < NUMTILES; i++) {
+			final Tile tile = tiles[i];
+			tile.linkTiles(layerBelow);
 		}
 	}
 	
@@ -497,7 +511,7 @@ public class Layer {
 	 * Get the Tile at a specified index.
 	 * @return the Tile at the specified index
 	 */
-	public Tile getTiles(int index) {
+	public Tile getTile(int index) {
 		return tiles[index];
 	}
 

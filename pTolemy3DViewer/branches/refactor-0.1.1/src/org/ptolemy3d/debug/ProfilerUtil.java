@@ -58,6 +58,8 @@ public class ProfilerUtil
 	/** Tile counter */
 	public static int tileCounter = 0;
 	/** Tile counter */
+	public static int tileSelected = 1;
+	/** Tile counter */
 	public static int tileSectionCounter = 0;
 	/** Vertex counter */
 	public static int vertexCounter = 0;
@@ -248,6 +250,9 @@ public class ProfilerUtil
 							case Landscape.DISPLAY_LEVELID:
 								landscapeRenderMode = "Level id";
 								break;
+							case Landscape.DISPLAY_TILENEIGHBOUR:
+								landscapeRenderMode = "Tile neightbour";
+								break;
 							default:
 								return null;
 						}
@@ -332,6 +337,9 @@ public class ProfilerUtil
 				legend.add("Light Green: Layer 7");
 				legend.add("Light Blue:  Layer 8");
 				legend.add("...");
+				break;
+			case Landscape.DISPLAY_TILENEIGHBOUR:
+				legend.add("Tile neighboorg.");
 				break;
 		}
 

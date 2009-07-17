@@ -17,32 +17,34 @@
  */
 package org.ptolemy3d.globe;
 
-import org.ptolemy3d.globe.Tile.TileBounds;
+import org.ptolemy3d.globe.Tile.TileArea;
 
 /**
  * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  */
 class ElevationNone {
 	public final Tile tile;
-	public final TileBounds subTile;
+	public final TileArea subTile;
 	
 	private final int numTilePolygons;
+	private final int polygonSize;
+	public final int polySizeLat, polySizeLon;
 	public final int numPolyLon, numPolyLat;
-	public final int polySizeLon, polySizeLat;
 	public final int polyLonStart, polyLatStart;
 	public final int polyLonEnd, polyLatEnd;
 	
 	public final int polySizeLonOffsetStart, polySizeLatOffsetStart;
 	public final int polySizeLonOffsetEnd, polySizeLatOffsetEnd;
 	
-	public ElevationNone(Tile tile, TileBounds subTile) {
-		this.tile = tile;
+	public ElevationNone(TileArea subTile) {
+		this.tile = subTile.tile;
 		this.subTile = subTile;
 		
 		numTilePolygons = getNumTilePolygons();
+		polygonSize = getPolygonSize();
 		
-		polySizeLon = getPolygonSize();
-		polySizeLat = getPolygonSize();
+		polySizeLat = polygonSize;
+		polySizeLon = polygonSize;
 		
 		polyLonStart = subTile.ulx;
 		polyLatStart = subTile.ulz;
@@ -75,23 +77,23 @@ class ElevationNone {
 
 	/** @return */
 	private int getPolygonSizeLonOffsetStart() {
-		final int offset = (subTile.ulx - tile.getReferenceLeftLongitude()) % getPolygonSize();
+		final int offset = (subTile.ulx - tile.getReferenceLeftLongitude()) % polygonSize;
 		return -offset;
 	}
 	/** @return */
 	private int getPolygonSizeLonOffsetEnd() {
-		final int offset = (tile.getReferenceRightLongitude() - subTile.lrx) % getPolygonSize();
+		final int offset = (tile.getReferenceRightLongitude() - subTile.lrx) % polygonSize;
 		return -offset;
 	}
 
 	/** @return */
 	private int getPolygonSizeLatOffsetStart() {
-		final int offset = (subTile.ulz - tile.getReferenceUpperLatitude()) % getPolygonSize();
+		final int offset = (subTile.ulz - tile.getReferenceUpperLatitude()) % polygonSize;
 		return -offset;
 	}
 	/** @return */
 	private int getPolygonSizeLatOffsetEnd() {
-		final int offset = (tile.getReferenceLowerLatitude() - subTile.lrz) % getPolygonSize();
+		final int offset = (tile.getReferenceLowerLatitude() - subTile.lrz) % polygonSize;
 		return -offset;
 	}
 	
@@ -101,7 +103,7 @@ class ElevationNone {
 		final int dLast = getPolygonSizeLonOffsetEnd();
 		
 		int sizeLon = (subTile.lrx - dLast) - (subTile.ulx + dFirst);
-		final int nLon = sizeLon / getPolygonSize();
+		final int nLon = sizeLon / polygonSize;
 		return nLon;
 	}
 	/** @return */
@@ -110,7 +112,11 @@ class ElevationNone {
 		final int dLast = getPolygonSizeLatOffsetEnd();
 		
 		int sizeLat = (subTile.lrz - dLast) - (subTile.ulz + dFirst);
-		final int nLat = sizeLat / getPolygonSize();
+		final int nLat = sizeLat / polygonSize;
 		return nLat;
+	}
+	
+	public double getHeight(Tile tile, int lon, int lat) {
+		return 0;
 	}
 }

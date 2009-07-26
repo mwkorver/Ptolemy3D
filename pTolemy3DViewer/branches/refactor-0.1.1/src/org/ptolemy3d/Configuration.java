@@ -26,8 +26,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.ptolemy3d.debug.IO;
-import org.ptolemy3d.exceptions.Ptolemy3DConfigurationException;
-import org.ptolemy3d.exceptions.Ptolemy3DException;
 import org.ptolemy3d.globe.Layer;
 import org.ptolemy3d.io.ServerConfig;
 import org.ptolemy3d.plugin.Sky;
@@ -71,9 +69,6 @@ public class Configuration {
 		public final static String MHeaderKey = "MHeaderKey";
 		public final static String numMapDataServer = "MDataServer";
 		public final static String isKeepAlive = "isKeepAlive";
-		/* Unit */
-		public final static String DD = "DD"; // Jerome: I think nothing will
-		// work if different to 1E6
 		/* Initial position */
 		public final static String Orientation = "Orientation";
 		/* Layer */
@@ -170,18 +165,6 @@ public class Configuration {
 		final Sky sky = scene.getSky();
 		final Plugins plugins = scene.getPlugins();
 
-		// Coordinate System Units
-		try {
-			int dd = getOptionalParameterInt(Optional.DD, docelem);
-			if (dd != -1) {
-				Unit.setDDFactor(dd);
-			}
-		} catch (Ptolemy3DConfigurationException ex) {
-			// Abort the load process if some required parameter fails.
-			logger.severe(ex.getMessage());
-			return;
-		}
-
 		// Server informations
 		server = getRequieredParameter(Requiered.Server, docelem);
 
@@ -259,7 +242,7 @@ public class Configuration {
 				final Layer level = new Layer(i, tilePixel, maxZoom, divider);
 				layers[i] = level;
 			}
-		} catch (Ptolemy3DConfigurationException ex) {
+		} catch (Ptolemy3DException ex) {
 			// Abort the load process if some required parameter fails.
 			logger.severe(ex.getMessage());
 			return;
@@ -296,7 +279,7 @@ public class Configuration {
 					logger.warning(message);
 				}
 			}
-		} catch (Ptolemy3DConfigurationException ex) {
+		} catch (Ptolemy3DException ex) {
 			// Abort the load process if some required parameter fails.
 			logger.severe(ex.getMessage());
 			return;
@@ -353,7 +336,7 @@ public class Configuration {
 					backgroundColor[2] = (Float.parseFloat(st.nextToken()) / 255);
 				}
 			}
-		} catch (Ptolemy3DConfigurationException ex) {
+		} catch (Ptolemy3DException ex) {
 			// Abort the load process if some required parameter fails.
 			logger.severe(ex.getMessage());
 			return;
@@ -375,7 +358,7 @@ public class Configuration {
 					logger.severe("Problem loading plugin: " + ex.getMessage());
 				}
 			}
-		} catch (Ptolemy3DConfigurationException ex) {
+		} catch (Ptolemy3DException ex) {
 			// Abort the load process if some required parameter fails.
 			logger.severe(ex.getMessage());
 			return;
@@ -389,11 +372,11 @@ public class Configuration {
 	 * @param name
 	 *            Parameter name.
 	 * @return String value.
-	 * @throws Ptolemy3DConfigurationException
+	 * @throws Ptolemy3DException
 	 *             if the param doesn't exists.
 	 */
 	private String getRequieredParameter(String name)
-			throws Ptolemy3DConfigurationException {
+			throws Ptolemy3DException {
 
 		final Applet applet = Ptolemy3D.getJavascript().getApplet();
 		String parameter = applet.getParameter(name);
@@ -401,7 +384,7 @@ public class Configuration {
 		if (parameter == null) {
 			String message = "The requiered parameter '" + name
 					+ "' is missing.";
-			throw new Ptolemy3DConfigurationException(message);
+			throw new Ptolemy3DException(message);
 		}
 		return parameter;
 	}
@@ -413,42 +396,19 @@ public class Configuration {
 	 * @param name
 	 *            Parameter name.
 	 * @return int value.
-	 * @throws Ptolemy3DConfigurationException
+	 * @throws Ptolemy3DException
 	 *             if the param doesn't exists or doesn't contains a valid
 	 *             integer value.
 	 */
 	private int getRequieredParameterInt(String name)
-			throws Ptolemy3DConfigurationException {
+			throws Ptolemy3DException {
 
 		try {
 			return Integer.parseInt(getRequieredParameter(name));
 		} catch (NumberFormatException e) {
 			String message = "The requiered parameter '" + name
 					+ "' is not a valid integer value.";
-			throw new Ptolemy3DConfigurationException(message);
-		}
-	}
-
-	/**
-	 * Get a required parameter from applet. An exception is triggered if the
-	 * parameter was not found.
-	 * 
-	 * @param name
-	 *            Parameter name.
-	 * @return float value.
-	 * @throws Ptolemy3DConfigurationException
-	 *             if the param doesn't exists or doesn't contains a valid float
-	 *             value.
-	 */
-	private float getRequieredParameterFloat(String name)
-			throws Ptolemy3DConfigurationException {
-
-		try {
-			return Float.parseFloat(getRequieredParameter(name));
-		} catch (NumberFormatException e) {
-			String message = "The requiered parameter '" + name
-					+ "' is not a valid float value.";
-			throw new Ptolemy3DConfigurationException(message);
+			throw new Ptolemy3DException(message);
 		}
 	}
 
@@ -459,11 +419,11 @@ public class Configuration {
 	 * @param name
 	 *            Parameter name.
 	 * @return boolean value.
-	 * @throws Ptolemy3DConfigurationException
+	 * @throws Ptolemy3DException
 	 *             if the param doesn't exists.
 	 */
 	private boolean getRequieredParameterBoolean(String name)
-			throws Ptolemy3DConfigurationException {
+			throws Ptolemy3DException {
 		String strValue = getRequieredParameter(name);
 		return strValue.equals("1") ? true : false;
 	}
@@ -478,11 +438,11 @@ public class Configuration {
 	 * @param elem
 	 *            XML document.
 	 * @return String value.
-	 * @throws Ptolemy3DConfigurationException
+	 * @throws Ptolemy3DException
 	 *             if the param doesn't exists.
 	 */
 	private String getRequieredParameter(String name, Element elem)
-			throws Ptolemy3DConfigurationException {
+			throws Ptolemy3DException {
 
 		// Check if the setting must be read from XML file or from applet's
 		// params.
@@ -497,7 +457,7 @@ public class Configuration {
 		} catch (Exception ex) {
 			String message = "The requiered parameter '" + name
 					+ "' is missing.\nException message: " + ex.getMessage();
-			throw new Ptolemy3DConfigurationException(message);
+			throw new Ptolemy3DException(message);
 		}
 	}
 
@@ -511,12 +471,12 @@ public class Configuration {
 	 * @param elem
 	 *            XML document.
 	 * @return int value.
-	 * @throws Ptolemy3DConfigurationException
+	 * @throws Ptolemy3DException
 	 *             if the param doesn't exists or doesn't contains a valid
 	 *             integer value.
 	 */
 	private int getRequieredParameterInt(String name, Element elem)
-			throws Ptolemy3DConfigurationException {
+			throws Ptolemy3DException {
 
 		// Check if the setting must be read from XML file or from applet's
 		// params.
@@ -529,39 +489,7 @@ public class Configuration {
 		} catch (NumberFormatException e) {
 			String message = "The requiered parameter '" + name
 					+ "' is not a valid integer value.";
-			throw new Ptolemy3DConfigurationException(message);
-		}
-	}
-
-	/**
-	 * Get a required parameter. An exception is triggered if the parameter was
-	 * not found. If 'elem' is null the parameter is get from applet params,
-	 * otherwise it is get from a XML config file.
-	 * 
-	 * @param name
-	 *            Parameter name.
-	 * @param elem
-	 *            XML document.
-	 * @return float value.
-	 * @throws Ptolemy3DConfigurationException
-	 *             if the param doesn't exists or doesn't contains a valid float
-	 *             value.
-	 */
-	private float getRequieredParameterFloat(String name, Element elem)
-			throws Ptolemy3DConfigurationException {
-
-		// Check if the setting must be read from XML file or from applet's
-		// params.
-		if (elem == null) {
-			return getRequieredParameterFloat(name);
-		}
-
-		try {
-			return Float.parseFloat(getRequieredParameter(name, elem));
-		} catch (NumberFormatException e) {
-			String message = "The requiered parameter '" + name
-					+ "' is not a valid float value.";
-			throw new Ptolemy3DConfigurationException(message);
+			throw new Ptolemy3DException(message);
 		}
 	}
 
@@ -575,11 +503,11 @@ public class Configuration {
 	 * @param elem
 	 *            XML document.
 	 * @return boolean value.
-	 * @throws Ptolemy3DConfigurationException
+	 * @throws Ptolemy3DException
 	 *             if the param doesn't exists.
 	 */
 	private boolean getRequieredParameterBoolean(String name, Element elem)
-			throws Ptolemy3DConfigurationException {
+			throws Ptolemy3DException {
 
 		// Check if the setting must be read from XML file or from applet's
 		// params.
@@ -602,7 +530,7 @@ public class Configuration {
 	private String getOptionalParameter(String name, Element elem) {
 		try {
 			return getRequieredParameter(name, elem);
-		} catch (Ptolemy3DConfigurationException e) {
+		} catch (Ptolemy3DException e) {
 			return null;
 		}
 	}
@@ -618,23 +546,7 @@ public class Configuration {
 	private int getOptionalParameterInt(String name, Element elem) {
 		try {
 			return getRequieredParameterInt(name, elem);
-		} catch (Ptolemy3DConfigurationException e) {
-			return -1;
-		}
-	}
-
-	/**
-	 * Get an optional parameter. If 'elem' is null the parameter is get from
-	 * applet params, otherwise it is get from a XML config file.
-	 * 
-	 * @param name
-	 * @param elem
-	 * @return -1 if the param doesn't exist.
-	 */
-	private float getOptionalParameterFloat(String name, Element elem) {
-		try {
-			return getRequieredParameterFloat(name, elem);
-		} catch (Ptolemy3DConfigurationException e) {
+		} catch (Ptolemy3DException e) {
 			return -1;
 		}
 	}
@@ -650,7 +562,7 @@ public class Configuration {
 	private boolean getOptionalParameterBoolean(String name, Element elem) {
 		try {
 			return getRequieredParameterBoolean(name, elem);
-		} catch (Ptolemy3DConfigurationException e) {
+		} catch (Ptolemy3DException e) {
 			return false;
 		}
 	}

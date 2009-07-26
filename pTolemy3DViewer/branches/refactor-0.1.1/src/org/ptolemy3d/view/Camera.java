@@ -26,6 +26,7 @@ import org.ptolemy3d.Unit;
 import org.ptolemy3d.math.Math3D;
 import org.ptolemy3d.math.Matrix16d;
 import org.ptolemy3d.math.Matrix9d;
+import org.ptolemy3d.math.Vector3d;
 import org.ptolemy3d.plugin.Sky;
 import org.ptolemy3d.scene.Landscape;
 
@@ -105,6 +106,8 @@ import org.ptolemy3d.scene.Landscape;
  * 
  * @see CameraMovement
  * @see #getCartesianPosition
+ * 
+ * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  */
 public class Camera {
 
@@ -125,10 +128,10 @@ public class Camera {
 	private double cameraX = 0;
 
 	// Cartesian position
-	public double[] cameraPos = new double[3];
-	public Matrix9d vpMat = new Matrix9d();
-	public Matrix9d cameraMat = new Matrix9d();
-	public Matrix16d cameraMatInv = Matrix16d.identity();
+	public final Vector3d cameraPos = new Vector3d();
+	public final Matrix9d vpMat = new Matrix9d();
+	public final Matrix9d cameraMat = new Matrix9d();
+	public final Matrix16d cameraMatInv = Matrix16d.identity();
 
 	// 'Field Of View' in degrees
 	public double fov = 60.0;
@@ -235,61 +238,57 @@ public class Camera {
 	 * @param position
 	 *            destination array to write cartesian position in.
 	 */
-	public final void getCartesianPosition(double[] position) {
-		position[0] = cameraPos[0];
-		position[1] = cameraPos[1];
-		position[2] = cameraPos[2];
+	public final void getCartesianPosition(Vector3d position) {
+		position.set(cameraPos);
 	}
 
 	/**
 	 * @param left
 	 *            destination vector to store left vector
 	 */
-	public void getLeft(double[] left) {
-		left[0] = -cameraMat.m[0][2];
-		left[1] = -cameraMat.m[1][2];
-		left[2] = -cameraMat.m[2][2];
+	public void getLeft(Vector3d left) {
+		left.x = -cameraMat.m[0][2];
+		left.y = -cameraMat.m[1][2];
+		left.z = -cameraMat.m[2][2];
 	}
 
 	/**
 	 * @param up
 	 *            destination vector to store up vector
 	 */
-	public void getUp(double[] up) {
-		up[0] = cameraMat.m[0][1];
-		up[1] = cameraMat.m[1][1];
-		up[2] = cameraMat.m[2][1];
+	public void getUp(Vector3d up) {
+		up.x = cameraMat.m[0][1];
+		up.y = cameraMat.m[1][1];
+		up.z = cameraMat.m[2][1];
 	}
 
 	/**
 	 * @param forward
 	 *            destination vector to store forward vector
 	 */
-	public void getForward(double[] forward) {
-		forward[0] = -cameraMat.m[0][2];
-		forward[1] = -cameraMat.m[1][2];
-		forward[2] = -cameraMat.m[2][2];
+	public void getForward(Vector3d forward) {
+		forward.x = -cameraMat.m[0][2];
+		forward.y = -cameraMat.m[1][2];
+		forward.z = -cameraMat.m[2][2];
 	}
 
 	/** @return the position in the view coordinate system */
 	public String toString() {
-		double[] forward = new double[3];
-		double[] up = new double[3];
-		double[] left = new double[3];
+		Vector3d forward = new Vector3d();
+		Vector3d up = new Vector3d();
+		Vector3d left = new Vector3d();
 		getForward(forward);
 		getUp(up);
 		getLeft(left);
-		return String
-				.format(
-						"lat:%f, lon:%f, alt:%f, dir:%f, tilt:%f, x:%f, y:%f, z:%f, forX: %f, forY: %f, forZ: %f, upX: %f, upY: %f, upZ: %f, leftX: %f, leftY: %f, leftZ: %f",
-						(float) position.getLatitudeDD(), (float) position
-								.getLongitudeDD(), (float) position
-								.getAltitudeDD(), (float) getDirection(), tilt,
-						(float) cameraPos[0], (float) cameraPos[1],
-						(float) cameraPos[2], (float) forward[0],
-						(float) forward[1], (float) forward[2], (float) up[0],
-						(float) up[1], (float) up[2], (float) left[0],
-						(float) left[1], (float) left[2]);
+		return String.format(
+			"lat:%f, lon:%f, alt:%f, dir:%f, tilt:%f, x:%f, y:%f, z:%f, forX: %f, forY: %f, forZ: %f, upX: %f, upY: %f, upZ: %f, leftX: %f, leftY: %f, leftZ: %f",
+			(float) position.getLatitudeDD(), (float) position.getLongitudeDD(), (float) position.getAltitudeDD(),
+			(float) getDirection(),
+			tilt,
+			(float) cameraPos.x, (float) cameraPos.y, (float) cameraPos.z,
+			(float) forward.x, (float) forward.y, (float) forward.z,
+			(float) up.x, (float) up.y, (float) up.z,
+			(float) left.x, (float) left.y, (float) left.z);
 	}
 
 	/**
@@ -415,7 +414,7 @@ public class Camera {
 	 */
 	public boolean isPointInView(double lon, double lat) {
 		// Normal direction of the point( lon, lat) on the globe
-		double[] point = new double[3];
+		Vector3d point = new Vector3d();
 		Math3D.setSphericalCoord(lon, lat, Unit.EARTH_RADIUS, point);
 		return isCartesianPointInView(point);
 	}
@@ -426,18 +425,15 @@ public class Camera {
 	 * @return true if the point is the visible side of the globe and in the
 	 *         view sight (frustum volume).
 	 */
-	public boolean isCartesianPointInView(double[] point) {
+	public boolean isCartesianPointInView(Vector3d point) {
 		// View forward vector
-		double[] posToPoint = new double[3];
+		Vector3d posToPoint = new Vector3d();
 		// Direction from the viewer to the point
 		getCartesianPosition(posToPoint);
-		posToPoint[0] = point[0] - posToPoint[0];
-		posToPoint[1] = point[1] - posToPoint[1];
-		posToPoint[2] = point[2] - posToPoint[2];
+		posToPoint.sub(point, posToPoint);
 
 		// Dot product between the vectors (front/back face test)
-		double dot = (posToPoint[0] * point[0]) + (posToPoint[1] * point[1])
-				+ (posToPoint[2] * point[2]);
+		final double dot = posToPoint.dot(point);
 		if (dot <= 0) {
 			// Visible if the forward vector is pointing in the other direction
 			// than the globe normal
@@ -457,7 +453,7 @@ public class Camera {
 	 */
 	public boolean isPointInVisibleSide(double lon, double lat) {
 		// Normal direction of the point( lon, lat) on the globe
-		double[] point = new double[3];
+		Vector3d point = new Vector3d();
 		Math3D.setSphericalCoord(lon, lat, Unit.EARTH_RADIUS, point);
 		return isCartesianPointInVisibleSide(point);
 	}
@@ -467,18 +463,15 @@ public class Camera {
 	 *            cartesian coordinate of the point on the globe
 	 * @return true if the point is on the visible side of the globe
 	 */
-	public boolean isCartesianPointInVisibleSide(double[] point) {
+	public boolean isCartesianPointInVisibleSide(Vector3d point) {
 		// View forward vector
-		double[] posToPoint = new double[3];
+		Vector3d posToPoint = new Vector3d();
 		// Direction from the viewer to the point
 		getCartesianPosition(posToPoint);
-		posToPoint[0] = point[0] - posToPoint[0];
-		posToPoint[1] = point[1] - posToPoint[1];
-		posToPoint[2] = point[2] - posToPoint[2];
+		posToPoint.sub(point, posToPoint);
 
 		// Dot product between the vectors (front/back face test)
-		final double dot = (posToPoint[0] * point[0])
-				+ (posToPoint[1] * point[1]) + (posToPoint[2] * point[2]);
+		final double dot = posToPoint.dot(point);
 		if (dot <= 0) {
 			// Visible if the forward vector is pointing in the other direction
 			// than the globe normal
@@ -488,6 +481,10 @@ public class Camera {
 		}
 	}
 
+	private final Vector3d _point1_ = new Vector3d();
+	private final Vector3d _point2_ = new Vector3d();
+	private final Vector3d _point3_ = new Vector3d();
+	private final Vector3d _point4_ = new Vector3d();
 	/**
 	 * @param lon
 	 *            longitude
@@ -500,34 +497,31 @@ public class Camera {
 	 */
 	public boolean isTileInView(int leftLon, int rightLon, int upLat, int botLat,
 			double upLeftHeight, double botLeftHeight, double botRightHeight, double upRightHeight) {
+		/*
+		 * FIXME At north pose for close view, the visibility goes wrong
+		 */
+		
 		// Tile corners
-		double[] upLeft = new double[3];
-		double[] botLeft = new double[3];
-		double[] botRight = new double[3];
-		double[] upRight = new double[3];
-		Math3D.setSphericalCoord(leftLon, upLat, Unit.EARTH_RADIUS + upLeftHeight, upLeft);
-		Math3D.setSphericalCoord(leftLon, botLat, Unit.EARTH_RADIUS + botLeftHeight, botLeft);
-		Math3D.setSphericalCoord(rightLon, botLat, Unit.EARTH_RADIUS + botRightHeight, botRight);
-		Math3D.setSphericalCoord(rightLon, upLat, Unit.EARTH_RADIUS + upRightHeight, upRight);
+		Math3D.setSphericalCoord(leftLon, upLat, Unit.EARTH_RADIUS + upLeftHeight, _point1_);
+		Math3D.setSphericalCoord(leftLon, botLat, Unit.EARTH_RADIUS + botLeftHeight, _point2_);
+		Math3D.setSphericalCoord(rightLon, botLat, Unit.EARTH_RADIUS + botRightHeight, _point3_);
+		Math3D.setSphericalCoord(rightLon, upLat, Unit.EARTH_RADIUS + upRightHeight, _point4_);
 
-		if (isCartesianPointInVisibleSide(upLeft)
-				|| isCartesianPointInVisibleSide(botLeft)
-				|| isCartesianPointInVisibleSide(botRight)
-				|| isCartesianPointInVisibleSide(upRight)) {
-			return frustum.insideFrustum(upLeft, botLeft, botRight, upRight);
+		if (isCartesianPointInVisibleSide(_point1_) || isCartesianPointInVisibleSide(_point2_)
+		 || isCartesianPointInVisibleSide(_point3_) || isCartesianPointInVisibleSide(_point4_)) {
+			return frustum.insideFrustum(_point1_, _point2_, _point3_, _point4_);
 		} else {
 			return false;
 		}
 	}
 
-	public boolean realPointInView(double lon, double alt, double lat,
-			int MAXANGLE) {
-		double[] coord = new double[3];
+	public boolean realPointInView(double lon, double alt, double lat, int MAXANGLE) {
+		final Vector3d coord = new Vector3d();
 		Math3D.setSphericalCoord(lon, lat, Unit.EARTH_RADIUS + alt, coord);
 		double angle = Math3D.angle3dvec(-cameraMat.m[0][2],
 				-cameraMat.m[1][2], -cameraMat.m[2][2],
-				(cameraPos[0] - coord[0]), (cameraPos[1] - coord[1]),
-				(cameraPos[2] - coord[2]), true);
+				(cameraPos.x - coord.x), (cameraPos.y - coord.y),
+				(cameraPos.z - coord.z), true);
 
 		if (angle <= MAXANGLE) {
 			return true;
@@ -537,11 +531,10 @@ public class Camera {
 	}
 
 	public double getScreenScaler(double tx, double ty, double tz, int fms) {
-
 		double dx, dy, dz;
-		dx = cameraPos[0] - tx;
-		dy = cameraPos[1] - ty;
-		dz = cameraPos[2] - tz;
+		dx = cameraPos.x - tx;
+		dy = cameraPos.y - ty;
+		dz = cameraPos.z - tz;
 
 		double kyori = Math.sqrt((dx * dx) + (dy * dy) + (dz * dz));
 		// adjust distance according to angle
@@ -564,17 +557,14 @@ public class Camera {
 	 * @param lonDD
 	 * @return
 	 */
-	public static double[] computeCartesianSurfacePoint(double lonDD, double latDD) {
-
-		Landscape landscape = Ptolemy3D.getScene().getLandscape();
-
+	public static Vector3d computeCartesianSurfacePoint(double lonDD, double latDD) {
 		// Get the terrain elevation
-		double terrainElev = landscape.groundHeight(lonDD, latDD, 0);
+		final Landscape landscape = Ptolemy3D.getScene().getLandscape();
+		final double terrainElev = landscape.groundHeight(lonDD, latDD, 0);
 
 		// Transform from lat/lon to cartesion coordinates.
-		double point[] = new double[3];
+		final Vector3d point = new Vector3d();
 		Math3D.setSphericalCoord(lonDD, latDD, Unit.EARTH_RADIUS + terrainElev, point);
-
 		return point;
 	}
 
@@ -586,12 +576,10 @@ public class Camera {
 	 * @param lonDD
 	 * @return
 	 */
-	public static double[] computeCartesianPoint(double lonDD, double latDD, double altitude) {
-
+	public static Vector3d computeCartesianPoint(double lonDD, double latDD, double altitude) {
 		// Transform from lat/lon to cartesion coordinates.
-		double point[] = new double[3];
+		final Vector3d point = new Vector3d();
 		Math3D.setSphericalCoord(lonDD, latDD, Unit.EARTH_RADIUS + altitude, point);
-
 		return point;
 	}
 
@@ -601,7 +589,7 @@ public class Camera {
 	 * 
 	 * @param cartesian
 	 */
-	public double[] worldToScreen(DrawContext drawContext, double[] cartesian) {
+	public double[] worldToScreen(DrawContext drawContext, Vector3d cartesian) {
 
 		GLU glu = new GLU();
 		double model[] = new double[16];
@@ -619,7 +607,7 @@ public class Camera {
 		proj = camera.perspective.m;
 
 		double screen[] = new double[4];
-		glu.gluProject(cartesian[0], cartesian[1], cartesian[2], model, 0,
+		glu.gluProject(cartesian.x, cartesian.y, cartesian.z, model, 0,
 				proj, 0, viewport, 0, screen, 0);
 
 		return screen;

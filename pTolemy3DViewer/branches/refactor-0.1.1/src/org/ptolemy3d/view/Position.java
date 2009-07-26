@@ -48,7 +48,9 @@ public class Position {
 	 */
 	public static final Position fromLatLonAlt(double lat, double lon,
 			double alt) {
-		return new Position(lat * Unit.getDDFactor(), lon * Unit.getDDFactor(),
+		return new Position(
+				lat * Unit.DEGREE_TO_DD_FACTOR,
+				lon * Unit.DEGREE_TO_DD_FACTOR,
 				alt / Unit.getCoordSystemRatio());
 	}
 
@@ -92,11 +94,11 @@ public class Position {
 	}
 
 	public double getLatitude() {
-		return latitudeDD / Unit.getDDFactor();
+		return latitudeDD / Unit.DEGREE_TO_DD_FACTOR;
 	}
 
 	public void setLatitude(double lat) {
-		latitudeDD = lat * Unit.getDDFactor();
+		setLatitudeDD(lat * Unit.DEGREE_TO_DD_FACTOR);
 	}
 
 	public void setLatitudeDD(double latDD) {
@@ -111,11 +113,11 @@ public class Position {
 	}
 
 	public double getLongitude() {
-		return longitudeDD / Unit.getDDFactor();
+		return longitudeDD / Unit.DEGREE_TO_DD_FACTOR;
 	}
 
 	public void setLongitude(double lon) {
-		longitudeDD = lon * Unit.getDDFactor();
+		setLongitudeDD(lon * Unit.DEGREE_TO_DD_FACTOR);
 	}
 
 	public void setLongitudeDD(double lonDD) {

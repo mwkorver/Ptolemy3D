@@ -25,8 +25,8 @@ import javax.imageio.ImageIO;
 
 import jj2000.j2k.image.output.ImgWriterArrayByte;
 
+import org.ptolemy3d.data.Texture;
 import org.ptolemy3d.io.Stream;
-import org.ptolemy3d.manager.Texture;
 
 /**
  * A clean interface based on a fast but unclean light version of JJ200 decoder.

@@ -25,6 +25,7 @@ import javax.media.opengl.GL;
 import org.ptolemy3d.Unit;
 import org.ptolemy3d.debug.ProfilerUtil;
 import org.ptolemy3d.globe.Tile.TileArea;
+import org.ptolemy3d.math.CosTable;
 import org.ptolemy3d.scene.Landscape;
 
 //FIXME Optimize for tin
@@ -42,162 +43,13 @@ import org.ptolemy3d.scene.Landscape;
  * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  */
 class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
-
-	private boolean isInit = false;
-
-	/* Angles values */
-	private int angle90,  angle180,  angle360;
-	/* Pre-calculate cos */
-	private double[] cosTable;	//Memory usage (in octets): cosTable.length * 8;
-
-//	/* Maximum memory used by the cos table (in octets) */
-//	private final static int MAX_MEMORY = 1024 * 1024;	//precision: 720
-//	/* Number of level to use pre-computed values */
-//	private final static int MAX_PRECOMPUTEDLEVEL = 4;
-//	/* Convert input angle to index in the cosTable */
-//	private float angleToIndex;
-//
-//	private void init(Landscape landscape) {
-//		//Angles in unit system
-//		angle90  =  90 * unit.DDBuffer;
-//		angle180 = 180 * unit.DDBuffer;
-//		angle360 = 360 * unit.DDBuffer;
-//
-//		//Calculate the number of entries in the cosinus table
-//		int numEntry = angle90;
-//		while(numEntry > MAX_MEMORY / 8 || (angle90 % numEntry != 0)) {
-//			numEntry--;
-//		}
-//
-//		//Fill the cos table
-//		cosTable = new double[numEntry+1];
-//		for(int i=0, index=0, incr = angle90 / numEntry; i <= angle90; i+=incr, index++) {
-//			double angle = i * oneOverDDToRad;
-//			cosTable[index] = Math.cos(angle);
-//		}
-//
-//		angleToIndex = (float) numEntry / angle90;		//No error here, it is effectively numEntry (but not numEntry+1)
-//
-//		isInit = true;
-//	}
-//
-//	private final double lookUpCos(int angle) {
-//		if(angle < 0) {
-//			angle = -angle;
-//		}
-//		/* To reduce the table size, we must fit to [0°;90°].
-//		 * A little time is consumed here, but it reduced a lot the cos table. */
-//		if(angle >= angle180) {
-//			angle = angle360-angle;
-//		}
-//		if(angle >= angle90) {
-//			return -cosTable[(int)((angle180-angle) * angleToIndex)];
-//		}
-//		else {
-//			return cosTable[(int)(angle * angleToIndex)];
-//		}
-//	}
-
-	//Settings: MaxLevels=4, MaxPrecision=3200, MemUsage= 215ko
-	//Settings: MaxLevels=5, MaxPrecision=1600, MemUsage= 430ko
-	//Settings: MaxLevels=5, MaxPrecision= 800, MemUsage= 860ko
-	//Settings: MaxLevels=5, MaxPrecision= 400, MemUsage=1720ko
-	//Settings: MaxLevels= , MaxPrecision= 200, MemUsage=3440ko
-
-	/* Angle precision */
-	private final static int MAX_PRECISION = 400;
-	/* Number of level to use pre-computed values */
-	private final static int MAX_PRECOMPUTEDLEVEL = 5;
-
-	private void init(Landscape landscape) {
-		//Angles in unit system
-		angle90 = 90 * Unit.getDDFactor();
-		angle180 = 180 * Unit.getDDFactor();
-		angle360 = 360 * Unit.getDDFactor();
-
-		//Calculate the number of entries in the cosinus table
-		final int numEntry = angle90 / MAX_PRECISION;
-
-		//Fill the cos table
-		cosTable = new double[numEntry + 1];
-		for (int i = 0, index = 0, incr = MAX_PRECISION; i <= angle90; i += incr, index++) {
-			final double angle = i * oneOverDDToRad;
-			cosTable[index] = Math.cos(angle);
-		}
-
-		isInit = true;
-	}
-
-	private final double lookUpCos(int angle) {
-		if(angle < 0) {
-			angle = -angle;
-		}
-		/* To reduce the table size, we must fit to [0°;90°].
-		 * A little time is consumed here, but it reduced a lot the cos table. */
-		if(angle >= angle180) {
-			angle = angle360-angle;
-		}
-		if(angle >= angle90) {
-//			if(DEBUG) {
-//				if(((angle180-angle) % MAX_PRECISION) != 0) {
-//					IO.printfRenderer("Loose of precision (%d)\n", angle180-angle);
-//				}
-//			}
-			return -cosTable[(angle180-angle) / MAX_PRECISION];
-		}
-		else {
-//			if(DEBUG) {
-//				if((angle % MAX_PRECISION) != 0) {
-//					IO.printfRenderer("Loose of precision (%d)\n", angle);
-//				}
-//			}
-			return cosTable[angle / MAX_PRECISION];
-		}
-	}
-
-	//************************************************************
-
-//	/**
-//	 * Convert a longitude/latitude into a (x,y,z) position.
-//	 * Note: Be awared that lon have previously be added with 180°.
-//	 * @param lon longitude
-//	 * @param lat latitude
-//	 * @param dst destination coordinates
-//	 */
-//	public final void setSphericalCoord(int lon, int lat, double[] dst) {
-//		double thx = lon * oneOverDDToRad;
-//		double thy = lat * oneOverDDToRad;
-//
-//		double cosX =  Math.cos(thx);
-//		double sinX =  Math.sin(thx);
-//		double cosY =  Math.cos(thy);
-//		double sinY = -Math.sin(thy);
-//
-//		dst[0] = cosY * sinX * EARTH_RADIUS;
-//		dst[1] = sinY        * EARTH_RADIUS;
-//		dst[2] = cosY * cosX * EARTH_RADIUS;
-//	}
-
-	//************************************************************
-	public TileDirectModeRenderer_MathLookUp() {
-	}
-
 	@Override
 	protected void fillLocalVariables(TileArea subTile) {
 		super.fillLocalVariables(subTile);
-
-		if (!isInit) {
-			init(landscape);
-		}
 	}
 
 	@Override
 	protected void renderSubTile_DemTextured(int xStart, int zStart, int xEnd, int zEnd) {
-		if (layerID > MAX_PRECOMPUTEDLEVEL) {
-			super.renderSubTile_DemTextured(xStart, zStart, xEnd, zEnd);
-			return;
-		}
-		
 		final Layer drawLevel = landscape.globe.getLayer(drawLevelID);
 		final byte[] dem = mapData.dem.demDatas;
 		final int numRows = mapData.dem.size;
@@ -270,8 +122,8 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 		final double dyScaler = Unit.getCoordSystemRatio() * terrainScaler;
 
 		int lat = zStart;
-		double cosZ = lookUpCos(lat);
-		double sinZ = lookUpCos(angle90 - lat);
+		double cosZ = CosTable.cos(lat);
+		double sinZ = CosTable.sin(lat);
 
 		int pos_d1 = (startz * rowWidth) + (startx * 2);
 //		gl.glBegin(GL.GL_TRIANGLE_STRIP);
@@ -279,8 +131,8 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 		{
 			final int lat2 = lat + dz;
 
-			double cos2Z = lookUpCos(lat2);
-			double sin2Z = lookUpCos(angle90 - lat2);
+			double cos2Z = CosTable.cos(lat2);
+			double sin2Z = CosTable.sin(lat2);
 
 			final float tex_z, tex_z2;
 			final double t_sz_wt, t_ez_wt, b_sz_wt, b_ez_wt;
@@ -380,8 +232,8 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 					final double dy1E = (dy1 * dyScaler) + EARTH_RADIUS;
 					final double dy2E = (dy2 * dyScaler) + EARTH_RADIUS;
 
-					final double cosX = lookUpCos(lon);
-					final double sinX = lookUpCos(angle90 - lon);
+					final double cosX = CosTable.cos(lon);
+					final double sinX = CosTable.sin(lon);
 
 					cx1 = dy1E * cosZ * sinX;
 					cx2 = dy2E * cos2Z * sinX;
@@ -418,11 +270,6 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 
 	@Override
 	protected void renderSubTile_Dem(int xStart, int zStart, int xEnd, int zEnd) {
-		if (layerID > MAX_PRECOMPUTEDLEVEL) {
-			super.renderSubTile_Dem(xStart, zStart, xEnd, zEnd);
-			return;
-		}
-
 		final Layer drawLevel = landscape.globe.getLayer(drawLevelID);
 		final byte[] dem = mapData.dem.demDatas;
 		final int numRows = mapData.dem.size;
@@ -495,8 +342,8 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 		final double dyScaler = Unit.getCoordSystemRatio() * terrainScaler;
 
 		int lat = zStart;
-		double cosZ = lookUpCos(lat);
-		double sinZ = lookUpCos(angle90 - lat);
+		double cosZ = CosTable.cos(lat);
+		double sinZ = CosTable.sin(lat);
 
 		int pos_d1 = (startz * rowWidth) + (startx * 2);
 //		gl.glBegin(GL.GL_TRIANGLE_STRIP);
@@ -504,8 +351,8 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 		{
 			final int lat2 = lat + dz;
 
-			double cos2Z = lookUpCos(lat2);
-			double sin2Z = lookUpCos(angle90 - lat2);
+			double cos2Z = CosTable.cos(lat2);
+			double sin2Z = CosTable.sin(lat2);
 
 			final double t_sz_wt,  t_ez_wt,  b_sz_wt,  b_ez_wt;
 			if ((i == startz) && (zsinterpolate)) {
@@ -596,8 +443,8 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 					final double dy1E = dy1 + EARTH_RADIUS;
 					final double dy2E = dy2 + EARTH_RADIUS;
 
-					final double cosX = lookUpCos(lon);
-					final double sinX = lookUpCos(angle90 - lon);
+					final double cosX = CosTable.cos(lon);
+					final double sinX = CosTable.sin(lon);
 
 					cx1 = dy1E * cosZ * sinX;
 					cx2 = dy2E * cos2Z * sinX;
@@ -638,11 +485,6 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 
 	@Override
 	protected final void renderSubTile_Textured() {
-		if (layerID > MAX_PRECOMPUTEDLEVEL) {
-			super.renderSubTile_Textured();
-			return;
-		}
-
 		// Elevation
 		final ElevationNone elevation = new ElevationNone(subTile);
 		
@@ -669,8 +511,8 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 
 //		gl.glBegin(GL.GL_TRIANGLE_STRIP);
 		int lat1 = startLat;
-		double cosY1 = lookUpCos(lat1) * EARTH_RADIUS;
-		double sinY1 = -lookUpCos(angle90 - lat1) * EARTH_RADIUS;
+		double cosY1 = CosTable.cos(lat1) * EARTH_RADIUS;
+		double sinY1 = -CosTable.sin(lat1) * EARTH_RADIUS;
 		float ty1 = uvLatStart;
 		for (int j = 0; j < nLat; j++) {
 			final int lat2;
@@ -686,16 +528,16 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 				ty2 = ty1 + curDLat * oneOverTileWidth;
 			}
 			
-			double cosY2 = lookUpCos(lat2) * EARTH_RADIUS;
-			double sinY2 = -lookUpCos(angle90 - lat2) * EARTH_RADIUS;
+			double cosY2 = CosTable.cos(lat2) * EARTH_RADIUS;
+			double sinY2 = -CosTable.sin(lat2) * EARTH_RADIUS;
 
 			int lon = startLon;
 			float tx = uvLonStart;
 
 			gl.glBegin(GL.GL_TRIANGLE_STRIP);
 			for (int i = 0; i <= nLon; i++) {
-				double cosX = lookUpCos(lon);
-				double sinX = lookUpCos(angle90 - lon);
+				double cosX = CosTable.cos(lon);
+				double sinX = CosTable.sin(lon);
 
 				double pt1X, pt1Y, pt1Z;
 				pt1X = cosY1 * sinX;
@@ -743,11 +585,6 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 
 	@Override
 	protected final void renderSubTile() {
-		if (layerID > MAX_PRECOMPUTEDLEVEL) {
-			super.renderSubTile();
-			return;
-		}
-
 		// Elevation
 		final ElevationNone elevation = new ElevationNone(subTile);
 		
@@ -772,8 +609,8 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 
 //		gl.glBegin(GL.GL_TRIANGLE_STRIP);
 		int lat1 = startLat;
-		double cosY1 = lookUpCos(lat1) * EARTH_RADIUS;
-		double sinY1 = -lookUpCos(angle90 - lat1) * EARTH_RADIUS;
+		double cosY1 = CosTable.cos(lat1) * EARTH_RADIUS;
+		double sinY1 = -CosTable.sin(lat1) * EARTH_RADIUS;
 		for (int j = 0; j < nLat; j++) {
 			int lat2 = lat1 + dLat;
 			if(j == 0) {
@@ -782,15 +619,15 @@ class TileDirectModeRenderer_MathLookUp extends TileDirectModeRenderer {
 			if(j == nLat-1) {
 				lat2 += latOffsetEnd;
 			}
-			double cosY2 = lookUpCos(lat2) * EARTH_RADIUS;
-			double sinY2 = -lookUpCos(angle90 - lat2) * EARTH_RADIUS;
+			double cosY2 = CosTable.cos(lat2) * EARTH_RADIUS;
+			double sinY2 = -CosTable.sin(lat2) * EARTH_RADIUS;
 
 			int lon = startLon;
 
 			gl.glBegin(GL.GL_TRIANGLE_STRIP);
 			for (int i = 0; i <= nLon; i++) {
-				double cosX = lookUpCos(lon);
-				double sinX = lookUpCos(angle90 - lon);
+				double cosX = CosTable.cos(lon);
+				double sinX = CosTable.sin(lon);
 
 				double pt1X, pt1Y, pt1Z;
 				pt1X = cosY1 * sinX;

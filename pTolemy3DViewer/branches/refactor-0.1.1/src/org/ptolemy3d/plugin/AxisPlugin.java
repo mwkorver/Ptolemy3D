@@ -25,6 +25,7 @@ import java.awt.Font;
 import javax.media.opengl.GL;
 import javax.media.opengl.glu.GLU;
 import org.ptolemy3d.DrawContext;
+import org.ptolemy3d.math.Vector3d;
 import org.ptolemy3d.scene.Plugin;
 import org.ptolemy3d.view.Camera;
 
@@ -78,7 +79,7 @@ public class AxisPlugin implements Plugin {
     /**
      * Ray trace to find an intersection with the plugin geometry.
      */
-    public boolean pick(double[] intersectPoint, double[][] ray) {
+    public boolean pick(Vector3d intersectPoint, Vector3d[] ray) {
         return false;
     }
 
@@ -86,7 +87,7 @@ public class AxisPlugin implements Plugin {
      * Called when the landscape has been picked.
      * @param intersectPoint picking intersection point.
      */
-    public boolean onPick(double[] intersectPoint) {
+    public boolean onPick(Vector3d intersectPoint) {
         return false;
     }
 
@@ -136,15 +137,9 @@ public class AxisPlugin implements Plugin {
         }
 
         double rad = EARTH_RADIUS * 1.1;
-        double x_axis[] = {
-            rad, 0, 0
-        };
-        double y_axis[] = {
-            0, rad, 0
-        };
-        double z_axis[] = {
-            0, 0, rad
-        };
+        Vector3d x_axis = new Vector3d(rad, 0, 0);
+        Vector3d y_axis = new Vector3d(0, rad, 0);
+        Vector3d z_axis = new Vector3d(0, 0, rad);
 
         // Store attributes that will change
         gl.glPushAttrib(
@@ -158,13 +153,13 @@ public class AxisPlugin implements Plugin {
         gl.glBegin(GL.GL_LINES);
         gl.glColor3f(1.0f, 0f, 0f);
         gl.glVertex3d(0, 0, 0);
-        gl.glVertex3dv(x_axis, 0);
+        gl.glVertex3d(x_axis.x, x_axis.y, x_axis.z);
         gl.glColor3f(0f, 1.0f, 0f);
         gl.glVertex3d(0, 0, 0);
-        gl.glVertex3dv(y_axis, 0);
+        gl.glVertex3d(y_axis.x, y_axis.y, y_axis.z);
         gl.glColor3f(0f, 0f, 1.0f);
         gl.glVertex3d(0, 0, 0);
-        gl.glVertex3dv(z_axis, 0);
+        gl.glVertex3d(z_axis.x, z_axis.y, z_axis.z);
         gl.glEnd();
 
         // Get screen coordinates
@@ -224,7 +219,7 @@ public class AxisPlugin implements Plugin {
      * position in OpenGL coordinate space, that is, (0,0) at bottom-lect.
      * @param cartesian
      */
-    private double[] worldToScreen(double[] cartesian) {
+    private double[] worldToScreen(Vector3d cartesian) {
         GLU glu = new GLU();
         double model[] = new double[16];
         double proj[] = new double[16];
@@ -235,7 +230,7 @@ public class AxisPlugin implements Plugin {
         gl.glGetIntegerv(GL.GL_VIEWPORT, viewport, 0);
 
         double screen[] = new double[4];
-        glu.gluProject(cartesian[0], cartesian[1], cartesian[2], model, 0, proj, 0, viewport, 0, screen, 0);
+        glu.gluProject(cartesian.x, cartesian.y, cartesian.z, model, 0, proj, 0, viewport, 0, screen, 0);
 
         return screen;
     }

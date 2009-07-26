@@ -28,7 +28,7 @@ import javax.media.opengl.GL;
 
 import org.ptolemy3d.DrawContext;
 import org.ptolemy3d.Ptolemy3DGLCanvas;
-import org.ptolemy3d.Unit;
+import org.ptolemy3d.math.Vector3d;
 import org.ptolemy3d.scene.Plugin;
 import org.ptolemy3d.view.Camera;
 import org.ptolemy3d.view.Position;
@@ -123,11 +123,11 @@ public class IconPlugin implements Plugin {
 	public void motionStop(GL gl) {
 	}
 
-	public boolean pick(double[] intersectPoint, double[][] ray) {
+	public boolean pick(Vector3d intersectPoint, Vector3d[] ray) {
 		return false;
 	}
 
-	public boolean onPick(double[] intersectPoint) {
+	public boolean onPick(Vector3d intersectPoint) {
 		return false;
 	}
 
@@ -214,7 +214,7 @@ public class IconPlugin implements Plugin {
 		gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
 
 		// Compute coordinates
-		double point[] = Camera.computeCartesianSurfacePoint(lonDD, latDD);
+		Vector3d point = Camera.computeCartesianSurfacePoint(lonDD, latDD);
 
 		// Get screen coordinates before altering projection and modelview
 		// matrices.

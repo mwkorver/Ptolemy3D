@@ -18,9 +18,9 @@
 package org.ptolemy3d.globe;
 
 import org.ptolemy3d.DrawContext;
-import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.debug.IO;
 import org.ptolemy3d.math.Math3D;
+import org.ptolemy3d.math.Vector3d;
 import org.ptolemy3d.scene.Landscape;
 import org.ptolemy3d.view.Camera;
 import org.ptolemy3d.view.CameraMovement;
@@ -107,7 +107,7 @@ public class Globe {
 	}
 
 	/** Landscape Picking: Pick tiles */
-	public final synchronized boolean pick(double[] intersectPoint, double[][] ray) {
+	public final synchronized boolean pick(Vector3d intersectPoint, Vector3d[] ray) {
 		for (int i = layers.length - 1; i >= 0; i--) {
 			final Layer layer = layers[i];
 			if (layer.pick(intersectPoint, ray)) {
@@ -125,18 +125,18 @@ public class Globe {
 	 * @return the ground height, 0 is the reference value (no elevation).
 	 */
 	public double groundHeight(double lon, double lat, int minLevel) {
-		double[][] ray = {
-				{lon, CameraMovement.MAXIMUM_ALTITUDE, lat},
-				{lon, CameraMovement.MAXIMUM_ALTITUDE - 1, lat}
+		Vector3d[] ray = {
+			new Vector3d(lon, CameraMovement.MAXIMUM_ALTITUDE, lat),
+			new Vector3d(lon, CameraMovement.MAXIMUM_ALTITUDE - 1, lat)
 		};
 
 		for (int i = layers.length - 1; (i >= minLevel); i--) {
 			final Layer layer = layers[i];
 
 			try {
-				double[] pickArr = layer.groundHeight(lon, lat, ray);
+				Vector3d pickArr = layer.groundHeight(lon, lat, ray);
 				if (pickArr != null) {
-					return pickArr[1];
+					return pickArr.y;
 				}
 			}
 			catch (RuntimeException e) {
@@ -182,13 +182,11 @@ public class Globe {
 		
 		double dist = Math3D.distance2D(camLon, tileLon, camLat, tileLat);
 
-		final Landscape landscape = Ptolemy3D.getScene().getLandscape();
-		final int maxLon = landscape.getMaxLongitude();
 		if (camLon < 0) {
-			tileLon = camLon + (maxLon - mapDataKey.lon) + (camLon         + maxLon);
+			tileLon = camLon + (Landscape.MAX_LONGITUDE - mapDataKey.lon) + (camLon         + Landscape.MAX_LONGITUDE);
 		}
 		else {
-			tileLon = camLon + (maxLon - camLon        ) + (mapDataKey.lon + maxLon);
+			tileLon = camLon + (Landscape.MAX_LONGITUDE - camLon        ) + (mapDataKey.lon + Landscape.MAX_LONGITUDE);
 		}
 
 		double dist2 = Math3D.distance2D(camLon, tileLon, camLat, tileLat);

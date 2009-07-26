@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.ptolemy3d.manager;
+package org.ptolemy3d.data;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,7 +25,7 @@ import java.nio.channels.FileChannel;
 
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.debug.IO;
-import org.ptolemy3d.globe.ElevationTin;
+import org.ptolemy3d.globe.ElevationDem;
 import org.ptolemy3d.globe.MapData;
 import org.ptolemy3d.io.DataFinder;
 import org.ptolemy3d.io.Stream;
@@ -33,35 +33,23 @@ import org.ptolemy3d.io.Stream;
 /**
  * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  */
-class TinDataEntry extends MapDataEntry {
+class DemDataEntry extends MapDataEntry {
 	public final static int NUM_DECODERUNIT = 1;
 	
-	public TinDataEntry(MapData mapData) {
+	public DemDataEntry(MapData mapData) {
 		super(mapData);
-	}
-	
-	private final boolean isUseTin() {
-		final boolean useTin = Ptolemy3D.getConfiguration().useTIN;
-		return useTin;
-	}
-	
-	public boolean isDownloaded() {
-		if (!isUseTin()) {
-			return true;
-		}
-		return super.isDownloaded();
 	}
 
 	@Override
 	public URL findData(MapData mapData) {
 		final DataFinder dataFinder = Ptolemy3D.getDataFinder();
-		return dataFinder.findTin(mapData);
+		return dataFinder.findDem(mapData);
 	}
 
 	@Override
 	public Stream findDataFromCache(MapData mapData) {
 		final DataFinder dataFinder = Ptolemy3D.getDataFinder();
-		return dataFinder.findTinFromCache(mapData);
+		return dataFinder.findDemFromCache(mapData);
 	}
 	
 	@Override
@@ -71,7 +59,7 @@ class TinDataEntry extends MapDataEntry {
 		}
 		
 		try {
-			IO.printfParser("Parse TIN: %s\n", mapData.key);
+			IO.printfParser("Parse DEM: %s\n", mapData.key);
 			
 			final File file = getStream().createFile();
 			final byte[] b = new byte[(int)file.length()];
@@ -79,7 +67,7 @@ class TinDataEntry extends MapDataEntry {
 			channel.read(ByteBuffer.wrap(b));
 			channel.close();
 			
-			mapData.tin = new ElevationTin(b);
+			mapData.dem = new ElevationDem(b);
 		}
 		catch(Throwable t) {
 			IO.printStackConnection(t);
@@ -101,9 +89,6 @@ class TinDataEntry extends MapDataEntry {
 
 	@Override
 	public boolean isDecoded(int unit) {
-		if (!isUseTin()) {
-			return true;
-		}
-		return mapData.tin != null;
+		return mapData.dem != null;
 	}
 }

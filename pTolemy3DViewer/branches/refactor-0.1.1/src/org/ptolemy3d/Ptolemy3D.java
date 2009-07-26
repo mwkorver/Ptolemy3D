@@ -21,14 +21,15 @@ import java.util.logging.Logger;
 
 import netscape.javascript.JSObject;
 
+import org.ptolemy3d.data.MapDataManager;
+import org.ptolemy3d.data.TextureManager;
 import org.ptolemy3d.debug.IO;
 import org.ptolemy3d.io.FileSystemCache;
 import org.ptolemy3d.io.DataFinder;
-import org.ptolemy3d.manager.MapDataManager;
-import org.ptolemy3d.manager.TextureManager;
 import org.ptolemy3d.scene.Scene;
 import org.ptolemy3d.view.Camera;
 import org.ptolemy3d.view.CameraMovement;
+
 
 /**
  * <H1>Overview</H1> <BR>

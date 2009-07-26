@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.ptolemy3d.manager;
+package org.ptolemy3d.data;
 
 import java.nio.ByteBuffer;
 import java.util.HashMap;

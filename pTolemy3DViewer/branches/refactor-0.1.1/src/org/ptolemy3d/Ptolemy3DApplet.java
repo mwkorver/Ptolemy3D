@@ -21,7 +21,6 @@ import java.applet.Applet;
 import java.awt.BorderLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.logging.Logger;
 
 import netscape.javascript.JSObject;
 
@@ -48,8 +47,6 @@ public class Ptolemy3DApplet extends Applet implements Ptolemy3DJavascript {
 	// Canvas reference
 	private Ptolemy3DGLCanvas canvas = null;
 	private JSObject jsObject = null;
-	private static final Logger logger = Logger.getLogger(Ptolemy3DApplet.class
-			.getName());
 
 	/**
 	 * Initialize the pTolemy applet.

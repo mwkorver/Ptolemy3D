@@ -29,6 +29,7 @@ import javax.media.opengl.GL;
 import javax.xml.bind.JAXBException;
 
 import org.ptolemy3d.DrawContext;
+import org.ptolemy3d.math.Vector3d;
 import org.ptolemy3d.scene.Plugin;
 
 /**
@@ -83,11 +84,11 @@ public class CityGmlPlugin implements Plugin {
 	public void motionStop(GL gl) {
 	}
 
-	public boolean pick(double[] intersectPoint, double[][] ray) {
+	public boolean pick(Vector3d intersectPoint, Vector3d[] ray) {
 		return false;
 	}
 
-	public boolean onPick(double[] intersectPoint) {
+	public boolean onPick(Vector3d intersectPoint) {
 		return false;
 	}
 

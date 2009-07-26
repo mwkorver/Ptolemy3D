@@ -88,7 +88,7 @@ public class ProfilerUtil
 	private static FontRenderer font;
 
 	public static enum ProfilerEventInterface implements ProfilerEvent {
-		Frame, Prepare, Render, Sky, Landscape, Plugins, Screenshot;
+		Frame, Prepare, LandscapePrepare, PluginPrepare, Render, Sky, Landscape, Plugins, Screenshot;
 	}
 
 	private static void init() {
@@ -186,13 +186,14 @@ public class ProfilerUtil
 						float fps = getFPS();
 						ProfilerEventReport renderProf = ProfilerUtil.getReport(ProfilerEventInterface.Frame);
 						ProfilerEventReport landscapeProf = ProfilerUtil.getReport(ProfilerEventInterface.Landscape);
+						ProfilerEventReport landscapePrepProf = ProfilerUtil.getReport(ProfilerEventInterface.LandscapePrepare);
 
-						if(renderProf != null && landscapeProf != null) {
+						if(renderProf != null && landscapeProf != null && landscapePrepProf != null) {
 							//float landscapPercent = (landscapeProf.duration == 0) ? 0 : (float)renderProf.duration / landscapeProf.duration;
-							float landscapFPS = (landscapeProf.duration == 0) ? 0 : (float)1000000
-									/ landscapeProf.duration;
+							float landscapFPS = (landscapeProf.duration == 0) ? 0 : (float)1000000 / landscapeProf.duration;
+							float landscapPrepFPS = (landscapePrepProf.duration == 0) ? 0 : (float)1000000 / landscapePrepProf.duration;
 
-							line = String.format("Frame:%dFPS|Landscape:%dFPS", (int)fps, (int)landscapFPS);
+							line = String.format("Frame:%dFPS|Landscape:%dFPS|LandscapePrepare:%dFPS", (int)fps, (int)landscapFPS, (int)landscapPrepFPS);
 						}
 						break;
 					case 3:

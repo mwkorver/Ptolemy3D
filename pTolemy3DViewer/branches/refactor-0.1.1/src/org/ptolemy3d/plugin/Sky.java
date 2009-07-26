@@ -26,10 +26,11 @@ import javax.media.opengl.GL;
 import org.ptolemy3d.DrawContext;
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.Ptolemy3DGLCanvas;
-import org.ptolemy3d.manager.Texture;
+import org.ptolemy3d.data.Texture;
 import org.ptolemy3d.math.Math3D;
 import org.ptolemy3d.math.Matrix16d;
 import org.ptolemy3d.view.Camera;
+
 
 /**
  * Sky<BR>

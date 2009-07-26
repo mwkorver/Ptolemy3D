@@ -30,15 +30,26 @@ public class Frustum {
 	private final static int TOP_PLANE    = 3;
 	private final static int FAR_PLANE    = 4;
 	private final static int NEAR_PLANE   = 5;
+	
+	static class Plane {
+		final Vector3d n = new Vector3d();
+		double d = 0;
+		public double dot(Vector3d point) {
+			return n.dot(point) + d;
+		}
+	}
 
 	/** Frustum planes */
-	private final double[][] sides;
+	private final Plane[] sides;
 	/** proj x modelview matrix */
 	private final Matrix16d clip;
 
 	public Frustum() {
-		sides = new double[6][4];
+		sides = new Plane[6];
 		clip = new Matrix16d();
+		for(int i = 0; i < sides.length; i++) {
+			sides[i] = new Plane();
+		}
 	}
 	
 	protected void update(Matrix16d proj, Matrix16d view) {
@@ -118,7 +129,7 @@ public class Frustum {
 		dst.m[14] = m14;
 		dst.m[15] = m15;
 	}
-	private void setPlane(double[] plane, double a, double b, double c, double d) {
+	private void setPlane(Plane plane, double a, double b, double c, double d) {
 		double magnitude = Math.sqrt(a * a + b * b + c * c);
 		if(magnitude == 0) {
 			magnitude = 1;
@@ -127,39 +138,37 @@ public class Frustum {
 			magnitude = 1 / magnitude;
 		}
 
-		plane[0] = a * magnitude;
-		plane[1] = b * magnitude;
-		plane[2] = c * magnitude;
-		plane[3] = d * magnitude;
+		plane.n.x = a * magnitude;
+		plane.n.y = b * magnitude;
+		plane.n.z = c * magnitude;
+		plane.d = d * magnitude;
 	}
 	
-	public boolean insideFrustum(double[] point) {
-		for(double[] plane : sides) {
-			final double dist = Vector3d.dot(point, plane) + plane[3];
+	public boolean insideFrustum(Vector3d point) {
+		for(Plane plane : sides) {
+			final double dist = plane.dot(point);
 			if(dist <= 0) {
 				return false;
 			}
 		}
 		return true;
 	}
-	public boolean insideFrustum(double[] point0, double[] point1, double[] point2, double[] point3) {
-		for(int i = 0; i < sides.length; i++) {
-			final double[] plane = sides[i];
-			
+	public boolean insideFrustum(Vector3d point0, Vector3d point1, Vector3d point2, Vector3d point3) {
+		for(Plane plane : sides) {
 			double dist;
-			dist = Vector3d.dot(point0, plane) + plane[3];
+			dist = plane.dot(point0);
 			if(dist > 0) {
 				continue;	//Inside
 			}
-			dist = Vector3d.dot(point1, plane) + plane[3];
+			dist = plane.dot(point1);
 			if(dist > 0) {
 				continue;	//Inside
 			}
-			dist = Vector3d.dot(point2, plane) + plane[3];
+			dist = plane.dot(point2);
 			if(dist > 0) {
 				continue;	//Inside
 			}
-			dist = Vector3d.dot(point3, plane) + plane[3];
+			dist = plane.dot(point3);
 			if(dist > 0) {
 				continue;	//Inside
 			}

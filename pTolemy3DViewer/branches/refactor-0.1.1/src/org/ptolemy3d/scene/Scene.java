@@ -32,12 +32,13 @@ import javax.media.opengl.GL;
 import org.ptolemy3d.DrawContext;
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.Ptolemy3DGLCanvas;
+import org.ptolemy3d.data.MapDataManager;
+import org.ptolemy3d.data.TextureManager;
 import org.ptolemy3d.debug.ProfilerUtil;
 import org.ptolemy3d.debug.ProfilerUtil.ProfilerEventInterface;
-import org.ptolemy3d.manager.MapDataManager;
-import org.ptolemy3d.manager.TextureManager;
 import org.ptolemy3d.plugin.Sky;
 import org.ptolemy3d.view.Camera;
+
 
 /**
  * <H1>Overview</H1> <BR>
@@ -123,9 +124,17 @@ public class Scene implements Transferable {
         camera.update();
 
         /* Prepare frame */
+        if (DEBUG) {
+            ProfilerUtil.start(ProfilerEventInterface.LandscapePrepare);
+        }
         landscape.prepareFrame(drawContext);
+        if (DEBUG) {
+            ProfilerUtil.stop(ProfilerEventInterface.LandscapePrepare);
+            ProfilerUtil.start(ProfilerEventInterface.PluginPrepare);
+        }
         plugins.prepareFrame(drawContext);
         if (DEBUG) {
+            ProfilerUtil.stop(ProfilerEventInterface.PluginPrepare);
             ProfilerUtil.stop(ProfilerEventInterface.Prepare);
         }
 

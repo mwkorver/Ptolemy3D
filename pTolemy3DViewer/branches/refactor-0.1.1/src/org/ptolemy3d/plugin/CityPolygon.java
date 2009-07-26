@@ -76,8 +76,8 @@ public class CityPolygon {
 		vertex.rewind();
 	}
 
-	public void addVertex(double v) {
-		vertex.put(v);
+	public void addVertex(double x, double y, double z) {
+		vertex.put(x).put(y).put(z);
 	}
 
 	public DoubleBuffer getVertex() {

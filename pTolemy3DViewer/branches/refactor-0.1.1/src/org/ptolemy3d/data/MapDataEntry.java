@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.ptolemy3d.manager;
+package org.ptolemy3d.data;
 
 import java.io.IOException;
 import java.net.URL;
@@ -28,7 +28,7 @@ import org.ptolemy3d.io.Stream;
 /**
  * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  */
-public abstract class MapDataEntry {
+abstract class MapDataEntry {
 	/** */
 	public final MapData mapData;
 	

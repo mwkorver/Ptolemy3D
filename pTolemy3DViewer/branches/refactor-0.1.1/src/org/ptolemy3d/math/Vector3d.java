@@ -19,57 +19,104 @@ package org.ptolemy3d.math;
 
 /**
  * A vector with 3 components with double precision.
+ * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
+ * @author Contributors
  */
-public final class Vector3d
-{
-	private Vector3d() {};
-
-	public static final void normalize(double[] n)
-	{
-		double mag = Math.sqrt((n[0] * n[0]) + (n[1] * n[1]) + (n[2] * n[2]));
-		mag = 1 / mag;
-		n[0] *= mag;
-		n[1] *= mag;
-		n[2] *= mag;
+public final class Vector3d {
+	public double x;
+	public double y;
+	public double z;
+	
+	public Vector3d() {
+		this(0, 0, 0);
+	}
+	public Vector3d(double x, double y, double z) {
+		this.x = x;
+		this.y = y;
+		this.z = z;
+	}
+	public Vector3d(Vector3d vec) {
+		this(vec.x, vec.y, vec.z);
+	}
+	
+	public final boolean isZero() {
+		return (x == 0) && (y == 0) && (z == 0);
+	}
+	
+	public final boolean isUnit() {
+		return (x == 1) && (y == 1) && (z == 1);
+	}
+	
+	public final double magnitude() {
+		return Math.sqrt((x * x) + (y * y) + (z * z));
+	}
+	
+	public final void normalize() {
+		final double mag = 1 / magnitude();
+		x *= mag;
+		y *= mag;
+		z *= mag;
 	}
 
-	public static final void cross(double[] dest, double[] v1, double[] v2)
-	{
-		dest[0] = v1[1] * v2[2] - v1[2] * v2[1];
-		dest[1] = v1[2] * v2[0] - v1[0] * v2[2];
-		dest[2] = v1[0] * v2[1] - v1[1] * v2[0];
+	public final void cross(Vector3d vec1, Vector3d vec2) {
+		double x = vec1.y * vec2.z - vec1.z * vec2.y;
+		double y = vec1.z * vec2.x - vec1.x * vec2.z;
+		double z = vec1.x * vec2.y - vec1.y * vec2.x;
+		this.x = x;
+		this.y = y;
+		this.z = z;
 	}
 
-	public static final double dot(double[] a, double[] b)
-	{
-		return (a[0] * b[0]) + (a[1] * b[1]) + (a[2] * b[2]);
+	public final double dot(Vector3d vec) {
+		return (x * vec.x) + (y * vec.y) + (z * vec.z);
 	}
 
-	public static final void copy(double[] dest, double[] src)
-	{
-		dest[0] = src[0];
-		dest[1] = src[1];
-		dest[2] = src[2];
+	public final Vector3d set(double x, double y, double z) {
+		this.x = x;
+		this.y = y;
+		this.z = z;
+		return this;
+	}
+	
+	public final Vector3d set(Vector3d vec) {
+		x = vec.x;
+		y = vec.y;
+		z = vec.z;
+		return this;
 	}
 
-	public static final void sub(double[] dest, double[] v1, double[] v2)
-	{
-		dest[0] = v1[0] - v2[0];
-		dest[1] = v1[1] - v2[1];
-		dest[2] = v1[2] - v2[2];
+	public final Vector3d add(Vector3d vec1, Vector3d vec2) {
+		x = vec1.x + vec2.x;
+		y = vec1.y + vec2.y;
+		z = vec1.z + vec2.z;
+		return this;
 	}
 
-	public static final void negate(double[] n)
-	{
-		n[0] = -n[0];
-		n[1] = -n[1];
-		n[2] = -n[2];
+	public final Vector3d sub(Vector3d vec1, Vector3d vec2) {
+		x = vec1.x - vec2.x;
+		y = vec1.y - vec2.y;
+		z = vec1.z - vec2.z;
+		return this;
 	}
 
-	public static final void scale(double[] n, double s)
-	{
-		n[0] *= s;
-		n[1] *= s;
-		n[2] *= s;
+	public final Vector3d negate() {
+		x = -x;
+		y = -y;
+		z = -z;
+		return this;
 	}
+
+	public final Vector3d scale(double s) {
+		x *= s;
+		y *= s;
+		z *= s;
+		return this;
+	}
+	
+    public double distance(Vector3d vec) {
+        double x = (vec.x - this.x);
+        double y = (vec.y - this.y);
+        double z = (vec.z - this.z);
+        return Math.sqrt((x * x) + (y * y) + (z * z));
+    }
 }

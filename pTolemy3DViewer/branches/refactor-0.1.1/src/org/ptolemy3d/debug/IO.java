@@ -38,10 +38,10 @@ import org.ptolemy3d.view.Camera;
  * F5 : Enable/Disable Wireframe rendering for Landscape.
  * F6 : Enable/Disable terrain elevation
  * F7 : Freeze download / decoding
- * F8 : 
+ * F8 : Freeze visibility
  * F9 : Force layer ++
  * F10: Force layer --
- * F11: Freeze visibility
+ * F11: 
  * F12: Test
  * </pre>
  * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
@@ -265,6 +265,10 @@ public class IO {
 					ProfilerUtil.freezeDecoding = !ProfilerUtil.freezeDecoding;
 					println("Decoding freezed: "+ProfilerUtil.freezeDecoding);
 					break;
+				case KeyEvent.VK_F8:
+					ProfilerUtil.freezeVisibility = !ProfilerUtil.freezeVisibility;
+					println("Freeze visibility: "+ProfilerUtil.freezeVisibility);
+					break;
 				case KeyEvent.VK_F9:
 					if(landscape.getDisplayMode() == Landscape.DISPLAY_TILENEIGHBOUR) {
 						ProfilerUtil.tileSelected++;
@@ -287,10 +291,6 @@ public class IO {
 						ProfilerUtil.forceLayer = -1;
 						println("Force layer: "+ProfilerUtil.forceLayer);
 					}
-					break;
-				case KeyEvent.VK_F11:
-					ProfilerUtil.freezeVisibility = !ProfilerUtil.freezeVisibility;
-					println("Freeze visibility: "+ProfilerUtil.freezeVisibility);
 					break;
 				case KeyEvent.VK_F12:
 					ProfilerUtil.test = !ProfilerUtil.test;

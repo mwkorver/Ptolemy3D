@@ -21,6 +21,7 @@ import javax.media.opengl.GL;
 
 import org.ptolemy3d.DrawContext;
 import org.ptolemy3d.Ptolemy3D;
+import org.ptolemy3d.math.Vector3d;
 
 /**
  * <H1>Overview</H1> <BR>
@@ -59,7 +60,7 @@ public interface Plugin {
 	public void motionStop(GL gl);
 
 	/** Ray trace to find an intersection with the plugin geometry. */
-	public boolean pick(double[] intersectionPoint, double[][] ray);
+	public boolean pick(Vector3d intersectionPoint, Vector3d[] ray);
 
 	/**
 	 * Called when the landscape has been picked.
@@ -67,7 +68,7 @@ public interface Plugin {
 	 * @param intersectPoint
 	 *            picking intersection point.
 	 */
-	public boolean onPick(double[] intersectPoint);
+	public boolean onPick(Vector3d intersectPoint);
 
 	// /** Call by the tile loader to let the plugin request data. */
 	// public void tileLoaderAction(Communicator JC) throws IOException;

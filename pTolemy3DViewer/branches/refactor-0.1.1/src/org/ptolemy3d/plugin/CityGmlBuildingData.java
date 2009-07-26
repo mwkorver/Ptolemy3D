@@ -7,6 +7,7 @@ import org.citygml4j.model.gml.AbstractRing;
 import org.citygml4j.model.gml.LinearRing;
 import org.citygml4j.model.gml.Polygon;
 import org.ptolemy3d.Unit;
+import org.ptolemy3d.math.Vector3d;
 import org.ptolemy3d.view.Camera;
 
 /**
@@ -100,16 +101,13 @@ public class CityGmlBuildingData {
 				CityPolygon cityPolygon = new CityPolygon(posValues.size());
 				for (int j = 0; j < posValues.size(); j += 3) {
 					// TODO - Supose the polygon as dimension 3.
-					Double lat = posValues.get(j) * Unit.getDDFactor();
-					Double lon = posValues.get(j + 1) * Unit.getDDFactor();
-					Double alt = posValues.get(j + 2)
-							* Unit.getCoordSystemRatio();
+					Double lat = posValues.get(j) * Unit.DEGREE_TO_DD_FACTOR;
+					Double lon = posValues.get(j + 1) * Unit.DEGREE_TO_DD_FACTOR;
+					Double alt = posValues.get(j + 2) * Unit.getCoordSystemRatio();
 
-					double[] d = Camera.computeCartesianPoint(lat, lon, alt);
+					Vector3d d = Camera.computeCartesianPoint(lat, lon, alt);
 
-					cityPolygon.addVertex(d[0]);
-					cityPolygon.addVertex(d[1]);
-					cityPolygon.addVertex(d[2]);
+					cityPolygon.addVertex(d.x, d.y, d.z);
 				}
 				cityPolygon.computeNormals();
 
@@ -129,16 +127,13 @@ public class CityGmlBuildingData {
 				CityPolygon cityPolygon = new CityPolygon(posValues.size());
 				for (int j = 0; j < posValues.size(); j += 3) {
 					// TODO - Supose the polygon as dimension 3.
-					Double lat = posValues.get(j) * Unit.getDDFactor();
-					Double lon = posValues.get(j + 1) * Unit.getDDFactor();
-					Double alt = posValues.get(j + 2)
-							* Unit.getCoordSystemRatio();
+					Double lat = posValues.get(j) * Unit.DEGREE_TO_DD_FACTOR;
+					Double lon = posValues.get(j + 1) * Unit.DEGREE_TO_DD_FACTOR;
+					Double alt = posValues.get(j + 2) * Unit.getCoordSystemRatio();
 
-					double[] d = Camera.computeCartesianPoint(lon, lat, alt);
+					Vector3d d = Camera.computeCartesianPoint(lon, lat, alt);
 
-					cityPolygon.addVertex(d[0]);
-					cityPolygon.addVertex(d[1]);
-					cityPolygon.addVertex(d[2]);
+					cityPolygon.addVertex(d.x, d.y, d.z);
 				}
 				cityPolygon.computeNormals();
 

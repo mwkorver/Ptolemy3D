@@ -38,8 +38,7 @@ import org.ptolemy3d.view.InputHandler.InputConfig.Input;
 /**
  * Key and mouse inputs.
  */
-public class InputHandler implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener
-{
+public class InputHandler implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener {
 	/** Associate action and keyboard/mouse*/
 	public static class InputConfig {
 		public static class Input {
@@ -69,7 +68,7 @@ public class InputHandler implements KeyListener, MouseListener, MouseMotionList
 		public Input tiltDown                = new Input(KeyEvent.VK_DOWN, 0, 0);
 	}
 	/** Action state */
-	public static class InputState {
+	static class InputState {
 		private int[] inputStates;
 		public int getStraightForward() {return inputStates[0];} public void decStraightForward() {dec(0);}
 		public int getStraightBack() {return inputStates[1];} public void decStraightBack() {dec(1);}

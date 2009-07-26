@@ -23,8 +23,9 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
+import org.ptolemy3d.data.Texture;
 import org.ptolemy3d.io.Stream;
-import org.ptolemy3d.manager.Texture;
+
 
 import jj2000.j2k.codestream.HeaderInfo;
 import jj2000.j2k.codestream.reader.BitstreamReaderAgent;

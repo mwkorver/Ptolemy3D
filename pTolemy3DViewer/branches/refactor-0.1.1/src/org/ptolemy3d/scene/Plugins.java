@@ -25,6 +25,7 @@ import javax.media.opengl.GL;
 import org.ptolemy3d.DrawContext;
 import org.ptolemy3d.Ptolemy3DGLCanvas;
 import org.ptolemy3d.debug.IO;
+import org.ptolemy3d.math.Vector3d;
 
 /**
  * <H1>Overview</H1> <BR>
@@ -209,8 +210,7 @@ public class Plugins {
 	}
 
 	/** Pick plugins. */
-	public final synchronized boolean pick(double[] intersectPoint,
-			double[][] ray) {
+	public final synchronized boolean pick(Vector3d intersectPoint, Vector3d[] ray) {
 		boolean hasPlugins = plugins.size() > 0;
 		if (hasPlugins) {
 			for (int i = plugins.size() - 1; i >= 0; i--) {
@@ -232,7 +232,7 @@ public class Plugins {
 	 * @param intersectPoint
 	 *            picking intersection point.
 	 */
-	public synchronized boolean onPick(double[] intersectPoint) {
+	public synchronized boolean onPick(Vector3d intersectPoint) {
 		boolean hasPlugins = plugins.size() > 0;
 		if (hasPlugins) {
 			for (int i = plugins.size() - 1; i >= 0; i--) {

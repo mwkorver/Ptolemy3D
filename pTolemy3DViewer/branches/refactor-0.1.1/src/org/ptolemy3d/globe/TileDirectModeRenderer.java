@@ -27,7 +27,6 @@ import org.ptolemy3d.Unit;
 import org.ptolemy3d.debug.ProfilerUtil;
 import org.ptolemy3d.globe.Tile.TileArea;
 import org.ptolemy3d.globe.Tile.TileRenderer;
-import org.ptolemy3d.math.Math3D;
 import org.ptolemy3d.scene.Landscape;
 
 /**
@@ -56,7 +55,6 @@ class TileDirectModeRenderer implements TileRenderer {
 	protected float[] tileColor;
 	protected float[] colratios;
 	protected double terrainScaler;
-	protected double oneOverDDToRad;
 	
 	protected void fillLocalVariables(TileArea subTile) {
 		final Tile tile = subTile.tile;
@@ -67,8 +65,6 @@ class TileDirectModeRenderer implements TileRenderer {
 		tileColor = landscape.getTileColor();
 		colratios = landscape.getColorRatios();
 		terrainScaler = landscape.getTerrainScaler();
-		
-		oneOverDDToRad = Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor();
 		
 		this.mapData = tile.mapData;
 		this.subTile = subTile;
@@ -219,11 +215,11 @@ class TileDirectModeRenderer implements TileRenderer {
 		{
 			double theta2, phi2;
 
-			theta1 = x1 * oneOverDDToRad;
-			theta2 = x2 * oneOverDDToRad;
+			theta1 = x1 * Unit.DD_TO_RADIAN;
+			theta2 = x2 * Unit.DD_TO_RADIAN;
 
-			phi1 = z1 * oneOverDDToRad;
-			phi2 = z2 * oneOverDDToRad;
+			phi1 = z1 * Unit.DD_TO_RADIAN;
+			phi2 = z2 * Unit.DD_TO_RADIAN;
 
 			dTetaOverN = (theta2 - theta1) * oneOverNrowsX;
 			dPhiOverN = (phi2 - phi1) * oneOverNrowsZ;
@@ -451,11 +447,11 @@ class TileDirectModeRenderer implements TileRenderer {
 		{
 			double theta2, phi2;
 
-			theta1 = x1 * oneOverDDToRad;
-			theta2 = x2 * oneOverDDToRad;
+			theta1 = x1 * Unit.DD_TO_RADIAN;
+			theta2 = x2 * Unit.DD_TO_RADIAN;
 
-			phi1 = z1 * oneOverDDToRad;
-			phi2 = z2 * oneOverDDToRad;
+			phi1 = z1 * Unit.DD_TO_RADIAN;
+			phi2 = z2 * Unit.DD_TO_RADIAN;
 
 			dTetaOverN = (theta2 - theta1) * oneOverNrowsX;
 			dPhiOverN = (phi2 - phi1) * oneOverNrowsZ;
@@ -612,16 +608,16 @@ class TileDirectModeRenderer implements TileRenderer {
 		final int nLon = elevation.numPolyLon;
 		final int nLat = elevation.numPolyLat;
 		
-		final double startLon = elevation.polyLonStart * oneOverDDToRad;
-		final double startLat = elevation.polyLatStart * oneOverDDToRad;
+		final double startLon = elevation.polyLonStart * Unit.DD_TO_RADIAN;
+		final double startLat = elevation.polyLatStart * Unit.DD_TO_RADIAN;
 		
-		final double dLon = elevation.polySizeLon * oneOverDDToRad;
-		final double dLat = elevation.polySizeLat * oneOverDDToRad;
+		final double dLon = elevation.polySizeLon * Unit.DD_TO_RADIAN;
+		final double dLat = elevation.polySizeLat * Unit.DD_TO_RADIAN;
 		
-		final double lonOffsetStart = elevation.polySizeLonOffsetStart * oneOverDDToRad;
-		final double lonOffsetEnd = elevation.polySizeLonOffsetEnd * oneOverDDToRad;
-		final double latOffsetStart = elevation.polySizeLatOffsetStart * oneOverDDToRad;
-		final double latOffsetEnd = elevation.polySizeLatOffsetEnd * oneOverDDToRad;
+		final double lonOffsetStart = elevation.polySizeLonOffsetStart * Unit.DD_TO_RADIAN;
+		final double lonOffsetEnd = elevation.polySizeLonOffsetEnd * Unit.DD_TO_RADIAN;
+		final double latOffsetStart = elevation.polySizeLatOffsetStart * Unit.DD_TO_RADIAN;
+		final double latOffsetEnd = elevation.polySizeLatOffsetEnd * Unit.DD_TO_RADIAN;
 		
 		// Texture
 		final Layer drawLevel = landscape.globe.getLayer(drawLevelID);
@@ -717,16 +713,16 @@ class TileDirectModeRenderer implements TileRenderer {
 		final int nLon = elevation.numPolyLon;
 		final int nLat = elevation.numPolyLat;
 		
-		final double startLon = elevation.polyLonStart * oneOverDDToRad;
-		final double startLat = elevation.polyLatStart * oneOverDDToRad;
+		final double startLon = elevation.polyLonStart * Unit.DD_TO_RADIAN;
+		final double startLat = elevation.polyLatStart * Unit.DD_TO_RADIAN;
 		
-		final double dLon = elevation.polySizeLon * oneOverDDToRad;
-		final double dLat = elevation.polySizeLat * oneOverDDToRad;
+		final double dLon = elevation.polySizeLon * Unit.DD_TO_RADIAN;
+		final double dLat = elevation.polySizeLat * Unit.DD_TO_RADIAN;
 		
-		final double lonOffsetStart = elevation.polySizeLonOffsetStart * oneOverDDToRad;
-		final double lonOffsetEnd = elevation.polySizeLonOffsetEnd * oneOverDDToRad;
-		final double latOffsetStart = elevation.polySizeLatOffsetStart * oneOverDDToRad;
-		final double latOffsetEnd = elevation.polySizeLatOffsetEnd * oneOverDDToRad;
+		final double lonOffsetStart = elevation.polySizeLonOffsetStart * Unit.DD_TO_RADIAN;
+		final double lonOffsetEnd = elevation.polySizeLonOffsetEnd * Unit.DD_TO_RADIAN;
+		final double latOffsetStart = elevation.polySizeLatOffsetStart * Unit.DD_TO_RADIAN;
+		final double latOffsetEnd = elevation.polySizeLatOffsetEnd * Unit.DD_TO_RADIAN;
 		
 		final boolean useColor = (landscape.getDisplayMode() == Landscape.DISPLAY_SHADEDDEM);
 		if (useColor) {
@@ -814,11 +810,11 @@ class TileDirectModeRenderer implements TileRenderer {
 		{
 			double phi2, theta2;
 			
-			theta1 = x1 * oneOverDDToRad; // startx
-			theta2 = x2 * oneOverDDToRad; // endx
+			theta1 = x1 * Unit.DD_TO_RADIAN; // startx
+			theta2 = x2 * Unit.DD_TO_RADIAN; // endx
 
-			phi1 = z1 * oneOverDDToRad; // starty
-			phi2 = z2 * oneOverDDToRad; // endy
+			phi1 = z1 * Unit.DD_TO_RADIAN; // starty
+			phi2 = z2 * Unit.DD_TO_RADIAN; // endy
 
 			double oneOverW = 1.0 / mapData.tin.w;
 			dThetaOverW = (theta2 - theta1) * oneOverW;

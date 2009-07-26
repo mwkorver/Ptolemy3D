@@ -20,43 +20,41 @@ package org.ptolemy3d.math;
 /**
  * A quaternion with double precision.
  */
-public class Quaternion4d
-{
-    double[] q = new double[4];
+public class Quaternion4d {
+	private double x;
+	private double y;
+	private double z;
+	private double w;
 
-    public Quaternion4d()
-    {
-    }
+	public Quaternion4d() {}
 
-    public Quaternion4d(double theta, double[] v)
-    {
-        set(theta, v);
-    }
+	public Quaternion4d(double theta, Vector3d vec) {
+		set(theta, vec);
+	}
 
-    public final void set(double theta, double[] v)
-    {
-        q[0] = Math.cos(theta / 2);
-        q[1] = v[0] * Math.sin(theta / 2);
-        q[2] = v[1] * Math.sin(theta / 2);
-        q[3] = v[2] * Math.sin(theta / 2);
-        double mag = Math.sqrt(q[0] * q[0] + q[1] * q[1] + q[2] * q[2] + q[3] * q[3]);
-        for (int i = 0; i < 4; i++) {
-            q[i] /= mag;
-        }
-    }
+	public final void set(double theta, Vector3d vec) {
+		x = Math.cos(theta / 2);
+		y = vec.x * Math.sin(theta / 2);
+		z = vec.y * Math.sin(theta / 2);
+		w = vec.z * Math.sin(theta / 2);
+		final double mag = Math.sqrt(x * x + y * y + z * z + w * w);
+		x /= mag;
+		y /= mag;
+		z /= mag;
+		w /= mag;
+	}
 
-    public final void setMatrix(Matrix9d m)
-    {
-        m.m[0][0] = q[0] * q[0] + q[1] * q[1] - q[2] * q[2] - q[3] * q[3];
-        m.m[1][0] = 2 * (q[2] * q[1] + q[0] * q[3]);
-        m.m[2][0] = 2 * (q[3] * q[1] - q[0] * q[2]);
+	public final void setMatrix(Matrix9d m) {
+		m.m[0][0] = x * x + y * y - z * z - w * w;
+		m.m[1][0] = 2 * (z * y + x * w);
+		m.m[2][0] = 2 * (w * y - x * z);
 
-        m.m[0][1] = 2 * (q[1] * q[2] - q[0] * q[3]);
-        m.m[1][1] = q[0] * q[0] - q[1] * q[1] + q[2] * q[2] - q[3] * q[3];
-        m.m[2][1] = 2 * (q[3] * q[2] + q[0] * q[1]);
+		m.m[0][1] = 2 * (y * z - x * w);
+		m.m[1][1] = x * x - y * y + z * z - w * w;
+		m.m[2][1] = 2 * (w * z + x * y);
 
-        m.m[0][2] = 2 * (q[1] * q[3] + q[0] * q[2]);
-        m.m[1][2] = 2 * (q[2] * q[3] - q[0] * q[1]);
-        m.m[2][2] = q[0] * q[0] - q[1] * q[1] - q[2] * q[2] + q[3] * q[3];
-    }
+		m.m[0][2] = 2 * (y * w + x * z);
+		m.m[1][2] = 2 * (z * w - x * y);
+		m.m[2][2] = x * x - y * y - z * z + w * w;
+	}
 }

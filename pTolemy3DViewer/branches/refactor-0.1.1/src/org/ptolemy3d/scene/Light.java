@@ -23,8 +23,7 @@ import org.ptolemy3d.DrawContext;
 /**
  * Light settings
  */
-public class Light {
-
+class Light {
     //Ambient light
     protected float[] globalAmbient = {0.5f, 0.5f, 0.5f, 1.0f};
     protected float[] light0Ambient = {0.0f, 0.0f, 0.0f, 1.0f};

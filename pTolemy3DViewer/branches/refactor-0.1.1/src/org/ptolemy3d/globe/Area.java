@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.ptolemy3d.view;
+package org.ptolemy3d.globe;
 
 /**
  * Tile area represented by min/max latitude/longitude.<BR>
@@ -25,7 +25,7 @@ package org.ptolemy3d.view;
  * 
  * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  */
-public class Area {
+class Area {
 
 	// Latitude bounds
 	private final int minLatitude, maxLatitude;

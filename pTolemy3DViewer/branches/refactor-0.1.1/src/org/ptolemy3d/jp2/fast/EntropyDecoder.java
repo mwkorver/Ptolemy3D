@@ -1511,7 +1511,7 @@ class EntropyDecoder
 
 	private int readByte() {
 		if(pos < count) {
-			return (int)buffer[pos++] & 0xFF;
+			return buffer[pos++] & 0xFF;
 		}
 		else {
 			return -1;

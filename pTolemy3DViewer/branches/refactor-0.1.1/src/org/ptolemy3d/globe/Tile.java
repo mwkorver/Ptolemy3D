@@ -27,12 +27,15 @@ import javax.media.opengl.GL;
 
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.Unit;
+import org.ptolemy3d.data.MapDataManager;
+import org.ptolemy3d.debug.Config;
 import org.ptolemy3d.debug.ProfilerUtil;
-import org.ptolemy3d.manager.MapDataManager;
-import org.ptolemy3d.math.Math3D;
+import org.ptolemy3d.math.CosTable;
+import org.ptolemy3d.math.Picking;
+import org.ptolemy3d.math.Vector3d;
 import org.ptolemy3d.scene.Landscape;
-import org.ptolemy3d.view.Area;
 import org.ptolemy3d.view.Camera;
+
 
 /**
  * A tile.
@@ -43,6 +46,7 @@ class Tile {
 	/** Tile may be divided in  */
 	static class TileArea {
 		protected int ulx, ulz, lrx, lrz;
+		protected boolean edge;
 		protected boolean active;
 		
 		protected Tile tile;
@@ -57,28 +61,26 @@ class Tile {
 		}
 		
 		protected final void setBounds(int ulx, int ulz, int lrx, int lrz) {
-			final Landscape landscape = Ptolemy3D.getScene().getLandscape();
-			
-			this.ulx = ulx + landscape.getMaxLongitude();
+			this.ulx = ulx + Landscape.MAX_LONGITUDE;
 			this.ulz = ulz;
-			this.lrx = lrx + landscape.getMaxLongitude();
+			this.lrx = lrx + Landscape.MAX_LONGITUDE;
 			this.lrz = lrz;
-			
+			onBoundsSet();
+		}
+		protected final void setBounds(TileArea from) {
+			this.ulx = from.ulx;
+			this.ulz = from.ulz;
+			this.lrx = from.lrx;
+			this.lrz = from.lrz;
+			onBoundsSet();
+		}
+		private final void onBoundsSet() {
 			this.active = true;
 			
 			this.left.clear();
 			this.above.clear();
 			this.right.clear();
 			this.below.clear();
-		}
-		
-		protected final void setBounds(TileArea from) {
-			this.ulx = from.ulx;
-			this.ulz = from.ulz;
-			this.lrx = from.lrx;
-			this.lrz = from.lrz;
-			
-			this.active = true;
 		}
 		
 		protected final void setNeighbour(Tile right, Tile below, Tile left, Tile above) {
@@ -95,6 +97,7 @@ class Tile {
 			if(below != null && below.visible) {
 				this.below.add(below.getArea());
 			}
+			edge = (left == null) || (above == null) || (right == null) || (below == null);
 		}
 		protected final void addAbove(TileArea above) {
 			if(above != null && above.active) {
@@ -211,63 +214,86 @@ class Tile {
 		final Landscape landscape = Ptolemy3D.getScene().getLandscape();
 		final Globe globe = landscape.globe;
 		
+		int neightboor = 0;
 		if (layerID < (globe.getNumLayers() - 1)) {	//Last layer don't have tile below
 			final Layer layerBelow = globe.getLayer(layerID + 1);
 			if (layerBelow.isVisible()) {
 				for(Area area : layerBelow.getAreas()) {
-					if(checkClipWithArea(right, below, left, above, area)) {
+					final int clipped = checkClipWithArea(right, below, left, above, area);
+					if(clipped == 1) {
 						return;
 					}
+					neightboor += clipped;
 				}
 			}
 		}
 		
 		subTiles[0].setBounds(bounds);
 		subTiles[0].setNeighbour(right, below, left, above);
+		subTiles[0].edge = neightboor != 0;
 	}
 	
-	private boolean checkClipWithArea(
-			Tile right, Tile below, Tile left, Tile above,
-			Area belowArea) {
+	/**
+	 * @return 
+	 *  1: clipped<BR>
+	 *  0: not clipped not adge<BR>
+	 * -1: on area is an edge<BR>
+	 */
+	private int checkClipWithArea(Tile right, Tile below, Tile left, Tile above, Area belowArea) {
 		int ulxBelow = belowArea.getMinLongitude();
 		int lrxBelow = belowArea.getMaxLongitude();
 		int ulzBelow = belowArea.getMinLatitude();
 		int lrzBelow = belowArea.getMaxLatitude();
 		
 		final Landscape landscape = Ptolemy3D.getScene().getLandscape();
-		final int maxLon = landscape.getMaxLongitude();
-		
         final Layer layerBelow = landscape.globe.getLayer(layerID + 1);
 		final int topTileLat = layerBelow.getMaxTileLatitude();
 		
-		final int ulx = bounds.ulx - landscape.getMaxLongitude();
+		final int ulx = bounds.ulx - Landscape.MAX_LONGITUDE;
 		final int ulz = bounds.ulz;
-		final int lrx = bounds.lrx - landscape.getMaxLongitude();
+		final int lrx = bounds.lrx - Landscape.MAX_LONGITUDE;
 		final int lrz = bounds.lrz;
         
-        if ((lrzBelow <= topTileLat) && (lrzBelow > -topTileLat)) {
+		if(Config.DEBUG) {
+			//In debug, verify that the is always true
+	        if ((lrzBelow <= topTileLat) && (lrzBelow > -topTileLat)) {
+	        	//Normal value
+	        }
+	        else {
+	        	throw new RuntimeException("Unexpected state");
+	        }
+		}
+		
+		/*if ((lrzBelow <= topTileLat) && (lrzBelow > -topTileLat)) */{
 			if ((lrx > ulxBelow) && (ulx < lrxBelow) && (lrz > ulzBelow) && (ulz < lrzBelow)) {
 				clipWithArea(right, below, left, above, ulx, ulz, lrx, lrz, ulxBelow, ulzBelow, lrxBelow, lrzBelow);
-				return true;
+				return 1;
 			}
 
-			int maxX = (maxLon / layerBelow.getTileSize()) * layerBelow.getTileSize();
-			if (maxX != maxLon) {
-				maxX += layerBelow.getTileSize();
+			final int belowTileSize = layerBelow.getTileSize();
+			
+			int maxX = (Landscape.MAX_LONGITUDE / belowTileSize) * belowTileSize;
+			if (maxX != Landscape.MAX_LONGITUDE) {
+				maxX += belowTileSize;
 			}
 			
 			if (lrxBelow > maxX) {
-				int past = Layer.NUMTILE_LON - ((maxLon - ulxBelow) / layerBelow.getTileSize()) - 1;
+				int past = Layer.NUMTILE_LON - ((Landscape.MAX_LONGITUDE - ulxBelow) / belowTileSize) - 1;
 				ulxBelow = -maxX;
-				lrxBelow = ulxBelow + (past * layerBelow.getTileSize());
+				lrxBelow = ulxBelow + (past * belowTileSize);
 
-				if (!((lrx <= ulxBelow) || (ulx >= lrxBelow) || (lrz <= ulzBelow) || (ulz >= lrzBelow))) {
-                    clipWithArea(right, below, left, above, ulx, ulz, lrx, lrz, ulxBelow, ulzBelow, lrxBelow, lrzBelow);
-					return true;
+				if ((lrx > ulxBelow) && (ulx < lrxBelow) && (lrz > ulzBelow) && (ulz < lrzBelow)) {
+	                clipWithArea(right, below, left, above, ulx, ulz, lrx, lrz, ulxBelow, ulzBelow, lrxBelow, lrzBelow);
+					return 1;
 				}
 			}
 		}
-		return false;
+        
+        //Test if this tile is neighboor to lower tile
+		final boolean neightboor =
+			((lrxBelow == ulz || ulxBelow == lrz) && ((ulx <= ulxBelow && ulxBelow < lrx) || (ulx < lrxBelow && lrxBelow <= lrx))) ||
+			((ulxBelow == lrx || lrxBelow == ulx) && ((ulz <= ulzBelow && ulzBelow < lrz) || (ulz < lrzBelow && lrzBelow <= lrz)));
+		return neightboor ? -1 : 0;
 	}
 	/**
 	 * Clip two rectangular in (longitude,latitude) coordinate system.<BR>
@@ -355,34 +381,42 @@ class Tile {
 			return;
 		}
 		for (TileArea area : getAreas()) {
-			for(int i = 0; i < Layer.NUMTILES; i++) {
-				final Tile tile = layerBelow.getTile(i);
-				tile.linkTiles(area);
+			if (area.edge) {
+				for(int i = 0; i < Layer.NUMTILES; i++) {
+					final Tile tile = layerBelow.getTile(i);
+					if(tile.visible && tile.isEdge()) {
+						tile.linkTiles(area);
+					}
+				}
 			}
 		}
 	}
-	
 	private void linkTiles(TileArea area) {
-		if(!visible) {
-			return;
+		if(Config.DEBUG) {
+			if(!visible) {
+				throw new RuntimeException();
+			}
 		}
 		for(TileArea belowArea : getAreas()) {
-			final boolean lonInRange = (area.ulx <= belowArea.ulx && belowArea.ulx <= area.lrx) || (area.ulx <= belowArea.lrx && belowArea.lrx <= area.lrx);
-			final boolean latInRange = (area.ulz <= belowArea.ulz && belowArea.ulz <= area.lrz) || (area.ulz <= belowArea.lrz && belowArea.lrz <= area.lrz);
-			
-			if (belowArea.lrz == area.ulz && lonInRange) {
+			final boolean lonInRange = (area.ulx <= belowArea.ulx && belowArea.ulx < area.lrx) || (area.ulx < belowArea.lrx && belowArea.lrx <= area.lrx);
+			final boolean latInRange = (area.ulz <= belowArea.ulz && belowArea.ulz < area.lrz) || (area.ulz < belowArea.lrz && belowArea.lrz <= area.lrz);
+
+			if (lonInRange && belowArea.lrz == area.ulz) {
 				area.addAbove(belowArea);
 			}
-			else if (belowArea.ulz == area.lrz && lonInRange) {
+			else if (lonInRange && belowArea.ulz == area.lrz) {
 				area.addBelow(belowArea);
 			}
-			else if (belowArea.ulx == area.lrx && latInRange) {
+			else if (latInRange && belowArea.ulx == area.lrx) {
 				area.addRight(belowArea);
 			}
-			else if (belowArea.lrx == area.ulx && latInRange) {
+			else if (latInRange && belowArea.lrx == area.ulx) {
 				area.addLeft(belowArea);
 			}
 		}
+	}
+	private boolean isEdge() {
+		return getArea().edge || getAreas().size() > 0;
 	}
 	
 	public void display(GL gl) {
@@ -468,7 +502,7 @@ class Tile {
 	}
 
 	/** Tile Picking */
-	protected boolean pick(double[] intersectPoint, double[][] ray) {
+	protected boolean pick(Vector3d intersectPoint, Vector3d[] ray) {
 		if (mapData == null || mapData.key.layer != layerID) {
 			return false;
 		}
@@ -476,7 +510,7 @@ class Tile {
 		final Landscape landscape = Ptolemy3D.getScene().getLandscape();
 		final double terrainScaler = landscape.getTerrainScaler();
 
-		intersectPoint[0] = intersectPoint[1] = intersectPoint[2] = -999;
+		intersectPoint.set(-999, -999, -999);
 
 		int x1 = tileLon;
 		int z1 = tileLat;
@@ -490,30 +524,21 @@ class Tile {
 			useTin = (b && (mapData.tin != null)) ? true : false;
 		}
 
-		double theta1, dTetaOverN;
-		double phi1, dPhiOverN;
-		{
-			double theta2, phi2;
-			double oneOverDDToRad;
+		int theta1 = x1;
+		int theta2 = x2;
 
-			oneOverDDToRad = Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor();
+		int phi1 = z1;
+		int phi2 = z2;
 
-			theta1 = x1 * oneOverDDToRad;
-			theta2 = x2 * oneOverDDToRad;
-
-			phi1 = z1 * oneOverDDToRad;
-			phi2 = z2 * oneOverDDToRad;
-
-			dTetaOverN = (theta2 - theta1); // To be divieded by n later
-			dPhiOverN = (phi2 - phi1);
-		}
+		int dTetaOverN = (theta2 - theta1);
+		int dPhiOverN = (phi2 - phi1);
 
 		if (!useTin && !useDem) {
 			int x_w = (x2 - x1);
 			int z_w = (z2 - z1);
 
 			// texture ratios
-			int n = (int) (((double) ((x_w > z_w) ? x_w : z_w) / (double) landscape.getMaxLongitude()) * 50);// precision, soon to be dem...
+			int n = (int) (((double) ((x_w > z_w) ? x_w : z_w) / (double)Landscape.MAX_LONGITUDE) * 50);// precision, soon to be dem...
 			if (n <= 2) {
 				n = 4;
 			}
@@ -522,22 +547,24 @@ class Tile {
 				dTetaOverN /= n;
 				dPhiOverN /= n;
 			}
+			
+			final Picking picking = new Picking();
 
-			double t1 = phi1;
+			int t1 = phi1;
 			for (int j = 0; j < n; j++) {
-				final double t2 = t1 + dPhiOverN;
+				final int t2 = t1 + dPhiOverN;
 
-				final double cosT1_E =  Math.cos(t1) * EARTH_RADIUS;
-				final double sinT1_E = -Math.sin(t1) * EARTH_RADIUS;
-				final double cosT2_E =  Math.cos(t2) * EARTH_RADIUS;
-				final double sinT2_E = -Math.sin(t2) * EARTH_RADIUS;
+				final double cosT1_E =  CosTable.cos(t1) * EARTH_RADIUS;
+				final double sinT1_E = -CosTable.sin(t1) * EARTH_RADIUS;
+				final double cosT2_E =  CosTable.cos(t2) * EARTH_RADIUS;
+				final double sinT2_E = -CosTable.sin(t2) * EARTH_RADIUS;
 
-				double t3 = theta1;
+				int t3 = theta1;
 				for (int i = 0; i <= n; i++) {
 					double cx1, cy1, cz1, cx2, cy2, cz2;
 					{
-						final double cosT3 = Math.cos(t3);
-						final double sinT3 = Math.sin(t3);
+						final double cosT3 = CosTable.cos(t3);
+						final double sinT3 = CosTable.sin(t3);
 
 						cx1 = cosT1_E * sinT3;
 						cx2 = cosT2_E * sinT3;
@@ -548,18 +575,18 @@ class Tile {
 					}
 
 					if (i > 0) {
-						Math3D.setTriVert(2, cx1, cy1, cz1);
-						if (Math3D.pickTri(intersectPoint, ray)) {
+						picking.setTriangle(2, cx1, cy1, cz1);
+						if (picking.pickTri(intersectPoint, ray)) {
 							return true;
 						}
-						Math3D.setTriVert(2, cx2, cy2, cz2);
-						if (Math3D.pickTri(intersectPoint, ray)) {
+						picking.setTriangle(2, cx2, cy2, cz2);
+						if (picking.pickTri(intersectPoint, ray)) {
 							return true;
 						}
 					}
 					else {
-						Math3D.setTriVert(0, cx1, cy1, cz1);
-						Math3D.setTriVert(1, cx2, cy2, cz2);
+						picking.setTriangle(0, cx1, cy1, cz1);
+						picking.setTriangle(1, cx2, cy2, cz2);
 					}
 
 					t3 += dTetaOverN;
@@ -568,6 +595,15 @@ class Tile {
 
 		}
 		else if (useTin) {
+			theta1 *= Unit.DD_TO_RADIAN;
+			theta2 *= Unit.DD_TO_RADIAN;
+
+			phi1 *= Unit.DD_TO_RADIAN;
+			phi2 *= Unit.DD_TO_RADIAN;
+
+			dTetaOverN *= Unit.DD_TO_RADIAN;
+			dPhiOverN *= Unit.DD_TO_RADIAN;
+			
 			{
 				double d = 1.0 / mapData.tin.w;
 				dTetaOverN /= d;
@@ -575,6 +611,8 @@ class Tile {
 			}
 			double scaler = Unit.getCoordSystemRatio() * terrainScaler;
 
+			final Picking picking = new Picking();
+			
 			for (int i = 0; i < mapData.tin.indices.length; i++) {
 				for (int j = 0; j < mapData.tin.indices[i].length; j++) {
 					double dx, dz, dy;
@@ -595,18 +633,18 @@ class Tile {
 						double sinX = Math.sin(dx);
 						double cosX = Math.cos(dx);
 
-						tx = dyE * cosZ * sinX;
+						tx =  dyE * cosZ * sinX;
 						ty = -dyE * sinZ;
-						tz = dyE * cosZ * cosX;
+						tz =  dyE * cosZ * cosX;
 					}
 
 					// pick
 					if (j < 2) {
-						Math3D.setTriVert(j, tx, ty, tz);
+						picking.setTriangle(j, tx, ty, tz);
 					}
 					else {
-						Math3D.setTriVert(2, tx, ty, tz);
-						if (Math3D.pickTri(intersectPoint, ray)) {
+						picking.setTriangle(2, tx, ty, tz);
+						if (picking.pickTri(intersectPoint, ray)) {
 							return true;
 						}
 					}
@@ -624,29 +662,29 @@ class Tile {
 			int endx = numrows - 1;
 			int endz = numrows - 1;
 
-			int nrows_x = endx - startx;
-			int nrows_z = endz - startz;
+			int numRowsX = endx - startx;
+			int numRowZ = endz - startz;
 
-			{
-				dTetaOverN /= nrows_x;
-				dPhiOverN /= nrows_z;
-			}
+			dTetaOverN /= numRowsX;
+			dPhiOverN /= numRowZ;
 
 			double scaler = Unit.getCoordSystemRatio() * terrainScaler;
 
-			double dz = phi1;
+			final Picking picking = new Picking();
+			
+			int dz = phi1;
 			int pos_d1 = (startz * row_width) + (startx * 2);
 			for (int i = startz; i < endz; i++) {
-				double d2z = dz + dPhiOverN;
+				int d2z = dz + dPhiOverN;
 
-				final double cosZ = Math.cos(dz);
-				final double cos2Z = Math.cos(d2z);
-				final double sinZ = Math.sin(dz);
-				final double sin2Z = Math.sin(d2z);
+				final double cosZ  = CosTable.cos(dz);
+				final double cos2Z = CosTable.cos(d2z);
+				final double sinZ  = CosTable.sin(dz);
+				final double sin2Z = CosTable.sin(d2z);
 
 				int pos_d1_save = pos_d1; // int pos_d1 = (i * rowWidth) +
 				// (startx * 2);
-				double dx = theta1;
+				int dx = theta1;
 				for (int j = startx; j < endx; j++) {
 					int pos_d2 = pos_d1 + row_width;
 
@@ -658,8 +696,8 @@ class Tile {
 						final double dy1E = EARTH_RADIUS + dy1;
 						final double dy2E = EARTH_RADIUS + dy2;
 
-						final double cosX = Math.cos(dx);
-						final double sinX = Math.sin(dx);
+						final double cosX = CosTable.cos(dx);
+						final double sinX = CosTable.sin(dx);
 
 						cx1 = dy1E * cosZ * sinX;
 						cx2 = dy2E * cos2Z * sinX;
@@ -670,19 +708,19 @@ class Tile {
 					}
 
 					if (j > startx) {
-						Math3D.setTriVert(2, cx1, cy1, cz1);
-						if (Math3D.pickTri(intersectPoint, ray)) {
+						picking.setTriangle(2, cx1, cy1, cz1);
+						if (picking.pickTri(intersectPoint, ray)) {
 							return true;
 						}
 
-						Math3D.setTriVert(2, cx2, cy2, cz2);
-						if (Math3D.pickTri(intersectPoint, ray)) {
+						picking.setTriangle(2, cx2, cy2, cz2);
+						if (picking.pickTri(intersectPoint, ray)) {
 							return true;
 						}
 					}
 					else {
-						Math3D.setTriVert(0, cx1, cy1, cz1);
-						Math3D.setTriVert(1, cx2, cy2, cz2);
+						picking.setTriangle(0, cx1, cy1, cz1);
+						picking.setTriangle(1, cx2, cy2, cz2);
 					}
 
 					pos_d1 += 2;
@@ -694,15 +732,17 @@ class Tile {
 			}
 		}
 		else {
-			Math3D.setTriVert(0, x1, 0, z1);
-			Math3D.setTriVert(1, x1, 0, z2);
-			Math3D.setTriVert(2, x2, 0, z1);
+			final Picking picking = new Picking();
+			
+			picking.setTriangle(0, x1, 0, z1);
+			picking.setTriangle(1, x1, 0, z2);
+			picking.setTriangle(2, x2, 0, z1);
 
-			if (Math3D.pickTri(intersectPoint, ray)) {
+			if (picking.pickTri(intersectPoint, ray)) {
 				return true;
 			}
-			Math3D.setTriVert(2, x2, 0, z2);
-			if (Math3D.pickTri(intersectPoint, ray)) {
+			picking.setTriangle(2, x2, 0, z2);
+			if (picking.pickTri(intersectPoint, ray)) {
 				return true;
 			}
 		}
@@ -753,8 +793,6 @@ class Tile {
 	 * @return the upper left longitude
 	 */
 	protected int getReferenceLeftLongitude() {
-		final Landscape landscape = Ptolemy3D.getScene().getLandscape();
-		
 		final int res;
 		if (layerID != mapData.key.layer) {
 			res = mapData.getLon();
@@ -762,15 +800,13 @@ class Tile {
 		else {
 			res = tileLon;
 		}
-		return res + landscape.getMaxLongitude();
+		return res + Landscape.MAX_LONGITUDE;
 	}
 	/**
 	 * Lower right corner longitude
 	 * @return the lower right longitude
 	 */
 	protected int getReferenceRightLongitude() {
-		final Landscape landscape = Ptolemy3D.getScene().getLandscape();
-		
 		final int res;
 		if (layerID != mapData.key.layer) {
 			final Globe globe = Ptolemy3D.getScene().getLandscape().globe;
@@ -778,7 +814,7 @@ class Tile {
 			res = getReferenceLeftLongitude() + tileSize;
 		}
 		else {
-			res = tileLon + tileSize + landscape.getMaxLongitude();
+			res = tileLon + tileSize + Landscape.MAX_LONGITUDE;
 		}
 		return res;
 	}

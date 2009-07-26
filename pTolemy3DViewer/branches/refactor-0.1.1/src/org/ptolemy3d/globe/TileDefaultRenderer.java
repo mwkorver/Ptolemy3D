@@ -27,7 +27,6 @@ import org.ptolemy3d.Unit;
 import org.ptolemy3d.debug.ProfilerUtil;
 import org.ptolemy3d.globe.Tile.TileArea;
 import org.ptolemy3d.globe.Tile.TileRenderer;
-import org.ptolemy3d.math.Math3D;
 import org.ptolemy3d.scene.Landscape;
 
 /**
@@ -53,11 +52,8 @@ class TileDefaultRenderer implements TileRenderer {
 	private float[] colratios;
 	private double terrainScaler;
 	private float meshColor;
-	protected double oneOverDDToRad;
 
 	private final void fillTemporaryVariables(TileArea subTile) {
-		oneOverDDToRad = Math3D.DEGREE_TO_RADIAN / Unit.getDDFactor();
-		
 		final Tile tile = subTile.tile;
 		gl = tile.gl;
 		jtile = tile.mapData;
@@ -141,11 +137,11 @@ class TileDefaultRenderer implements TileRenderer {
 		double theta1 = 0, theta2 = 0;
 		double phi1 = 0, phi2 = 0;
 		{
-			theta1 = x1 * oneOverDDToRad;  // startx
-			theta2 = x2 * oneOverDDToRad; // endx
+			theta1 = x1 * Unit.DD_TO_RADIAN;  // startx
+			theta2 = x2 * Unit.DD_TO_RADIAN; // endx
 
-			phi1 = z1 * oneOverDDToRad; //starty
-			phi2 = z2 * oneOverDDToRad;  //endy
+			phi1 = z1 * Unit.DD_TO_RADIAN; //starty
+			phi2 = z2 * Unit.DD_TO_RADIAN;  //endy
 		}
 
 		double dx, dz;
@@ -276,11 +272,11 @@ class TileDefaultRenderer implements TileRenderer {
 		double theta1 = 0, theta2 = 0;
 		double phi1 = 0, phi2 = 0;
 		{
-			theta1 = x1 * oneOverDDToRad;  // startx
-			theta2 = x2 * oneOverDDToRad; // endx
+			theta1 = x1 * Unit.DD_TO_RADIAN;  // startx
+			theta2 = x2 * Unit.DD_TO_RADIAN; // endx
 
-			phi1 = z1 * oneOverDDToRad; //starty
-			phi2 = z2 * oneOverDDToRad;  //endy
+			phi1 = z1 * Unit.DD_TO_RADIAN; //starty
+			phi2 = z2 * Unit.DD_TO_RADIAN;  //endy
 		}
 
 		for (int i = startz; i < endz; i++) {
@@ -435,7 +431,7 @@ class TileDefaultRenderer implements TileRenderer {
 		double cx1, cy1, cz1, cx2, cy2, cz2;
 
 		// precision, soon to be dem...
-		int n = (int) (((double) ((x_w > z_w) ? x_w : z_w) / (double) landscape.getMaxLongitude()) * 50);
+		int n = (int) (((double) ((x_w > z_w) ? x_w : z_w) / (double)Landscape.MAX_LONGITUDE) * 50);
 		if (n <= 2) {
 			n = 4;
 		}
@@ -450,11 +446,11 @@ class TileDefaultRenderer implements TileRenderer {
 		double theta1 = 0, theta2 = 0;
 		double phi1 = 0, phi2 = 0;
 		{
-			theta1 = x1 * oneOverDDToRad;  // startx
-			theta2 = x2 * oneOverDDToRad; // endx
+			theta1 = x1 * Unit.DD_TO_RADIAN;  // startx
+			theta2 = x2 * Unit.DD_TO_RADIAN; // endx
 
-			phi1 = z1 * oneOverDDToRad; //starty
-			phi2 = z2 * oneOverDDToRad;  //endy
+			phi1 = z1 * Unit.DD_TO_RADIAN; //starty
+			phi2 = z2 * Unit.DD_TO_RADIAN;  //endy
 		}
 
 		for (int j = 0; j < n; j++) {

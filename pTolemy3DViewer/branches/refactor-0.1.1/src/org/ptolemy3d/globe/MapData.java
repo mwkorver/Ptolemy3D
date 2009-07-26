@@ -17,7 +17,7 @@
  */
 package org.ptolemy3d.globe;
 
-import org.ptolemy3d.manager.Texture;
+import org.ptolemy3d.data.Texture;
 
 /**
  * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>

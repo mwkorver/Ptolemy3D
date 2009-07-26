@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.ptolemy3d.exceptions;
+package org.ptolemy3d;
 
 /**
  * A general pTolemy exception.

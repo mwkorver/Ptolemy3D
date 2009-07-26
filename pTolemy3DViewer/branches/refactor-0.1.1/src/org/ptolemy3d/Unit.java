@@ -17,6 +17,8 @@
  */
 package org.ptolemy3d;
 
+import org.ptolemy3d.math.Math3D;
+
 /**
  * Unit class constains a set of static methods to work with the unit system
  * used in Ptolemy3D.
@@ -28,11 +30,14 @@ public class Unit {
 	/** Earth radius from the center to the equator, in meter. */
 	private final static float REAL_EARTH_RADIUS = 6378136;
 	
-    // Globe radius
-    public static final int EARTH_RADIUS = 500000; // REAL_EARTH_RADIUS;
-    public static final int DEFAULT_DD_FACTOR = 1000000;
-    private static int ddFactor = DEFAULT_DD_FACTOR;
-    private static float coordSystemRatio = EARTH_RADIUS / REAL_EARTH_RADIUS;
+	/** Earth radius in the viewer unit system. */
+    public final static int EARTH_RADIUS = 500000; // REAL_EARTH_RADIUS;
+    private final static float coordSystemRatio = EARTH_RADIUS / REAL_EARTH_RADIUS;
+    
+    /** Factor to convert degrees to dd */
+    public final static int DEGREE_TO_DD_FACTOR = 1000000;
+    /** Factor to convert dd to radians */
+    public final static double DD_TO_RADIAN = Math3D.DEGREE_TO_RADIAN / DEGREE_TO_DD_FACTOR;
 
     /**
      * Convert degrees to DD.
@@ -42,7 +47,7 @@ public class Unit {
      * @see #ddToDegrees
      */
     public static final int degreesToDD(double degrees) {
-        return (int) (degrees * ddFactor);
+        return (int) (degrees * DEGREE_TO_DD_FACTOR);
     }
 
     /**
@@ -53,18 +58,32 @@ public class Unit {
      * @see #degreesToDD
      */
     public static double ddToDegrees(int ddUnit) {
-        return (double) ddUnit / ddFactor;
+        return (double) ddUnit / DEGREE_TO_DD_FACTOR;
+    }
+    
+    /**
+     * Convert degrees to DD.
+     *
+     * @param degrees angle in degree to convert
+     * @return the angle mesured in DD unit
+     * @see #ddToDegrees
+     */
+    public static final double ddToRadians(int dd) {
+        return dd * DD_TO_RADIAN;
+    }
+    
+    /**
+     * Convert degrees to DD.
+     *
+     * @param degrees angle in degree to convert
+     * @return the angle mesured in DD unit
+     * @see #ddToDegrees
+     */
+    public static final double radiansToDD(int dd) {
+        return dd * DD_TO_RADIAN;
     }
     
     public static float getCoordSystemRatio() {
         return coordSystemRatio;
-    }
-
-    public static final int getDDFactor() {
-        return ddFactor;
-    }
-
-    public static final void setDDFactor(int ddf) {
-        ddFactor = ddf;
     }
 }

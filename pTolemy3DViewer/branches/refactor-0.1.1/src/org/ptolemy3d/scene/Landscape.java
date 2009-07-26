@@ -183,16 +183,14 @@ public class Landscape {
     // Tile color is the level id
     public final static byte DISPLAY_TILENEIGHBOUR = (byte) 6;
     
-    private final static int LANDSCAPE_MAXLONGITUDE_ANGLE = 180;
-    private final static int LANDSCAPE_MAXLATITUDE_ANGLE = 90;
-    
+    // Max longitude in DD
+    public final static int MAX_LATITUDE = 90 * Unit.DEGREE_TO_DD_FACTOR;
+    // Max latitude in DD
+    public final static int MAX_LONGITUDE = 180 * Unit.DEGREE_TO_DD_FACTOR;
+
     // Draw landscape
     public boolean drawLandscape = true;
-    // Max longitude in DD
-    private int maxLongitude;
-    // Max latitude in DD
-    private int maxLatitude;
-
+    
     // Distance of far clip
     private int farClip = 1100000;
 
@@ -231,9 +229,6 @@ public class Landscape {
     
     /** Landscape Initialization */
     private void initialize() {
-        maxLatitude = Unit.degreesToDD(LANDSCAPE_MAXLATITUDE_ANGLE);
-        maxLongitude = Unit.degreesToDD(LANDSCAPE_MAXLONGITUDE_ANGLE);
-
         colorRatios = new float[]{
                     (topColor[0] - tileColor[0]) / maxColorHeight,
                     (topColor[1] - tileColor[1]) / maxColorHeight,
@@ -270,16 +265,16 @@ public class Landscape {
     }
     
     public final int clampLeftLongitude(int lon) {
-    	return Math.max(lon, -maxLongitude);
+    	return Math.max(lon, -MAX_LONGITUDE);
     }
     public final int clampRightLongitude(int lon) {
-    	return Math.min(lon, maxLongitude);
+    	return Math.min(lon, MAX_LONGITUDE);
     }
     public final int clampUpperLatitude(int lat) {
-    	return Math.max(lat, -maxLatitude);
+    	return Math.max(lat, -MAX_LATITUDE);
     }
     public final int clampLowerLatitude(int lat) {
-    	return Math.min(lat, maxLatitude);
+    	return Math.min(lat, MAX_LATITUDE);
     }
 
     /** Landscape Rendering */
@@ -383,36 +378,6 @@ public class Landscape {
      */
     public float[] getColorRatios() {
         return colorRatios;
-    }
-
-    /**
-     * @param maxLongitude
-     *            the maxLongitude to set
-     */
-    public void setMaxLongitude(int maxLongitude) {
-        this.maxLongitude = maxLongitude;
-    }
-
-    /**
-     * @return the maxLongitude
-     */
-    public int getMaxLongitude() {
-        return maxLongitude;
-    }
-
-    /**
-     * @param maxLatitude
-     *            the maxLatitude to set
-     */
-    public void setMaxLatitude(int maxLatitude) {
-        this.maxLatitude = maxLatitude;
-    }
-
-    /**
-     * @return the maxLatitude
-     */
-    public int getMaxLatitude() {
-        return maxLatitude;
     }
 
     /**

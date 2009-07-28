@@ -40,7 +40,7 @@ import org.ptolemy3d.view.Camera;
 /**
  * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  */
-class MapDataDecoder {
+class MapDataQueue {
 	private final static int timeOut = 10 * 1000;
 	
 	/** Keep reference of all MapData */
@@ -48,7 +48,7 @@ class MapDataDecoder {
 	private final DownloadDispatcherThread downloadDispatcher;
 	private final DecoderThread decoderThread;
 	
-	public MapDataDecoder() {
+	public MapDataQueue() {
 		decoders = new HashMap<Integer, HashMap<MapDataKey, MapDataEntries>>();
 		downloadDispatcher = new DownloadDispatcherThread();
 		decoderThread = new DecoderThread();
@@ -255,8 +255,9 @@ class MapDataDecoder {
 			
 			final Landscape landscape = Ptolemy3D.getScene().getLandscape();
 			final Camera camera = Ptolemy3D.getCanvas().getCamera();
-search:		for(int layer = 0; layer < numLayers; layer++) {
-				for(int decoderUnit = 0; decoderUnit < maxDecoderUnit; decoderUnit++) {
+search:		
+			for(int decoderUnit = 0; decoderUnit < maxDecoderUnit; decoderUnit++) {
+				for(int layer = 0; layer < numLayers; layer++) {
 					for(int dataID = 0; dataID < MapDataEntries.NUM_DATAS; dataID++) {
 						if(decoderUnit >= MapDataEntries.getNumDecoderUnit(dataID)) {
 							continue;

@@ -32,10 +32,10 @@ import org.ptolemy3d.globe.MapDataKey;
  */
 public class MapDataManager {
 	/** Map decoder queue */
-	private final MapDataDecoder decoderQueue;
+	private final MapDataQueue decoderQueue;
 	
 	public MapDataManager() {
-		decoderQueue = new MapDataDecoder();
+		decoderQueue = new MapDataQueue();
 		decoderQueue.start();
 	}
 	

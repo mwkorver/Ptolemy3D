@@ -22,7 +22,7 @@ package org.ptolemy3d.math;
  * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  * @author Contributors
  */
-public final class Vector3d {
+public final class Vector3d implements Cloneable {
 	public double x;
 	public double y;
 	public double z;
@@ -37,6 +37,39 @@ public final class Vector3d {
 	}
 	public Vector3d(Vector3d vec) {
 		this(vec.x, vec.y, vec.z);
+	}
+	
+	@Override
+	public String toString() {
+		return super.toString()+"("+x+", "+y+", "+z+")";
+	}
+	
+	@Override
+	protected Vector3d clone() {
+		return new Vector3d(x, y, z);
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if(this == obj) {
+			return true;
+		}
+		else if(getClass() == obj.getClass()) {
+			final Vector3d vec = (Vector3d)obj;
+			return ((vec.x == x) && (vec.y == y) && (vec.z == z));
+		}
+		else {
+			return false;
+		}
+	}
+	
+	@Override
+	public int hashCode() {
+		long hash;
+		hash = 31L        + Float.floatToIntBits((float)x);
+		hash = 31L * hash + Float.floatToIntBits((float)y);
+		hash = 31L * hash + Float.floatToIntBits((float)z);
+		return (int)(hash ^ (hash>>32));
 	}
 	
 	public final boolean isZero() {

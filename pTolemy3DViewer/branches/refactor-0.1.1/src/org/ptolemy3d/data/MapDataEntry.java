@@ -50,11 +50,16 @@ abstract class MapDataEntry {
 
 	/** @return true if the map has been downloaded */
 	public boolean isDownloaded() {
+		return (stream != null) && (stream.isDownloaded());
+	}
+	
+	/** @return true if the map has been downloaded */
+	public boolean isJustDownloaded() {
 		if (stream == null) {
 			// Attempt to get from cache
 			stream = findDataFromCache(mapData);
 		}
-		return (stream != null) && (stream.isDownloaded());
+		return isDownloaded();
 	}
 	
 	/** @return true if the map has been downloaded */
@@ -70,7 +75,7 @@ abstract class MapDataEntry {
 	
 	/** @return true if the data has been downloaded */
 	public final boolean download() {
-		if(isDownloaded()) {
+		if(isJustDownloaded()) {
 			return true;
 		}
 		
@@ -97,8 +102,7 @@ abstract class MapDataEntry {
 		}
 	}
 	
-	/** @return the Stream if it is donwload
-	 * @see #isDownloaded() */
+	/** @return the Stream if it is donwload */
 	public Stream getStream() {
 		return stream;
 	}

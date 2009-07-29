@@ -44,6 +44,9 @@ class MapDataEntries {
 	public boolean isDownloaded(int dataID) {
 		return datas[dataID].isDownloaded();
 	}
+	public boolean isJustDownloaded(int dataID) {
+		return datas[dataID].isJustDownloaded();
+	}
 	public boolean isDownloadFailed(int dataID) {
 		return datas[dataID].isDownloadFailed();
 	}

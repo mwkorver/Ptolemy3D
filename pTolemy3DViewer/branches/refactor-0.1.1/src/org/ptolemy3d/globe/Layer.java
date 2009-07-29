@@ -390,14 +390,15 @@ public class Layer {
 			/*
 			 * DEM Elevation
 			 */
-			final byte[] dem = mapData.dem.demDatas;
-			final int numRows = mapData.dem.size;
-			final int rowWidth = numRows * 2; // assuming we have a square tile
-
-			float dw = (float) (numRows - 1) / tileSize;
-			int xpos = (int) ((lon - mapData.getLon()) * (dw));
-			int ypos = (int) ((mapData.getLat() - lat) * (dw));
-			float sw = (float) tileSize / (numRows - 1);
+			final ElevationDem dem = mapData.dem;
+			
+			final int numRows = mapData.dem.getNumRows();
+			double dw = (double) (numRows - 1) / tileSize;
+			double sw = (double) tileSize / (numRows - 1);
+			
+			int xpos = (int) ((lon - mapData.getLon()) * dw);
+			int ypos = (int) ((mapData.getLat() - lat) * dw);
+			
 			double gminx = mapData.getLon() + xpos * sw;
 			double gmaxx = mapData.getLon() + (xpos + 1) * sw;
 			double gminy = mapData.getLat() - ypos * sw;
@@ -418,21 +419,15 @@ public class Layer {
 			
 			final Picking picking = new Picking();
 			
-			picking.setTriangle(0,
-					gminx, (dem[(ypos * rowWidth) + (xpos * 2)] << 8) + (dem[((ypos * rowWidth) + (xpos * 2)) + 1] & 0xFF), gminy);
-			picking.setTriangle(1,
-					gmaxx, (dem[(ypos * rowWidth) + ((xpos + 1) * 2)] << 8) + (dem[((ypos * rowWidth) + ((xpos + 1) * 2)) + 1] & 0xFF), gminy);
-			picking.setTriangle(2,
-					gminx, (dem[((ypos + 1) * rowWidth) + (xpos * 2)] << 8) + (dem[(((ypos + 1) * rowWidth) + (xpos * 2)) + 1] & 0xFF), gmaxy);
+			picking.setTriangle(0, gminx, dem.getHeightFromIndex(xpos    , ypos    ), gminy);
+			picking.setTriangle(1, gmaxx, dem.getHeightFromIndex(xpos + 1, ypos    ), gminy);
+			picking.setTriangle(2, gminx, dem.getHeightFromIndex(xpos    , ypos + 1), gmaxy);
 			
 			if (picking.rayIntersectTri(pickArr, ray) != 1) {
 				// to avoid overlap for ray through tri...
-				picking.setTriangle(0,
-						gmaxx, (dem[(ypos * rowWidth) + ((xpos + 1) * 2)] << 8) + (dem[((ypos * rowWidth) + ((xpos + 1) * 2)) + 1] & 0xFF), gminy);
-				picking.setTriangle(1,
-						gminx,(dem[((ypos + 1) * rowWidth) + (xpos * 2)] << 8) + (dem[(((ypos + 1) * rowWidth) + (xpos * 2)) + 1] & 0xFF), gmaxy);
-				picking.setTriangle(2,
-						gmaxx, (dem[((ypos + 1) * rowWidth) + ((xpos + 1) * 2)] << 8) + (dem[(((ypos + 1) * rowWidth) + ((xpos + 1) * 2)) + 1] & 0xFF), gmaxy);
+				picking.setTriangle(0, gmaxx, dem.getHeightFromIndex(xpos + 1, ypos    ), gminy);
+				picking.setTriangle(1, gminx, dem.getHeightFromIndex(xpos    , ypos + 1), gmaxy);
+				picking.setTriangle(2, gmaxx, dem.getHeightFromIndex(xpos + 1, ypos + 1), gmaxy);
 				if (picking.rayIntersectTri(pickArr, ray) != 1) {
 					pickArr.y = 0;
 				}

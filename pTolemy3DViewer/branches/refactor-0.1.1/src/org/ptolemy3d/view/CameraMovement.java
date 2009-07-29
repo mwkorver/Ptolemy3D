@@ -603,8 +603,7 @@ public class CameraMovement {
 
 	private final void displayCoords() {
 		Math3D.setMapCoord(intersectPoint, dispout);
-		// ptolemy.callJavascript("plotPosition", String.valueOf(dispout[0]),
-		// String.valueOf(dispout[1]), String.valueOf(dispout[2]));
+		//Ptolemy3D.callJavascript("plotPosition", new String[]{ String.valueOf(dispout.x), String.valueOf(dispout.y), String.valueOf(dispout.z)});
 	}
 
 	public Position getPosition() {
@@ -1321,8 +1320,7 @@ public class CameraMovement {
 	protected synchronized void outputCoordinates(MouseEvent e) {
 		setRays(e);
 		if (!Ptolemy3D.getScene().getPlugins().pick(intersectPoint, pickray)) {
-			if (Ptolemy3D.getScene().getLandscape().globe.pick(intersectPoint,
-					pickray)) {
+			if (Ptolemy3D.getScene().getLandscape().globe.pick(intersectPoint, pickray)) {
 				if (!Ptolemy3D.getScene().getPlugins().onPick(intersectPoint)) {
 					displayCoords();
 				}

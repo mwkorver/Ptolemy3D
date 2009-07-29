@@ -60,7 +60,7 @@ class Jp2DataEntry extends MapDataEntry {
 
 	@Override
 	public boolean decode() {
-		if(!isDownloaded()) {
+		if(!isJustDownloaded()) {
 			return false;
 		}
 		final Stream stream = getStream();

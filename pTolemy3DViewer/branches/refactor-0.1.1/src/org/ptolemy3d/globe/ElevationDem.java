@@ -18,61 +18,125 @@
 
 package org.ptolemy3d.globe;
 
+import java.security.InvalidParameterException;
+
 import org.ptolemy3d.Ptolemy3D;
+import org.ptolemy3d.scene.Landscape;
 
 /**
  * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
- * @author Contributors
  */
 public class ElevationDem {
-	/* 2: data are stored as unsigned short */
-	private final static int DATA_SIZE = 2;
-	
-	/** DEM Elevation raw datas */
-	public final byte[] demDatas;
-	/** Number of elevation point (square) */
-	public final int size;
+	/** Elevation grid */
+	private final short[][] elevation;
+	/** Reference longitude or the upper left corner */
+	private final int refLongitude;
+	/** Reference latitude or the upper left corner */
+	private final int refLatitude;
+	/** */
+	private final double geomIncr;	//Only used to avoid / computed each time, remove that ?
 
-	public ElevationDem(byte[] datas) {
-		demDatas = datas;
-		size = (int)Math.sqrt((datas.length / 2));
-	}
-	
-	public double getUpLeftHeight(Tile tile) {
-		final int left = tile.getArea().ulx;
-		final int up = tile.getArea().lrz;
-		return getHeight(tile, left, up);
-	}
-	public double getBotLeftHeight(Tile tile) {
-		final int left = tile.getArea().ulx;
-		final int lower = tile.getArea().ulz;
-		return getHeight(tile, left, lower);
-	}
-	public double getUpRightHeight(Tile tile) {
-		final int right = tile.getArea().lrx;
-		final int up = tile.getArea().lrz;
-		return getHeight(tile, right, up);
-	}
-	public double getBotRightHeight(Tile tile) {
-		final int right = tile.getArea().lrx;
-		final int lower = tile.getArea().ulz;
-		return getHeight(tile, right, lower);
-	}
-	
-	public double getHeight(Tile tile, int lon, int lat) {
-		final int refLeftLon = tile.getReferenceLeftLongitude();
-		final int refUpLat = tile.getReferenceUpperLatitude();
+	public ElevationDem(MapDataKey mapKey, byte[] datas) {
+		final int numRows = (int)Math.sqrt((datas.length / 2));
+		if((numRows * numRows * 2) != datas.length) {
+			throw new InvalidParameterException("Corrupted DEM data");
+		}
 		
-		final Layer layer = Ptolemy3D.getScene().getLandscape().globe.getLayer(tile.mapData.key.layer);
-		final double geomIncr = (double) (size - 1) / layer.getTileSize();
-		final int x = (int)((lon - refLeftLon) * geomIncr);
-		final int z = (int)((lat - refUpLat) * geomIncr);
-		return getHeightFromIndex(x, z);
+		final int tileSize = Ptolemy3D.getScene().getLandscape().globe.getLayer(mapKey.layer).getTileSize();
+		geomIncr = (double) (numRows - 1) / tileSize;
+		
+		// Convert to rendering unit
+		refLongitude = mapKey.lon + Landscape.MAX_LONGITUDE;
+		refLatitude = -mapKey.lat;
+		
+		// Decode DEM data
+		this.elevation = new short[numRows][numRows];
+		for(int lat = 0; lat < numRows; lat++) {
+			for(int lon = 0; lon < numRows; lon++) {
+				final int index = ((lat * numRows) + lon) * 2;
+				final int height = ((datas[index] & 0xFF) << 8) | (datas[index + 1] & 0xFF);
+				elevation[lon][lat] = (short)(height&0xFFFF);
+			}
+		}
 	}
 	
-	private final double getHeightFromIndex(int lon, int lat) {
-		final int index = (lat * size + lon) * DATA_SIZE;
-		final int height = (demDatas[index] << 8) + (demDatas[index + 1] & 0xFF);
+	public int getNumRows() {
+		return elevation.length;
+	}
+	
+	/**
+	 * @param lon longitude in DD
+	 * @param lat latitude in DD
+	 * @return the elevation (can be cast to int)
+	 */
+	public double getHeight(int lon, int lat) {
+		final double lonID = (lon - refLongitude) * geomIncr;
+		final double latID = (lat - refLatitude) * geomIncr;
+		
+		final int lonInfID = (int)lonID;
+		final int latInfID = (int)latID;
+		
+		final boolean interpolateLon = (lonInfID != lonID);
+		final boolean interpolateLat = (latInfID != latID);
+		
+		final double height;
+		if(interpolateLon && interpolateLat) {
+			final double interpLon = lonID - lonInfID;
+			final double interpLat = latID - latInfID;
+			
+			final double h00 = getHeightFromIndex(lonInfID,   latInfID  ) * (1 - interpLon);
+			final double h10 = getHeightFromIndex(lonInfID+1, latInfID  ) * interpLon;
+			final double h01 = getHeightFromIndex(lonInfID,   latInfID+1) * (1 - interpLon);
+			final double h11 = getHeightFromIndex(lonInfID+1, latInfID+1) * interpLon;
+			
+			height = (h00 + h10) * (1 - interpLat) + (h01 + h11) * interpLat;
+		}
+		else if(interpolateLon) {
+			final double interpLon = lonID - lonInfID;
+			
+			final double h00 = getHeightFromIndex(lonInfID,   latInfID) * (1 - interpLon);
+			final double h10 = getHeightFromIndex(lonInfID+1, latInfID) * interpLon;
+			
+			height = h00 + h10;
+		}
+		else if(interpolateLat) {
+			final double interpLat = latID - latInfID;
+			
+			final double h00 = getHeightFromIndex(lonInfID,   latInfID  );
+			final double h01 = getHeightFromIndex(lonInfID,   latInfID+1);
+			
+			height = h00 * (1 - interpLat) + h01 * interpLat;
+		}
+		else {
+			height = getHeightFromIndex(lonInfID, latInfID);
+		}
 		return height;
+	}
+	
+	/** @return ul corner, can be cast to int */
+	public final int getUpLeftCorner() {
+		return getHeightFromIndex(0, 0);
+	}
+	/** @return ur corner, can be cast to int */
+	public final int getUpRightCorner() {
+		return getHeightFromIndex(getNumRows() - 1, 0);
+	}
+	/** @return ll corner, can be cast to int */
+	public final int getLowerLeftCorner() {
+		return getHeightFromIndex(0, getNumRows() - 1);
+	}
+	/** @return ul corner, can be cast to int */
+	public final int getLowerRightCorner() {
+		return getHeightFromIndex(getNumRows() - 1, getNumRows() - 1);
+	}
+
+	/**
+	 * @param lonID index of the point in the longitude direction of the grid. Should be in range [0;getNumRows()-1]
+	 * @param latID index of the point in the longitude direction of the grid. Should be in range [0;getNumRows()-1]
+	 * @return the elevation
+	 * @see #getNumRows()
+	 */
+	public final int getHeightFromIndex(int lonID, int latID) {
+		return elevation[lonID][latID]&0xFFFF;
 	}
 }

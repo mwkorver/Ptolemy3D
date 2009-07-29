@@ -145,10 +145,8 @@ class Tile {
 	protected boolean texture;
 
 	/* TexTile renderer */
-//	private static final TileRenderer renderer = new TileDefaultRenderer();					//First clean version
-//	private static final TileRenderer renderer = new TileDirectModeRenderer();				//CPU Optimizations
-	private static final TileRenderer renderer = new TileDirectModeRenderer_MathLookUp();	//Cos/Sin table lookup
-	protected interface TileRenderer { public void renderSubTile(TileArea subTile); }
+	private static final ITileRenderer renderer = new TileRenderer();
+	protected interface ITileRenderer { public void renderSubTile(TileArea subTile); }
 
 	protected Tile(int tileID) {
 		this.tileID = tileID;
@@ -652,29 +650,18 @@ class Tile {
 			}
 		}
 		else if (useDem) {
-			final byte[] dem = mapData.dem.demDatas;
+			final ElevationDem dem = mapData.dem;
+			final int numRows = dem.getNumRows() - 1;
 
-			final int row_width = (int) Math.sqrt((dem.length / 2)) * 2;
-			final int numrows = row_width / 2;
+			dTetaOverN /= numRows;
+			dPhiOverN /= numRows;
 
-			int startx = 0;
-			int startz = 0;
-			int endx = numrows - 1;
-			int endz = numrows - 1;
-
-			int numRowsX = endx - startx;
-			int numRowZ = endz - startz;
-
-			dTetaOverN /= numRowsX;
-			dPhiOverN /= numRowZ;
-
-			double scaler = Unit.getCoordSystemRatio() * terrainScaler;
+			final double dyScaler = Unit.getCoordSystemRatio() * terrainScaler;
 
 			final Picking picking = new Picking();
 			
 			int dz = phi1;
-			int pos_d1 = (startz * row_width) + (startx * 2);
-			for (int i = startz; i < endz; i++) {
+			for (int i = 0; i < numRows; i++) {
 				int d2z = dz + dPhiOverN;
 
 				final double cosZ  = CosTable.cos(dz);
@@ -682,15 +669,14 @@ class Tile {
 				final double sinZ  = CosTable.sin(dz);
 				final double sin2Z = CosTable.sin(d2z);
 
-				int pos_d1_save = pos_d1; // int pos_d1 = (i * rowWidth) +
-				// (startx * 2);
 				int dx = theta1;
-				for (int j = startx; j < endx; j++) {
-					int pos_d2 = pos_d1 + row_width;
-
-					double dy1 = ((dem[pos_d1] << 8) + (dem[pos_d1 + 1] & 0xFF)) * scaler;
-					double dy2 = ((dem[pos_d2] << 8) + (dem[pos_d2 + 1] & 0xFF)) * scaler;
-
+				for (int j = 0; j < numRows; j++) {
+					double dy1 = dem.getHeightFromIndex(j, i);
+					double dy2 = dem.getHeightFromIndex(j, i + 1);
+					
+					dy1 *= dyScaler;
+					dy2 *= dyScaler;
+					
 					double cx1, cy1, cz1, cx2, cy2, cz2;
 					{
 						final double dy1E = EARTH_RADIUS + dy1;
@@ -706,8 +692,8 @@ class Tile {
 						cz1 = dy1E * cosZ * cosX;
 						cz2 = dy2E * cos2Z * cosX;
 					}
-
-					if (j > startx) {
+					
+					if (j > 0) {
 						picking.setTriangle(2, cx1, cy1, cz1);
 						if (picking.pickTri(intersectPoint, ray)) {
 							return true;
@@ -722,13 +708,11 @@ class Tile {
 						picking.setTriangle(0, cx1, cy1, cz1);
 						picking.setTriangle(1, cx2, cy2, cz2);
 					}
-
-					pos_d1 += 2;
+					
 					dx += dTetaOverN;
 				}
-
+				
 				dz += dPhiOverN;
-				pos_d1 = pos_d1_save + row_width;
 			}
 		}
 		else {
@@ -853,44 +837,52 @@ class Tile {
 	
 	public double getUpLeftHeight() {
 		if (mapData != null) {
+			final int left = bounds.ulx;
+			final int up = bounds.lrz;
 			if (mapData.tin != null) {
-				return mapData.tin.getUpLeftHeight(this);
+				return mapData.tin.getHeight(left, up);
 			}
 			else if(mapData.dem != null) {
-				return mapData.dem.getUpLeftHeight(this);
+				return mapData.dem.getHeight(left, up);
 			}
 		}
 		return 0;
 	}
 	public double getBotLeftHeight() {
 		if (mapData != null) {
+			final int left = bounds.ulx;
+			final int lower = bounds.ulz;
 			if (mapData.tin != null) {
-				return mapData.tin.getBotLeftHeight(this);
+				return mapData.tin.getHeight(left, lower);
 			}
 			else if(mapData.dem != null) {
-				return mapData.dem.getBotLeftHeight(this);
+				return mapData.dem.getHeight(left, lower);
 			}
 		}
 		return 0;
 	}
 	public double getUpRightHeight() {
 		if (mapData != null) {
+			final int right = bounds.lrx;
+			final int up = bounds.lrz;
 			if (mapData.tin != null) {
-				return mapData.tin.getUpRightHeight(this);
+				return mapData.tin.getHeight(right, up);
 			}
 			else if(mapData.dem != null) {
-				return mapData.dem.getUpRightHeight(this);
+				return mapData.dem.getHeight(right, up);
 			}
 		}
 		return 0;
 	}
 	public double getBotRightHeight() {
 		if (mapData != null) {
+			final int right = bounds.lrx;
+			final int lower = bounds.ulz;
 			if (mapData.tin != null) {
-				return mapData.tin.getBotRightHeight(this);
+				return mapData.tin.getHeight(right, lower);
 			}
 			else if(mapData.dem != null) {
-				return mapData.dem.getBotRightHeight(this);
+				return mapData.dem.getHeight(right, lower);
 			}
 		}
 		return 0;

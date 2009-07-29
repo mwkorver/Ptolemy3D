@@ -136,9 +136,9 @@ class MapDataQueue {
 					}
 				}
 				
+				notifyDecoder();
+				
 				if (!found) {
-					notifyDecoder();
-					
 					synchronized(this) {	//Wait / notify events
 						try {
 							IO.printlnConnection("Download thread waiting ...");
@@ -267,7 +267,7 @@ search:
 							final Iterator<MapDataEntries> j = map.values().iterator();
 							while (j.hasNext()) {
 								final MapDataEntries entry = j.next();
-								if(entry.isDownloaded(dataID) && (entry.getNextDecoderUnit(dataID) == decoderUnit)) {
+								if(entry.isJustDownloaded(dataID) && (entry.getNextDecoderUnit(dataID) == decoderUnit)) {
 									final double dist = landscape.globe.getMapDistanceFromCamera(entry.mapData.key, camera);
 									if(dist < closerDist) {
 										closerEntry = entry;

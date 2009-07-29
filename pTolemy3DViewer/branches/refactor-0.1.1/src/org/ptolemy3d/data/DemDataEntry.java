@@ -67,7 +67,7 @@ class DemDataEntry extends MapDataEntry {
 			channel.read(ByteBuffer.wrap(b));
 			channel.close();
 			
-			mapData.dem = new ElevationDem(b);
+			mapData.dem = new ElevationDem(mapData.key, b);
 		}
 		catch(Throwable t) {
 			IO.printStackConnection(t);

@@ -24,6 +24,7 @@ import java.awt.Font;
 import java.util.Locale;
 import java.util.Vector;
 
+import javax.imageio.ImageIO;
 import javax.media.opengl.GL;
 
 import org.ptolemy3d.Ptolemy3D;
@@ -57,8 +58,10 @@ public class ProfilerUtil
 	public static boolean printProfiler = true;
 	/** Tile counter */
 	public static int tileCounter = 0;
+	/** Tile area counter */
+	public static int tileAreaCounter = 0;
 	/** Tile counter */
-	public static int tileSelected = 1;
+	public static int tileAreaSelected = 1;
 	/** Tile counter */
 	public static int tileSectionCounter = 0;
 	/** Vertex counter */
@@ -81,9 +84,8 @@ public class ProfilerUtil
 	public static boolean freezeVisibility = false;
 	/** Freeze decoding */
 	public static boolean freezeDecoding = false;
-	/** Variable used for misc test */
+	/* For testing purpose */
 	public static boolean test = false;
-
 	/** Font */
 	private static FontRenderer font;
 
@@ -117,6 +119,7 @@ public class ProfilerUtil
 			if(event == ProfilerEventInterface.Frame) {
 				update();
 				tileCounter = 0;
+				tileAreaCounter = 0;
 				tileSectionCounter = 0;
 				vertexCounter = 0;
 				vertexMemoryUsage = 0;

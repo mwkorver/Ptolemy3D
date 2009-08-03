@@ -17,14 +17,13 @@
  */
 package org.ptolemy3d.globe;
 
-import org.ptolemy3d.globe.Tile.TileArea;
+import org.ptolemy3d.globe.TileArea;
 
 /**
  * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  */
 class ElevationNone {
 	public final Tile tile;
-	public final TileArea subTile;
 	
 	private final int numTilePolygons;
 	private final int polygonSize;
@@ -38,7 +37,6 @@ class ElevationNone {
 	
 	public ElevationNone(TileArea subTile) {
 		this.tile = subTile.tile;
-		this.subTile = subTile;
 		
 		numTilePolygons = getNumTilePolygons();
 		polygonSize = getPolygonSize();
@@ -77,46 +75,122 @@ class ElevationNone {
 
 	/** @return */
 	private int getPolygonSizeLonOffsetStart() {
-		final int offset = (subTile.ulx - tile.getReferenceLeftLongitude()) % polygonSize;
+		final int offset = (polyLonStart - tile.getReferenceLeftLongitude()) % polygonSize;
 		return -offset;
 	}
 	/** @return */
 	private int getPolygonSizeLonOffsetEnd() {
-		final int offset = (tile.getReferenceRightLongitude() - subTile.lrx) % polygonSize;
+		final int offset = (tile.getReferenceRightLongitude() - polyLonEnd) % polygonSize;
 		return -offset;
 	}
 
 	/** @return */
 	private int getPolygonSizeLatOffsetStart() {
-		final int offset = (subTile.ulz - tile.getReferenceUpperLatitude()) % polygonSize;
+		final int offset = (polyLatStart - tile.getReferenceUpperLatitude()) % polygonSize;
 		return -offset;
 	}
 	/** @return */
 	private int getPolygonSizeLatOffsetEnd() {
-		final int offset = (tile.getReferenceLowerLatitude() - subTile.lrz) % polygonSize;
+		final int offset = (tile.getReferenceLowerLatitude() - polyLatEnd) % polygonSize;
 		return -offset;
 	}
 	
 	/** @return */
 	private final int getNumPolygonLongitude() {
-		final int dFirst = getPolygonSizeLonOffsetStart();
-		final int dLast = getPolygonSizeLonOffsetEnd();
-		
-		int sizeLon = (subTile.lrx - dLast) - (subTile.ulx + dFirst);
+		final int sizeLon = (polyLonEnd - polySizeLonOffsetEnd) - (polyLonStart + polySizeLonOffsetStart);
 		final int nLon = sizeLon / polygonSize;
 		return nLon;
 	}
 	/** @return */
 	private final int getNumPolygonLatitude() {
-		final int dFirst = getPolygonSizeLatOffsetStart();
-		final int dLast = getPolygonSizeLatOffsetEnd();
-		
-		int sizeLat = (subTile.lrz - dLast) - (subTile.ulz + dFirst);
+		final int sizeLat = (polyLatEnd - polySizeLatOffsetEnd) - (polyLatStart + polySizeLatOffsetStart);
 		final int nLat = sizeLat / polygonSize;
 		return nLat;
 	}
 	
-	public double getHeight(Tile tile, int lon, int lat) {
-		return 0;
+	public double indexOfLongitude(int lon) {
+		if(lon < polyLonStart) {
+			return -1;
+		}
+		
+		final double index;
+		if(numPolyLon == 1) {
+			index = (double)(lon - polyLonStart) / (polySizeLon + polySizeLonOffsetStart + polySizeLonOffsetEnd);
+		}
+		else {
+			final int polySizeLonStart = polySizeLon + polySizeLonOffsetStart;
+			final int polySizeLonEnd = polySizeLon + polySizeLonOffsetEnd;
+			
+			if(lon <= polyLonStart + polySizeLonStart) {
+				index = (double)(lon - polyLonStart) / polySizeLonStart;
+			}
+			else if(lon <= polyLonEnd - polySizeLonEnd) {
+				index = 1 + ((double)(lon - polySizeLonStart - polyLonStart) / polySizeLon);
+			}
+			else {
+				index = numPolyLon - ((double)(polyLonEnd - lon) / polySizeLonEnd);
+			}
+		}
+		if(index > numPolyLon) {
+			return -1;
+		}
+		return index;
+	}
+	public double indexOfLatitude(int lat) {
+		if(lat < polyLatStart) {
+			return -1;
+		}
+		
+		final double index;
+		if(numPolyLat == 1) {
+			index = (double)(lat - polyLatStart) / (polySizeLat + polySizeLatOffsetStart + polySizeLatOffsetEnd);
+		}
+		else {
+			final int polySizeLatStart = polySizeLat + polySizeLatOffsetStart;
+			final int polySizeLatEnd = polySizeLat + polySizeLatOffsetEnd;
+			
+			if(lat <= polyLatStart + polySizeLatStart) {
+				index = (double)(lat - polyLatStart) / polySizeLatStart;
+			}
+			else if(lat <= polyLatEnd - polySizeLatEnd) {
+				index = 1 + ((double)(lat - polySizeLatStart - polyLatStart) / polySizeLat);
+			}
+			else {
+				index = numPolyLat - ((double)(polyLatEnd - lat) / polySizeLatEnd);
+			}
+		}
+		if(index > numPolyLat) {
+			return -1;
+		}
+		return index;
+
+	}
+	
+	public int getLonAtIndex(int lonID) {
+		int lon = polyLonStart;
+		for(int i = 1; i <= lonID; i++) {
+			lon += polySizeLon;
+			if(i == 1) {
+				lon += polySizeLonOffsetStart;
+			}
+			if(i == numPolyLon) {
+				lon += polySizeLonOffsetEnd;
+			}
+		}
+		return lon;
+	}
+	
+	public int getLatAtIndex(int latID) {
+		int lat = polyLatStart;
+		for(int i = 1; i <= latID; i++) {
+			lat += polySizeLat;
+			if(i == 1) {
+				lat += polySizeLatOffsetStart;
+			}
+			if(i == numPolyLat) {
+				lat += polySizeLatOffsetEnd;
+			}
+		}
+		return lat;
 	}
 }

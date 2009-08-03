@@ -25,7 +25,7 @@ import javax.media.opengl.GL;
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.Unit;
 import org.ptolemy3d.debug.ProfilerUtil;
-import org.ptolemy3d.globe.Tile.TileArea;
+import org.ptolemy3d.globe.TileArea;
 import org.ptolemy3d.globe.Tile.ITileRenderer;
 import org.ptolemy3d.math.CosTable;
 import org.ptolemy3d.scene.Landscape;
@@ -267,20 +267,20 @@ class TileRenderer implements ITileRenderer {
 					}
 					else if ((top_dem_slope != -1) && (i == 0)) {
 						dy1 = ul_corner + (j * top_dem_slope);
-						dy2 = dem.getHeight(lon, lat2);
+						dy2 = dem.getElevation(lon, lat2).height;
 					}
 					else if ((bottom_dem_slope != -1) && (i == (numLat - 1))) {
-						dy1 = dem.getHeight(lon, lat);
+						dy1 = dem.getElevation(lon, lat).height;
 						dy2 = ll_corner + (j * bottom_dem_slope);
 					}
 					else {
-						dy1 = dem.getHeight(lon, lat);
-						dy2 = dem.getHeight(lon, lat2);
+						dy1 = dem.getElevation(lon, lat).height;
+						dy2 = dem.getElevation(lon, lat2).height;
 					}
 				}
 				else {
-					dy1 = dem.getHeight(lon, lat);
-					dy2 = dem.getHeight(lon, lat2);
+					dy1 = dem.getElevation(lon, lat).height;
+					dy2 = dem.getElevation(lon, lat2).height;
 				}
 
 				double cx1, cy1, cz1, cx2, cy2, cz2;
@@ -413,20 +413,20 @@ class TileRenderer implements ITileRenderer {
 					}
 					else if ((top_dem_slope != -1) && (i == 0)) {
 						dy1 = ul_corner + (j * top_dem_slope);
-						dy2 = dem.getHeight(lon, lat2);
+						dy2 = dem.getElevation(lon, lat2).height;
 					}
 					else if ((bottom_dem_slope != -1) && (i == (numLat - 1))) {
-						dy1 = dem.getHeight(lon, lat);
+						dy1 = dem.getElevation(lon, lat).height;
 						dy2 = ll_corner + (j * bottom_dem_slope);
 					}
 					else {
-						dy1 = dem.getHeight(lon, lat);
-						dy2 = dem.getHeight(lon, lat2);
+						dy1 = dem.getElevation(lon, lat).height;
+						dy2 = dem.getElevation(lon, lat2).height;
 					}
 				}
 				else {
-					dy1 = dem.getHeight(lon, lat);
-					dy2 = dem.getHeight(lon, lat2);
+					dy1 = dem.getElevation(lon, lat).height;
+					dy2 = dem.getElevation(lon, lat2).height;
 				}
 
 				dy1 *= dyScaler;	//dy1 used later

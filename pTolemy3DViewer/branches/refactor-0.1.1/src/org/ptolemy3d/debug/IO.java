@@ -271,8 +271,8 @@ public class IO {
 					break;
 				case KeyEvent.VK_F9:
 					if(landscape.getDisplayMode() == Landscape.DISPLAY_TILENEIGHBOUR) {
-						ProfilerUtil.tileSelected++;
-						println("Tile selected: "+ProfilerUtil.tileSelected);
+						ProfilerUtil.tileAreaSelected++;
+						println("Tile selected: "+ProfilerUtil.tileAreaSelected);
 					}
 					else {
 						ProfilerUtil.forceLayer++;
@@ -281,11 +281,11 @@ public class IO {
 					break;
 				case KeyEvent.VK_F10:
 					if(landscape.getDisplayMode() == Landscape.DISPLAY_TILENEIGHBOUR) {
-						ProfilerUtil.tileSelected--;
-						if(ProfilerUtil.tileSelected < 1) {
-							ProfilerUtil.tileSelected = 1;
+						ProfilerUtil.tileAreaSelected--;
+						if(ProfilerUtil.tileAreaSelected < 1) {
+							ProfilerUtil.tileAreaSelected = 1;
 						}
-						println("Tile selected: "+ProfilerUtil.tileSelected);
+						println("Tile selected: "+ProfilerUtil.tileAreaSelected);
 					}
 					else {
 						ProfilerUtil.forceLayer = -1;

@@ -69,7 +69,7 @@ public class ElevationDem {
 	 * @param lat latitude in DD
 	 * @return the elevation (can be cast to int)
 	 */
-	public double getHeight(int lon, int lat) {
+	public ElevationValue getElevation(int lon, int lat) {
 		final double lonID = (lon - refLongitude) * geomIncr;
 		final double latID = (lat - refLatitude) * geomIncr;
 		
@@ -110,7 +110,19 @@ public class ElevationDem {
 		else {
 			height = getHeightFromIndex(lonInfID, latInfID);
 		}
-		return height;
+		return new ElevationValue(height, ElevationValue.TYPE_DEM, interpolateLon || interpolateLat);
+	}
+	
+	/** @return true if (lon, lat) is a point inside the DEM area range */
+	public boolean isInRange(int lon, int lat) {
+		if((lon < refLongitude) || (lat < refLatitude)) {
+			return false;
+		}
+		
+		final double lonID = (lon - refLongitude) * geomIncr;
+		final double latID = (lat - refLatitude) * geomIncr;
+		final int numRows = getNumRows();
+		return (lonID < numRows) && (latID < numRows);
 	}
 	
 	/** @return ul corner, can be cast to int */

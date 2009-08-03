@@ -43,88 +43,6 @@ import org.ptolemy3d.view.Camera;
  * @author Contributors
  */
 class Tile {
-	/** Tile may be divided in  */
-	static class TileArea {
-		protected int ulx, ulz, lrx, lrz;
-		protected boolean edge;
-		protected boolean active;
-		
-		protected Tile tile;
-		protected final List<TileArea> left, above, right, below;
-		
-		protected TileArea(Tile tile) {
-			this.tile = tile;
-			left = new Vector<TileArea>(4);
-			above = new Vector<TileArea>(4);
-			right = new Vector<TileArea>(4);
-			below = new Vector<TileArea>(4);
-		}
-		
-		protected final void setBounds(int ulx, int ulz, int lrx, int lrz) {
-			this.ulx = ulx + Landscape.MAX_LONGITUDE;
-			this.ulz = ulz;
-			this.lrx = lrx + Landscape.MAX_LONGITUDE;
-			this.lrz = lrz;
-			onBoundsSet();
-		}
-		protected final void setBounds(TileArea from) {
-			this.ulx = from.ulx;
-			this.ulz = from.ulz;
-			this.lrx = from.lrx;
-			this.lrz = from.lrz;
-			onBoundsSet();
-		}
-		private final void onBoundsSet() {
-			this.active = true;
-			
-			this.left.clear();
-			this.above.clear();
-			this.right.clear();
-			this.below.clear();
-		}
-		
-		protected final void setNeighbour(Tile right, Tile below, Tile left, Tile above) {
-			//FIXME getArea
-			if(left != null && left.visible) {
-				this.left.add(left.getArea());
-			}
-			if(above != null && above.visible) {
-				this.above.add(above.getArea());
-			}
-			if(right != null && right.visible) {
-				this.right.add(right.getArea());
-			}
-			if(below != null && below.visible) {
-				this.below.add(below.getArea());
-			}
-			edge = (left == null) || (above == null) || (right == null) || (below == null);
-		}
-		protected final void addAbove(TileArea above) {
-			if(above != null && above.active) {
-				this.above.add(above);
-				above.above.add(this);
-			}
-		}
-		protected final void addBelow(TileArea below) {
-			if(below != null && below.active) {
-				this.below.add(below);
-				below.below.add(this);
-			}
-		}
-		protected final void addRight(TileArea right) {
-			if(right != null && right.active) {
-				this.right.add(right);
-				right.right.add(this);
-			}
-		}
-		protected final void addLeft(TileArea left) {
-			if(left != null && left.active) {
-				this.left.add(left);
-				left.above.add(this);
-			}
-		}
-	}
-	
 	private final int tileID;
 
 	/* Tile.processVisibility */
@@ -145,7 +63,8 @@ class Tile {
 	protected boolean texture;
 
 	/* TexTile renderer */
-	private static final ITileRenderer renderer = new TileRenderer();
+//	private static final ITileRenderer renderer = new TileRenderer();
+	private static final ITileRenderer renderer = new TileRendererWithJunction();
 	protected interface ITileRenderer { public void renderSubTile(TileArea subTile); }
 
 	protected Tile(int tileID) {
@@ -379,14 +298,15 @@ class Tile {
 			return;
 		}
 		for (TileArea area : getAreas()) {
-			if (area.edge) {
+			//FIXME
+			//if (area.edge) {
 				for(int i = 0; i < Layer.NUMTILES; i++) {
 					final Tile tile = layerBelow.getTile(i);
-					if(tile.visible && tile.isEdge()) {
+					if(tile.visible/* && tile.isEdge()*/) {
 						tile.linkTiles(area);
 					}
 				}
-			}
+			//}
 		}
 	}
 	private void linkTiles(TileArea area) {
@@ -447,10 +367,13 @@ class Tile {
 		
 		for (TileArea subTile : subTiles) {
 			if (subTile.active) {
+				if (DEBUG) {
+					ProfilerUtil.tileAreaCounter++;
+				}
 				if(DEBUG) {
 					final Landscape landscape = Ptolemy3D.getScene().getLandscape();
 					if(landscape.getDisplayMode() == Landscape.DISPLAY_TILENEIGHBOUR) {
-						if(ProfilerUtil.tileSelected == ProfilerUtil.tileCounter) {
+						if(ProfilerUtil.tileAreaSelected == ProfilerUtil.tileAreaCounter) {
 							/*
 							 * FIXME can be along the same level but visibility change later
 							 * this explain the visibile check
@@ -490,7 +413,7 @@ class Tile {
 				if(DEBUG) {
 					final Landscape landscape = Ptolemy3D.getScene().getLandscape();
 					if(landscape.getDisplayMode() == Landscape.DISPLAY_TILENEIGHBOUR) {
-						if(ProfilerUtil.tileSelected == ProfilerUtil.tileCounter) {
+						if(ProfilerUtil.tileAreaSelected == ProfilerUtil.tileAreaCounter) {
 							gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE);
 						}
 					}
@@ -843,7 +766,7 @@ class Tile {
 				return mapData.tin.getHeight(left, up);
 			}
 			else if(mapData.dem != null) {
-				return mapData.dem.getHeight(left, up);
+				return mapData.dem.getElevation(left, up).height;
 			}
 		}
 		return 0;
@@ -856,7 +779,7 @@ class Tile {
 				return mapData.tin.getHeight(left, lower);
 			}
 			else if(mapData.dem != null) {
-				return mapData.dem.getHeight(left, lower);
+				return mapData.dem.getElevation(left, lower).height;
 			}
 		}
 		return 0;
@@ -869,7 +792,7 @@ class Tile {
 				return mapData.tin.getHeight(right, up);
 			}
 			else if(mapData.dem != null) {
-				return mapData.dem.getHeight(right, up);
+				return mapData.dem.getElevation(right, up).height;
 			}
 		}
 		return 0;
@@ -882,7 +805,7 @@ class Tile {
 				return mapData.tin.getHeight(right, lower);
 			}
 			else if(mapData.dem != null) {
-				return mapData.dem.getHeight(right, lower);
+				return mapData.dem.getElevation(right, lower).height;
 			}
 		}
 		return 0;

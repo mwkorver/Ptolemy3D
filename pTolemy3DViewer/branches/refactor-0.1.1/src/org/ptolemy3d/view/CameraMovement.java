@@ -603,8 +603,7 @@ public class CameraMovement {
 
 	private final void displayCoords() {
 		Math3D.setMapCoord(intersectPoint, dispout);
-		Ptolemy3D.callJavascript("plotPosition", new String[]{
-				String.valueOf(dispout.x), String.valueOf(dispout.y), String.valueOf(dispout.z)});
+		//Ptolemy3D.callJavascript("plotPosition", new String[]{ String.valueOf(dispout.x), String.valueOf(dispout.y), String.valueOf(dispout.z)});
 	}
 
 	public Position getPosition() {

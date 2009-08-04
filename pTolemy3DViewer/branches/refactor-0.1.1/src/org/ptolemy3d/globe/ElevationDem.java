@@ -117,8 +117,8 @@ public class ElevationDem {
 	
 	/** @return true if (lon, lat) is a point inside the DEM area range */
 	public boolean isInRange(int lon, int lat) {
-		return (lon >= refLongitude) && (lon < refLongitude + tileSize) &&
-			   (lat >= refLatitude ) && (lat < refLatitude  + tileSize);
+		return (lon >= refLongitude) && (lon <= refLongitude + tileSize) &&
+			   (lat >= refLatitude ) && (lat <= refLatitude  + tileSize);
 	}
 	
 	/** @return ul corner, can be cast to int */

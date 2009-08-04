@@ -181,8 +181,8 @@ class TileArea {
 		}
 		
 		final ElevationNone elevation = new ElevationNone(this);
-		double lonID = elevation.indexOfLongitude(lon);
-		double latID = elevation.indexOfLatitude(lat);
+		final double lonID = elevation.indexOfLongitude(lon);
+		final double latID = elevation.indexOfLatitude(lat);
 		if(lonID == -1 || latID == -1) {
 			throw new IllegalArgumentException();
 		}
@@ -238,40 +238,36 @@ class TileArea {
 			heightContext = new ElevationValue(height, ElevationValue.TYPE_DEFAULT, true);
 		}
 		else {
-			final int startLon = elevation.polyLonStart;
-			final int startLat = elevation.polyLatStart;
+			final boolean startLon = (lon == elevation.polyLonStart);
+			final boolean startLat = (lat == elevation.polyLatStart);
 			
-			final int endLon = elevation.polyLonEnd;
-			final int endLat = elevation.polyLatEnd;
+			final boolean endLon = (lon == elevation.polyLonEnd);
+			final boolean endLat = (lat == elevation.polyLatEnd);
 			
-			final ElevationDem aboveDEM = getDEMElevation(above, lon, lat);
-			final ElevationDem leftDEM = getDEMElevation(left, lon, lat);
-			final ElevationDem rightDEM = getDEMElevation(right, lon, lat);
-			final ElevationDem belowDEM = getDEMElevation(below, lon, lat);
-			
-			if((lon == startLon) && (leftDEM != null)) {
-				heightContext = leftDEM.getElevation(lon, lat);
-				if((lat == startLat) && (aboveDEM != null)) {
-					heightContext.blend(aboveDEM.getElevation(lon, lat));
+			ElevationValue aboveDEM, belowDEM, leftDEM, rightDEM;
+			if(startLon && ((leftDEM = getNeighboorElevationWithCornerCheck(left, startLat || endLat, false, lon, lat)) != null)) {
+				heightContext = leftDEM;
+				if(startLat && ((aboveDEM = getNeighboorElevationWithCornerCheck(above, true, true, lon, lat)) != null)) {
+					heightContext.blend(aboveDEM);
 				}
-				else if((lat == endLat) && (belowDEM != null)) {
-					heightContext.blend(belowDEM.getElevation(lon, lat));
+				else if(endLat && ((belowDEM = getNeighboorElevationWithCornerCheck(below, true, true, lon, lat)) != null)) {
+					heightContext.blend(belowDEM);
 				}
 			}
-			else if((lon == endLon) && (rightDEM != null)) {
-				heightContext = rightDEM.getElevation(lon, lat);
-				if((lat == startLat) && (aboveDEM != null)) {
-					heightContext.blend(aboveDEM.getElevation(lon, lat));
+			else if(endLon && ((rightDEM = getNeighboorElevationWithCornerCheck(right, startLat || endLat, false, lon, lat)) != null)) {
+				heightContext = rightDEM;
+				if(startLat && ((aboveDEM = getNeighboorElevationWithCornerCheck(above, true, true, lon, lat)) != null)) {
+					heightContext.blend(aboveDEM);
 				}
-				else if((lat == endLat) && (belowDEM != null)) {
-					heightContext.blend(belowDEM.getElevation(lon, lat));
+				else if(endLat && ((belowDEM = getNeighboorElevationWithCornerCheck(below, true, true, lon, lat)) != null)) {
+					heightContext.blend(belowDEM);
 				}
 			}
-			else if((lat == startLat) && (aboveDEM != null)) {
-				heightContext = aboveDEM.getElevation(lon, lat);
+			else if(startLat && ((aboveDEM = getNeighboorElevation(above, lon, lat)) != null)) {
+				heightContext = aboveDEM;
 			}
-			else if((lat == endLat) && (belowDEM != null)) {
-				heightContext = belowDEM.getElevation(lon, lat);
+			else if(endLat && ((belowDEM = getNeighboorElevation(below, lon, lat)) != null)) {
+				heightContext = belowDEM;
 			}
 			else {
 				heightContext = new ElevationValue(0, ElevationValue.TYPE_DEFAULT, false);
@@ -279,12 +275,71 @@ class TileArea {
 		}
 		return heightContext;
 	}
-	private ElevationDem getDEMElevation(List<TileArea> areas, int lon, int lat) {
+	private ElevationValue getNeighboorElevationWithCornerCheck(List<TileArea> areas, boolean corner, boolean isAboveOrBelow, int lon, int lat) {
 		for(TileArea area : areas) {
-			if(area.tile.visible && area.tile.mapData != null && area.tile.mapData.dem != null) {
+			if(area.tile.visible && area.isInRange(lon, lat) && area.tile.mapData != null && area.tile.mapData.dem != null) {
 				final ElevationDem dem = area.tile.mapData.dem;
 				if(dem.isInRange(lon, lat)) {
-					return dem;
+					return dem.getElevation(lon, lat);
+				}
+			}
+		}
+		if(corner) {
+			/*
+			 * This code is here because the actual neightboor information is not present
+			 * for corner to corner tile neightboor.
+			 * This is requiered for proper junction, so 
+			 */
+			for(TileArea _ : areas) {
+				if(_.tile.visible) {
+					ElevationValue elev = null;
+					if(isAboveOrBelow) {
+						for(TileArea area : _.left) {
+							if(area.tile.visible && area.isInRange(lon, lat) && area.tile.mapData != null && area.tile.mapData.dem != null) {
+								final ElevationDem dem = area.tile.mapData.dem;
+								if(dem.isInRange(lon, lat)) {
+									return dem.getElevation(lon, lat);
+								}
+							}
+						}
+						for(TileArea area : _.right) {
+							if(area.tile.visible && area.isInRange(lon, lat) && area.tile.mapData != null && area.tile.mapData.dem != null) {
+								final ElevationDem dem = area.tile.mapData.dem;
+								if(dem.isInRange(lon, lat)) {
+									return dem.getElevation(lon, lat);
+								}
+							}
+						}
+					}
+					else {
+						for(TileArea area : _.above) {
+							if(area.tile.visible && area.isInRange(lon, lat) && area.tile.mapData != null && area.tile.mapData.dem != null) {
+								final ElevationDem dem = area.tile.mapData.dem;
+								if(dem.isInRange(lon, lat)) {
+									return dem.getElevation(lon, lat);
+								}
+							}
+						}
+						for(TileArea area : _.below) {
+							if(area.tile.visible && area.isInRange(lon, lat) && area.tile.mapData != null && area.tile.mapData.dem != null) {
+								final ElevationDem dem = area.tile.mapData.dem;
+								if(dem.isInRange(lon, lat)) {
+									return dem.getElevation(lon, lat);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		return null;
+	}
+	private ElevationValue getNeighboorElevation(List<TileArea> areas, int lon, int lat) {
+		for(TileArea area : areas) {
+			if(area.tile.visible && area.isInRange(lon, lat) && area.tile.mapData != null && area.tile.mapData.dem != null) {
+				final ElevationDem dem = area.tile.mapData.dem;
+				if(dem.isInRange(lon, lat)) {
+					return dem.getElevation(lon, lat);
 				}
 			}
 		}

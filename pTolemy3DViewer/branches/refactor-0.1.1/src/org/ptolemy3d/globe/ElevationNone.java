@@ -58,6 +58,18 @@ class ElevationNone {
 
 		numPolyLon = getNumPolygonLongitude();
 		numPolyLat = getNumPolygonLatitude();
+		
+		if(true) {
+			int endX = polyLonStart + (numPolyLon * polygonSize) + polySizeLonOffsetStart + polySizeLonOffsetEnd;
+			int endZ = polyLatStart + (numPolyLat * polygonSize) + polySizeLatOffsetStart + polySizeLatOffsetEnd;
+			
+			if(endX != polyLonEnd) {
+				System.out.println("Lon diff: "+endX+" != "+polyLonEnd+", "+(endX-polyLonEnd)+", "+polygonSize);
+			}
+			if(endZ != polyLatEnd) {
+				System.out.println("Lat diff: "+endZ+" != "+polyLatEnd+", "+(endZ-polyLatEnd)+", "+polygonSize);
+			}
+		}
 	}
 	
 	/* All function works in DD */
@@ -192,5 +204,9 @@ class ElevationNone {
 			}
 		}
 		return lat;
+	}
+	
+	public boolean isInRange(int lon, int lat) {
+		return (lon >= polyLonStart) && (lon <= polyLonEnd) && (lat >= polyLatStart) && (lat <= polyLatEnd);
 	}
 }

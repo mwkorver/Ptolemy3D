@@ -153,7 +153,7 @@ class TileRenderer implements ITileRenderer {
 
 		final boolean xsinterpolate, xeinterpolate, zsinterpolate, zeinterpolate;
 		final double startxcoord, startzcoord, endxcoord, endzcoord;
-		final int numLon, numLat;
+		final int nLon, nLat;
 		final int startx, startz;
 		{
 			int endx, endz;
@@ -181,8 +181,8 @@ class TileRenderer implements ITileRenderer {
 				endz++;
 			}
 			
-			numLon = endx - startx;
-			numLat = endz - startz;
+			nLon = endx - startx;
+			nLat = endz - startz;
 		}
 
 		int ul_corner = 0, ur_corner = 0, ll_corner = 0, lr_corner = 0;
@@ -194,8 +194,8 @@ class TileRenderer implements ITileRenderer {
 			ll_corner = dem.getLowerLeftCorner();
 			lr_corner = dem.getLowerRightCorner();
 
-			final double oneOverNrowsX = 1.0 / (numLon - 1);
-			final double oneOverNrowsZ = 1.0 / numLat;
+			final double oneOverNrowsX = 1.0 / (nLon - 1);
+			final double oneOverNrowsZ = 1.0 / nLat;
 
 			if ((leftTile == null) || (leftTile.mapData == null) || (leftTile.mapData.key.layer != drawLevelID)) {
 				left_dem_slope = (ll_corner - ul_corner) * oneOverNrowsZ;
@@ -211,8 +211,8 @@ class TileRenderer implements ITileRenderer {
 			}
 		}
 
-		final int dx = (xEnd - xStart) / (numLon - 1);
-		final int dz = (zEnd - zStart) / numLat;
+		final int dx = (xEnd - xStart) / (nLon - 1);
+		final int dz = (zEnd - zStart) / nLat;
 
 		final double dyScaler = Unit.getCoordSystemRatio() * terrainScaler;
 
@@ -221,57 +221,57 @@ class TileRenderer implements ITileRenderer {
 		double sinZ = CosTable.sin(lat);
 
 //		gl.glBegin(GL.GL_TRIANGLE_STRIP);
-		for (int i = 0; i < numLat; i++) {
+		for (int latID = 0; latID < nLat; latID++) {
 			final int lat2 = lat + dz;
 
 			double cos2Z = CosTable.cos(lat2);
 			double sin2Z = CosTable.sin(lat2);
 
 			final float tex_z, tex_z2;
-			if (zsinterpolate && (i == 0)) {
+			if (zsinterpolate && (latID == 0)) {
 				tex_z = (float) (tex_inc * startzcoord);
 			}
 			else {
-				tex_z = tex_inc * (i + startz);
+				tex_z = tex_inc * (latID + startz);
 			}
-			if (zeinterpolate && (i == (numLat - 1))) {
+			if (zeinterpolate && (latID == (nLat - 1))) {
 				tex_z2 = (float) (tex_inc * endzcoord);
 			}
 			else {
-				tex_z2 = tex_inc * (i + startz + 1);
+				tex_z2 = tex_inc * (latID + startz + 1);
 			}
 
 			gl.glBegin(GL.GL_TRIANGLE_STRIP);
 			int lon = xStart;
-			for (int j = 0; j < numLon; j++) {
+			for (int lonID = 0; lonID < nLon; lonID++) {
 				final float tex_x;
-				if (xsinterpolate && (j == 0)) {
+				if (xsinterpolate && (lonID == 0)) {
 					tex_x = (float) (tex_inc * startxcoord);
 				}
-				else if (xeinterpolate && (j == (numLon - 1))) {
+				else if (xeinterpolate && (lonID == (nLon - 1))) {
 					tex_x = (float) (tex_inc * (endxcoord - 1));
 				}
 				else {
-					tex_x = (j + startx) * tex_inc;
+					tex_x = (lonID + startx) * tex_inc;
 				}
 
 				double dy1, dy2;
 				if (eqZLevel) {
-					if ((left_dem_slope != -1) && (j == 0)) {
-						dy1 = ul_corner + (i * left_dem_slope);
+					if ((left_dem_slope != -1) && (lonID == 0)) {
+						dy1 = ul_corner + (latID * left_dem_slope);
 						dy2 = dy1 + left_dem_slope;
 					}
-					else if ((right_dem_slope != -1) && (j == (numLon - 1))) {
-						dy1 = ur_corner + (i * right_dem_slope);
+					else if ((right_dem_slope != -1) && (lonID == (nLon - 1))) {
+						dy1 = ur_corner + (latID * right_dem_slope);
 						dy2 = dy1 + right_dem_slope;
 					}
-					else if ((top_dem_slope != -1) && (i == 0)) {
-						dy1 = ul_corner + (j * top_dem_slope);
+					else if ((top_dem_slope != -1) && (latID == 0)) {
+						dy1 = ul_corner + (lonID * top_dem_slope);
 						dy2 = dem.getElevation(lon, lat2).height;
 					}
-					else if ((bottom_dem_slope != -1) && (i == (numLat - 1))) {
+					else if ((bottom_dem_slope != -1) && (latID == (nLat - 1))) {
 						dy1 = dem.getElevation(lon, lat).height;
-						dy2 = ll_corner + (j * bottom_dem_slope);
+						dy2 = ll_corner + (lonID * bottom_dem_slope);
 					}
 					else {
 						dy1 = dem.getElevation(lon, lat).height;
@@ -316,7 +316,7 @@ class TileRenderer implements ITileRenderer {
 //		gl.glEnd();
 
 		if (DEBUG) {
-			int numVertices = 2 * numLon * numLat;
+			int numVertices = 2 * nLon * nLat;
 			ProfilerUtil.vertexCounter += numVertices;
 			ProfilerUtil.vertexMemoryUsage += numVertices * (2 * 4 + 3 * 8);
 		}
@@ -329,7 +329,7 @@ class TileRenderer implements ITileRenderer {
 		final boolean useColor = (landscape.getDisplayMode() == Landscape.DISPLAY_SHADEDDEM);
 
 		final double startxcoord, startzcoord, endxcoord, endzcoord;
-		final int numLon, numLat;
+		final int nLon, nLat;
 		{
 			int startx, startz, endx, endz;
 			final double geom_inc = (double) (numRows - 1) / drawLevel.getTileSize();
@@ -352,8 +352,8 @@ class TileRenderer implements ITileRenderer {
 				endz++;
 			}
 			
-			numLon = endx - startx;
-			numLat = endz - startz;
+			nLon = endx - startx;
+			nLat = endz - startz;
 		}
 
 		int ul_corner = 0, ur_corner = 0, ll_corner = 0, lr_corner = 0;
@@ -365,8 +365,8 @@ class TileRenderer implements ITileRenderer {
 			ll_corner = dem.getLowerLeftCorner();
 			lr_corner = dem.getLowerRightCorner();
 
-			final double oneOverNrowsX = 1.0 / (numLon - 1);
-			final double oneOverNrowsZ = 1.0 / numLat;
+			final double oneOverNrowsX = 1.0 / (nLon - 1);
+			final double oneOverNrowsZ = 1.0 / nLat;
 
 			if ((leftTile == null) || (leftTile.mapData == null) || (leftTile.mapData.key.layer != drawLevelID)) {
 				left_dem_slope = (ll_corner - ul_corner) * oneOverNrowsZ;
@@ -382,8 +382,8 @@ class TileRenderer implements ITileRenderer {
 			}
 		}
 
-		int dx = (xEnd - xStart) / (numLon - 1);
-		int dz = (zEnd - zStart) / numLat;
+		int dx = (xEnd - xStart) / (nLon - 1);
+		int dz = (zEnd - zStart) / nLat;
 
 		final double dyScaler = Unit.getCoordSystemRatio() * terrainScaler;
 
@@ -392,7 +392,7 @@ class TileRenderer implements ITileRenderer {
 		double sinZ = CosTable.sin(lat);
 
 //		gl.glBegin(GL.GL_TRIANGLE_STRIP);
-		for (int i = 0; i < numLat; i++) {
+		for (int latID = 0; latID < nLat; latID++) {
 			final int lat2 = lat + dz;
 
 			double cos2Z = CosTable.cos(lat2);
@@ -400,24 +400,24 @@ class TileRenderer implements ITileRenderer {
 
 			gl.glBegin(GL.GL_TRIANGLE_STRIP);
 			int lon = xStart;
-			for (int j = 0; j < numLon; j++) {
+			for (int lonID = 0; lonID < nLon; lonID++) {
 				double dy1, dy2;
 				if (eqZLevel) {
-					if ((left_dem_slope != -1) && (j == 0)) {
-						dy1 = ul_corner + (i * left_dem_slope);
+					if ((left_dem_slope != -1) && (lonID == 0)) {
+						dy1 = ul_corner + (latID * left_dem_slope);
 						dy2 = dy1 + left_dem_slope;
 					}
-					else if ((right_dem_slope != -1) && (j == (numLon - 1))) {
-						dy1 = ur_corner + (i * right_dem_slope);
+					else if ((right_dem_slope != -1) && (lonID == (nLon - 1))) {
+						dy1 = ur_corner + (latID * right_dem_slope);
 						dy2 = dy1 + right_dem_slope;
 					}
-					else if ((top_dem_slope != -1) && (i == 0)) {
-						dy1 = ul_corner + (j * top_dem_slope);
+					else if ((top_dem_slope != -1) && (latID == 0)) {
+						dy1 = ul_corner + (lonID * top_dem_slope);
 						dy2 = dem.getElevation(lon, lat2).height;
 					}
-					else if ((bottom_dem_slope != -1) && (i == (numLat - 1))) {
+					else if ((bottom_dem_slope != -1) && (latID == (nLat - 1))) {
 						dy1 = dem.getElevation(lon, lat).height;
-						dy2 = ll_corner + (j * bottom_dem_slope);
+						dy2 = ll_corner + (lonID * bottom_dem_slope);
 					}
 					else {
 						dy1 = dem.getElevation(lon, lat).height;
@@ -429,13 +429,10 @@ class TileRenderer implements ITileRenderer {
 					dy2 = dem.getElevation(lon, lat2).height;
 				}
 
-				dy1 *= dyScaler;	//dy1 used later
-				dy2 *= dyScaler;	//dy2 used later
-
 				double cx1, cy1, cz1, cx2, cy2, cz2;
 				{
-					final double dy1E = dy1 + EARTH_RADIUS;
-					final double dy2E = dy2 + EARTH_RADIUS;
+					final double dy1E = (dy1 * dyScaler) + EARTH_RADIUS;
+					final double dy2E = (dy2 * dyScaler) + EARTH_RADIUS;
 
 					final double cosX = CosTable.cos(lon);
 					final double sinX = CosTable.sin(lon);
@@ -469,7 +466,7 @@ class TileRenderer implements ITileRenderer {
 //		gl.glEnd();
 
 		if (DEBUG) {
-			int numVertices = 2 * numLon * numLat;
+			int numVertices = 2 * nLon * nLat;
 			ProfilerUtil.vertexCounter += numVertices;
 			ProfilerUtil.vertexMemoryUsage += numVertices * (2 * 4 + 3 * 8);
 		}

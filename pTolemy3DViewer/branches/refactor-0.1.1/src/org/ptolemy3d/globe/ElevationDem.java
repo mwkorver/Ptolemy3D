@@ -33,6 +33,8 @@ public class ElevationDem {
 	private final int refLongitude;
 	/** Reference latitude or the upper left corner */
 	private final int refLatitude;
+	/** Tile size */
+	private final int tileSize;
 	/** */
 	private final double geomIncr;	//Only used to avoid / computed each time, remove that ?
 
@@ -42,7 +44,7 @@ public class ElevationDem {
 			throw new InvalidParameterException("Corrupted DEM data");
 		}
 		
-		final int tileSize = Ptolemy3D.getScene().getLandscape().globe.getLayer(mapKey.layer).getTileSize();
+		tileSize = Ptolemy3D.getScene().getLandscape().globe.getLayer(mapKey.layer).getTileSize();
 		geomIncr = (double) (numRows - 1) / tileSize;
 		
 		// Convert to rendering unit
@@ -115,14 +117,8 @@ public class ElevationDem {
 	
 	/** @return true if (lon, lat) is a point inside the DEM area range */
 	public boolean isInRange(int lon, int lat) {
-		if((lon < refLongitude) || (lat < refLatitude)) {
-			return false;
-		}
-		
-		final double lonID = (lon - refLongitude) * geomIncr;
-		final double latID = (lat - refLatitude) * geomIncr;
-		final int numRows = getNumRows();
-		return (lonID < numRows) && (latID < numRows);
+		return (lon >= refLongitude) && (lon < refLongitude + tileSize) &&
+			   (lat >= refLatitude ) && (lat < refLatitude  + tileSize);
 	}
 	
 	/** @return ul corner, can be cast to int */

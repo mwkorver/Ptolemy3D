@@ -24,7 +24,6 @@ import java.awt.Font;
 import java.util.Locale;
 import java.util.Vector;
 
-import javax.imageio.ImageIO;
 import javax.media.opengl.GL;
 
 import org.ptolemy3d.Ptolemy3D;
@@ -86,6 +85,8 @@ public class ProfilerUtil
 	public static boolean freezeDecoding = false;
 	/* For testing purpose */
 	public static boolean test = false;
+	public static boolean test2 = false;
+
 	/** Font */
 	private static FontRenderer font;
 

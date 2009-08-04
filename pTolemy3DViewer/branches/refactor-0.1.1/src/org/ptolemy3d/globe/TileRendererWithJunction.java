@@ -34,6 +34,189 @@ import org.ptolemy3d.scene.Landscape;
  */
 class TileRendererWithJunction extends TileRenderer {
 	@Override
+	protected void renderSubTile_DemTextured(int xStart, int zStart, int xEnd, int zEnd) {
+		if(!Config.DEBUG || !landscape.isTerrainEnabled() || !ProfilerUtil.test) {
+			super.renderSubTile_DemTextured(xStart, zStart, xEnd, zEnd);
+			return;
+		}
+		
+		final Layer drawLevel = landscape.globe.getLayer(drawLevelID);
+		final ElevationDem dem = mapData.dem;
+		final int numRows = mapData.dem.getNumRows();
+
+		final float tex_inc = 1.0f / (numRows - 1);
+
+		final boolean xsinterpolate, xeinterpolate, zsinterpolate, zeinterpolate;
+		final double startxcoord, startzcoord, endxcoord, endzcoord;
+		final int nLon, nLat;
+		final int startx, startz;
+		{
+			int endx, endz;
+			final double geom_inc = (double) (numRows - 1) / drawLevel.getTileSize();
+
+			startxcoord = ((xStart - refLeftLon) * geom_inc);
+			startx = (int) startxcoord;
+			xsinterpolate = (startx != startxcoord);
+
+			startzcoord = ((zStart - refUpLat) * geom_inc);
+			startz = (int) startzcoord;
+			zsinterpolate = (startz != startzcoord);
+
+			endxcoord = ((xEnd - refLeftLon) * geom_inc) + 1;
+			endx = (int) endxcoord;
+			xeinterpolate = (endxcoord != endx);
+			if (xeinterpolate) {
+				endx++;
+			}
+
+			endzcoord = ((zEnd - refUpLat) * geom_inc);
+			endz = (int) endzcoord;
+			zeinterpolate = (endzcoord != endz);
+			if (zeinterpolate) {
+				endz++;
+			}
+			
+			nLon = endx - startx;
+			nLat = endz - startz;
+		}
+
+		int ul_corner = 0, ur_corner = 0, ll_corner = 0, lr_corner = 0;
+		double left_dem_slope = -1, right_dem_slope = -1, top_dem_slope = -1, bottom_dem_slope = -1;
+		final boolean eqZLevel = (drawLevelID == layerID);
+		if (eqZLevel && (xStart == refLeftLon) && (xEnd == refRightLon) && (zStart == refUpLat) && (zEnd == refLowLat)) {
+			ul_corner = dem.getUpLeftCorner();
+			ur_corner = dem.getUpRightCorner();
+			ll_corner = dem.getLowerLeftCorner();
+			lr_corner = dem.getLowerRightCorner();
+
+			final double oneOverNrowsX = 1.0 / (nLon - 1);
+			final double oneOverNrowsZ = 1.0 / nLat;
+
+			if ((leftTile == null) || (leftTile.mapData == null) || (leftTile.mapData.key.layer != drawLevelID)) {
+				left_dem_slope = (ll_corner - ul_corner) * oneOverNrowsZ;
+			}
+			if ((rightTile == null) || (rightTile.mapData == null) || (rightTile.mapData.key.layer != drawLevelID)) {
+				right_dem_slope = (lr_corner - ur_corner) * oneOverNrowsZ;
+			}
+			if ((aboveTile == null) || (aboveTile.mapData == null) || (aboveTile.mapData.key.layer != drawLevelID)) {
+				top_dem_slope = (ur_corner - ul_corner) * oneOverNrowsX;
+			}
+			if ((belowTile == null) || (belowTile.mapData == null) || (belowTile.mapData.key.layer != drawLevelID)) {
+				bottom_dem_slope = (lr_corner - ll_corner) * oneOverNrowsX;
+			}
+		}
+
+		final int dx = (xEnd - xStart) / (nLon - 1);
+		final int dz = (zEnd - zStart) / nLat;
+
+		final double dyScaler = Unit.getCoordSystemRatio() * terrainScaler;
+
+		int lat = zStart;
+		double cosZ = CosTable.cos(lat);
+		double sinZ = CosTable.sin(lat);
+
+//		gl.glBegin(GL.GL_TRIANGLE_STRIP);
+		for (int latID = 0; latID < nLat; latID++) {
+			final int lat2 = lat + dz;
+
+			double cos2Z = CosTable.cos(lat2);
+			double sin2Z = CosTable.sin(lat2);
+
+			final float tex_z, tex_z2;
+			if (zsinterpolate && (latID == 0)) {
+				tex_z = (float) (tex_inc * startzcoord);
+			}
+			else {
+				tex_z = tex_inc * (latID + startz);
+			}
+			if (zeinterpolate && (latID == (nLat - 1))) {
+				tex_z2 = (float) (tex_inc * endzcoord);
+			}
+			else {
+				tex_z2 = tex_inc * (latID + startz + 1);
+			}
+
+			final boolean edgeLat = (latID == 0);
+			final boolean edgeLat2 = (latID == nLat - 1);
+
+			gl.glBegin(GL.GL_TRIANGLE_STRIP);
+			int lon = xStart;
+			for (int lonID = 0; lonID < nLon; lonID++) {
+				final float tex_x;
+				if (xsinterpolate && (lonID == 0)) {
+					tex_x = (float) (tex_inc * startxcoord);
+				}
+				else if (xeinterpolate && (lonID == (nLon - 1))) {
+					tex_x = (float) (tex_inc * (endxcoord - 1));
+				}
+				else {
+					tex_x = (lonID + startx) * tex_inc;
+				}
+
+				final boolean edgeLon = (lonID == 0) || (lonID == nLon - 1);
+				
+				double dy1, dy2;
+				dy1 = subTile.getElevation(lon, lat, edgeLon || edgeLat);
+				dy2 = subTile.getElevation(lon, lat2, edgeLon || edgeLat2);
+				if (eqZLevel) {
+					if ((left_dem_slope != -1) && (lonID == 0)) {
+						dy1 = ul_corner + (latID * left_dem_slope);
+						dy2 = dy1 + left_dem_slope;
+					}
+					else if ((right_dem_slope != -1) && (lonID == (nLon - 1))) {
+						dy1 = ur_corner + (latID * right_dem_slope);
+						dy2 = dy1 + right_dem_slope;
+					}
+					else if ((top_dem_slope != -1) && (latID == 0)) {
+						dy1 = ul_corner + (lonID * top_dem_slope);
+						//dy2 = ;
+					}
+					else if ((bottom_dem_slope != -1) && (latID == (nLat - 1))) {
+						//dy1 = ;
+						dy2 = ll_corner + (lonID * bottom_dem_slope);
+					}
+				}
+
+				double cx1, cy1, cz1, cx2, cy2, cz2;
+				{
+					final double dy1E = (dy1 * dyScaler) + EARTH_RADIUS;
+					final double dy2E = (dy2 * dyScaler) + EARTH_RADIUS;
+
+					final double cosX = CosTable.cos(lon);
+					final double sinX = CosTable.sin(lon);
+
+					cx1 =  dy1E * cosZ * sinX;
+					cx2 =  dy2E * cos2Z * sinX;
+					cy1 = -dy1E * sinZ;
+					cy2 = -dy2E * sin2Z;
+					cz1 =  dy1E * cosZ * cosX;
+					cz2 =  dy2E * cos2Z * cosX;
+				}
+
+				gl.glTexCoord2f(tex_x, tex_z);
+				gl.glVertex3d(cx1, cy1, cz1);
+
+				gl.glTexCoord2f(tex_x, tex_z2);
+				gl.glVertex3d(cx2, cy2, cz2);
+
+				lon += dx;
+			}
+			gl.glEnd();
+
+			lat = lat2;
+			cosZ = cos2Z;
+			sinZ = sin2Z;
+		}
+//		gl.glEnd();
+
+		if (DEBUG) {
+			int numVertices = 2 * nLon * nLat;
+			ProfilerUtil.vertexCounter += numVertices;
+			ProfilerUtil.vertexMemoryUsage += numVertices * (2 * 4 + 3 * 8);
+		}
+	}
+	
+	@Override
 	protected void renderSubTile_Dem(int xStart, int zStart, int xEnd, int zEnd) {
 		if(!Config.DEBUG || !landscape.isTerrainEnabled() || !ProfilerUtil.test) {
 			super.renderSubTile_Dem(xStart, zStart, xEnd, zEnd);
@@ -145,13 +328,10 @@ class TileRendererWithJunction extends TileRenderer {
 					}
 				}
 
-				dy1 *= dyScaler;
-				dy2 *= dyScaler;
-
 				double cx1, cy1, cz1, cx2, cy2, cz2;
 				{
-					final double dy1E = dy1 + EARTH_RADIUS;
-					final double dy2E = dy2 + EARTH_RADIUS;
+					final double dy1E = (dy1 * dyScaler) + EARTH_RADIUS;
+					final double dy2E = (dy2 * dyScaler) + EARTH_RADIUS;
 
 					final double cosX = CosTable.cos(lon);
 					final double sinX = CosTable.sin(lon);
@@ -258,11 +438,11 @@ class TileRendererWithJunction extends TileRenderer {
 				double sinX = CosTable.sin(lon);
 				
 				final boolean edgeLon = (lonID == 0) || (lonID == nLon);
-				double dy1 = subTile.getElevation(lon, lat1, edgeLon || edgeLat) * dyScaler;
-				double dy2 = subTile.getElevation(lon, lat2, edgeLon || edgeLat2) * dyScaler;
+				double dy1 = subTile.getElevation(lon, lat1, edgeLon || edgeLat);
+				double dy2 = subTile.getElevation(lon, lat2, edgeLon || edgeLat2);
 				
-				dy1 += EARTH_RADIUS;
-				dy2 += EARTH_RADIUS;
+				dy1 = (dy1 * dyScaler) + EARTH_RADIUS;
+				dy2 = (dy2 * dyScaler) + EARTH_RADIUS;
 				
 				double pt1X, pt1Y, pt1Z;
 				pt1X = cosY1 * sinX * dy1;
@@ -363,11 +543,11 @@ class TileRendererWithJunction extends TileRenderer {
 				double sinX = CosTable.sin(lon);
 				
 				final boolean edgeLon = (lonID == 0) || (lonID == nLon);
-				double dy1 = subTile.getElevation(lon, lat1, edgeLon || edgeLat) * dyScaler;
-				double dy2 = subTile.getElevation(lon, lat2, edgeLon || edgeLat2) * dyScaler;
+				double dy1 = subTile.getElevation(lon, lat1, edgeLon || edgeLat);
+				double dy2 = subTile.getElevation(lon, lat2, edgeLon || edgeLat2);
 				
-				dy1 += EARTH_RADIUS;
-				dy2 += EARTH_RADIUS;
+				dy1 = (dy1 * dyScaler) + EARTH_RADIUS;
+				dy2 = (dy2 * dyScaler) + EARTH_RADIUS;
 
 				double pt1X, pt1Y, pt1Z;
 				pt1X = cosY1 * sinX * dy1;

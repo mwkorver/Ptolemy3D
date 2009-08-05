@@ -15,10 +15,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.ptolemy3d.app.tin.fortune;
+package fortune;
 
 import java.util.Vector;
 
+/**
+ * Code from: http://www.diku.dk/hjemmesider/studerende/duff/Fortune/
+ */
 class EventQueue {
 	Vector<EventPoint> events = new Vector<EventPoint>(100, 50);
 

@@ -21,7 +21,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.util.Arrays;
 
-import org.ptolemy3d.app.tin.fortune.Fortune;
+import fortune.Fortune;
 
 class DemConvertor {
 

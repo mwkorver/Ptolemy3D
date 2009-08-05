@@ -15,19 +15,34 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.ptolemy3d.app.tin.fortune;
+package fortune;
 
-class MyLine {
-
-	MyLine(MyPoint mypoint, MyPoint mypoint1) {
-		P1 = mypoint;
-		P2 = mypoint1;
+/**
+ * Code from: http://www.diku.dk/hjemmesider/studerende/duff/Fortune/
+ */
+class ArcTree {
+	public void insert(MyPoint mypoint, double d, EventQueue eventqueue) {
+		if (Arcs == null) {
+			Arcs = new ArcNode(mypoint);
+			return;
+		}
+		try {
+			ParabolaPoint parabolapoint = new ParabolaPoint(mypoint);
+			parabolapoint.init(d);
+			Arcs.init(d);
+			Arcs.insert(parabolapoint, d, eventqueue);
+			return;
+		} catch (Throwable _ex) {
+			System.out.println("*** error: No parabola intersection during ArcTree.insert()");
+		}
 	}
 
-	public void set(MyPoint mypoint, MyPoint mypoint1) {
-		P1 = mypoint;
-		P2 = mypoint1;
+	public void checkBounds(Fortune fortune, double d) {
+		if (Arcs != null) {
+			Arcs.init(d);
+			Arcs.checkBounds(fortune, d);
+		}
 	}
 
-	public MyPoint P1, P2;
+	ArcNode Arcs;
 }

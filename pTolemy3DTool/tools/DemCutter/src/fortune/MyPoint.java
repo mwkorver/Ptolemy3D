@@ -15,31 +15,45 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.ptolemy3d.app.tin.fortune;
+package fortune;
 
-class ArcTree {
-	public void insert(MyPoint mypoint, double d, EventQueue eventqueue) {
-		if (Arcs == null) {
-			Arcs = new ArcNode(mypoint);
-			return;
-		}
-		try {
-			ParabolaPoint parabolapoint = new ParabolaPoint(mypoint);
-			parabolapoint.init(d);
-			Arcs.init(d);
-			Arcs.insert(parabolapoint, d, eventqueue);
-			return;
-		} catch (Throwable _ex) {
-			System.out.println("*** error: No parabola intersection during ArcTree.insert()");
-		}
+import java.awt.Point;
+
+/**
+ * Code from: http://www.diku.dk/hjemmesider/studerende/duff/Fortune/
+ */
+class MyPoint {
+	public int index;
+
+	public MyPoint(double d, double d1, double ix) {
+		x = d;
+		y = d1;
+		index = (int) ix;
 	}
 
-	public void checkBounds(Fortune fortune, double d) {
-		if (Arcs != null) {
-			Arcs.init(d);
-			Arcs.checkBounds(fortune, d);
-		}
+	public MyPoint(double d, double d1) {
+		x = d;
+		y = d1;
+		index = 0;
 	}
 
-	ArcNode Arcs;
+	public MyPoint(MyPoint mypoint) {
+		x = mypoint.x;
+		y = mypoint.y;
+		index = mypoint.index;
+	}
+
+	public MyPoint(Point point) {
+		x = point.x;
+		y = point.y;
+		index = 0;
+	}
+
+	public double distance(MyPoint mypoint) {
+		double d = mypoint.x - x;
+		double d1 = mypoint.y - y;
+		return Math.sqrt(d * d + d1 * d1);
+	}
+
+	public double x, y;
 }

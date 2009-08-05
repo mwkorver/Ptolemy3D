@@ -19,8 +19,8 @@ package org.ptolemy3d.tool.batch;
 
 import java.util.Vector;
 
-import org.ptolemy3d.app.tin.fortune.DelTriangle;
-import org.ptolemy3d.app.tin.fortune.TriangleMesh;
+import fortune.DelTriangle;
+import fortune.TriangleMesh;
 
 class MeshStrip {
 	public static final int GREEDY = 0;

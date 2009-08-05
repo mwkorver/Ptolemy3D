@@ -1,6 +1,6 @@
 package org.ptolemy3d.mavenPtolemy3d;
 
-ximport junit.framework.Test;
+import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 

@@ -1,25 +1,27 @@
 /**
- * Ptolemy3D - a Java-based 3D Viewer for GeoWeb applications.
- * Copyright (C) 2008 Mark W. Korver
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * visual-fortune-algorithm
+ * http://github.com/sorbits/visual-fortune-algorithm/tree/master
+ * 
+ * ABOUT
+ * This Java applet implements a visualization of Fortune’s plane-sweep algorithm
+ * for creating a voronoi diagram.
+ * Here is a live demo of the applet: http://www.diku.dk/hjemmesider/studerende/duff/Fortune/
+ * The applet was created by Benny Kjær Nielsen and Allan Odgaard in spring of 2000
+ * following a course in Computational Geometry taught by Pawel Winter at DIKU.
+ * 
+ * LICENSE
+ * Permission to copy, use, modify, sell and distribute this software is granted.
+ * This software is provided “as is” without express or implied warranty,
+ * and with no claim as to its suitability for any purpose.
+ * 
+ * NOTES
+ * The purpose of the source is to visualize the algorithm, it is not a good base
+ * for an efficient implementation of the algorithm (it does not run in O(n log n) time).
+ * The original source was initially lost and recovered using a Java decompiler
+ * so most variable names are nonsensical.
  */
 package fortune;
 
-/**
- * Code from: http://www.diku.dk/hjemmesider/studerende/duff/Fortune/
- */
 class CirclePoint extends EventPoint {
 
 	CirclePoint(double d, double d1, ArcNode arcnode) {

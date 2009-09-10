@@ -20,8 +20,6 @@ package org.ptolemy3d.globe;
 import java.util.List;
 import java.util.Vector;
 
-import org.ptolemy3d.debug.Config;
-import org.ptolemy3d.debug.ProfilerUtil;
 import org.ptolemy3d.scene.Landscape;
 
 /**
@@ -68,41 +66,48 @@ class TileArea {
 	}
 	
 	protected final void setNeighbour(Tile right, Tile below, Tile left, Tile above) {
-		//FIXME getArea
 		if(left != null && left.visible) {
-			addLeft(left.getArea());
+			for(TileArea area : left.getAreas()) {
+				addLeft(area);
+			}
 		}
 		if(above != null && above.visible) {
-			addAbove(above.getArea());
+			for(TileArea area : above.getAreas()) {
+				addAbove(area);
+			}
 		}
 		if(right != null && right.visible) {
-			addRight(right.getArea());
+			for(TileArea area : right.getAreas()) {
+				addRight(area);
+			}
 		}
 		if(below != null && below.visible) {
-			addBelow(below.getArea());
+			for(TileArea area : below.getAreas()) {
+				addBelow(area);
+			}
 		}
-		edge = (left == null) || (above == null) || (right == null) || (below == null);
+		edge = this.above.isEmpty() || this.below.isEmpty() || this.right.isEmpty() || this.left.isEmpty();
 	}
 	protected final void addAbove(TileArea above) {
-		if(above != null && above.active) {
+		if(above.active) {
 			this.above.add(above);
 			above.below.add(this);
 		}
 	}
 	protected final void addBelow(TileArea below) {
-		if(below != null && below.active) {
+		if(below.active) {
 			this.below.add(below);
 			below.above.add(this);
 		}
 	}
 	protected final void addRight(TileArea right) {
-		if(right != null && right.active) {
+		if(right.active) {
 			this.right.add(right);
 			right.left.add(this);
 		}
 	}
 	protected final void addLeft(TileArea left) {
-		if(left != null && left.active) {
+		if(left.active) {
 			this.left.add(left);
 			left.right.add(this);
 		}
@@ -155,20 +160,12 @@ class TileArea {
 				heightContext.blend(belowTile.getElevationValue(lon, lat));
 			}
 		}
-		
-//		if(Config.DEBUG) {
-//			if(ProfilerUtil.tileAreaCounter == ProfilerUtil.tileAreaSelected) {
-//			}
-//		}
-		
 		return heightContext.height;
 	}
 	private TileArea getNeightboorTile(List<TileArea> areas, int lon, int lat) {
 		for(TileArea area : areas) {
-			if(area.tile.visible) {
-				if(area.isInRange(lon, lat)) {
-					return area;
-				}
+			if(area.tile.visible && area.isInRange(lon, lat)) {
+				return area;
 			}
 		}
 		return null;
@@ -275,15 +272,17 @@ class TileArea {
 		}
 		return heightContext;
 	}
+	private ElevationValue getNeighboorElevation(List<TileArea> areas, int lon, int lat) {
+		return getNeighboorElevationWithCornerCheck(areas, false, false, lon, lat);
+	}
 	private ElevationValue getNeighboorElevationWithCornerCheck(List<TileArea> areas, boolean corner, boolean isAboveOrBelow, int lon, int lat) {
-		for(TileArea area : areas) {
-			if(area.tile.visible && area.isInRange(lon, lat) && area.tile.mapData != null && area.tile.mapData.dem != null) {
-				final ElevationDem dem = area.tile.mapData.dem;
-				if(dem.isInRange(lon, lat)) {
-					return dem.getElevation(lon, lat);
-				}
-			}
+		ElevationValue elevationValue;
+		
+		elevationValue = getNeighboorElevationWithCornerCheck_(areas, lon, lat);
+		if(elevationValue != null) {
+			return elevationValue;
 		}
+		
 		if(corner) {
 			/*
 			 * This code is here because the actual neightboor information is not present
@@ -292,41 +291,26 @@ class TileArea {
 			 */
 			for(TileArea _ : areas) {
 				if(_.tile.visible) {
-					ElevationValue elev = null;
 					if(isAboveOrBelow) {
-						for(TileArea area : _.left) {
-							if(area.tile.visible && area.isInRange(lon, lat) && area.tile.mapData != null && area.tile.mapData.dem != null) {
-								final ElevationDem dem = area.tile.mapData.dem;
-								if(dem.isInRange(lon, lat)) {
-									return dem.getElevation(lon, lat);
-								}
-							}
+						elevationValue = getNeighboorElevationWithCornerCheck_(_.left, lon, lat);
+						if(elevationValue != null) {
+							return elevationValue;
 						}
-						for(TileArea area : _.right) {
-							if(area.tile.visible && area.isInRange(lon, lat) && area.tile.mapData != null && area.tile.mapData.dem != null) {
-								final ElevationDem dem = area.tile.mapData.dem;
-								if(dem.isInRange(lon, lat)) {
-									return dem.getElevation(lon, lat);
-								}
-							}
+						
+						elevationValue = getNeighboorElevationWithCornerCheck_(_.right, lon, lat);
+						if(elevationValue != null) {
+							return elevationValue;
 						}
 					}
 					else {
-						for(TileArea area : _.above) {
-							if(area.tile.visible && area.isInRange(lon, lat) && area.tile.mapData != null && area.tile.mapData.dem != null) {
-								final ElevationDem dem = area.tile.mapData.dem;
-								if(dem.isInRange(lon, lat)) {
-									return dem.getElevation(lon, lat);
-								}
-							}
+						elevationValue = getNeighboorElevationWithCornerCheck_(_.above, lon, lat);
+						if(elevationValue != null) {
+							return elevationValue;
 						}
-						for(TileArea area : _.below) {
-							if(area.tile.visible && area.isInRange(lon, lat) && area.tile.mapData != null && area.tile.mapData.dem != null) {
-								final ElevationDem dem = area.tile.mapData.dem;
-								if(dem.isInRange(lon, lat)) {
-									return dem.getElevation(lon, lat);
-								}
-							}
+						
+						elevationValue = getNeighboorElevationWithCornerCheck_(_.below, lon, lat);
+						if(elevationValue != null) {
+							return elevationValue;
 						}
 					}
 				}
@@ -334,9 +318,14 @@ class TileArea {
 		}
 		return null;
 	}
-	private ElevationValue getNeighboorElevation(List<TileArea> areas, int lon, int lat) {
-		for(TileArea area : areas) {
-			if(area.tile.visible && area.isInRange(lon, lat) && area.tile.mapData != null && area.tile.mapData.dem != null) {
+	private final ElevationValue getNeighboorElevationWithCornerCheck_(List<TileArea> areas, int lon, int lat) {
+		for (TileArea area : areas) {
+			if (   area.active
+				&& area.tile.visible
+				&& area.tile.mapData != null
+				&& area.tile.mapData.dem != null
+				&& area.isInRange(lon, lat)
+			) {
 				final ElevationDem dem = area.tile.mapData.dem;
 				if(dem.isInRange(lon, lat)) {
 					return dem.getElevation(lon, lat);

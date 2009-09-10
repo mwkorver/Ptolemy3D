@@ -19,6 +19,7 @@ package org.ptolemy3d;
 
 import javax.media.opengl.GLAutoDrawable;
 import javax.media.opengl.GLCanvas;
+import javax.media.opengl.GLCapabilities;
 import javax.media.opengl.GLContext;
 import javax.media.opengl.GLEventListener;
 
@@ -53,10 +54,13 @@ public class Ptolemy3DGLCanvas extends GLCanvas implements GLEventListener {
 
 	/**
 	 * Creates a new instance.
-	 * 
-	 * @param ptolemy
 	 */
 	public Ptolemy3DGLCanvas() {
+		this(null);
+	}
+	public Ptolemy3DGLCanvas(GLCapabilities glCapabilities) {
+		super(glCapabilities);
+
 		this.drawContext = new DrawContext();
 		this.camera = new Camera(this);
 		this.input = new InputHandler(this);

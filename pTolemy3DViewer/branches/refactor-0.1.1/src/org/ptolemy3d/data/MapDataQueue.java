@@ -85,15 +85,15 @@ class MapDataQueue {
 		if (decoder == null) {
 			decoder = new MapDataEntries(key);
 			IO.printfManager("New MapData: %s\n", key);
-
+			
 			synchronized(map) {	//Accessed from multiple threads
 				map.put(key, decoder);
-				synchronized(downloadDispatcher) {	//Wait / notify events
-					try {
-						downloadDispatcher.notify();
-					} catch(IllegalMonitorStateException e) {
-						e.printStackTrace();
-					}
+			}
+			synchronized(downloadDispatcher) {	//Wait / notify events
+				try {
+					downloadDispatcher.notify();
+				} catch(IllegalMonitorStateException e) {
+					e.printStackTrace();
 				}
 			}
 		}
@@ -226,7 +226,8 @@ class MapDataQueue {
 		
 		public void run() {
 			while (true) {
-				if (!findCloserEntryToDecode()) {
+				final boolean finded = findCloserEntryToDecode();
+				if (!finded) {
 					synchronized(this) {	//Wait / notify events
 						try {
 							IO.printlnParser("Decoder thread waiting ...");
@@ -236,6 +237,7 @@ class MapDataQueue {
 						} catch(InterruptedException e) {}
 					}
 				}
+				freeUnused();
 			}
 		}
 		private boolean findCloserEntryToDecode() {
@@ -317,7 +319,7 @@ search:
 		System.gc();
 	}
 	
-	public void freeUnused() {
+	protected void freeUnused() {
 		final long t = MapDataEntries.getTime();
 		final long dt = MapDataEntries.getMaxTime();
 		

@@ -26,6 +26,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
+import javax.media.opengl.GLCapabilities;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -58,6 +59,11 @@ public class BasicFrame extends JFrame {
 		// Initialize ptolemy system with the config file.
 		Ptolemy3D.initialize(config);
 
+		// Enable anti-aliasing (warning: if hardware don't support, init will fail)
+		GLCapabilities glCapabilities = new GLCapabilities();
+		glCapabilities.setNumSamples(4);
+		glCapabilities.setSampleBuffers(true);
+		
 		// Create the canvas and register it into Ptolemy3D system.
 		canvas = new Ptolemy3DGLCanvas();
 		Ptolemy3D.registerCanvas(canvas);

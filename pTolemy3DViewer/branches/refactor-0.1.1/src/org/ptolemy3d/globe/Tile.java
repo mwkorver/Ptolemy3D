@@ -54,8 +54,8 @@ class Tile {
 	protected MapData mapData;
 
 	/* Tile.processClipping */
-	private final TileArea bounds;
-	private final TileArea[] subTiles;
+	private final TileArea bounds;		//Un-clipped areas, internal used only
+	private final TileArea[] subTiles;	//Clipped areas
 	
 	/* Tile.display */
 	protected GL gl;
@@ -138,6 +138,7 @@ class Tile {
 				for(Area area : layerBelow.getAreas()) {
 					final int clipped = checkClipWithArea(right, below, left, above, area);
 					if(clipped == 1) {
+						bounds.active = false;
 						return;
 					}
 					neightboor += clipped;
@@ -297,16 +298,15 @@ class Tile {
 		if (!visible) {
 			return;
 		}
-		for (TileArea area : getAreas()) {
-			//FIXME
-			//if (area.edge) {
+		for (TileArea area : subTiles) {
+			if (area.active) {// && area.edge) {
 				for(int i = 0; i < Layer.NUMTILES; i++) {
 					final Tile tile = layerBelow.getTile(i);
-					if(tile.visible/* && tile.isEdge()*/) {
+					if(tile.visible) {
 						tile.linkTiles(area);
 					}
 				}
-			//}
+			}
 		}
 	}
 	private void linkTiles(TileArea area) {
@@ -315,26 +315,25 @@ class Tile {
 				throw new RuntimeException();
 			}
 		}
-		for(TileArea belowArea : getAreas()) {
-			final boolean lonInRange = (area.ulx <= belowArea.ulx && belowArea.ulx < area.lrx) || (area.ulx < belowArea.lrx && belowArea.lrx <= area.lrx);
-			final boolean latInRange = (area.ulz <= belowArea.ulz && belowArea.ulz < area.lrz) || (area.ulz < belowArea.lrz && belowArea.lrz <= area.lrz);
+		for (TileArea belowArea : subTiles) {
+			if (belowArea.active && !belowArea.edge) {
+				final boolean lonInRange = (area.ulx <= belowArea.ulx && belowArea.ulx < area.lrx) || (area.ulx < belowArea.lrx && belowArea.lrx <= area.lrx);
+				final boolean latInRange = (area.ulz <= belowArea.ulz && belowArea.ulz < area.lrz) || (area.ulz < belowArea.lrz && belowArea.lrz <= area.lrz);
 
-			if (lonInRange && belowArea.lrz == area.ulz) {
-				area.addAbove(belowArea);
-			}
-			else if (lonInRange && belowArea.ulz == area.lrz) {
-				area.addBelow(belowArea);
-			}
-			else if (latInRange && belowArea.ulx == area.lrx) {
-				area.addRight(belowArea);
-			}
-			else if (latInRange && belowArea.lrx == area.ulx) {
-				area.addLeft(belowArea);
+				if (lonInRange && belowArea.lrz == area.ulz) {
+					area.addAbove(belowArea);
+				}
+				else if (lonInRange && belowArea.ulz == area.lrz) {
+					area.addBelow(belowArea);
+				}
+				else if (latInRange && belowArea.ulx == area.lrx) {
+					area.addRight(belowArea);
+				}
+				else if (latInRange && belowArea.lrx == area.ulx) {
+					area.addLeft(belowArea);
+				}
 			}
 		}
-	}
-	private boolean isEdge() {
-		return getArea().edge || getAreas().size() > 0;
 	}
 	
 	public void display(GL gl) {
@@ -381,25 +380,25 @@ class Tile {
 							 */
 							gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_FILL);
 							for(TileArea t : subTile.above) {
-								if(t.tile.visible) {
+								if(t.active && t.tile.visible) {
 									t.tile.gl = gl;
 									renderer.renderSubTile(t);
 								}
 							}
 							for(TileArea t : subTile.below) {
-								if(t.tile.visible) {
+								if(t.active && t.tile.visible) {
 									t.tile.gl = gl;
 									renderer.renderSubTile(t);
 								}
 							}
 							for(TileArea t : subTile.right) {
-								if(t.tile.visible) {
+								if(t.active && t.tile.visible) {
 									t.tile.gl = gl;
 									renderer.renderSubTile(t);
 								}
 							}
 							for(TileArea t : subTile.left) {
-								if(t.tile.visible) {
+								if(t.active && t.tile.visible) {
 									t.tile.gl = gl;
 									renderer.renderSubTile(t);
 								}
@@ -678,15 +677,14 @@ class Tile {
 		return tileSize;
 	}
 	
-	public TileArea getArea() {
-		return bounds;
-	}
-	public List<TileArea> getAreas() {	//Not used for now
-		if(!visible) {
-			throw new RuntimeException();
+	public List<TileArea> getAreas() {
+		if(Config.DEBUG) {
+			if(!visible) {
+				throw new RuntimeException();
+			}
 		}
 		
-		List<TileArea> boundsList = new Vector<TileArea>(4);
+		final List<TileArea> boundsList = new Vector<TileArea>(4);
 		for (TileArea subTile : subTiles) {
 			if (subTile.active) {
 				boundsList.add(subTile);

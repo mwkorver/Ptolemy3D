@@ -201,9 +201,9 @@ public class Scene implements Transferable {
         final TextureManager textureManager = Ptolemy3D.getTextureManager();
         textureManager.freeUnusedTextures(drawContext.getGL());
 
-        // Destroy unused map
-        final MapDataManager mapDataManager = Ptolemy3D.getMapDataManager();
-        mapDataManager.freeUnused();
+//        // Destroy unused map (moved due to lock)
+//        final MapDataManager mapDataManager = Ptolemy3D.getMapDataManager();
+//        mapDataManager.freeUnused();
     }
 
     protected void getSceneImage(DrawContext drawContext) {

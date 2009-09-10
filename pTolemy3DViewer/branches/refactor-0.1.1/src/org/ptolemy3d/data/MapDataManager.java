@@ -135,7 +135,7 @@ public class MapDataManager {
 		return 0;
 	}
 	
-	public void freeUnused() {
-		decoderQueue.freeUnused();
-	}
+//	public void freeUnused() { // Used internally
+//		decoderQueue.freeUnused();
+//	}
 }

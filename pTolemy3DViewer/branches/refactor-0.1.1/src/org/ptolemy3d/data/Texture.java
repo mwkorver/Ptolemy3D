@@ -73,7 +73,7 @@ public class Texture {
 			return null;
 		}
 		
-		boolean hasAlpha = buffer.getAlphaRaster() != null;
+		boolean hasAlpha = buffer.getColorModel().hasAlpha();
 		
 		int width = buffer.getWidth();
 		int height = buffer.getHeight();

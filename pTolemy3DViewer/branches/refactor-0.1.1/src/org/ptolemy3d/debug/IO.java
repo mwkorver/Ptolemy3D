@@ -292,10 +292,6 @@ public class IO {
 						println("Force layer: "+ProfilerUtil.forceLayer);
 					}
 					break;
-				case KeyEvent.VK_F11:
-					ProfilerUtil.test2 = !ProfilerUtil.test2;
-					println("Test2: "+ProfilerUtil.test2);
-					break;
 				case KeyEvent.VK_F12:
 					ProfilerUtil.test = !ProfilerUtil.test;
 					println("Test: "+ProfilerUtil.test);

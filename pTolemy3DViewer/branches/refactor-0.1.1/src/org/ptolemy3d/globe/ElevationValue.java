@@ -42,16 +42,16 @@ public class ElevationValue {
 	}
 	
 	public void blend(ElevationValue that) {
-		if(this.interpolated) {// || ((this.type == TYPE_DEM) && (that.type != TYPE_DEM))) {
+		if(this.interpolated) {
 			// Do nothing
 		}
-		else if(that.interpolated) {// || ((this.type != TYPE_DEM) && (that.type == TYPE_DEM))) {
+		else if(that.interpolated) {
 			height = that.height;
 			interpolated |= that.interpolated;
 		}
 		else {
 			height = (this.height + that.height) / 2;
-			//interpolated = true;
+			interpolated = (that.type != TYPE_DEFAULT);
 		}
 	}
 }

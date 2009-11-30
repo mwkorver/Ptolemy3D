@@ -59,7 +59,7 @@ import java.util.logging.Logger;
  * </ul>
  *
  * <p>Example usage:<br/>
- * > DemCutter ./indata/ -102000000 41000000 102400 12800 00 ./outdata/ 1000000 .hdr .dat 1 0
+ * <tt> -> DemCutter ./indata/ -102000000 41000000 102400 12800 00 ./outdata/ 1000000 .hdr .dat 1 0</tt>
  * </p>
  *
  * <p>It is impotant to note an execution of DemCutter only generates one file based on:<br/>

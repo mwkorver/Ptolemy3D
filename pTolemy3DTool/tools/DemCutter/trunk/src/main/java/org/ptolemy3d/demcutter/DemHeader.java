@@ -108,7 +108,7 @@ public class DemHeader {
         try {
             br = new BufferedReader(new FileReader(file));
         } catch (FileNotFoundException e) {
-            logger.severe(e.toString());
+            logger.severe(e.getMessage());
         }
 
         String demdata;
@@ -144,7 +144,7 @@ public class DemHeader {
                 }
             }
         } catch (IOException e) {
-            logger.severe(e.toString());
+            logger.severe(e.getMessage());
         }
 
         init();
@@ -173,7 +173,7 @@ public class DemHeader {
             rafile = new RandomAccessFile(new File(file.substring(0, file.indexOf(headerFile)) + dataFile), "r");
             fileExists = true;
         } catch (Exception e) {
-            logger.severe(e.toString());
+            logger.severe(e.getMessage());
             fileExists = false;
         }
     }
@@ -182,7 +182,7 @@ public class DemHeader {
         try {
             rafile.close();
         } catch (Exception e) {
-            logger.severe(e.toString());
+            logger.severe(e.getMessage());
         }
     }
 
@@ -197,9 +197,7 @@ public class DemHeader {
     private float readAsciiFloat(int xpos, int ypos) {
 
         try {
-
             if (fileExists) {
-
                 if (ypos > rfpos_y) {
                     while ((ypos - 1) > rfpos_y) {
                         rafile.readLine();
@@ -220,14 +218,14 @@ public class DemHeader {
                 return 0;
             }
         } catch (Exception e) {
-            logger.severe(e.toString());
+            logger.severe(e.getMessage());
         }
         return 0;
     }
 
     public float readBinFloat(int xpos, int ypos) {
-        try {
 
+        try {
             if (fileExists) {
                 byte b1, b2, b3, b4;
 
@@ -244,13 +242,11 @@ public class DemHeader {
                         (b3 & 0xff) << 16 |
                         (b2 & 0xff) << 8 |
                         (b1 & 0xff)));
-
             } else {
                 return 0;
             }
-
         } catch (Exception e) {
-            logger.severe(e.toString());
+            logger.severe(e.getMessage());
         }
         return 0;
     }

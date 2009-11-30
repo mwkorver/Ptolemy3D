@@ -21,10 +21,12 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Vector;
 import java.util.logging.Logger;
@@ -45,20 +47,30 @@ import java.util.logging.Logger;
  * See wiki page about pTolemy Tile System.</li>
  * <li>cell width: size specified in DD units (degree + 1000000).  Usually it will corresponds to a tile level below the 'tile width' level.
  * See wiki page about pTolemy Tile System.</li>
- * <li>area:</li>
+ * <li>area: 2 char file prefix, ex. use japangsi zone (01 - 19) use 00 for DD tiles.</li>
  * <li>output dir: the output direcotry where to write the generated files.</li>
  * <li>mult factor: usually this factor will be always 1000000.</li>
- * <li>hdr extension: a string containing the extension for header files that contains DEM header information.</li>
- * <li>dat extension: a string containing the extension for data files with DEM information.</li>
- * <li>isBinary: specified if the input files are in binay format. </li>
- * <li>outputType:</li>
- * <li>inside sig</li>
- * <li>wall sig:</li>
+ * <li>hdr extension: a string containing the extension for header files that contains ascii header GRIDFLOAT information.</li>
+ * <li>dat extension: a string containing the extension for data files with the ESRI GRIDFLOAT Binary Grid information. Used named as *.dat.</li>
+ * <li>isBinary: 1-means binary, 0-means not binary. Specifies if the input files are in binay format. </li>
+ * <li>outputType: 1-means TIN, 0-means BDM. Specifies the output file type.</li>
+ * <li>inside sig: optional and only applied for TIN output files. Meters value to trim data on inside of dem.</li>
+ * <li>wall sig: optional and only applied for TIN output files. Meters value to trim data on edges of dem.</li>
  * </ul>
  *
  * <p>Example usage:<br/>
  * > DemCutter ./indata/ -102000000 41000000 102400 12800 00 ./outdata/ 1000000 .hdr .dat 1 0
  * </p>
+ *
+ * <p>It is impotant to note an execution of DemCutter only generates one file based on:<br/>
+ * <em>filename = area + "x" + minX + "y" + maxY + outputType</em>.</p>
+ *
+ * <p>The first time DemCutter is executed using an input directory, it scans for all
+ * header files and created an index header file named "indexheaders.idx". Next executions
+ * looks for that index file and if found it is used to get header information.</p>
+ *
+ * <p><b>If you add/remove files from the input directory be sure to remove, if exists,
+ * the index header file so DemCutter created a new fresh one.</b></p>
  *
  * @author Antonio Santiago <asantiagop(at)gmail(dot)com>
  */
@@ -87,6 +99,8 @@ public class DemCutter {
     private int cellWidth;
     private String area;
     private String outputDir;
+    private double insideSig = 0.3;
+    private double wallSig = 0.3;
 
     /**
      * Main.
@@ -116,6 +130,9 @@ public class DemCutter {
     public DemCutter(String args[]) {
 
         demDir = args[0];
+        if (demDir.endsWith("/")) {
+            demDir += "/";
+        }
 
         minX = Integer.parseInt(args[1]);
         maxY = Integer.parseInt(args[2]);
@@ -123,15 +140,15 @@ public class DemCutter {
         cellWidth = Integer.parseInt(args[4]);
         area = args[5];
         outputDir = args[6];
+        if (outputDir.endsWith("/")) {
+            outputDir += "/";
+        }
         mult = Integer.parseInt(args[7]);
 
         headerFile = args[8];
         dataFile = args[9];
         isBinary = args[10].equals(BINARY_FILE) ? true : false;
         outputType = Integer.parseInt(args[11]);
-
-        double insideSig = 0.3;
-        double wallSig = 0.3;
 
         if ((outputType == TIN_OUTPUT) && (args.length > 12)) {
             insideSig = Double.parseDouble(args[12]);
@@ -159,15 +176,14 @@ public class DemCutter {
         System.out.println("---------------------------------------------");
 
         int numHeaders = demHeaders.size();
-        //        double x_cd, y_cd;
-        //        int xpos, ypos;
         int yval, xval;
         for (int i = 0; i < nCellsY; i++) {
             yval = maxY - (i * cellWidth);
             for (int j = 0; j < nCellsX; j++) {
                 xval = minX + (j * cellWidth);
-                // go through dem headers, get best resolution dem
+                // Go through dem headers and get best dem resolution
                 float dv = getBestDemValue(xval, yval, numHeaders);
+
                 System.out.println("Elev (" + xval + "/" + yval + "): " + dv);
 
                 if (((i == 0) && (j == 0)) ||
@@ -186,10 +202,11 @@ public class DemCutter {
             header = (DemHeader) demHeaders.elementAt(k);
             header.closeFile();
         }
-        // write the data to a file
+        // Write the data to a file
+        DataOutputStream fout = null;
         try {
             String filename = area + "x" + minX + "y" + maxY + fsuffix;
-            DataOutputStream fout = new DataOutputStream(new FileOutputStream(outputDir + filename));
+            fout = new DataOutputStream(new FileOutputStream(outputDir + filename));
 
             switch (outputType) {
                 case BDM_OUTPUT:
@@ -208,12 +225,16 @@ public class DemCutter {
                     fout.write(demconv.bout.toByteArray());
                     break;
             }
-            fout.close();
 
-        } catch (Exception e) {
-            logger.severe(e.toString());
+            fout.close();
+        } catch (FileNotFoundException e) {
+            logger.severe(e.getMessage());
+            System.exit(1);
+        } catch (IOException e) {
+            logger.severe(e.getMessage());
             e.printStackTrace();
-        }
+            System.exit(1);
+        } 
     }
 
     private float getBestDemValue(double xval, double yval, int numHeaders) {
@@ -324,31 +345,28 @@ public class DemCutter {
             while ((str = in.readLine()) != null) {
                 String[] fields = str.split(",");
 
-                try {
-                    String filename = fields[0];
-                    double mul = Double.valueOf(fields[1]);
-                    String header = fields[2];
-                    String datFile = fields[3];
-                    boolean binary = Boolean.valueOf(fields[4]);
-                    int ncols = Integer.valueOf(fields[5]);
-                    int nrows = Integer.valueOf(fields[6]);
-                    double xllcorner = Double.valueOf(fields[7]);
-                    double yllcorner = Double.valueOf(fields[8]);
-                    double cellsize = Double.valueOf(fields[9]);
-                    double NODATA_value = Double.valueOf(fields[10]);
-                    String byteorder = fields[11];
+                String filename = fields[0];
+                double mul = Double.valueOf(fields[1]);
+                String header = fields[2];
+                String datFile = fields[3];
+                boolean binary = Boolean.valueOf(fields[4]);
+                int ncols = Integer.valueOf(fields[5]);
+                int nrows = Integer.valueOf(fields[6]);
+                double xllcorner = Double.valueOf(fields[7]);
+                double yllcorner = Double.valueOf(fields[8]);
+                double cellsize = Double.valueOf(fields[9]);
+                double NODATA_value = Double.valueOf(fields[10]);
+                String byteorder = fields[11];
 
-                    DemHeader dheader = new DemHeader(
-                            filename, mul, header, datFile, binary, ncols, nrows,
-                            xllcorner, yllcorner, cellsize, NODATA_value, byteorder);
-                    demHeaders.add(dheader);
-                } catch (NumberFormatException ex) {
-                    logger.severe("Error parsing some numeric values in the header file: '" + index.getAbsolutePath() + "'. It must be ignored.");
-                }
+                DemHeader dheader = new DemHeader(
+                        filename, mul, header, datFile, binary, ncols, nrows,
+                        xllcorner, yllcorner, cellsize, NODATA_value, byteorder);
+                demHeaders.add(dheader);
             }
             in.close();
-        } catch (Exception e) {
-            logger.severe(e.toString());
+        } catch (IOException e) {
+            logger.severe(e.getMessage());
+            e.printStackTrace();
         }
     }
 }

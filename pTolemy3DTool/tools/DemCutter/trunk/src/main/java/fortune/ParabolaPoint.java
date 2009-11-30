@@ -3,15 +3,15 @@
  * http://github.com/sorbits/visual-fortune-algorithm/tree/master
  * 
  * ABOUT
- * This Java applet implements a visualization of Fortune’s plane-sweep algorithm
+ * This Java applet implements a visualization of Fortunes plane-sweep algorithm
  * for creating a voronoi diagram.
  * Here is a live demo of the applet: http://www.diku.dk/hjemmesider/studerende/duff/Fortune/
- * The applet was created by Benny Kjær Nielsen and Allan Odgaard in spring of 2000
+ * The applet was created by Benny Kjor Nielsen and Allan Odgaard in spring of 2000
  * following a course in Computational Geometry taught by Pawel Winter at DIKU.
  * 
  * LICENSE
  * Permission to copy, use, modify, sell and distribute this software is granted.
- * This software is provided “as is” without express or implied warranty,
+ * This software is provided as is without express or implied warranty,
  * and with no claim as to its suitability for any purpose.
  * 
  * NOTES

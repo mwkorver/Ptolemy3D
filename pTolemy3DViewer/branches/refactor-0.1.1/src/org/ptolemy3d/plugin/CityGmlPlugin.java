@@ -21,7 +21,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -61,8 +63,7 @@ public class CityGmlPlugin implements Plugin {
 	private volatile boolean errorLoading = false;
 	private CityGmlReader cityReader = null;
 	//
-	private ArrayList<CityGmlBuildingData> listBuildindData = new ArrayList<CityGmlBuildingData>();
-	private boolean vertexInitialized = false;
+	private List<CityGmlBuildingData> listBuildindData = new ArrayList<CityGmlBuildingData>();
 
 	public void initGL(DrawContext drawContext) {
 	}
@@ -166,16 +167,6 @@ public class CityGmlPlugin implements Plugin {
 			return;
 		}
 
-		// Compute the buildings vertices if they are not computed previously.
-		if (!vertexInitialized) {
-			for (CityGmlBuildingData buildingData : listBuildindData) {
-				// Compute vertex array and normals for every polygon in the
-				// building.
-				buildingData.computeVertexAndNormals();
-			}
-			vertexInitialized = true;
-		}
-
 		// Store previous matrices
 		gl.glMatrixMode(GL.GL_PROJECTION);
 		gl.glPushMatrix();
@@ -188,7 +179,6 @@ public class CityGmlPlugin implements Plugin {
 
 		// Disable some flags
 		gl.glDisable(GL.GL_TEXTURE_2D);
-		gl.glDisable(GL.GL_CULL_FACE);
 		gl.glDisable(GL.GL_BLEND);
 		gl.glDisable(GL.GL_COLOR_MATERIAL);
 
@@ -199,9 +189,8 @@ public class CityGmlPlugin implements Plugin {
 		gl.glShadeModel(GL.GL_FLAT);
 
 		// Set color
-		float color[] = { 0.0f, 0.0f, 1.0f, 1.0f };
-		gl.glColor4fv(color, 0);
-
+		gl.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+		
 		// Enable vertex array
 		gl.glEnableClientState(GL.GL_VERTEX_ARRAY);
 		gl.glEnableClientState(GL.GL_NORMAL_ARRAY);
@@ -209,33 +198,38 @@ public class CityGmlPlugin implements Plugin {
 		// For each buildings decide which LOD must be drawn depending on the
 		// altitude parameter.
 		for (CityGmlBuildingData buildingData : listBuildindData) {
+			// Compute the buildings vertices if they are not computed previously.
+			buildingData.computeVertexAndNormals();
 
-			ArrayList<CityPolygon> listCityPolygons = null;
+			CityPolygonList cityPolygons = null;
 			// Decide if show LOD1 or LOD2 depending on the altitude
 			double camAltitude = drawContext.getCanvas().getCamera()
 					.getPosition().getAltitudeDD();
-			if (camAltitude < altitude
-					&& buildingData.getLod1Polygons().size() > 0) {
-				listCityPolygons = buildingData.getLod1Polygons();
-			} else {
-				listCityPolygons = buildingData.getLod2Polygons();
+			if (camAltitude < altitude) {
+				cityPolygons = buildingData.getLod1Polygons();
 			}
-			for (CityPolygon cityPolygon : listCityPolygons) {
-				DoubleBuffer db = cityPolygon.getVertex();
+			if (cityPolygons == null) {
+				cityPolygons = buildingData.getLod2Polygons();
+			}
+			
+			if (cityPolygons != null) {
+				IntBuffer ib = cityPolygons.getIndices();
+				ib.rewind();
+				DoubleBuffer db = cityPolygons.getPositions();
 				db.rewind();
-				FloatBuffer fb = cityPolygon.getNormals();
+				FloatBuffer fb = cityPolygons.getNormals();
 				fb.rewind();
-
+				
 				gl.glVertexPointer(3, GL.GL_DOUBLE, 0, db);
 				gl.glNormalPointer(GL.GL_FLOAT, 0, fb);
-				gl.glDrawArrays(GL.GL_POLYGON, 0, db.capacity() / 3);
+				gl.glDrawElements(GL.GL_TRIANGLES, ib.capacity(), GL.GL_UNSIGNED_INT, ib);
 			}
 		}
 
 		// Disable vertex array
 		gl.glDisableClientState(GL.GL_VERTEX_ARRAY);
 		gl.glDisableClientState(GL.GL_NORMAL_ARRAY);
-
+		
 		// Restore attributes
 		gl.glPopAttrib();
 

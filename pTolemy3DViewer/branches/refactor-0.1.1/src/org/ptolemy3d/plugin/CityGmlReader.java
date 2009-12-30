@@ -36,9 +36,9 @@ import org.citygml4j.model.gml.SurfaceProperty;
  */
 public class CityGmlReader {
 
-	private ArrayList<CityGmlBuildingData> listBuildindData = new ArrayList<CityGmlBuildingData>();
+	private List<CityGmlBuildingData> listBuildindData = new ArrayList<CityGmlBuildingData>();
 
-	public ArrayList<CityGmlBuildingData> getBuildingData() {
+	public List<CityGmlBuildingData> getBuildingData() {
 		return listBuildindData;
 	}
 

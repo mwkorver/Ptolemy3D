@@ -97,20 +97,31 @@ public class Math3D {
 	public static float angle2dvec(double x1, double y1, double x2, double y2, boolean degrees) {
 		return angle3dvec(x1, y1, 0, x2, y2, 0, degrees);
 	}
-
-	public static final void computeFaceNormal(float[] a, float[] b, float[] c, float[] norm) {
-		norm[0] = (b[1] - a[1]) * (c[2] - a[2]) - (c[1] - a[1]) * (b[2] - a[2]);
-		norm[1] = (b[2] - a[2]) * (c[0] - a[0]) - (c[2] - a[2]) * (b[0] - a[0]);
-		norm[2] = (b[0] - a[0]) * (c[1] - a[1]) - (c[0] - a[0]) * (b[1] - a[1]);
+	
+	public static final void computeFaceNormal(Vector3d a, Vector3d b, Vector3d c, float[] norm) {
+		double x = (b.y - a.y) * (c.z - a.z) - (c.y - a.y) * (b.z - a.z);
+		double y = (b.z - a.z) * (c.x - a.x) - (c.z - a.z) * (b.x - a.x);
+		double z = (b.x - a.x) * (c.y - a.y) - (c.x - a.x) * (b.y - a.y);
 
 		// Normalize
-		double mag1 = Math.sqrt((norm[0] * norm[0]) + (norm[1] * norm[1]) + (norm[2] * norm[2]));
-		mag1 = 1 / mag1;
+		double mag1 = 1.0 / Math.sqrt((x * x) + (y * y) + (z * z));
+		norm[0] = (float)(x * mag1);
+		norm[1] = (float)(y * mag1);
+		norm[2] = (float)(z * mag1);
+	}
+
+	public static final void normalize(float[] norm) {
+		float x = norm[0];
+		float y = norm[1];
+		float z = norm[2];
+
+		// Normalize
+		float mag1 = 1.0f / (float)Math.sqrt((x * x) + (y * y) + (z * z));
 		norm[0] *= mag1;
 		norm[1] *= mag1;
 		norm[2] *= mag1;
 	}
-
+	
 	public static final void setMapCoord(Vector3d in, Vector3d out) {
 		Vector3d intvec = new Vector3d(in);
 		intvec.normalize();

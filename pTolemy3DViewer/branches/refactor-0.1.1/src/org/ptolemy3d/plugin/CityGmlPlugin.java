@@ -189,7 +189,7 @@ public class CityGmlPlugin implements Plugin {
 		gl.glShadeModel(GL.GL_FLAT);
 
 		// Set color
-		gl.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+		gl.glColor4f(0.0f, 0.0f, 1.0f, 1.0f);
 		
 		// Enable vertex array
 		gl.glEnableClientState(GL.GL_VERTEX_ARRAY);
@@ -201,23 +201,23 @@ public class CityGmlPlugin implements Plugin {
 			// Compute the buildings vertices if they are not computed previously.
 			buildingData.computeVertexAndNormals();
 
-			CityPolygonList cityPolygons = null;
+			CityTriangleList cityTriangles = null;
 			// Decide if show LOD1 or LOD2 depending on the altitude
 			double camAltitude = drawContext.getCanvas().getCamera()
 					.getPosition().getAltitudeDD();
 			if (camAltitude < altitude) {
-				cityPolygons = buildingData.getLod1Polygons();
+				cityTriangles = buildingData.getLod1Triangles();
 			}
-			if (cityPolygons == null) {
-				cityPolygons = buildingData.getLod2Polygons();
+			if (cityTriangles == null) {
+				cityTriangles = buildingData.getLod2Triangles();
 			}
 			
-			if (cityPolygons != null) {
-				IntBuffer ib = cityPolygons.getIndices();
+			if (cityTriangles != null) {
+				IntBuffer ib = cityTriangles.getIndices();
 				ib.rewind();
-				DoubleBuffer db = cityPolygons.getPositions();
+				DoubleBuffer db = cityTriangles.getPositions();
 				db.rewind();
-				FloatBuffer fb = cityPolygons.getNormals();
+				FloatBuffer fb = cityTriangles.getNormals();
 				fb.rewind();
 				
 				gl.glVertexPointer(3, GL.GL_DOUBLE, 0, db);

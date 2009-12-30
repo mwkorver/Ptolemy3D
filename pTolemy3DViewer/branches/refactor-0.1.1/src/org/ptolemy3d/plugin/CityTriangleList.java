@@ -14,7 +14,7 @@ import com.sun.opengl.util.BufferUtil;
  * @author Antonio Santiago <asantiagop@gmail.com>
  * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  */
-public class CityPolygonList {
+public class CityTriangleList {
 
 	private final IntBuffer indices;
 	private final DoubleBuffer positions;
@@ -27,7 +27,7 @@ public class CityPolygonList {
 	 * 
 	 * @param size
 	 */
-	public CityPolygonList(int numTriangles, int numVertices) {
+	public CityTriangleList(int numTriangles, int numVertices) {
 		indices = BufferUtil.newIntBuffer(numTriangles * 3);     //3 vertex index (v1,v2,v3)
 		positions = BufferUtil.newDoubleBuffer(numVertices * 3); //3 components (x,y,z)
 		normals = BufferUtil.newFloatBuffer(numVertices * 3);    //3 components (x,y,z)

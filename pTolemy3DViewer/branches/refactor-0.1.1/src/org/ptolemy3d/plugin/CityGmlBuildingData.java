@@ -20,9 +20,9 @@ import org.ptolemy3d.view.Camera;
 public class CityGmlBuildingData {
 	private String id = "";
 	private List<Polygon> lod1Polygonsurfaces = new ArrayList<Polygon>();
-	private CityPolygonList lod1polygons = null;
+	private CityTriangleList lod1Triangles = null;
 	private List<Polygon> lod2PolygonSurfaces = new ArrayList<Polygon>();
-	private CityPolygonList lod2polygons = null;
+	private CityTriangleList lod2Triangles = null;
 
 	/**
 	 * @param id
@@ -61,12 +61,12 @@ public class CityGmlBuildingData {
 		return lod2PolygonSurfaces.addAll(surfaces);
 	}
 
-	public CityPolygonList getLod1Polygons() {
-		return lod1polygons;
+	public CityTriangleList getLod1Triangles() {
+		return lod1Triangles;
 	}
 
-	public CityPolygonList getLod2Polygons() {
-		return lod2polygons;
+	public CityTriangleList getLod2Triangles() {
+		return lod2Triangles;
 	}
 
 	/**
@@ -77,9 +77,9 @@ public class CityGmlBuildingData {
 		// Convert LOD1 surfaces to polygon points
 		{
 			List<Polygon> listSurfaces = getLod1Surfaces();
-			CityPolygonList polys = computeVertexAndNormals(listSurfaces);
+			CityTriangleList polys = computeVertexAndNormals(listSurfaces);
 			if (polys != null) {
-				lod1polygons = polys;
+				lod1Triangles = polys;
 			}
 			listSurfaces.clear();
 		}
@@ -87,15 +87,15 @@ public class CityGmlBuildingData {
 		// Convert LOD2 surfaces to polygon points
 		{
 			List<Polygon> listSurfaces = getLod2Surfaces();
-			CityPolygonList polys = computeVertexAndNormals(listSurfaces);
+			CityTriangleList polys = computeVertexAndNormals(listSurfaces);
 			if (polys != null) {
-				lod2polygons = polys;
+				lod2Triangles = polys;
 			}
 			listSurfaces.clear();
 		}
 	}
 	
-	private CityPolygonList computeVertexAndNormals(List<Polygon> listSurfaces) {
+	private CityTriangleList computeVertexAndNormals(List<Polygon> listSurfaces) {
 		// TODO - Suppose the polygon vertex as dimension 3.
 		final int VERTEX_DIMENSION = 3;
 		
@@ -119,7 +119,7 @@ public class CityGmlBuildingData {
 		}
 		
 		int curIndex = 0;
-		CityPolygonList cityTriangles = new CityPolygonList(countTris, countVerts);
+		CityTriangleList cityTriangles = new CityTriangleList(countTris, countVerts);
 		for (Polygon polygon : listSurfaces) {
 			AbstractRing ring = polygon.getExterior().getRing();
 			if (ring instanceof LinearRing) {

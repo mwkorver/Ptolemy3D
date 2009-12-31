@@ -200,9 +200,14 @@ public class CityGmlPlugin implements Plugin {
 		// For each buildings decide which LOD must be drawn depending on the
 		// altitude parameter.
 		for (CityGmlBuildingArea buildingArea : buildingAreas) {
-			TriangleList cityTriangles = null;
-			// Decide if show LOD1 or LOD2 depending on the altitude
+			if (!buildingArea.isVisible(camera)) {
+				continue;
+			}
+			
 			double camAltitude = camera.getPosition().getAltitudeDD();
+			
+			// Decide if show LOD1 or LOD2 depending on the altitude
+			TriangleList cityTriangles = null;
 			if (camAltitude < altitude) {
 				cityTriangles = buildingArea.getLod1Geometry();
 			}

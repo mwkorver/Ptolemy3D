@@ -515,6 +515,26 @@ public class Camera {
 		}
 	}
 
+	public boolean isTileInView(double leftLon, double rightLon, double upLat, double botLat,
+			double upLeftHeight, double botLeftHeight, double botRightHeight, double upRightHeight) {
+		/*
+		 * FIXME At north pose for close view, the visibility goes wrong
+		 */
+		
+		// Tile corners
+		Math3D.setSphericalCoord(leftLon, upLat, Unit.EARTH_RADIUS + upLeftHeight, _point1_);
+		Math3D.setSphericalCoord(leftLon, botLat, Unit.EARTH_RADIUS + botLeftHeight, _point2_);
+		Math3D.setSphericalCoord(rightLon, botLat, Unit.EARTH_RADIUS + botRightHeight, _point3_);
+		Math3D.setSphericalCoord(rightLon, upLat, Unit.EARTH_RADIUS + upRightHeight, _point4_);
+
+		if (isCartesianPointInVisibleSide(_point1_) || isCartesianPointInVisibleSide(_point2_)
+		 || isCartesianPointInVisibleSide(_point3_) || isCartesianPointInVisibleSide(_point4_)) {
+			return frustum.insideFrustum(_point1_, _point2_, _point3_, _point4_);
+		} else {
+			return false;
+		}
+	}
+	
 	public boolean realPointInView(double lon, double alt, double lat, int MAXANGLE) {
 		final Vector3d coord = new Vector3d();
 		Math3D.setSphericalCoord(lon, lat, Unit.EARTH_RADIUS + alt, coord);

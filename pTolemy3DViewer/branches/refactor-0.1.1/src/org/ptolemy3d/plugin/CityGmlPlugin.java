@@ -19,9 +19,6 @@ package org.ptolemy3d.plugin;
 
 import java.io.IOException;
 import java.net.URL;
-import java.nio.DoubleBuffer;
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -33,6 +30,7 @@ import javax.xml.bind.JAXBException;
 import org.ptolemy3d.DrawContext;
 import org.ptolemy3d.math.Vector3d;
 import org.ptolemy3d.scene.Plugin;
+import org.ptolemy3d.view.Camera;
 
 /**
  * CityGmlPlugin adds basic support for CityGML format. Allowed CityGML elements
@@ -63,7 +61,7 @@ public class CityGmlPlugin implements Plugin {
 	private volatile boolean errorLoading = false;
 	private CityGmlReader cityReader = null;
 	//
-	private List<CityGmlBuildingData> listBuildindData = new ArrayList<CityGmlBuildingData>();
+	private List<CityGmlBuildingArea> buildingAreas = new ArrayList<CityGmlBuildingArea>();
 
 	public void initGL(DrawContext drawContext) {
 	}
@@ -119,7 +117,10 @@ public class CityGmlPlugin implements Plugin {
 
 					cityReader = new CityGmlReader();
 					cityReader.loadGML(url);
-					listBuildindData = cityReader.getBuildingData();
+					CityGmlBuildingArea buildingArea = cityReader.getBuildingArea();
+					if (buildingArea != null) {
+						buildingAreas.add(buildingArea);
+					}
 				} catch (IOException ex) {
 					Logger.getLogger(CityGmlPlugin.class.getName()).warning(
 							"Can't load GML file: '" + url + "'");
@@ -162,6 +163,7 @@ public class CityGmlPlugin implements Plugin {
 		}
 
 		GL gl = drawContext.getGL();
+		Camera camera = drawContext.getCanvas().getCamera();
 
 		if (!status) {
 			return;
@@ -197,32 +199,19 @@ public class CityGmlPlugin implements Plugin {
 
 		// For each buildings decide which LOD must be drawn depending on the
 		// altitude parameter.
-		for (CityGmlBuildingData buildingData : listBuildindData) {
-			// Compute the buildings vertices if they are not computed previously.
-			buildingData.computeVertexAndNormals();
-
-			CityTriangleList cityTriangles = null;
+		for (CityGmlBuildingArea buildingArea : buildingAreas) {
+			TriangleList cityTriangles = null;
 			// Decide if show LOD1 or LOD2 depending on the altitude
-			double camAltitude = drawContext.getCanvas().getCamera()
-					.getPosition().getAltitudeDD();
+			double camAltitude = camera.getPosition().getAltitudeDD();
 			if (camAltitude < altitude) {
-				cityTriangles = buildingData.getLod1Triangles();
+				cityTriangles = buildingArea.getLod1Geometry();
 			}
 			if (cityTriangles == null) {
-				cityTriangles = buildingData.getLod2Triangles();
+				cityTriangles = buildingArea.getLod2Geometry();
 			}
 			
 			if (cityTriangles != null) {
-				IntBuffer ib = cityTriangles.getIndices();
-				ib.rewind();
-				DoubleBuffer db = cityTriangles.getPositions();
-				db.rewind();
-				FloatBuffer fb = cityTriangles.getNormals();
-				fb.rewind();
-				
-				gl.glVertexPointer(3, GL.GL_DOUBLE, 0, db);
-				gl.glNormalPointer(GL.GL_FLOAT, 0, fb);
-				gl.glDrawElements(GL.GL_TRIANGLES, ib.capacity(), GL.GL_UNSIGNED_INT, ib);
+				cityTriangles.render(gl);
 			}
 		}
 

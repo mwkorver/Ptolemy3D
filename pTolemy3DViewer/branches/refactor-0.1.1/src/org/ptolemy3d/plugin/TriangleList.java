@@ -4,6 +4,8 @@ import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
+import javax.media.opengl.GL;
+
 import com.sun.opengl.util.BufferUtil;
 
 /**
@@ -14,7 +16,7 @@ import com.sun.opengl.util.BufferUtil;
  * @author Antonio Santiago <asantiagop@gmail.com>
  * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  */
-public class CityTriangleList {
+public class TriangleList {
 
 	private final IntBuffer indices;
 	private final DoubleBuffer positions;
@@ -27,10 +29,24 @@ public class CityTriangleList {
 	 * 
 	 * @param size
 	 */
-	public CityTriangleList(int numTriangles, int numVertices) {
+	public TriangleList(int numTriangles, int numVertices) {
 		indices = BufferUtil.newIntBuffer(numTriangles * 3);     //3 vertex index (v1,v2,v3)
 		positions = BufferUtil.newDoubleBuffer(numVertices * 3); //3 components (x,y,z)
 		normals = BufferUtil.newFloatBuffer(numVertices * 3);    //3 components (x,y,z)
+	}
+	
+	public void render(GL gl) {
+		IntBuffer ib = getIndices();
+		DoubleBuffer db = getPositions();
+		FloatBuffer fb = getNormals();
+		
+		ib.rewind();
+		db.rewind();
+		fb.rewind();
+		
+		gl.glVertexPointer(3, GL.GL_DOUBLE, 0, db);
+		gl.glNormalPointer(GL.GL_FLOAT, 0, fb);
+		gl.glDrawElements(GL.GL_TRIANGLES, ib.capacity(), GL.GL_UNSIGNED_INT, ib);
 	}
 
 	public void addIndex(int i) {

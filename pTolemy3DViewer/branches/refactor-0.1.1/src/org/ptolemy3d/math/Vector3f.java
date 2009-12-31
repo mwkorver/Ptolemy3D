@@ -18,24 +18,24 @@
 package org.ptolemy3d.math;
 
 /**
- * A vector with 3 components with double precision.
+ * A vector with 3 components with float precision.
  * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  * @author Contributors
  */
-public final class Vector3d implements Cloneable {
-	public double x;
-	public double y;
-	public double z;
+public final class Vector3f implements Cloneable {
+	public float x;
+	public float y;
+	public float z;
 	
-	public Vector3d() {
+	public Vector3f() {
 		this(0, 0, 0);
 	}
-	public Vector3d(double x, double y, double z) {
+	public Vector3f(float x, float y, float z) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
 	}
-	public Vector3d(Vector3d vec) {
+	public Vector3f(Vector3f vec) {
 		this(vec.x, vec.y, vec.z);
 	}
 	
@@ -45,8 +45,8 @@ public final class Vector3d implements Cloneable {
 	}
 	
 	@Override
-	protected Vector3d clone() {
-		return new Vector3d(x, y, z);
+	protected Vector3f clone() {
+		return new Vector3f(x, y, z);
 	}
 	
 	@Override
@@ -55,7 +55,7 @@ public final class Vector3d implements Cloneable {
 			return true;
 		}
 		else if(getClass() == obj.getClass()) {
-			final Vector3d vec = (Vector3d)obj;
+			final Vector3f vec = (Vector3f)obj;
 			return ((vec.x == x) && (vec.y == y) && (vec.z == z));
 		}
 		else {
@@ -66,9 +66,9 @@ public final class Vector3d implements Cloneable {
 	@Override
 	public int hashCode() {
 		long hash;
-		hash = 31L        + Double.doubleToLongBits(x);
-		hash = 31L * hash + Double.doubleToLongBits(y);
-		hash = 31L * hash + Double.doubleToLongBits(z);
+		hash = 31L        + Float.floatToIntBits(x);
+		hash = 31L * hash + Float.floatToIntBits(y);
+		hash = 31L * hash + Float.floatToIntBits(z);
 		return (int)(hash ^ (hash>>32));
 	}
 	
@@ -80,76 +80,76 @@ public final class Vector3d implements Cloneable {
 		return (x == 1) && (y == 1) && (z == 1);
 	}
 	
-	public final double magnitude() {
-		return Math.sqrt((x * x) + (y * y) + (z * z));
+	public final float magnitude() {
+		return (float)Math.sqrt((x * x) + (y * y) + (z * z));
 	}
 	
 	public final void normalize() {
-		final double mag = 1 / magnitude();
+		final float mag = 1 / magnitude();
 		x *= mag;
 		y *= mag;
 		z *= mag;
 	}
 
-	public final void cross(Vector3d vec1, Vector3d vec2) {
-		double x = vec1.y * vec2.z - vec1.z * vec2.y;
-		double y = vec1.z * vec2.x - vec1.x * vec2.z;
-		double z = vec1.x * vec2.y - vec1.y * vec2.x;
+	public final void cross(Vector3f vec1, Vector3f vec2) {
+		float x = vec1.y * vec2.z - vec1.z * vec2.y;
+		float y = vec1.z * vec2.x - vec1.x * vec2.z;
+		float z = vec1.x * vec2.y - vec1.y * vec2.x;
 		this.x = x;
 		this.y = y;
 		this.z = z;
 	}
 
-	public final double dot(Vector3d vec) {
+	public final float dot(Vector3f vec) {
 		return (x * vec.x) + (y * vec.y) + (z * vec.z);
 	}
 
-	public final Vector3d set(double x, double y, double z) {
+	public final Vector3f set(float x, float y, float z) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
 		return this;
 	}
 	
-	public final Vector3d set(Vector3d vec) {
+	public final Vector3f set(Vector3f vec) {
 		x = vec.x;
 		y = vec.y;
 		z = vec.z;
 		return this;
 	}
 
-	public final Vector3d add(Vector3d vec1, Vector3d vec2) {
+	public final Vector3f add(Vector3f vec1, Vector3f vec2) {
 		x = vec1.x + vec2.x;
 		y = vec1.y + vec2.y;
 		z = vec1.z + vec2.z;
 		return this;
 	}
 
-	public final Vector3d sub(Vector3d vec1, Vector3d vec2) {
+	public final Vector3f sub(Vector3f vec1, Vector3f vec2) {
 		x = vec1.x - vec2.x;
 		y = vec1.y - vec2.y;
 		z = vec1.z - vec2.z;
 		return this;
 	}
 
-	public final Vector3d negate() {
+	public final Vector3f negate() {
 		x = -x;
 		y = -y;
 		z = -z;
 		return this;
 	}
 
-	public final Vector3d scale(double s) {
+	public final Vector3f scale(float s) {
 		x *= s;
 		y *= s;
 		z *= s;
 		return this;
 	}
 	
-    public double distance(Vector3d vec) {
-        double x = (vec.x - this.x);
-        double y = (vec.y - this.y);
-        double z = (vec.z - this.z);
-        return Math.sqrt((x * x) + (y * y) + (z * z));
+    public float distance(Vector3f vec) {
+        float x = (vec.x - this.x);
+        float y = (vec.y - this.y);
+        float z = (vec.z - this.z);
+        return (float)Math.sqrt((x * x) + (y * y) + (z * z));
     }
 }

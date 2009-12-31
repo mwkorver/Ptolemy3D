@@ -36,10 +36,10 @@ import org.citygml4j.model.gml.SurfaceProperty;
  */
 public class CityGmlReader {
 
-	private List<CityGmlBuildingData> listBuildindData = new ArrayList<CityGmlBuildingData>();
+	private CityGmlBuildingArea buildingArea = null;
 
-	public List<CityGmlBuildingData> getBuildingData() {
-		return listBuildindData;
+	public CityGmlBuildingArea getBuildingArea() {
+		return buildingArea;
 	}
 
 	/**
@@ -65,6 +65,7 @@ public class CityGmlReader {
 		CityModel cityModel = (CityModel) citygml.jaxb2cityGML(featureElem);
 
 		// Read all Building elements in the model
+		CityGmlBuildingArea buildingArea = new CityGmlBuildingArea();
 		for (CityObjectMember cityObjectMember : cityModel
 				.getCityObjectMember()) {
 			CityObject cityObject = cityObjectMember.getCityObject();
@@ -74,10 +75,11 @@ public class CityGmlReader {
 				Building building = (Building) cityObject;
 
 				// Read the building.
-				CityGmlBuildingData buildingData = loadBuilding(building);
-				listBuildindData.add(buildingData);
+				CityGmlBuilding buildingData = loadBuilding(building);
+				buildingArea.addBuilding(buildingData);
 			}
 		}
+		this.buildingArea = buildingArea;
 	}
 
 	/**
@@ -85,7 +87,7 @@ public class CityGmlReader {
 	 * 
 	 * @param building
 	 */
-	private CityGmlBuildingData loadBuilding(Building building) {
+	private CityGmlBuilding loadBuilding(Building building) {
 
 		String id = building.getId();
 		if (id == null || id.equals("")) {
@@ -94,7 +96,7 @@ public class CityGmlReader {
 			return null;
 		}
 
-		CityGmlBuildingData buildingData = new CityGmlBuildingData();
+		CityGmlBuilding buildingData = new CityGmlBuilding();
 		buildingData.setId(id);
 
 		// Get possible Lod1MultiSurface content
@@ -105,7 +107,7 @@ public class CityGmlReader {
 			MultiSurface multiSurface = multiSurfaceProperty.getMultiSurface();
 			if (multiSurface != null) {
 				List<Polygon> listSurfaces = loadMultiSurface(multiSurface);
-				buildingData.addLod1Surfaces(listSurfaces);
+				buildingData.addLod1Surface(listSurfaces);
 			}
 		}
 		// Get possible Lod1Solid content
@@ -113,7 +115,7 @@ public class CityGmlReader {
 		if (splod1 != null && splod1.getSolid() != null) {
 			AbstractSolid abstractSolid = splod1.getSolid();
 			List<Polygon> listSurfaces = loadAbstractSolid(abstractSolid);
-			buildingData.addLod1Surfaces(listSurfaces);
+			buildingData.addLod1Surface(listSurfaces);
 		}
 
 		// Get possible Lod2MultiSurface content
@@ -124,7 +126,7 @@ public class CityGmlReader {
 			MultiSurface multiSurface = multi2SurfaceProperty.getMultiSurface();
 			if (multiSurface != null) {
 				List<Polygon> listSurfaces = loadMultiSurface(multiSurface);
-				buildingData.addLod2Surfaces(listSurfaces);
+				buildingData.addLod2Surface(listSurfaces);
 			}
 		}
 		// Get possible Lod2Solid content
@@ -132,7 +134,7 @@ public class CityGmlReader {
 		if (splod2 != null && splod2.getSolid() != null) {
 			AbstractSolid abstractSolid = splod2.getSolid();
 			List<Polygon> listSurfaces = loadAbstractSolid(abstractSolid);
-			buildingData.addLod2Surfaces(listSurfaces);
+			buildingData.addLod2Surface(listSurfaces);
 		}
 
 		return buildingData;

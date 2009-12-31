@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.ptolemy3d.jp2.jj2000;
+package org.ptolemy3d.jp2;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -47,12 +47,12 @@ import jj2000.j2k.wavelet.synthesis.InverseWT;
 
 /**
  * A clean use of JJ200 decoder.<BR>
- * Any JP2 file are supported. Disadvantages is the decoder is slow.<BR>
+ * Advantage: all JP2 file are supported. Disadvantage: slow decoder.<BR>
  * <BR>
  * Based on JJ2000 decoder implementation
  * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  */
-public class JJ2000Decoder implements org.ptolemy3d.jp2.Decoder {
+class JJ2000Decoder implements org.ptolemy3d.jp2.Decoder {
 	// ========================== TEST ================================
 	public static void main(String argv[]) throws Throwable {
 		final JJ2000Decoder decoder = new JJ2000Decoder(new Stream(new File(argv[0] + ".jp2")));

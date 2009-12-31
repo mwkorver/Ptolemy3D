@@ -83,13 +83,12 @@ public class BasicFrame extends JFrame {
 
 		CityGmlPlugin cgp = new CityGmlPlugin();
 		cgp.setAltitude(100000);
-		cgp
-				.setFileUrl("file:///opt/servers/jetty-6.1.14/webapps/Ptolemy_test/gml_test.xml");
+		//cgp.setFileUrl("file:///opt/servers/jetty-6.1.14/webapps/Ptolemy_test/gml_test.xml");
+		cgp.setFileUrl("file:///Users/jerome/Documents/ptolemy3d/pTolemy3DThirdParty/gml_test.xml");
 		Ptolemy3D.getScene().getPlugins().addPlugin(cgp);
 
 		IconPlugin ip = new IconPlugin();
-		ip
-				.setFileUrl("file:///opt/servers/jetty-6.1.14/webapps/Ptolemy_test/new.png");
+		ip.setFileUrl("file:///opt/servers/jetty-6.1.14/webapps/Ptolemy_test/new.png");
 //		ip.setPosition(Position.fromLatLonAlt(40, 0, 0));
 		Position iconp = new Position();
 		iconp.setLatitude(40);

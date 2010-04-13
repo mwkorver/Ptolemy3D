@@ -107,7 +107,7 @@ public class Globe {
 	}
 
 	/** Landscape Picking: Pick tiles */
-	public final synchronized boolean pick(Vector3d intersectPoint, Vector3d[] ray) {
+	public final boolean pick(Vector3d intersectPoint, Vector3d[] ray) {
 		for (int i = layers.length - 1; i >= 0; i--) {
 			final Layer layer = layers[i];
 			if (layer.pick(intersectPoint, ray)) {

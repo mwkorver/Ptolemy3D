@@ -26,6 +26,8 @@ import javax.imageio.ImageIO;
 import javax.media.opengl.GL;
 
 /**
+ * A Texture<br>
+ * <br>
  * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  */
 public class Texture {

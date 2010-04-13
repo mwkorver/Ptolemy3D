@@ -17,8 +17,7 @@
  */
 package org.ptolemy3d.scene;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Vector;
 
 import javax.media.opengl.GL;
 
@@ -42,15 +41,14 @@ import org.ptolemy3d.math.Vector3d;
  * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  */
 public class Plugins {
-
-	private List<Plugin> plugins;
+	private Vector<Plugin> plugins;
 	private int pluginCue = 0; // TODO Don't know its uses ...
 
 	// private int tl_rotation = 0;
 	// private boolean running = false;
 
 	public Plugins() {
-		this.plugins = new ArrayList<Plugin>();
+		this.plugins = new Vector<Plugin>();
 	}
 
 	/**

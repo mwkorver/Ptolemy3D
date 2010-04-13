@@ -10,7 +10,6 @@ import org.ptolemy3d.Unit;
 import org.ptolemy3d.math.ConcavePolygon;
 import org.ptolemy3d.math.Math3D;
 import org.ptolemy3d.math.Vector3d;
-import org.ptolemy3d.scene.Landscape;
 import org.ptolemy3d.view.Camera;
 
 /**
@@ -74,7 +73,7 @@ public class CityGmlBuildingArea {
 		return lod2Triangles;
 	}
 	
-	public boolean isVisible(Camera camera) {
+	public final boolean isVisible(Camera camera) {
 		if((lod1Triangles == null) && (lod2Triangles == null)) {
 			return true; //Always visible if not initialized
 		}
@@ -84,14 +83,14 @@ public class CityGmlBuildingArea {
 				getMaxAlt(), getMaxAlt(), getMaxAlt(), getMaxAlt());
 	}
 	
-	public double getMinLat() { return minLat; }
-	public double getMaxLat() { return maxLat; }
+	public final double getMinLat() { return minLat; }
+	public final double getMaxLat() { return maxLat; }
 
-	public double getMinLon() { return minLon; }
-	public double getMaxLon() { return maxLon; }
+	public final double getMinLon() { return minLon; }
+	public final double getMaxLon() { return maxLon; }
 
-	public double getMinAlt() { return minAlt; }
-	public double getMaxAlt() { return maxAlt; }
+	public final double getMinAlt() { return minAlt; }
+	public final double getMaxAlt() { return maxAlt; }
 
 	/**
 	 * Convert all building surfaces into vertex that can be rendered by the

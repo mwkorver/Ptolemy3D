@@ -17,8 +17,8 @@
  */
 package org.ptolemy3d.globe;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 import javax.media.opengl.GL;
 
@@ -67,7 +67,7 @@ public class Layer {
 	private final int divider;
 	
 	/** Layer areas */
-	private final List<Area> areas = new Vector<Area>(2);
+	protected final ArrayList<Area> areas = new ArrayList<Area>(2);
 	
 	/**
 	 * Creates a new instance.

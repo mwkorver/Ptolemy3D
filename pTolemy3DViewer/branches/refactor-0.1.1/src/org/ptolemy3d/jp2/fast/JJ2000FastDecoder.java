@@ -63,7 +63,7 @@ public class JJ2000FastDecoder implements org.ptolemy3d.jp2.Decoder {
 		jp2Parser = new Jp2Parser(stream);
 	}
 	
-	public synchronized int getNumWavelets() {
+	public int getNumWavelets() {
 		try {
 			if(jp2Parser == null) {
 				parseHeader();
@@ -81,19 +81,27 @@ public class JJ2000FastDecoder implements org.ptolemy3d.jp2.Decoder {
 			if(jp2Parser == null) {
 				parseHeader();
 			}
-			if(jp2Decoder == null) {
-				jp2Decoder = new Jp2Decoder(jp2Parser);
-			}
 			
-			//Decode every wavelet until the resolution asked
-			for(int i = pixelsRes + 1; i <= res; i++) {
-				pixels = jp2Decoder.getNextResolution(i, pixels);
-				pixelsRes = res;
+			final int realRes;
+			if(res > pixelsRes) {
+				if(jp2Decoder == null) {
+					jp2Decoder = new Jp2Decoder(jp2Parser);
+				}
+				
+				//Decode every wavelet until the resolution asked
+				for(int i = pixelsRes + 1; i <= res; i++) {
+					pixels = jp2Decoder.getNextResolution(i, pixels);
+					pixelsRes = res;
+				}
+				realRes = res;
+			}
+			else {
+				realRes = pixelsRes;
 			}
 			
 			//Create texture
-			final int width = jp2Parser.getWidth(res);
-			final int height = jp2Parser.getHeight(res);
+			final int width = jp2Parser.getWidth(realRes);
+			final int height = jp2Parser.getHeight(realRes);
 			return new Texture(pixels, width, height);
 		} catch(Exception e) {
 			e.printStackTrace();

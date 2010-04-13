@@ -120,7 +120,4 @@ abstract class MapDataEntry {
 	public abstract boolean isDecoded(int unit);
 	/** @return true if the resolution is or has been decoded */
 	public abstract boolean decode();
-	/** */
-	public abstract void freeDecoder();
-	
 }

@@ -1,10 +1,10 @@
 /**
  * Graphic Engine
- * Copyright © 2004-2008 Jérôme JOUVIE (Jouvieje)
+ * Copyright © 2004-2008 Jerome JOUVIE (Jouvieje)
  * 
  * PROJECT INFORMATIONS
  * ====================
- * Author   Jérôme JOUVIE (Jouvieje)
+ * Author   Jerome JOUVIE (Jouvieje)
  * Email    jerome.jouvie@gmail.com
  * Site     http://jerome.jouvie.free.fr/
  * Homepage http://jerome.jouvie.free.fr/OpenGl/Projects/GraphicEngineCore.php

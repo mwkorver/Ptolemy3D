@@ -47,6 +47,7 @@ import org.ptolemy3d.view.Camera;
  * </ul>
  * 
  * @author Antonio Santiago <asantiagop@gmail.com>
+ * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  */
 public class CityGmlPlugin implements Plugin {
 
@@ -63,6 +64,9 @@ public class CityGmlPlugin implements Plugin {
 	//
 	private List<CityGmlBuildingArea> buildingAreas = new ArrayList<CityGmlBuildingArea>();
 
+	public CityGmlPlugin() {
+	}
+	
 	public void initGL(DrawContext drawContext) {
 	}
 

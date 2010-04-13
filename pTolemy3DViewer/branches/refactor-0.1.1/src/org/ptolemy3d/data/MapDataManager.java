@@ -28,6 +28,14 @@ import org.ptolemy3d.globe.MapData;
 import org.ptolemy3d.globe.MapDataKey;
 
 /**
+ * Handle {@code MapData} creation and asynchroneous data download, including:<br>
+ * <ul>
+ * <li>Image data: JP2</li>
+ * <li>Elevation data: DEM and TIN</li>
+ * </ul>
+ * @see MapData
+ * @see ElevationDem
+ * @see ElevationKey
  * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  */
 public class MapDataManager {
@@ -114,12 +122,13 @@ public class MapDataManager {
 		final TextureManager textureManager = Ptolemy3D.getTextureManager();
 		if(mapData.newTexture != null) {
 			final Texture texture = mapData.newTexture;
+			final int res = mapData.mapResolution;
 			mapData.newTexture = null;
-			textureID = textureManager.load(gl, mapData, texture, true);
+			textureID = textureManager.load(gl, mapData, texture, res, true);
 			IO.printfRenderer("Loading texture: %s@%d\n", mapData.key, mapData.mapResolution);
 		}
 		else {
-			textureID = textureManager.get(mapData);
+			textureID = textureManager.getTextureID(mapData);
 		}
 		
 		//Alternate texture if not loaded
@@ -134,8 +143,4 @@ public class MapDataManager {
 	public int getAlternateTextureID(GL gl, MapDataKey key) {
 		return 0;
 	}
-	
-//	public void freeUnused() { // Used internally
-//		decoderQueue.freeUnused();
-//	}
 }

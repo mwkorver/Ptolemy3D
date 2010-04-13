@@ -89,9 +89,6 @@ class TinDataEntry extends MapDataEntry {
 	}
 
 	@Override
-	public void freeDecoder() {}
-
-	@Override
 	public int getNextDecoderUnit() {
 		if(isDecoded(0)) {
 			return -1;

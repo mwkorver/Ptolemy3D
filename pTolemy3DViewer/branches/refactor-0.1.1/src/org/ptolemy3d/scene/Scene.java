@@ -32,7 +32,6 @@ import javax.media.opengl.GL;
 import org.ptolemy3d.DrawContext;
 import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.Ptolemy3DGLCanvas;
-import org.ptolemy3d.data.MapDataManager;
 import org.ptolemy3d.data.TextureManager;
 import org.ptolemy3d.debug.ProfilerUtil;
 import org.ptolemy3d.debug.ProfilerUtil.ProfilerEventInterface;

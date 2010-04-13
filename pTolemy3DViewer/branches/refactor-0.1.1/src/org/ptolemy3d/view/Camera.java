@@ -458,20 +458,20 @@ public class Camera {
 		return isCartesianPointInVisibleSide(point);
 	}
 
+	private final Vector3d _posToPoint_ = new Vector3d();
 	/**
 	 * @param point
 	 *            cartesian coordinate of the point on the globe
 	 * @return true if the point is on the visible side of the globe
 	 */
-	public boolean isCartesianPointInVisibleSide(Vector3d point) {
+	public synchronized boolean isCartesianPointInVisibleSide(Vector3d point) {
 		// View forward vector
-		Vector3d posToPoint = new Vector3d();
 		// Direction from the viewer to the point
-		getCartesianPosition(posToPoint);
-		posToPoint.sub(point, posToPoint);
+		getCartesianPosition(_posToPoint_);
+		_posToPoint_.sub(point, _posToPoint_);
 
 		// Dot product between the vectors (front/back face test)
-		final double dot = posToPoint.dot(point);
+		final double dot = _posToPoint_.dot(point);
 		if (dot <= 0) {
 			// Visible if the forward vector is pointing in the other direction
 			// than the globe normal
@@ -495,7 +495,7 @@ public class Camera {
 	 * @return true if the tile is on the visible side of the globe and in the
 	 *         view sight (frustum volume)
 	 */
-	public boolean isTileInView(int leftLon, int rightLon, int upLat, int botLat,
+	public synchronized boolean isTileInView(int leftLon, int rightLon, int upLat, int botLat,
 			double upLeftHeight, double botLeftHeight, double botRightHeight, double upRightHeight) {
 		/*
 		 * FIXME At north pose for close view, the visibility goes wrong

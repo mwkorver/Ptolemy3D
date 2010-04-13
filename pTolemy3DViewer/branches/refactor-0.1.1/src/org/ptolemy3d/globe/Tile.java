@@ -20,9 +20,7 @@ package org.ptolemy3d.globe;
 import static org.ptolemy3d.debug.Config.DEBUG;
 import static org.ptolemy3d.Unit.EARTH_RADIUS;
 
-import java.util.List;
-import java.util.Vector;
-
+import java.util.ArrayList;
 import javax.media.opengl.GL;
 
 import org.ptolemy3d.Ptolemy3D;
@@ -135,7 +133,7 @@ class Tile {
 		if (layerID < (globe.getNumLayers() - 1)) {	//Last layer don't have tile below
 			final Layer layerBelow = globe.getLayer(layerID + 1);
 			if (layerBelow.isVisible()) {
-				for(Area area : layerBelow.getAreas()) {
+				for(Area area : layerBelow.areas) {
 					final int clipped = checkClipWithArea(right, below, left, above, area);
 					if(clipped == 1) {
 						bounds.active = false;
@@ -677,14 +675,14 @@ class Tile {
 		return tileSize;
 	}
 	
-	public List<TileArea> getAreas() {
+	public ArrayList<TileArea> getAreas() {
 		if(Config.DEBUG) {
 			if(!visible) {
 				throw new RuntimeException();
 			}
 		}
 		
-		final List<TileArea> boundsList = new Vector<TileArea>(4);
+		final ArrayList<TileArea> boundsList = new ArrayList<TileArea>(4);
 		for (TileArea subTile : subTiles) {
 			if (subTile.active) {
 				boundsList.add(subTile);

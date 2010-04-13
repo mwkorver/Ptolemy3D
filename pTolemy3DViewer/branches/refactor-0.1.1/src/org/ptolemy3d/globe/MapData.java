@@ -17,7 +17,9 @@
  */
 package org.ptolemy3d.globe;
 
+import org.ptolemy3d.Ptolemy3D;
 import org.ptolemy3d.data.Texture;
+import org.ptolemy3d.data.TextureManager;
 
 /**
  * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
@@ -29,8 +31,8 @@ public class MapData {
 	/** Longitude in DD. */
 	public final MapDataKey key;
 	/** Current texture resolution (wavelet ID) */
-	public int mapResolution;
-	public Texture newTexture;
+	public transient int mapResolution;
+	public transient Texture newTexture;
 	/** TIN Elevation */
 	public ElevationTin tin;
 	/** DEM Elevation */
@@ -40,7 +42,9 @@ public class MapData {
 	public MapData(MapDataKey mapDataKey) {
 		key = mapDataKey;
 		
-		mapResolution = -1;
+		// Texture may have been already partially or entirely loaded in GPU
+		final TextureManager textureManager = Ptolemy3D.getTextureManager();
+		mapResolution = textureManager.getTextureResolution(this);
 		
 		tin = null;
 		dem = null;

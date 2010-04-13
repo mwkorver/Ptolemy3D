@@ -17,9 +17,7 @@
  */
 package org.ptolemy3d.globe;
 
-import java.util.List;
-import java.util.Vector;
-
+import java.util.ArrayList;
 import org.ptolemy3d.scene.Landscape;
 
 /**
@@ -32,14 +30,14 @@ class TileArea {
 	protected boolean active;
 	
 	protected Tile tile;
-	protected final List<TileArea> left, above, right, below;
+	protected final ArrayList<TileArea> left, above, right, below;
 	
 	protected TileArea(Tile tile) {
 		this.tile = tile;
-		left = new Vector<TileArea>(4);
-		above = new Vector<TileArea>(4);
-		right = new Vector<TileArea>(4);
-		below = new Vector<TileArea>(4);
+		left = new ArrayList<TileArea>(4);
+		above = new ArrayList<TileArea>(4);
+		right = new ArrayList<TileArea>(4);
+		below = new ArrayList<TileArea>(4);
 	}
 	
 	protected final void setBounds(int ulx, int ulz, int lrx, int lrz) {
@@ -162,7 +160,7 @@ class TileArea {
 		}
 		return heightContext.height;
 	}
-	private TileArea getNeightboorTile(List<TileArea> areas, int lon, int lat) {
+	private TileArea getNeightboorTile(ArrayList<TileArea> areas, int lon, int lat) {
 		for(TileArea area : areas) {
 			if(area.tile.visible && area.isInRange(lon, lat)) {
 				return area;
@@ -272,10 +270,10 @@ class TileArea {
 		}
 		return heightContext;
 	}
-	private ElevationValue getNeighboorElevation(List<TileArea> areas, int lon, int lat) {
+	private ElevationValue getNeighboorElevation(ArrayList<TileArea> areas, int lon, int lat) {
 		return getNeighboorElevationWithCornerCheck(areas, false, false, lon, lat);
 	}
-	private ElevationValue getNeighboorElevationWithCornerCheck(List<TileArea> areas, boolean corner, boolean isAboveOrBelow, int lon, int lat) {
+	private ElevationValue getNeighboorElevationWithCornerCheck(ArrayList<TileArea> areas, boolean corner, boolean isAboveOrBelow, int lon, int lat) {
 		ElevationValue elevationValue;
 		
 		elevationValue = getNeighboorElevationWithCornerCheck_(areas, lon, lat);
@@ -318,7 +316,7 @@ class TileArea {
 		}
 		return null;
 	}
-	private final ElevationValue getNeighboorElevationWithCornerCheck_(List<TileArea> areas, int lon, int lat) {
+	private final ElevationValue getNeighboorElevationWithCornerCheck_(ArrayList<TileArea> areas, int lon, int lat) {
 		for (TileArea area : areas) {
 			if (   area.active
 				&& area.tile.visible

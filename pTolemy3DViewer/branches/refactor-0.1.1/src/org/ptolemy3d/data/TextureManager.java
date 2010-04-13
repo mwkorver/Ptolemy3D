@@ -21,6 +21,9 @@ package org.ptolemy3d.data;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.media.opengl.GL;
 
@@ -30,19 +33,58 @@ import org.ptolemy3d.globe.MapData;
 import org.ptolemy3d.globe.MapDataKey;
 
 /**
+ * Texture manager<br>
+ * <br>
+ * Manage {@code MapData} image loading and automatic garbage for proper GPU memory use.<br>
+ * Texture garbage is based and how much memory is used, with the garbage threashold
+ * {@code TextureManager#TEXTURE_GARBAGE_TRESHOLD}, and last time the texture was used
+ * {@code TextureManager#TEXTURE_GARBAGE_TIME}.<br>
+ * When a texture has been garbaged, it be will automatically reload by the {@link MapDataManager}
+ * at rendering request.<br>
+ * <br>
+ * All the other texture are not automatically garbaged, and must be deleted when they are<br>
+ * no more needed (ie by the plugins, ...).<br>
+ * <br>
+ * @see MapData
  * @author Jerome JOUVIE (Jouvieje) <jerome.jouvie@gmail.com>
  */
 public class TextureManager {
+	static class HwTextureID {
+		private final int id;
+		int resolution;
+		int lastUse;
+		int memoryUsage;
+		public HwTextureID(int id, int resolution) {
+			this.id = id;
+			this.resolution = resolution;
+			this.memoryUsage = 0;
+			getID();
+		}
+		final int getID() {
+			lastUse = TextureManager.frameID;
+			return id;
+		}
+	}
+	private static int frameID = 0;
+	/** Texture garbage threshold when memory usage is higher than (in mo) */
+	public static int TEXTURE_GARBAGE_TRESHOLD = 20;
+	/** Texture garbage time in number of frames */
+	public static int TEXTURE_GARBAGE_TIME = 196;
+	
 	/** Keep track of ALL texture loaded */
-	private final HashMap<Integer, Integer> textures;
+	private final Map<Integer, Integer> textures;
 	/** Keep track of ALL texture loaded for MapData */
-	private final HashMap<MapDataKey, Integer> mapDataTextures;
+	private final Map<MapDataKey, HwTextureID> mapDataTextures;
+	/** HW memory usage of map data textures (in octets) */
+	private int mapDataMemoryUsage, lastMapDataMemoryUsage;
 	/** Anisotropic texture filter */
 	private float maxTextureAnisotropy;
 
 	public TextureManager() {
 		textures = new HashMap<Integer, Integer>();
-		mapDataTextures = new HashMap<MapDataKey, Integer>();
+		mapDataTextures = new ConcurrentHashMap<MapDataKey, HwTextureID>();
+		mapDataMemoryUsage = 0;
+		lastMapDataMemoryUsage = 0;
 		maxTextureAnisotropy = -1.0f;
 	}
 	
@@ -70,17 +112,24 @@ public class TextureManager {
 		textures.put(keyAndValue, keyAndValue);
 		return textureID;
 	}
-	protected final int load(GL gl, MapData mapData, Texture texture, boolean clamp) {
-		Integer texID = mapDataTextures.get(mapData.key);
+	protected final int load(GL gl, MapData mapData, Texture texture, int resolution, boolean clamp) {
+		HwTextureID texID = mapDataTextures.get(mapData.key);
 		if (texID == null) {
 			final int textureID = loadTexture(gl, texture, clamp);
-			mapDataTextures.put(mapData.key, textureID);
-			return textureID;
+			if(textureID == 0) {
+				return 0;
+			}
+			texID = new HwTextureID(textureID, resolution);
+			mapDataTextures.put(mapData.key, texID);
 		}
 		else {
-			update(gl, texID, texture);
-			return texID;
+			mapDataMemoryUsage -= texID.memoryUsage;
+			texID.resolution = resolution;
+			update(gl, texID.id, texture);
 		}
+		texID.memoryUsage = texture.width * texture.height * 3;
+		mapDataMemoryUsage += texID.memoryUsage;
+		return texID.getID();
 	}
 	private final int loadTexture(GL gl, Texture texture, boolean clamp) {
 		if(texture.pixels == null) {
@@ -89,10 +138,10 @@ public class TextureManager {
 
 		int[] buff = new int[1];
 		gl.glGenTextures(1, buff, 0);
-		final int texId = buff[0];
+		final int texID = buff[0];
 		
 		//assert(gl.glIsTexture(texId[0]));
-		gl.glBindTexture(GL.GL_TEXTURE_2D, texId);
+		gl.glBindTexture(GL.GL_TEXTURE_2D, texID);
 
 		if (clamp) {
 			gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP_TO_EDGE);
@@ -110,23 +159,43 @@ public class TextureManager {
 		gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
 
 		gl.glTexImage2D(GL.GL_TEXTURE_2D, 0, texture.getFormat(), texture.width, texture.height, 0, texture.getFormat(), GL.GL_UNSIGNED_BYTE, ByteBuffer.wrap(texture.pixels));
-//		IO.printlnRenderer("Texture creation: "+texId);
 		
-		return texId;
+		return texID;
 	}
-	public final void update(GL gl, int textureId, Texture texture) {
+	private final void update(GL gl, int textureId, Texture texture) {
 		assert(gl.glIsTexture(textureId));
 		gl.glBindTexture(GL.GL_TEXTURE_2D, textureId);
 		gl.glTexImage2D(GL.GL_TEXTURE_2D, 0, texture.getFormat(), texture.width, texture.height, 0, texture.getFormat(), GL.GL_UNSIGNED_BYTE, ByteBuffer.wrap(texture.pixels));
 	}
+
+	/** */
+	public final void unload(GL gl, MapDataKey mapData) {
+		final HwTextureID hwTexID = mapDataTextures.remove(mapData);
+		if(hwTexID != null) {
+			mapDataMemoryUsage -= hwTexID.memoryUsage;
+			unload(gl, hwTexID.id);
+		}
+	}
 	
-	public int get(MapData mapData) {
-		Integer texID = mapDataTextures.get(mapData.key);
+	public int getTextureID(MapData mapData) {
+		HwTextureID texID = mapDataTextures.get(mapData.key);
 		if (texID == null) {
+			if(mapData.newTexture == null) {
+				mapData.mapResolution = -1;
+			}
 			return 0;
 		}
 		else {
-			return texID;
+			return texID.getID();
+		}
+	}
+	public int getTextureResolution(MapData mapData) {
+		HwTextureID texID = mapDataTextures.get(mapData.key);
+		if (texID == null) {
+			return -1;
+		}
+		else {
+			return texID.resolution;
 		}
 	}
 	
@@ -172,7 +241,25 @@ public class TextureManager {
 		Ptolemy3D.setTextureManager(null);
 	}
 	
+	/** Called each frames */
 	public void freeUnusedTextures(GL gl) {
+		frameID++;
 		
+		if(mapDataMemoryUsage > (TEXTURE_GARBAGE_TRESHOLD * 1024 * 1024)) {
+			for(Entry<MapDataKey, HwTextureID> entry : mapDataTextures.entrySet()) {
+				if(mapDataMemoryUsage > (TEXTURE_GARBAGE_TRESHOLD * 1024 * 1024)) {
+					final MapDataKey mapDataKey = entry.getKey();
+					final HwTextureID hwTexID = entry.getValue();
+					if((frameID - hwTexID.lastUse) > TEXTURE_GARBAGE_TIME) {
+						unload(gl, mapDataKey);
+					}
+				}
+			}
+		}
+		
+		if(lastMapDataMemoryUsage != mapDataMemoryUsage) {
+			IO.printfRenderer("Texture usage (mo): %f\n", mapDataMemoryUsage / 1024.f / 1024.f);
+		}
+		lastMapDataMemoryUsage = mapDataMemoryUsage;
 	}
 }

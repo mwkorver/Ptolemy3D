@@ -89,6 +89,7 @@ public class CameraMovement {
 	private Matrix9d rotMat = new Matrix9d();
 	private Matrix9d cloneMat = new Matrix9d(); // these are used by outside canvas
 	private Matrix9d evtclnMat = new Matrix9d();
+	private Matrix9d vpMat_bak = new Matrix9d();
 	private Quaternion4d quat = null;
 	private final double scaler = 0.001;
 	private Vector3d a_vec = new Vector3d(); // this is used by the rendering loop
@@ -158,7 +159,6 @@ public class CameraMovement {
 
 		double vpPos_1_bak = camPos.getAltitudeDD(), tilt_bak = camera.tilt;
 
-		Matrix9d vpMat_bak = new Matrix9d();
 		camera.vpMat.copyTo(vpMat_bak);
 
 		isActive = (velocity != 0) || (vert_velocity != 0)

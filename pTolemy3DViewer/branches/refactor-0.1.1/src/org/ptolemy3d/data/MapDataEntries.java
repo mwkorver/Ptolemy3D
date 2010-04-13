@@ -38,7 +38,12 @@ class MapDataEntries {
 	
 	public MapDataEntries(MapDataKey key) {
 		this.mapData = new MapData(key);
-		this.datas = new MapDataEntry[] {new Jp2DataEntry(mapData), new TinDataEntry(mapData), new DemDataEntry(mapData)};
+		this.datas = new MapDataEntry[] { //FIXME Need more flexibility
+			new Jp2DataEntry(mapData),
+			new DemDataEntry(mapData),
+			new TinDataEntry(mapData)
+		};
+		assert(datas.length == NUM_DATAS);
 	}
 	
 	public boolean isDownloaded(int dataID) {
@@ -60,11 +65,6 @@ class MapDataEntries {
 		return datas[dataID].decode();
 	}
 	
-	public void freeDecoder() {
-		for (int dataID = 0; dataID < datas.length; dataID++) {
-			datas[dataID].freeDecoder();
-		}
-	}
 	public void resetDownloadFails() {
 		for (int dataID = 0; dataID < datas.length; dataID++) {
 			datas[dataID].resetDownloadFails();

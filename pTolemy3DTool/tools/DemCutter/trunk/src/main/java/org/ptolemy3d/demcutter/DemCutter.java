@@ -30,6 +30,13 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Vector;
 import java.util.logging.Logger;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 
 /**
  * <p>Given an input directory with .hdr and .dat files it generates .bdm files
@@ -37,6 +44,7 @@ import java.util.logging.Logger;
  * <p>Parameters are: <br/>
  * DemCutter [input dir] [startx] [starty] [tile width] [cell width] [area] [output dir] [mult factor] [hdr extension] [dat extension] [isBinary] [outputType] [inside sig] [wall sig]
  * </p>
+ *
  * <ul>
  * <li>input dir: directory where DEM and header files resides.</li>
  * <li>startx: minimum X in DD units (degree + 1000000).
@@ -76,6 +84,7 @@ import java.util.logging.Logger;
  */
 public class DemCutter {
 
+    // Define constants
     private static final Logger logger = Logger.getLogger(DemCutter.class.getName());
     private static final String INDEX_FILENAME = "indexheaders.idx";
     private static final int BDM_OUTPUT = 0;
@@ -85,7 +94,7 @@ public class DemCutter {
     private static final String DEFAULT_DATA_EXTENSION = ".asc";
     private static final String TIN_EXTENSION = ".tin";
     private static final String BDM_EXTENSION = ".bdm";
-    //
+    // Attributes
     private String headerFile = DEFAULT_HEADER_EXTENSION;
     private String dataFile = DEFAULT_DATA_EXTENSION;
     private String demDir = "";
@@ -103,10 +112,96 @@ public class DemCutter {
     private double wallSig = 0.3;
 
     /**
-     * Main.
+     * Parse arguments and create DemCutter instance.
+     *
      * @param args
      */
     public static void main(String args[]) {
+
+// * <li>input dir: directory where DEM and header files resides.</li>
+// * <li>output dir: the output direcotry where to write the generated files.</li>
+// * <li>startx: minimum X in DD units (degree + 1000000).
+// * See wiki page about pTolemy Tile System. startx/starty defines de left-top point of the selection.</li>
+// * <li>starty: maximum Y in DD units (degree + 1000000).
+// * See wiki page about pTolemy Tile System. startx/starty defines de left-top point of the selection.</li>
+// * <li>tile width: size specified in DD units (degree + 1000000). Usually it will corresponds to a tile level.
+// * See wiki page about pTolemy Tile System.</li>
+// * <li>cell width: size specified in DD units (degree + 1000000).  Usually it will corresponds to a tile level below the 'tile width' level.
+// * See wiki page about pTolemy Tile System.</li>
+// * <li>mult factor: usually this factor will be always 1000000.</li>
+// * <li>hdr extension: a string containing the extension for header files that contains ascii header GRIDFLOAT information.</li>
+// * <li>dat extension: a string containing the extension for data files with the ESRI GRIDFLOAT Binary Grid information. Used named as *.dat.</li>
+
+// * <li>area: 2 char file prefix, ex. use japangsi zone (01 - 19) use 00 for DD tiles.</li>
+// * <li>isBinary: 1-means binary, 0-means not binary. Specifies if the input files are in binay format. </li>
+// * <li>outputType: 1-means TIN, 0-means BDM. Specifies the output file type.</li>
+// * <li>inside sig: optional and only applied for TIN output files. Meters value to trim data on inside of dem.</li>
+// * <li>wall sig: optional and only applied for TIN output files. Meters value to trim data on edges of dem.</li>
+
+        Option tileWidthOp = new Option("tw", "tileWidth", true, "size specified in DD units (degree + 1000000). Usually it will corresponds to a tile level. See wiki page about pTolemy Tile System.");
+        tileWidthOp.setRequired(true);
+
+        Option cellWidthOp = new Option("cw", "cellWidth", true, "size specified in DD units (degree + 1000000).  Usually it will corresponds to a tile level below the 'tile width' level. See wiki page about pTolemy Tile System.");
+        cellWidthOp.setRequired(true);
+
+        Option multFactorOp = new Option("m", "multFactor", true, "(optional) usually this factor will be always 1000000.");
+        multFactorOp.setRequired(false);
+
+        Option headerExtensionOp = new Option("h", "header extension", true, "(optional) Usually *.hdr. A string containing the extension for header files that contains ascii header GRIDFLOAT information.");
+        headerExtensionOp.setRequired(false);
+
+        Option datExtensionOp = new Option("d", "header extension", true, "(optional) Usually *.dat. A string containing the extension for data files with the ESRI GRIDFLOAT Binary Grid information.");
+        datExtensionOp.setRequired(false);
+
+        // Create options to parse
+        Options options = new Options();
+        Option inputDirectoryOp = new Option("i", "inputDir", true, "Input directory where DEM and header files resides.");
+        inputDirectoryOp.setRequired(true);
+
+        Option outputDirectoryOp = new Option("o", "outputDir", true, "Output direcotry where to write the generated files.");
+        outputDirectoryOp.setRequired(true);
+
+        Option startxOp = new Option("sx", "startX", true, "minimum X in DD units (degree + 1000000). 'startx' and 'starty' defines de left-top point of the selection. See wiki page about pTolemy Tile System.");
+        startxOp.setRequired(true);
+
+        Option startyOp = new Option("sy", "startY", true, "maximum Y in DD units (degree + 1000000). 'startx' and 'starty' defines de left-top point of the selection. See wiki page about pTolemy Tile System.");
+        startyOp.setRequired(true);
+
+        Option helpOp = new Option("h", "help", false, "Print this message.");
+
+        options.addOption(inputDirectoryOp);
+        options.addOption(helpOp);
+
+        // Create the options parser
+        CommandLineParser parser = new GnuParser();
+        try {
+            // parse the command line arguments
+            CommandLine line = parser.parse(options, args);
+
+
+            // Check if need to show help
+            if (line.hasOption("h")) {
+                HelpFormatter formatter = new HelpFormatter();
+                formatter.printHelp("DemCutter", options);
+                System.exit(1);
+            }
+
+            if (line.hasOption("i")) {
+                String input = line.getOptionValue("i");
+                System.out.println("Input dir: " + input);
+            }
+        } catch (ParseException exp) {
+            logger.severe("Parsing failed.  Reason: " + exp.getMessage());
+            System.exit(1);
+        }
+
+
+
+
+
+
+
+        /////////////////////////////
 
         if (args.length < 12) {
             System.out.println("usage : DemCutter [dem file directory] [startx] [starty] [tile w] [cell width] [area] [outdir] [mult] [hdr] [dat] [isBinary] [outputType] [inside sig] [wall sig]");
@@ -186,10 +281,10 @@ public class DemCutter {
 
                 System.out.println("Elev (" + xval + "/" + yval + "): " + dv);
 
-                if (((i == 0) && (j == 0)) ||
-                        ((i == 0) && (j == (nCellsX - 1))) ||
-                        ((i == (nCellsY - 1)) && (j == 0)) ||
-                        ((i == (nCellsY - 1)) && (j == (nCellsX - 1)))) {
+                if (((i == 0) && (j == 0))
+                        || ((i == 0) && (j == (nCellsX - 1)))
+                        || ((i == (nCellsY - 1)) && (j == 0))
+                        || ((i == (nCellsY - 1)) && (j == (nCellsX - 1)))) {
                     dem[i * nCellsX + j] = (float) Math.floor(dv); // to fit the above layer
                 } else {
                     dem[i * nCellsX + j] = dv;
@@ -234,7 +329,7 @@ public class DemCutter {
             logger.severe(e.getMessage());
             e.printStackTrace();
             System.exit(1);
-        } 
+        }
     }
 
     private float getBestDemValue(double xval, double yval, int numHeaders) {
@@ -320,18 +415,18 @@ public class DemCutter {
                         System.out.println("Found header file: " + demDir + record[i]);
                         DemHeader dh = new DemHeader(demDir + record[i], mult, headerFile, dataFile, isBinary);
 
-                        temp = demDir + record[i] + "," +
-                                mult + "," +
-                                headerFile + "," +
-                                dataFile + "," +
-                                isBinary + "," +
-                                dh.getNcols() + "," +
-                                dh.getNrows() + "," +
-                                dh.getXllcorner() + "," +
-                                dh.getYllcorner() + "," +
-                                dh.getCellsize() + "," +
-                                dh.getNODATA_value() + "," +
-                                dh.getByteorder() + "\n";
+                        temp = demDir + record[i] + ","
+                                + mult + ","
+                                + headerFile + ","
+                                + dataFile + ","
+                                + isBinary + ","
+                                + dh.getNcols() + ","
+                                + dh.getNrows() + ","
+                                + dh.getXllcorner() + ","
+                                + dh.getYllcorner() + ","
+                                + dh.getCellsize() + ","
+                                + dh.getNODATA_value() + ","
+                                + dh.getByteorder() + "\n";
                         out.write(temp);
                     }
                 }

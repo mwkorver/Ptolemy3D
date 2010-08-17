@@ -1,0 +1,1448 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta name="generator" content="JsDoc Toolkit" />
+		
+		<title>JsDoc Reference - Ptolemy.Matrix</title>
+
+		<style type="text/css">
+			/* default.css */
+body
+{
+	font: 12px "Lucida Grande", Tahoma, Arial, Helvetica, sans-serif;
+	width: 800px;
+}
+
+.header
+{
+	clear: both;
+	background-color: #ccc;
+	padding: 8px;
+}
+
+h1
+{
+	font-size: 150%;
+	font-weight: bold;
+	padding: 0;
+	margin: 1em 0 0 .3em;
+}
+
+hr
+{
+	border: none 0;
+	border-top: 1px solid #7F8FB1;
+	height: 1px;
+}
+
+pre.code
+{
+	display: block;
+	padding: 8px;
+	border: 1px dashed #ccc;
+}
+
+#index
+{
+	margin-top: 24px;
+	float: left;
+	width: 160px;
+	position: absolute;
+	left: 8px;
+	background-color: #F3F3F3;
+	padding: 8px;
+}
+
+#content
+{
+	margin-left: 190px;
+	width: 600px;
+}
+
+.classList
+{
+	list-style-type: none;
+	padding: 0;
+	margin: 0 0 0 8px;
+	font-family: arial, sans-serif;
+	font-size: 1em;
+	overflow: auto;
+}
+
+.classList li
+{
+	padding: 0;
+	margin: 0 0 8px 0;
+}
+
+.summaryTable { width: 100%; }
+
+h1.classTitle
+{
+	font-size:170%;
+	line-height:130%;
+}
+
+h2 { font-size: 110%; }
+caption, div.sectionTitle
+{
+	background-color: #7F8FB1;
+	color: #fff;
+	font-size:130%;
+	text-align: left;
+	padding: 2px 6px 2px 6px;
+	border: 1px #7F8FB1 solid;
+}
+
+div.sectionTitle { margin-bottom: 8px; }
+.summaryTable thead { display: none; }
+
+.summaryTable td
+{
+	vertical-align: top;
+	padding: 4px;
+	border-bottom: 1px #7F8FB1 solid;
+	border-right: 1px #7F8FB1 solid;
+}
+
+/*col#summaryAttributes {}*/
+.summaryTable td.attributes
+{
+	border-left: 1px #7F8FB1 solid;
+	width: 140px;
+	text-align: right;
+}
+
+td.attributes, .fixedFont
+{
+	line-height: 15px;
+	color: #002EBE;
+	font-family: "Courier New",Courier,monospace;
+	font-size: 13px;
+}
+
+.summaryTable td.nameDescription
+{
+	text-align: left;
+	font-size: 13px;
+	line-height: 15px;
+}
+
+.summaryTable td.nameDescription, .description
+{
+	line-height: 15px;
+	padding: 4px;
+	padding-left: 4px;
+}
+
+.summaryTable { margin-bottom: 8px; }
+
+ul.inheritsList
+{
+	list-style: square;
+	margin-left: 20px;
+	padding-left: 0;
+}
+
+.detailList {
+	margin-left: 20px; 
+	line-height: 15px;
+}
+.detailList dt { margin-left: 20px; }
+
+.detailList .heading
+{
+	font-weight: bold;
+	padding-bottom: 6px;
+	margin-left: 0;
+}
+
+.light, td.attributes, .light a:link, .light a:visited
+{
+	color: #777;
+	font-style: italic;
+}
+
+.fineprint
+{
+	text-align: right;
+	font-size: 10px;
+}
+		</style>
+	</head>
+
+	<body>
+<!-- ============================== header ================================= -->	
+		<!-- begin static/header.html -->
+		<div id="header">
+</div>
+		<!-- end static/header.html -->
+
+<!-- ============================== classes index ============================ -->
+		<div id="index">
+			<!-- begin publish.classesIndex -->
+			<div align="center"><a href="../index.html">Class Index</a>
+| <a href="../files.html">File Index</a></div>
+<hr />
+<h2>Classes</h2>
+<ul class="classList">
+	
+	<li><i><a href="../symbols/_global_.html">_global_</a></i></li>
+	
+	<li><a href="../symbols/Ptolemy.html">Ptolemy</a></li>
+	
+	<li><a href="../symbols/Ptolemy.Angle.html">Ptolemy.Angle</a></li>
+	
+	<li><a href="../symbols/Ptolemy.Animator.html">Ptolemy.Animator</a></li>
+	
+	<li><a href="../symbols/Ptolemy.Camera.html">Ptolemy.Camera</a></li>
+	
+	<li><a href="../symbols/Ptolemy.DrawContext.html">Ptolemy.DrawContext</a></li>
+	
+	<li><a href="../symbols/Ptolemy.Globe.html">Ptolemy.Globe</a></li>
+	
+	<li><a href="../symbols/Ptolemy.Input.html">Ptolemy.Input</a></li>
+	
+	<li><a href="../symbols/Ptolemy.LatLon.html">Ptolemy.LatLon</a></li>
+	
+	<li><a href="../symbols/Ptolemy.Matrix.html">Ptolemy.Matrix</a></li>
+	
+	<li><a href="../symbols/Ptolemy.Position.html">Ptolemy.Position</a></li>
+	
+	<li><a href="../symbols/Ptolemy.Quaternion.html">Ptolemy.Quaternion</a></li>
+	
+	<li><a href="../symbols/Ptolemy.Vector4.html">Ptolemy.Vector4</a></li>
+	
+</ul>
+<hr />
+			<!-- end publish.classesIndex -->
+		</div>
+		
+		<div id="content">
+<!-- ============================== class title ============================ -->
+			<h1 class="classTitle">
+				
+				Class Ptolemy.Matrix
+			</h1>
+
+<!-- ============================== class summary ========================== -->			
+			<p class="description">
+				
+				
+			
+				
+				
+				
+					<br /><i>Defined in: </i> <a href="../symbols/src/_home_antonio_NetBeansProjects_PtolemyJS_src_Matrix.js.html">Matrix.js</a>.
+				
+			</p>
+
+<!-- ============================== constructor summary ==================== -->			
+			
+			<table class="summaryTable" cellspacing="0" summary="A summary of the constructor documented in the class Ptolemy.Matrix.">
+				<caption>Class Summary</caption>
+				<thead>
+					<tr>
+						<th scope="col">Constructor Attributes</th>
+						<th scope="col">Constructor Name and Description</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td class="attributes">&nbsp;</td>
+						<td class="nameDescription" >
+							<div class="fixedFont">
+								<b><a href="../symbols/Ptolemy.Matrix.html#constructor">Ptolemy.Matrix</a></b>(m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44)
+							</div>
+							<div class="description">Creates a new matrix instance given 16 number values which must be specified
+in row major order, which is more "visually easy".</div>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			
+
+<!-- ============================== properties summary ===================== -->
+			
+
+<!-- ============================== methods summary ======================== -->
+			
+				
+				
+				<table class="summaryTable" cellspacing="0" summary="A summary of the methods documented in the class Ptolemy.Matrix.">
+					<caption>Method Summary</caption>
+					<thead>
+						<tr>
+							<th scope="col">Method Attributes</th>
+							<th scope="col">Method Name and Description</th>
+						</tr>
+					</thead>
+					<tbody>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/Ptolemy.Matrix.html#clone">clone</a></b>()
+								</div>
+								<div class="description">Creates a new Matrix instance which is a cloned (with the same values) of this one.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/Ptolemy.Matrix.html#equals">equals</a></b>(Matrix)
+								</div>
+								<div class="description">Check if this matrix is equal to the specified Matrix.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&lt;static&gt; &nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont">Ptolemy.Matrix.<b><a href="../symbols/Ptolemy.Matrix.html#.fromArray">fromArray</a></b>(marray, order)
+								</div>
+								<div class="description">Creates a new matrix instances from the first 16 elements of an array.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&lt;static&gt; &nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont">Ptolemy.Matrix.<b><a href="../symbols/Ptolemy.Matrix.html#.fromFrustum">fromFrustum</a></b>(left, right, bottom, top, znear, zfar)
+								</div>
+								<div class="description">Creates a Matrix instance for a frustum.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&lt;static&gt; &nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont">Ptolemy.Matrix.<b><a href="../symbols/Ptolemy.Matrix.html#.fromOthographic">fromOthographic</a></b>(left, right, bottom, top, znear, zfar)
+								</div>
+								<div class="description">Creates a Matrix instance for an orthographic projection.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&lt;static&gt; &nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont">Ptolemy.Matrix.<b><a href="../symbols/Ptolemy.Matrix.html#.fromPerspective">fromPerspective</a></b>(fov, aspect, znear, zfar)
+								</div>
+								<div class="description">Creates a Matrix instance for a perspective projection.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&lt;static&gt; &nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont">Ptolemy.Matrix.<b><a href="../symbols/Ptolemy.Matrix.html#.fromQuaternion">fromQuaternion</a></b>(quaternion)
+								</div>
+								<div class="description">Creates a new Matrix instance from the given Quaternion.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&lt;static&gt; &nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont">Ptolemy.Matrix.<b><a href="../symbols/Ptolemy.Matrix.html#.fromRotationX">fromRotationX</a></b>(angle)
+								</div>
+								<div class="description">Creates a rotation on axis X matrix.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&lt;static&gt; &nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont">Ptolemy.Matrix.<b><a href="../symbols/Ptolemy.Matrix.html#.fromRotationY">fromRotationY</a></b>(angle)
+								</div>
+								<div class="description">Creates a rotation on axis Y matrix.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&lt;static&gt; &nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont">Ptolemy.Matrix.<b><a href="../symbols/Ptolemy.Matrix.html#.fromRotationZ">fromRotationZ</a></b>(angle)
+								</div>
+								<div class="description">Creates a rotation on axis Z matrix.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&lt;static&gt; &nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont">Ptolemy.Matrix.<b><a href="../symbols/Ptolemy.Matrix.html#.fromScale">fromScale</a></b>(x, y, z)
+								</div>
+								<div class="description">Creates a scale matrix.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&lt;static&gt; &nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont">Ptolemy.Matrix.<b><a href="../symbols/Ptolemy.Matrix.html#.fromTranslation">fromTranslation</a></b>(x, y, z)
+								</div>
+								<div class="description">Creates a translation matrix.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&lt;static&gt; &nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont">Ptolemy.Matrix.<b><a href="../symbols/Ptolemy.Matrix.html#.fromViewLookAt">fromViewLookAt</a></b>(eye, center, up)
+								</div>
+								<div class="description">Returns a viewing matrix in model coordinates defined by the specified View eye point, reference point indicating
+the center of the scene, and up vector.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&lt;static&gt; &nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont">Ptolemy.Matrix.<b><a href="../symbols/Ptolemy.Matrix.html#.IDENTITY">IDENTITY</a></b>()
+								</div>
+								<div class="description">Return the identity matrix.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/Ptolemy.Matrix.html#inverse">inverse</a></b>()
+								</div>
+								<div class="description">Computes this inverse matrix.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/Ptolemy.Matrix.html#multiply">multiply</a></b>(matrix)
+								</div>
+								<div class="description">Creates a new Matrix instance which corresponds to the multiplication of this matrix
+with the specified one: (THIS) x (MATRIX) = (RESULT)</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/Ptolemy.Matrix.html#toArray">toArray</a></b>(order)
+								</div>
+								<div class="description">Gets a copy of the matrix in as an array.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/Ptolemy.Matrix.html#toString">toString</a></b>()
+								</div>
+								<div class="description">Gets a string representation of the matrix.</div>
+							</td>
+						</tr>
+					
+					</tbody>
+				</table>
+				
+				
+				
+			
+<!-- ============================== events summary ======================== -->
+			
+
+<!-- ============================== constructor details ==================== -->		
+			
+			<div class="details"><a name="constructor"> </a>
+				<div class="sectionTitle">
+					Class Detail
+				</div>
+				
+				<div class="fixedFont">
+						<b>Ptolemy.Matrix</b>(m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44)
+				</div>
+				
+				<div class="description">
+					Creates a new matrix instance given 16 number values which must be specified
+in row major order, which is more "visually easy". Anyway, later when you want
+to pass the 16-array to WebGL 'toArray()' method returns by default the matrix
+in column major order which is suitable for GL.
+Parameters represent a matrix like:
+					
+				</div>
+				
+				
+				
+				<pre class="code">| m11 m12 m13 m14 |
+| m21 m22 m23 m24 |
+| m31 m32 m33 m34 |
+| m41 m42 m43 m44 |</pre>
+				
+				
+				
+				
+					
+						<dl class="detailList">
+						<dt class="heading">Parameters:</dt>
+						
+							<dt>
+								 <b>m11</b>
+								
+							</dt>
+								<dd></dd>
+						
+							<dt>
+								 <b>m12</b>
+								
+							</dt>
+								<dd></dd>
+						
+							<dt>
+								 <b>m13</b>
+								
+							</dt>
+								<dd></dd>
+						
+							<dt>
+								 <b>m14</b>
+								
+							</dt>
+								<dd></dd>
+						
+							<dt>
+								 <b>m21</b>
+								
+							</dt>
+								<dd></dd>
+						
+							<dt>
+								 <b>m22</b>
+								
+							</dt>
+								<dd></dd>
+						
+							<dt>
+								 <b>m23</b>
+								
+							</dt>
+								<dd></dd>
+						
+							<dt>
+								 <b>m24</b>
+								
+							</dt>
+								<dd></dd>
+						
+							<dt>
+								 <b>m31</b>
+								
+							</dt>
+								<dd></dd>
+						
+							<dt>
+								 <b>m32</b>
+								
+							</dt>
+								<dd></dd>
+						
+							<dt>
+								 <b>m33</b>
+								
+							</dt>
+								<dd></dd>
+						
+							<dt>
+								 <b>m34</b>
+								
+							</dt>
+								<dd></dd>
+						
+							<dt>
+								 <b>m41</b>
+								
+							</dt>
+								<dd></dd>
+						
+							<dt>
+								 <b>m42</b>
+								
+							</dt>
+								<dd></dd>
+						
+							<dt>
+								 <b>m43</b>
+								
+							</dt>
+								<dd></dd>
+						
+							<dt>
+								 <b>m44</b>
+								
+							</dt>
+								<dd></dd>
+						
+						</dl>
+					
+					
+					
+					
+					
+					
+					
+
+			</div>
+			
+
+<!-- ============================== field details ========================== -->		
+			
+
+<!-- ============================== method details ========================= -->		
+			
+				<div class="sectionTitle">
+					Method Detail
+				</div>
+				
+					<a name="clone"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>clone</b>()
+					
+					</div>
+					<div class="description">
+						Creates a new Matrix instance which is a cloned (with the same values) of this one.
+						
+						
+					</div>
+					
+					
+					
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="equals"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>equals</b>(Matrix)
+					
+					</div>
+					<div class="description">
+						Check if this matrix is equal to the specified Matrix.
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{Matrix}</span> <b>Matrix</b>
+									
+								</dt>
+								<dd>to compare this one.</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd>True if they are euquals, flase otherwise.</dd>
+							
+							</dl>
+						
+						
+						
+
+					<hr />
+				
+					<a name=".fromArray"> </a>
+					<div class="fixedFont">&lt;static&gt; 
+					
+					
+					<span class="light">Ptolemy.Matrix.</span><b>fromArray</b>(marray, order)
+					
+					</div>
+					<div class="description">
+						Creates a new matrix instances from the first 16 elements of an array. The array can
+be specified in column or row major order, simply indicate it with the 'order' parameter.
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{Array}</span> <b>marray</b>
+									
+								</dt>
+								<dd></dd>
+							
+								<dt>
+									<span class="light fixedFont">{Boolean}</span> <b>order</b>
+									
+								</dt>
+								<dd>True means the array is supposed to be in row major order, otherwise
+it is suppose to be in column major order.</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name=".fromFrustum"> </a>
+					<div class="fixedFont">&lt;static&gt; 
+					
+					
+					<span class="light">Ptolemy.Matrix.</span><b>fromFrustum</b>(left, right, bottom, top, znear, zfar)
+					
+					</div>
+					<div class="description">
+						Creates a Matrix instance for a frustum.
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{float}</span> <b>left</b>
+									
+								</dt>
+								<dd>Left vertical clipping panel.</dd>
+							
+								<dt>
+									<span class="light fixedFont">{float}</span> <b>right</b>
+									
+								</dt>
+								<dd>Right vertical clipping plane.</dd>
+							
+								<dt>
+									<span class="light fixedFont">{float}</span> <b>bottom</b>
+									
+								</dt>
+								<dd>Bottom horizontal clipping plane.</dd>
+							
+								<dt>
+									<span class="light fixedFont">{float}</span> <b>top</b>
+									
+								</dt>
+								<dd>Top horizontal clipping plane.</dd>
+							
+								<dt>
+									<span class="light fixedFont">{float}</span> <b>znear</b>
+									
+								</dt>
+								<dd>Near clipping plane.</dd>
+							
+								<dt>
+									<span class="light fixedFont">{float}</span> <b>zfar</b>
+									
+								</dt>
+								<dd>Far clipping plane.</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd>Valid Matrix to set a frustum.</dd>
+							
+							</dl>
+						
+						
+						
+
+					<hr />
+				
+					<a name=".fromOthographic"> </a>
+					<div class="fixedFont">&lt;static&gt; 
+					
+					
+					<span class="light">Ptolemy.Matrix.</span><b>fromOthographic</b>(left, right, bottom, top, znear, zfar)
+					
+					</div>
+					<div class="description">
+						Creates a Matrix instance for an orthographic projection.
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{float}</span> <b>left</b>
+									
+								</dt>
+								<dd>Left vertical clipping panel.</dd>
+							
+								<dt>
+									<span class="light fixedFont">{float}</span> <b>right</b>
+									
+								</dt>
+								<dd>Right vertical clipping plane.</dd>
+							
+								<dt>
+									<span class="light fixedFont">{float}</span> <b>bottom</b>
+									
+								</dt>
+								<dd>Bottom horizontal clipping plane.</dd>
+							
+								<dt>
+									<span class="light fixedFont">{float}</span> <b>top</b>
+									
+								</dt>
+								<dd>Top horizontal clipping plane.</dd>
+							
+								<dt>
+									<span class="light fixedFont">{float}</span> <b>znear</b>
+									
+								</dt>
+								<dd>Near clipping plane.</dd>
+							
+								<dt>
+									<span class="light fixedFont">{float}</span> <b>zfar</b>
+									
+								</dt>
+								<dd>Far clipping plane.</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd>Valid Matrix to set an orthogrpahic projection.</dd>
+							
+							</dl>
+						
+						
+						
+
+					<hr />
+				
+					<a name=".fromPerspective"> </a>
+					<div class="fixedFont">&lt;static&gt; 
+					
+					
+					<span class="light">Ptolemy.Matrix.</span><b>fromPerspective</b>(fov, aspect, znear, zfar)
+					
+					</div>
+					<div class="description">
+						Creates a Matrix instance for a perspective projection.
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{float}</span> <b>fov</b>
+									
+								</dt>
+								<dd>Field of view in degrees in the Y direction.</dd>
+							
+								<dt>
+									<span class="light fixedFont">{float}</span> <b>aspect</b>
+									
+								</dt>
+								<dd>Aspect ratio</dd>
+							
+								<dt>
+									<span class="light fixedFont">{float}</span> <b>znear</b>
+									
+								</dt>
+								<dd>Distance from viewer to near clipping plane.</dd>
+							
+								<dt>
+									<span class="light fixedFont">{float}</span> <b>zfar</b>
+									
+								</dt>
+								<dd>Distance from viewer to far clipping plane.</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd>Valid Matrix to set a perspective projection.</dd>
+							
+							</dl>
+						
+						
+						
+
+					<hr />
+				
+					<a name=".fromQuaternion"> </a>
+					<div class="fixedFont">&lt;static&gt; 
+					
+					
+					<span class="light">Ptolemy.Matrix.</span><b>fromQuaternion</b>(quaternion)
+					
+					</div>
+					<div class="description">
+						Creates a new Matrix instance from the given Quaternion.
+See http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToMatrix/index.htm.
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{Quaternion}</span> <b>quaternion</b>
+									
+								</dt>
+								<dd></dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name=".fromRotationX"> </a>
+					<div class="fixedFont">&lt;static&gt; 
+					
+					
+					<span class="light">Ptolemy.Matrix.</span><b>fromRotationX</b>(angle)
+					
+					</div>
+					<div class="description">
+						Creates a rotation on axis X matrix.
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{Angle}</span> <b>angle</b>
+									
+								</dt>
+								<dd>Indicates the rotation angle.</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name=".fromRotationY"> </a>
+					<div class="fixedFont">&lt;static&gt; 
+					
+					
+					<span class="light">Ptolemy.Matrix.</span><b>fromRotationY</b>(angle)
+					
+					</div>
+					<div class="description">
+						Creates a rotation on axis Y matrix.
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{Angle}</span> <b>angle</b>
+									
+								</dt>
+								<dd>Indicates the rotation angle.</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name=".fromRotationZ"> </a>
+					<div class="fixedFont">&lt;static&gt; 
+					
+					
+					<span class="light">Ptolemy.Matrix.</span><b>fromRotationZ</b>(angle)
+					
+					</div>
+					<div class="description">
+						Creates a rotation on axis Z matrix.
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{Angle}</span> <b>angle</b>
+									
+								</dt>
+								<dd>Indicates the rotation angle.</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name=".fromScale"> </a>
+					<div class="fixedFont">&lt;static&gt; 
+					
+					
+					<span class="light">Ptolemy.Matrix.</span><b>fromScale</b>(x, y, z)
+					
+					</div>
+					<div class="description">
+						Creates a scale matrix.
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{Number}</span> <b>x</b>
+									
+								</dt>
+								<dd>Scale in axis X.</dd>
+							
+								<dt>
+									<span class="light fixedFont">{Number}</span> <b>y</b>
+									
+								</dt>
+								<dd>Scale in axis Y.</dd>
+							
+								<dt>
+									<span class="light fixedFont">{Number}</span> <b>z</b>
+									
+								</dt>
+								<dd>scale in axis Z.</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name=".fromTranslation"> </a>
+					<div class="fixedFont">&lt;static&gt; 
+					
+					
+					<span class="light">Ptolemy.Matrix.</span><b>fromTranslation</b>(x, y, z)
+					
+					</div>
+					<div class="description">
+						Creates a translation matrix. Values are in model coordinates, so if you want to see the 
+center point (0,0,0) at distance 100 in X axis you must specify a value x=-100.
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{Number}</span> <b>x</b>
+									
+								</dt>
+								<dd>Translation in axis X.</dd>
+							
+								<dt>
+									<span class="light fixedFont">{Number}</span> <b>y</b>
+									
+								</dt>
+								<dd>Translation in axis Y.</dd>
+							
+								<dt>
+									<span class="light fixedFont">{Number}</span> <b>z</b>
+									
+								</dt>
+								<dd>Translation in axis Z.</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name=".fromViewLookAt"> </a>
+					<div class="fixedFont">&lt;static&gt; 
+					
+					
+					<span class="light">Ptolemy.Matrix.</span><b>fromViewLookAt</b>(eye, center, up)
+					
+					</div>
+					<div class="description">
+						Returns a viewing matrix in model coordinates defined by the specified View eye point, reference point indicating
+the center of the scene, and up vector. The eye point, center point, and up vector are in model coordinates. The
+returned viewing matrix maps the reference center point to the negative Z axis, and the eye point to the origin,
+and the up vector to the positive Y axis. When this matrix is used to define an OGL viewing transform along with
+a typical projection matrix such as {@link #fromPerspective(Angle, double, double, double, double)} , this maps
+the center of the scene to the center of the viewport, and maps the up vector to the viewoport's positive Y axis
+(the up vector points up in the viewport). The eye point and reference center point must not be coincident, and
+the up vector must not be parallel to the line of sight (the vector from the eye point to the reference center
+point).
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<b>eye</b>
+									
+								</dt>
+								<dd>the eye point, in model coordinates.</dd>
+							
+								<dt>
+									<b>center</b>
+									
+								</dt>
+								<dd>the scene's reference center point, in model coordinates.</dd>
+							
+								<dt>
+									<b>up</b>
+									
+								</dt>
+								<dd>the direction of the up vector, in model coordinates.</dd>
+							
+							</dl>
+						
+						
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Throws:</dt>
+							
+								<dt>
+									 <b></b>
+								</dt>
+								<dd>IllegalArgumentException if any of the eye point, reference center point, or up vector are null, if the
+                                 eye point and reference center point are coincident, or if the up vector and the
+                                 line of sight are parallel.</dd>
+							
+							</dl>
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd>a viewing matrix in model coordinates defined by the specified eye point, reference center point, and up
+        vector.</dd>
+							
+							</dl>
+						
+						
+						
+
+					<hr />
+				
+					<a name=".IDENTITY"> </a>
+					<div class="fixedFont">&lt;static&gt; 
+					
+					
+					<span class="light">Ptolemy.Matrix.</span><b>IDENTITY</b>()
+					
+					</div>
+					<div class="description">
+						Return the identity matrix.
+						
+						
+					</div>
+					
+					
+					
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="inverse"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>inverse</b>()
+					
+					</div>
+					<div class="description">
+						Computes this inverse matrix.<br>
+NOTE: This code is a port from WWJ0.6 Matrix.computeGeneralInverse() methos.
+Also see: http://www.euclideanspace.com/maths/algebra/matrix/functions/inverse/fourD/index.htm
+						
+						
+					</div>
+					
+					
+					
+						
+						
+						
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd>Inverse matrix.</dd>
+							
+							</dl>
+						
+						
+						
+
+					<hr />
+				
+					<a name="multiply"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>multiply</b>(matrix)
+					
+					</div>
+					<div class="description">
+						Creates a new Matrix instance which corresponds to the multiplication of this matrix
+with the specified one: (THIS) x (MATRIX) = (RESULT)
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{Matrix}</span> <b>matrix</b>
+									
+								</dt>
+								<dd></dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd>New Matrix instance.</dd>
+							
+							</dl>
+						
+						
+						
+
+					<hr />
+				
+					<a name="toArray"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>toArray</b>(order)
+					
+					</div>
+					<div class="description">
+						Gets a copy of the matrix in as an array.
+						
+						
+					</div>
+					
+					
+					
+					<pre class="code">Given the matrix
+| m11 m12 m13 m14 |
+| m21 m22 m23 m24 |
+| m31 m32 m33 m34 |
+| m41 m42 m43 m44 |
+
+using toArray() or toArray(false) returns the array
+[m11, m21, m31, m41, m12, m22, m32, m42, m13, m23, m33, m43, m14, m24, m34, m44]
+
+while using toArray(true) will return:
+[m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44]</pre>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{Boolean}</span> <b>order</b>
+									
+								</dt>
+								<dd>Specifies if array must be in row major order, that is,
+true means row major order, otherwise (null or false) is column major order.</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd>An array with a copy of the values of the matrix, by default or if 'order'
+is null or false, it returns in column major order which is ready for OpenGL operations, 
+otherwise (if order is true) it return the array in row major order .</dd>
+							
+							</dl>
+						
+						
+						
+
+					<hr />
+				
+					<a name="toString"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>toString</b>()
+					
+					</div>
+					<div class="description">
+						Gets a string representation of the matrix.
+						
+						
+					</div>
+					
+					
+					
+						
+						
+						
+						
+						
+						
+						
+
+					
+				
+			
+			
+<!-- ============================== event details ========================= -->		
+			
+			
+			<hr />
+		</div>
+
+		
+<!-- ============================== footer ================================= -->
+		<div class="fineprint" style="clear:both">
+			
+			Documentation generated by <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.3.2 on Mon Aug 16 2010 23:17:00 GMT+0200 (CEST)
+		</div>
+	</body>
+</html>

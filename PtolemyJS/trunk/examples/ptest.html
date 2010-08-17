@@ -1,0 +1,70 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+<head>
+	<title>ptest</title>
+	
+	<script type="text/javascript" src="../src/webgl-debug.js" charset="utf-8"></script>
+	<script type="text/javascript" src="../src/Ptolemy.js" charset="utf-8"></script>
+	<script type="text/javascript" src="../src/Camera.js" charset="utf-8"></script>
+	<script type="text/javascript" src="../src/Animator.js" charset="utf-8"></script>
+	<script type="text/javascript" src="../src/Globe.js" charset="utf-8"></script>
+	<script type="text/javascript" src="../src/Input.js" charset="utf-8"></script>
+	<script type="text/javascript" src="../src/Vector4.js" charset="utf-8"></script>
+	<script type="text/javascript" src="../src/Matrix.js" charset="utf-8"></script>
+	<script type="text/javascript" src="../src/MatrixStack.js" charset="utf-8"></script>
+	<script type="text/javascript" src="../src/Quaternion.js" charset="utf-8"></script>
+	<script type="text/javascript" src="../src/Angle.js" charset="utf-8"></script>
+	<script type="text/javascript" src="../src/LatLon.js" charset="utf-8"></script>
+	<script type="text/javascript" src="../src/Position.js" charset="utf-8"></script>
+	<script type="text/javascript" src="../src/SampleTile.js" charset="utf-8"></script>
+	
+	<script type="text/javascript" src="../lib/firebug-lite/firebug-lite.js"></script>
+	<script type="text/javascript" src="../lib/firebug-lite/chrome-extension/firebug.js"></script>
+	
+	<script id="shader-fs" type="x-shader/x-fragment">
+        void main(void) {
+        	gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+        }
+    </script>
+
+    <script id="shader-vs" type="x-shader/x-vertex">
+        attribute vec3 aVertexPosition;
+
+        uniform mat4 uMVMatrix;
+        uniform mat4 uPMatrix;
+
+        void main(void) {
+        	gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+        }
+    </script>
+
+	<script type="text/javascript" charset="utf-8">
+	
+		var globe = null;
+		var camera = null;
+		var animator = null;
+		var input = null;
+		
+		function init(){
+			var canvasElement = document.getElementById("canvas");
+			
+			globe = new Ptolemy.Globe();
+			camera = new Ptolemy.Camera(canvasElement, globe);
+			input = new Ptolemy.Input(camera);
+			input.registerEvents(canvasElement);
+			animator = new Ptolemy.Animator(camera);
+			animator.startRendering();
+			
+			var sp = new Ptolemy.SampleTile();
+			//globe.addRenderableObject(sp);
+
+		}
+		
+	</script>
+</head>
+<body onload="init();">
+	<canvas id="canvas" style="border: none;" width="400" height="350"></canvas>
+</body>
+</html>

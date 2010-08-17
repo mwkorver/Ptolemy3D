@@ -1,0 +1,23 @@
+- Inheritance design. Decide one inheritance JS method and code it (probably like OpenLayers.Class).
+
+- Let Camera as a base class and create OrbitCamera, FlatCamera, etc subclasses which must implement
+  the 'render' method.
+
+- Put check code. Many methods makes no comprovation of the parameters (null, invalid values, ...).
+  We need to add check code and throw exceptions when needed. This way developing code and found problems
+  will be easy because user can use try/catch blocks and get the exceptions to know what the problem is.
+
+- Improve shaders code. Good idea will be put code in Ptolemy namespace that allows to load shader programs
+  and select which program must be used. This way renderable objects can load its own shaders and
+  use them in the RenderableObject.render() method.
+
+- Implement Animator using keyframe rate.
+
+- Study some picking method to implement.
+
+- Study multitexture rendering in WebGL.
+
+- Study HTML5 cache (localStorage) to locally store downloaded tiles.
+
+
+

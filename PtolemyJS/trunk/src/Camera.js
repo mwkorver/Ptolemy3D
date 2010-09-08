@@ -87,13 +87,13 @@ Ptolemy.Camera = function(canvas, globe) {
         this.setProjection();
         this.setDistance(Ptolemy.Globe.RADIUS() * 10);
         this.setRollPitchYaw(
-        Ptolemy.Angle.fromDegrees(0),
-        Ptolemy.Angle.fromDegrees(0),
-        Ptolemy.Angle.fromDegrees(0)
-        );
+            Ptolemy.Angle.fromDegrees(0),
+            Ptolemy.Angle.fromDegrees(0),
+            Ptolemy.Angle.fromDegrees(0)
+            );
 
     } catch(e) {
-        }
+    }
     if (!this.gl) {
         alert("Could not initialise WebGL, sorry :-(");
     }
@@ -110,17 +110,26 @@ Ptolemy.Camera.prototype.throwOnGLError = function(err, funcName, args) {
  * @private
  */
 Ptolemy.Camera.prototype.setMatrixUniform = function() {
-    this.gl.uniformMatrix4fv(Ptolemy.shaderProgram.pMatrixUniform, false, new WebGLFloatArray(this.prMatrixStack.current().toArray()));
-    this.gl.uniformMatrix4fv(Ptolemy.shaderProgram.mvMatrixUniform, false, new WebGLFloatArray(this.mvMatrixStack.current().toArray()));
+    this.gl.uniformMatrix4fv(Ptolemy.shaderProgram.pMatrixUniform, false, new Float32Array(this.prMatrixStack.current().toArray()));
+    this.gl.uniformMatrix4fv(Ptolemy.shaderProgram.mvMatrixUniform, false, new Float32Array(this.mvMatrixStack.current().toArray()));
 };
 
 Ptolemy.Camera.prototype.setProjection = function() {
     this.projectionMatrix = Ptolemy.Matrix.fromPerspective(
-    45,
-    this.gl.viewportWidth / this.gl.viewportHeight,
-    0.1,
-    Ptolemy.Globe.RADIUS() / 2);
+        45,
+        this.gl.viewportWidth / this.gl.viewportHeight,
+        0.1,
+        Ptolemy.Globe.RADIUS() / 2);
 };
+
+
+// TODO - mouse rotation is quite strange (instead of accumulate the yaw/pitch/rool, it would probably be better to multiply the current rotation and the increment), anyway I know it's a start
+
+// TODO - there's a bug with handleMouseDown/Up: when you drag the mouse and ends drag over another window, mouse up is not called when the mouse (so it rotate infinitivly until you click again with the mouse)
+
+// TODO - Perspective z near should be dynamic: if you look the earth far away (ie from space), znear should be 1000 (and possibly up) to have the proper z buffer accuracy. When you look very closely (like walking on the ground), znear could goes down to <1 to avoid that the ground is cutted just in front of the camera.
+
+
 
 Ptolemy.Camera.prototype.setDistance = function(distance) {
     this.distance = distance;
@@ -171,6 +180,11 @@ Ptolemy.Camera.prototype.render = function() {
     this.mvMatrixStack.mult(this.translationMatrix);
     this.mvMatrixStack.mult(this.rotationMatrix);
 
+    // TODO - This is temporal
+    // Render terrain sectors
+    this.globe.sectorRenderer.render(this.drawContext);
+    this.setMatrixUniform();
+
     // Render globe and renderableObjects
     var objects = this.globe.renderableObjectsArray;
     for (var i = 0; i < objects.length; i++) {
@@ -185,9 +199,10 @@ Ptolemy.Camera.prototype.render = function() {
 
 /**
  * DrawContext stores objects needed in the rendering loop by renderable objects.
+ *
  * @class
  */
 Ptolemy.DrawContext = function() {};
-Ptolemy.DrawContext.prototype.gl = null;
-Ptolemy.DrawContext.prototype.camera = null;
+Ptolemy.DrawContext.gl = null;
+Ptolemy.DrawContext.camera = null;
 

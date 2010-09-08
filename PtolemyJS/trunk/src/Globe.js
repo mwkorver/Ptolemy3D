@@ -37,7 +37,10 @@ Ptolemy.Globe = function() {
     this.elevationModelsArray = [];
     this.renderableObjectsArray = [];
 
-	this.initializeSectors();
+    this.visibleSectorsArray = [];
+    this.sectorRenderer = new Ptolemy.SectorRenderer(this);
+
+    this.initializeSectors();
 };
 
 /**
@@ -60,7 +63,9 @@ Ptolemy.Globe.prototype.initializeSectors = function() {
     for (var lat = Ptolemy.Globe.MIN_LAT; lat < Ptolemy.Globe.MAX_LAT; lat += Ptolemy.Globe.LAT_STEP) {
         for (var lon = Ptolemy.Globe.MIN_LON; lon < Ptolemy.Globe.MAX_LON; lon += Ptolemy.Globe.LON_STEP) {
             var sector = new Ptolemy.Sector(lat, lon, lat + Ptolemy.Globe.LAT_STEP, lon + Ptolemy.Globe.LON_STEP);
-            this.addRenderableObject(sector);
+            //this.addRenderableObject(sector);
+
+            this.visibleSectorsArray.push(sector);
         }
     }
 };
@@ -136,10 +141,90 @@ Ptolemy.Globe.MIN_LON = -180;
 Ptolemy.Globe.MAX_LON = 180;
 
 
+////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 
-/***************************************************************
-* Sector
-*/
+Ptolemy.SectorRenderer = function(globe){
+    this.globe = globe;
+
+    this.initialized = false;
+    this.sectorVertices = [];
+    this.sectorVerticesBuffer = null;
+    this.sectorIndices = [];
+    this.sectorIndicesBuffer = null;
+};
+
+Ptolemy.SectorRenderer.prototype.initialize = function(dc) {
+    
+    var sectors = this.globe.visibleSectorsArray;
+    for (var i = 0; i < sectors.length; i++) {
+        var s = sectors[i];
+
+        this.sectorVertices.push(s.sectorVertices[0]);
+        this.sectorVertices.push(s.sectorVertices[1]);
+        this.sectorVertices.push(s.sectorVertices[2]);
+
+        this.sectorVertices.push(s.sectorVertices[3]);
+        this.sectorVertices.push(s.sectorVertices[4]);
+        this.sectorVertices.push(s.sectorVertices[5]);
+
+        this.sectorVertices.push(s.sectorVertices[6]);
+        this.sectorVertices.push(s.sectorVertices[7]);
+        this.sectorVertices.push(s.sectorVertices[8]);
+
+        this.sectorVertices.push(s.sectorVertices[9]);
+        this.sectorVertices.push(s.sectorVertices[10]);
+        this.sectorVertices.push(s.sectorVertices[11]);
+
+        this.sectorIndices.push(s.sectorIndices[0] + i * 4);
+        this.sectorIndices.push(s.sectorIndices[1] + i * 4);
+        this.sectorIndices.push(s.sectorIndices[2] + i * 4);
+        this.sectorIndices.push(s.sectorIndices[3] + i * 4);
+    }
+
+    var gl = dc.gl;
+    this.sectorVerticesBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.sectorVerticesBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.sectorVertices), gl.STATIC_DRAW);
+    this.sectorVerticesBuffer.itemSize = 3;
+    this.sectorVerticesBuffer.numItems = sectors.length*4;
+
+    this.sectorIndicesBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.sectorIndicesBuffer);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.sectorIndices), gl.STATIC_DRAW);
+    this.sectorIndicesBuffer.itemSize = 1;
+    this.sectorIndicesBuffer.numItems = sectors.length * 4;
+
+    this.initialized = true;
+
+};
+
+// TODO - Implement. Get all available sectors and creates the whole globe mesh
+// to improve rendering performance.
+Ptolemy.SectorRenderer.prototype.render=function(dc) {
+
+    var gl = dc.gl;
+
+    if(!this.initialized){
+        this.initialize(dc);
+    }
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.sectorVerticesBuffer);
+    gl.vertexAttribPointer(Ptolemy.shaderProgram.vertexPositionAttribute, this.sectorVerticesBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.sectorIndicesBuffer);
+    gl.drawElements(gl.LINE_LOOP, this.sectorIndicesBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+};
+
+////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+
+/**
+ * Sector represents a rectangular area on the globe surface.
+ * @constructor
+ */
 Ptolemy.Sector = function(minLat, minLon, maxLat, maxLon) {
     this.minLat = minLat;
     this.minLon = minLon;
@@ -151,31 +236,29 @@ Ptolemy.Sector = function(minLat, minLon, maxLat, maxLon) {
     this.sectorVerticesBuffer = null;
     this.sectorIndices = null;
     this.sectorIndicesBuffer = null;
-};
 
-Ptolemy.Sector.prototype.initialize = function(dc) {
-    var gl = dc.gl;
+    // Compute cartesion coordinates
     var p1 = new Ptolemy.Position(new Ptolemy.LatLon(
-		Ptolemy.Angle.fromDegrees(this.minLat), 
-		Ptolemy.Angle.fromDegrees(this.minLon)), 
-		Ptolemy.Globe.RADIUS());
+        Ptolemy.Angle.fromDegrees(this.minLat),
+        Ptolemy.Angle.fromDegrees(this.minLon)),
+    Ptolemy.Globe.RADIUS());
     var p2 = new Ptolemy.Position(new Ptolemy.LatLon(
-		Ptolemy.Angle.fromDegrees(this.minLat), 
-		Ptolemy.Angle.fromDegrees(this.maxLon)), 
-		Ptolemy.Globe.RADIUS());
+        Ptolemy.Angle.fromDegrees(this.minLat),
+        Ptolemy.Angle.fromDegrees(this.maxLon)),
+    Ptolemy.Globe.RADIUS());
     var p3 = new Ptolemy.Position(new Ptolemy.LatLon(
-		Ptolemy.Angle.fromDegrees(this.maxLat), 
-		Ptolemy.Angle.fromDegrees(this.maxLon)), 
-		Ptolemy.Globe.RADIUS());
+        Ptolemy.Angle.fromDegrees(this.maxLat),
+        Ptolemy.Angle.fromDegrees(this.maxLon)),
+    Ptolemy.Globe.RADIUS());
     var p4 = new Ptolemy.Position(new Ptolemy.LatLon(
-		Ptolemy.Angle.fromDegrees(this.maxLat), 
-		Ptolemy.Angle.fromDegrees(this.minLon)), 
-		Ptolemy.Globe.RADIUS());
+        Ptolemy.Angle.fromDegrees(this.maxLat),
+        Ptolemy.Angle.fromDegrees(this.minLon)),
+    Ptolemy.Globe.RADIUS());
 
-	var v1 = Ptolemy.Globe.computeCartesionFromGeographic(p1);
-	var v2 = Ptolemy.Globe.computeCartesionFromGeographic(p2);
-	var v3 = Ptolemy.Globe.computeCartesionFromGeographic(p3);
-	var v4 = Ptolemy.Globe.computeCartesionFromGeographic(p4);
+    var v1 = Ptolemy.Globe.computeCartesionFromGeographic(p1);
+    var v2 = Ptolemy.Globe.computeCartesionFromGeographic(p2);
+    var v3 = Ptolemy.Globe.computeCartesionFromGeographic(p3);
+    var v4 = Ptolemy.Globe.computeCartesionFromGeographic(p4);
 
     this.sectorVertices = [
     v1.x, v1.y, v1.z,
@@ -185,16 +268,20 @@ Ptolemy.Sector.prototype.initialize = function(dc) {
     ];
 
     this.sectorIndices = [0, 1, 2, 3];
+};
 
+Ptolemy.Sector.prototype.initialize = function(dc) {
+    var gl = dc.gl;
+    
     this.sectorVerticesBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, this.sectorVerticesBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new WebGLFloatArray(this.sectorVertices), gl.STATIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.sectorVertices), gl.STATIC_DRAW);
     this.sectorVerticesBuffer.itemSize = 3;
     this.sectorVerticesBuffer.numItems = 4;
 
     this.sectorIndicesBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.sectorIndicesBuffer);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new WebGLUnsignedShortArray(this.sectorIndices), gl.STATIC_DRAW);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.sectorIndices), gl.STATIC_DRAW);
     this.sectorIndicesBuffer.itemSize = 1;
     this.sectorIndicesBuffer.numItems = 4;
 

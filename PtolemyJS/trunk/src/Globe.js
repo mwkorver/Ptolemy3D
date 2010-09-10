@@ -70,6 +70,23 @@ Ptolemy.Globe.prototype.initializeSectors = function() {
     }
 };
 
+Ptolemy.Globe.prototype.render = function(camera, dc) {
+    // TODO - This is temporal
+    // Render terrain sectors
+    this.sectorRenderer.render(dc);
+    camera.setMatrixUniform();
+    
+    var objects = this.renderableObjectsArray;
+    for (var i = 0; i < objects.length; i++) {
+        objects[i].render(dc);
+
+        // Every renderable object can modify matrix stack so after every
+        // object.render() call "put" current top matrix on the stack
+        // in the GL context.
+        camera.setMatrixUniform();
+    }
+};
+
 /**
  * Constants and class methods.
  */
@@ -239,21 +256,21 @@ Ptolemy.Sector = function(minLat, minLon, maxLat, maxLon) {
 
     // Compute cartesion coordinates
     var p1 = new Ptolemy.Position(new Ptolemy.LatLon(
-        Ptolemy.Angle.fromDegrees(this.minLat),
-        Ptolemy.Angle.fromDegrees(this.minLon)),
-    Ptolemy.Globe.RADIUS());
+		Ptolemy.Angle.fromDegrees(this.minLat), 
+		Ptolemy.Angle.fromDegrees(this.minLon)), 
+    	0);
     var p2 = new Ptolemy.Position(new Ptolemy.LatLon(
-        Ptolemy.Angle.fromDegrees(this.minLat),
-        Ptolemy.Angle.fromDegrees(this.maxLon)),
-    Ptolemy.Globe.RADIUS());
+		Ptolemy.Angle.fromDegrees(this.minLat), 
+		Ptolemy.Angle.fromDegrees(this.maxLon)), 
+    	0);
     var p3 = new Ptolemy.Position(new Ptolemy.LatLon(
-        Ptolemy.Angle.fromDegrees(this.maxLat),
-        Ptolemy.Angle.fromDegrees(this.maxLon)),
-    Ptolemy.Globe.RADIUS());
+		Ptolemy.Angle.fromDegrees(this.maxLat), 
+		Ptolemy.Angle.fromDegrees(this.maxLon)), 
+		0);
     var p4 = new Ptolemy.Position(new Ptolemy.LatLon(
-        Ptolemy.Angle.fromDegrees(this.maxLat),
-        Ptolemy.Angle.fromDegrees(this.minLon)),
-    Ptolemy.Globe.RADIUS());
+		Ptolemy.Angle.fromDegrees(this.maxLat), 
+		Ptolemy.Angle.fromDegrees(this.minLon)), 
+		0);
 
     var v1 = Ptolemy.Globe.computeCartesionFromGeographic(p1);
     var v2 = Ptolemy.Globe.computeCartesionFromGeographic(p2);

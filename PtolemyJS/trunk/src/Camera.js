@@ -58,14 +58,16 @@ Ptolemy.Camera = function(canvas, globe) {
         this.mvMatrixStack = new Ptolemy.MatrixStack();
         this.prMatrixStack = new Ptolemy.MatrixStack();
 
-        // TODO - Improve shaders implementation
-        // Initialize shaders
-        Ptolemy.initializeShaders(this.gl);
-
         // Colors for clean up
-        this.gl.clearColor(0.0, 0.0, 0.0, 1.0);
+        this.gl.clearColor(0.2, 0.2, 0.2, 1.0);
         this.gl.clearDepth(1.0);
 
+		this.gl.enable(this.gl.DEPTH_TEST);
+		this.gl.depthFunc(this.gl.LEQUAL);
+		
+		this.gl.enable(this.gl.CULL_FACE);
+        this.gl.cullFace(this.gl.BACK);
+        
         // Create the DrawContext instance
         this.drawContext = new Ptolemy.DrawContext();
         this.drawContext.gl = this.gl;
@@ -85,14 +87,19 @@ Ptolemy.Camera = function(canvas, globe) {
 
         // Set an initial orientation.
         this.setProjection();
-        this.setDistance(Ptolemy.Globe.RADIUS() * 10);
+        this.setDistance(Ptolemy.Globe.RADIUS() * 1.2);
         this.setRollPitchYaw(
-            Ptolemy.Angle.fromDegrees(0),
-            Ptolemy.Angle.fromDegrees(0),
-            Ptolemy.Angle.fromDegrees(0)
-            );
+	        Ptolemy.Angle.fromDegrees(0),
+	        Ptolemy.Angle.fromDegrees(0),
+	        Ptolemy.Angle.fromDegrees(0)
+        );
 
+        // TODO - Improve shaders implementation
+        // Initialize shaders
+        Ptolemy.initializeShaders(this.gl);
     } catch(e) {
+        alert("Error: "+e);
+        this.gl = null;
     }
     if (!this.gl) {
         alert("Could not initialise WebGL, sorry :-(");
@@ -116,10 +123,10 @@ Ptolemy.Camera.prototype.setMatrixUniform = function() {
 
 Ptolemy.Camera.prototype.setProjection = function() {
     this.projectionMatrix = Ptolemy.Matrix.fromPerspective(
-        45,
-        this.gl.viewportWidth / this.gl.viewportHeight,
-        0.1,
-        Ptolemy.Globe.RADIUS() / 2);
+    45,
+    this.gl.viewportWidth / this.gl.viewportHeight,
+    1000,
+    Ptolemy.Globe.RADIUS() * 10);
 };
 
 
@@ -180,21 +187,8 @@ Ptolemy.Camera.prototype.render = function() {
     this.mvMatrixStack.mult(this.translationMatrix);
     this.mvMatrixStack.mult(this.rotationMatrix);
 
-    // TODO - This is temporal
-    // Render terrain sectors
-    this.globe.sectorRenderer.render(this.drawContext);
-    this.setMatrixUniform();
-
     // Render globe and renderableObjects
-    var objects = this.globe.renderableObjectsArray;
-    for (var i = 0; i < objects.length; i++) {
-        objects[i].render(this.drawContext);
-
-        // Every renderable object can modify matrix stack so after every
-        // object.render() call "put" current top matrix on the stack
-        // in the GL context.
-        this.setMatrixUniform();
-    }
+	this.globe.render(this, this.drawContext);
 };
 
 /**

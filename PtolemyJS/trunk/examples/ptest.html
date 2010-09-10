@@ -18,7 +18,6 @@
 	<script type="text/javascript" src="../src/Angle.js" charset="utf-8"></script>
 	<script type="text/javascript" src="../src/LatLon.js" charset="utf-8"></script>
 	<script type="text/javascript" src="../src/Position.js" charset="utf-8"></script>
-	<script type="text/javascript" src="../src/SampleTile.js" charset="utf-8"></script>
 
 	<script id="shader-fs" type="x-shader/x-fragment">
         void main(void) {
@@ -31,7 +30,7 @@
 
         uniform mat4 uMVMatrix;
         uniform mat4 uPMatrix;
-
+        
         void main(void) {
         	gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
         }

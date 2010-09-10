@@ -45,7 +45,7 @@ Ptolemy.Animator = function(camera) {
 };
 
 Ptolemy.Animator.prototype.startRendering = function() {
-    this.intervalId = setInterval("this.camera.render();", 250);
+    this.intervalId = setInterval("this.camera.render();", 15);
 };
 
 Ptolemy.Animator.prototype.stopRendering = function() {

@@ -54,11 +54,12 @@ Ptolemy.Input.prototype.handleMouseWheel = function(event) {
     // normalize the delta
     if (event.wheelDelta) {
         // IE and Opera
-        delta = event.wheelDelta * 50000;
+        delta = event.wheelDelta;
     } else if (event.detail) {
         // W3C
-        delta = -event.detail * 100000;
+        delta = -event.detail * 2;
     }
+    delta *= Ptolemy.Globe.RADIUS() / 1000.0;
     input.camera.setDistance(input.camera.getDistance() + delta);
 };
 
@@ -86,9 +87,10 @@ Ptolemy.Input.prototype.handleMouseMove = function(event) {
     var deltaY = newY - input.lastMouseY;
 
     input.camera.setRollPitchYaw(
-    input.camera.getRoll().add(Ptolemy.Angle.fromDegrees(deltaY)),
-    input.camera.getPitch().add(Ptolemy.Angle.fromDegrees(deltaX)),
-    input.camera.getYaw());
+	    input.camera.getRoll().add(Ptolemy.Angle.fromDegrees(deltaY)),
+	    input.camera.getPitch().add(Ptolemy.Angle.fromDegrees(deltaX)),
+	    input.camera.getYaw()
+    );
 
     input.lastMouseX = newX
     input.lastMouseY = newY;

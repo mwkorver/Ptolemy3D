@@ -115,8 +115,15 @@
             this.shaderProgram.vertexPositionAttribute = gl.getAttribLocation(this.shaderProgram, "aVertexPosition");
             gl.enableVertexAttribArray(this.shaderProgram.vertexPositionAttribute);
 
+            this.shaderProgram.vertexTexCoord1Attribute = gl.getAttribLocation(this.shaderProgram, "aTexCoord1");
+            if(this.shaderProgram.vertexTexCoord1Attribute >= 0) {
+            	gl.enableVertexAttribArray(this.shaderProgram.vertexTexCoord1Attribute);
+            }
+
             this.shaderProgram.pMatrixUniform = gl.getUniformLocation(this.shaderProgram, "uPMatrix");
             this.shaderProgram.mvMatrixUniform = gl.getUniformLocation(this.shaderProgram, "uMVMatrix");
+            
+            this.shaderProgram.uUseTexture1 = gl.getUniformLocation(this.shaderProgram, "uUseTexture1");
         },
 
         /**

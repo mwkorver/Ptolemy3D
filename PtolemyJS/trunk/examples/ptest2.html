@@ -23,6 +23,10 @@
 	<script type="text/javascript" src="../lib/firebug-lite/chrome-extension/firebug.js"></script>
 
 	<script id="shader-fs" type="x-shader/x-fragment">
+		#ifdef GL_ES
+		precision highp float;
+		#endif
+		
 		uniform sampler2D uTexture1;
 		uniform bool uUseTexture1;
 		
@@ -38,6 +42,10 @@
     </script>
 
     <script id="shader-vs" type="x-shader/x-vertex">
+		#ifdef GL_ES
+		precision highp float;
+		#endif
+		
         uniform mat4 uMVMatrix;
         uniform mat4 uPMatrix;
         

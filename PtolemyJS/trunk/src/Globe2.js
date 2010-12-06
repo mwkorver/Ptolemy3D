@@ -191,8 +191,10 @@ Ptolemy.Tile.prototype = {
 /** Level */
 
 Ptolemy.Level = function(id_, tileWidth_, tileHeight_) {
-	this.NUM_TILE_LON = Math.min(8, degToDd(360) / tileWidth_);
-	this.NUM_TILE_LAT = Math.min(8, degToDd(180) / tileHeight_);
+	var MAX_NUM_TILE = Ptolemy.Globe.MAX_NUM_TILE();
+
+	this.NUM_TILE_LON = Math.min(MAX_NUM_TILE, degToDd(360) / tileWidth_);
+	this.NUM_TILE_LAT = Math.min(MAX_NUM_TILE, degToDd(180) / tileHeight_);
 
 	this.id = id_;
 	this.tileWidth  = tileWidth_;  // Longitude
@@ -292,7 +294,6 @@ Ptolemy.Globe.prototype = {
 		this.tmsServer = server;
 	},
 	
-	// TODO Hardcoded init
 	addLevel : function(level) {
 		var tms = new Ptolemy.TMS();
 		tms.levels.push(level);
@@ -372,8 +373,12 @@ Ptolemy.Globe.RADIUS = function() {
     return 6378137.0;
 };
 
+// TODO - Constant to increase number of polygons and tiles
 Ptolemy.Globe.NUM_POLY = function() {
-    return 16;
+    return 64;
+};
+Ptolemy.Globe.MAX_NUM_TILE = function() {
+    return 8;
 };
 
 /*

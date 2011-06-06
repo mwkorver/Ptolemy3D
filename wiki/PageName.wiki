@@ -1,4 +1,4 @@
-= How to setting up the pTolemy3D applet =
+= How to setup the pTolemy3D applet =
 
 [[PageOutline(2-3,,inline)]]
 ----

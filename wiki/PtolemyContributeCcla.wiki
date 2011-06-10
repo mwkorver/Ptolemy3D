@@ -19,14 +19,14 @@ copyright and patent licenses thereto.
 If you have not already done so, please complete and send an original
 signed Agreement to:
 
-   pTolemy3D care of Spatial Cloud LLC[[BR]]
-   6221 Chancellor Drive[[BR]]
-   Cedar Falls, Iowa 50613 [[BR]]
-   U.S.A.[[BR]]
+   pTolemy3D care of Spatial Cloud LLC
+   6221 Chancellor Drive
+   Cedar Falls, Iowa 50613 
+   U.S.A.
 
 The signed Agreement may also be sent by facsimile to the Maintainer at:
 
-   Attn: pTolemy3D +1-319-277-0437[[BR]]
+   Attn: pTolemy3D +1-319-277-0437
 
 Please read this document carefully before signing and keep a copy for
 your records.

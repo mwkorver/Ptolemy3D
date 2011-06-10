@@ -43,12 +43,13 @@ Start creating {{{index.html}}} file and add the next HTML code:
 
 Like other JOGL based applications, embedding the pTolemy3D viewer as an applet must be done via the [http://download.java.net/media/jogl/builds/nightly/javadoc_public/com/sun/opengl/util/JOGLAppletLauncher.html JOGLAppletLauncher].
 
-{{{
 
 Following the link [http://download.java.net/media/jogl/builds/nightly/javadoc_public/com/sun/opengl/util/JOGLAppletLauncher.html JOGLAppletLauncher] you can find more information about attributes and parameters when using JOGLAppletLauncher.
 
 Very careful with the third paragraph which says:
-> ...[[BR]]
+
+{{{
+
 > Second, the codebase directory on the server, which contains the applet's jar files, must also contain jogl.jar, gluegen-rt.jar, and 
 > all of the jogl-natives-*.jar and gluegen-rt-natives-*.jar files from the standard JOGL and GlueGen runtime distributions (provided in 
 > '''jogl-[version]-webstart.zip''' from the [http://jogl.dev.java.net/servlets/ProjectDocumentList JOGL release builds] and '''gluegen-rt-[version]-webstart.zip''' from the [http://gluegen.dev.java.net/servlets/ProjectDocumentList GlueGen runtime release builds]). 
@@ -88,8 +89,6 @@ The important point is '''you must set an ID for the applet element''' so that y
 == Setting up viewer parameters ==
 
 pTolemy3D viewer can be pre-configured in the HTML file using applet's {{{param}}} subelement. This way you can set the initial position of the camera or the initial data layers you want to show.
-
-
 
 You can find more information:
  * [PtolemyParameters Viewer parameters], to know more about the available parameters the viewer accepts.

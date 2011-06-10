@@ -1,12 +1,12 @@
-Contributing to pTolemy3D¶
+Contributing to pTolemy3D
 
 
-Contributors ¶
+Contributors 
 
 pTolemy3D aims to become open standard for 3D web-based mapping applications using data from any source. pTolemy3D intends to enable commerce and encourages people to use pTolemy3D for profit and non-profit activities alike. Contributors help achieve these goals.
 
 For a full list of Contributors to the pTolemy3D project, see http://www.ptolemy3d.org/authors.txt
-Contributors License Agreements ¶
+Contributors License Agreements 
 
 pTolemy3D is open source and welcomes contributions from the community of people finding value in it. To accept contributions, the pTolemy3D project needs contributors to submit a Contributor License Agreement, which is similar in substance to the Apache Foundation's contributor agreement.
 
@@ -19,7 +19,7 @@ You can indicate your agreement by simply emailing a completed copy of the agree
 Legally, copyright must be assigned to someone, so the pTolemy3D copyright will remain MetaCarta's until OSGEO is ready to assume ownership. The purpose of the Contributor License Agreements is to clearly define the terms under which intellectual property has been contributed to pTolemy3D and thereby allow us to defend the project should there be a legal dispute regarding the software at some future time. This allows us to cleanly transfer pTolemy3D to OSGEO.
 
 For a list of individuals and companys participating in pTolemy3D with signed CLAs, see: CLA
-Submitting Code, Documentation, etc. ¶
+Submitting Code, Documentation, etc.
 
     * Start a ticket: If you have found a bug or a feature that you would like added to pTolemy3D, please file a ticket in the pTolemy3D Trac.
       See FilingTickets for more info on how to provide a useful description of your bug or feature.
@@ -31,7 +31,7 @@ Submitting Code, Documentation, etc. ¶
          5. Wait for review -- A project committer will review your ticket ASAP! 
     * All code, examples, etc. from the SVN repository is made available under by a BSD-like license, with a special provision relating to intellectual property rights. Formal releases published on http://www.pTolemy3D.org/ are distributed under a normal updated BSD license, with no special constraints. 
 
-Acquiring and Using Repository Commit Privileges ¶
+Acquiring and Using Repository Commit Privileges 
 
     * Anyone can request that the SteeringCommittee give them the ability to commit changes directly to http://svn.pTolemy3D.org/.
       Generally, we prefer to give committer access to developers who have demonstrated expertise and committment to the project.

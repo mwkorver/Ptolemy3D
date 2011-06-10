@@ -24,10 +24,10 @@ Once you take a peak, look at [wiki:PtolemyViewerControls] to begin to understan
 
 = Ptolemy Refoundation =
 
-Ptolemy goal is to build a good virtual globe SDK (open source project of course), easy to use and to extend by anyone.[[BR]]
+Ptolemy goal is to build a good virtual globe SDK (open source project of course), easy to use and to extend by anyone.
 
 The current version has some serious design problems and complex code which makes difficult to understand and extend for anyone who wants to contribute.
-Because this, recently Ptolemy project authors has started a period or re-foundation to build the project again from scratch.[[BR]]
+Because this, recently Ptolemy project authors has started a period or re-foundation to build the project again from scratch.
 
 '''The goal of re-foundation project are:
  * Use a new working methodology (more ''agile''). 
@@ -38,7 +38,7 @@ After that, we want to have a basic Virtual Globe SDK with a good design, implem
 
 This way contributors will present their ideas, they will be discussed (using chat, email or [http://groups.google.com/group/ptolemy3d Ptolemy group]) and finally they will be briefly documented or explained and implemented.
 
-'''In the next link you can follow the evolution of this amazing stage of the project: [wiki:PtolemyRefoundation Ptolemy Refoundation].'''
+'''In the next link you can follow the evolution of this amazing stage of the project: [PtolemyRefoundation Ptolemy Refoundation].'''
 
 As always you are welcome to participate actively.
 
@@ -46,9 +46,9 @@ As always you are welcome to participate actively.
 ----
 
 = Quick Start Guides & Information =
- * [wiki:PtolemySettingUpApplet Setting up the applet on your HTML page]: Describes how to use the pTolemy3D in your web browser applet.
- * [wiki:PtolemyHistory History & Intent of Project]: Why, Who, Where did pTolemy3D come from? 
- * [wiki:PtolemyFAQ FAQ]: Quick answers to general questions.
+ * [PtolemySettingUpApplet Setting up the applet on your HTML page]: Describes how to use the pTolemy3D in your web browser applet.
+ * [PtolemyHistory History & Intent of Project]: Why, Who, Where did pTolemy3D come from? 
+ * [PtolemyFAQ FAQ]: Quick answers to general questions.
 
 
 = Documentation =

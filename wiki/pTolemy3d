@@ -1,2 +1,0 @@
-== What is the pTolemy3d viewer? ==
-["pTolemy3d"] is an cross-platform open-source viewer that simplifies access to 3D geospatial data. As a Java applet with an javascript driven API that allows AJAX style application development it is built from the ground up to be cross browser, cross platform. 

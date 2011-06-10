@@ -2,7 +2,7 @@
 
 
  * [WikiStart TOP]
- * [PtolemyHowToContribute Contributing]
+ * [PtolemyContributeHowTo Contributing]
  * [PtolemyOrg Organization]
  * [PtolemyRefoundation Refoundation]
  * [PtolemyViewer Viewer]

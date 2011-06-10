@@ -32,7 +32,7 @@ Please read this document carefully before signing and keep a copy for
 your records.
 
 {{{
-#!html
+
 <pre>
 
 

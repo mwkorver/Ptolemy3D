@@ -1,6 +1,6 @@
 = About pTolemy3D =
 
-[[Image(http://ptolemy3d.s3.amazonaws.com/images/demo_capture_25percnt.png, right, border=1)]]
+http://ptolemy3d.s3.amazonaws.com/images/demo_capture_25percnt.png
 
 pTolemy3D project's goal is to make it easy to put a dynamic 3D world into any web page.  It's a tool kit that includes a 3D Java applet, server side components and tools that utilize standard technologies such as Jpeg 2000, OpenGL, and OpenGIS standards such as WMS and WFS to provide a 3D earth visualization experience - which you fully control. 
 
@@ -20,7 +20,7 @@ Once you take a peak, look at [wiki:PtolemyViewerControls] to begin to understan
  * Install ptconsole web application to '''create your own worlds'''.  Go [PtolemyToolPtconsole here to download] the Ready-2-Run zip file and see the setup guide.
 
 {{{
-#!html
+
 <center>
 <a href="http://demo.ptolemy3d.org/"><img src="http://trac.ptolemy3d.org/raw-attachment/wiki/WikiStart/ptbutton1.png" /></a>
 <a href="http://trac.ptolemy3d.org/wiki/PtolemyToolPtconsole"><img src="http://trac.ptolemy3d.org/raw-attachment/wiki/WikiStart/ptbutton2.png" /></a>
@@ -84,7 +84,6 @@ As always you are welcome to participate actively.
 = Interested in helping guide this project? Join e-mail list & discussion =
 
 {{{
-#!html
 
 <table border=0 style="background-color: #fff; padding: 5px;" cellspacing=0>
   <form action="http://groups.google.com/group/ptolemy3d/boxsubscribe">
@@ -108,7 +107,3 @@ Also, you are welcome to add any ideas in the [http://groups.google.com/group/pt
 pTolemy3D is developed and supported by a number of people around the world. The projects main sponsor is [http://spatialcloud.com SpatialCloud], but we are also looking for new strategic sponsors to help project grow. If you are in a position where you want to support the development of pTolemy3D, please contact us about sponsorship.
 
 ----
-
-==== pTolemy3D Trac pages ====
-
- * [TitleIndex Complete list of pTolemy3D wiki pages]

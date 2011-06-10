@@ -53,22 +53,22 @@ As always you are welcome to participate actively.
 
 = Documentation =
 
- * [wiki:PtolemyViewerControls Viewer Controls]: Controlling the viewer
- * [wiki:PtolemyParameters Configuration]: Available configuration parameters
- * [wiki:PtolemyPlugin Plugins]: Available plugins
+ * [PtolemyViewerControls Viewer Controls]: Controlling the viewer
+ * [PtolemyParameters Configuration]: Available configuration parameters
+ * [PtolemyPlugin Plugins]: Available plugins
 
 = Developer =
 
  * [wiki:PtolemyDeveloperGuide Developer Guide]: Describes how to download the pTolemy3D source code and build binary files by yourself.
-  * [wiki:PtolemyDevelopTestDesktop Desktop test]: Offers a guide and a configuration file to test your pTolemy3D development as a desktop application.
+  * [PtolemyDevelopTestDesktop Desktop test]: Offers a guide and a configuration file to test your pTolemy3D development as a desktop application.
   * Plugins: 
-   * [wiki:PtolemyPluginCreate Basics to create a new plugin]: Learn the basics on extending pTolemy3D in your own way.
-   * [wiki:PtolemyCreatePluginDataLoad Load data in your own plugin]: Describe own to load your own data in your plugins.
+   * [PtolemyPluginCreate Basics to create a new plugin]: Learn the basics on extending pTolemy3D in your own way.
+   * [PtolemyCreatePluginDataLoad Load data in your own plugin]: Describe own to load your own data in your plugins.
    * Tools:
-    * [wiki:PtolemyToolsDemCutter DemCutter]: Command line tool to create DEM files ready for pTolemy3D.
+    * [PtolemyToolsDemCutter DemCutter]: Command line tool to create DEM files ready for pTolemy3D.
   * Old
-   * [wiki:PtolemyOverview Overview]: Technical overview
-   * [wiki:PtolemyHowToStart How to start using pTolemy3D Core]: Brief introduction to pTolemy3D and how to use it, both as applet and as a Java desktop application.
+   * [PtolemyOverview Overview]: Technical overview
+   * [PtolemyHowToStart How to start using pTolemy3D Core]: Brief introduction to pTolemy3D and how to use it, both as applet and as a Java desktop application.
    * [http://www.ptolemy3d.org/javadocs/Ptolemy3D-Index.html Javadocs]
 
  * Learn [PtolemyContributeHowTo how to contribute] to pTolemy3D.

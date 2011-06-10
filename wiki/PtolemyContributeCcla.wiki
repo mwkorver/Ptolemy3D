@@ -1,4 +1,4 @@
-pTolemy3D Corporate Contributor License Agreement ("Agreement") v1.0
+pTolemy3D Corporate Contributor License Agreement ("Agreement") v1.0<br>
 http://code.google.com/p/ptolemy3d/wiki/PtolemyContributeCcla
 
 Thank you for your interest in the pTolemy3D project, which is

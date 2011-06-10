@@ -6,6 +6,6 @@
  * [PtolemyOrg Organization]
  * [PtolemyRefoundation Refoundation]
  * [PtolemyViewer Viewer]
- * [PtolemyTools Tools]
+ * [PtolemyTool Tools]
  * [PtolemyData Data]
  * [PtolemyPlugin Plugins]

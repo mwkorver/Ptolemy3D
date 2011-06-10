@@ -17,7 +17,7 @@ Once you take a peak, look at [wiki:PtolemyViewerControls] to begin to understan
 
  * Install ptconsole web application to '''create your own worlds'''.  Go [PtolemyToolPtconsole here to download] the Ready-2-Run zip file and see the setup guide.
 
-<a href="http://demo.ptolemy3d.org/"><img src="http://ptolemy3d.s3.amazonaws.com/images/ptbutton1.png" /></a>
+<a href="http://demo.ptolemy3d.org/" target="_blank"><img src="http://ptolemy3d.s3.amazonaws.com/images/ptbutton1.png" /></a>
 <a href="http://code.google.com/p/ptolemy3d/wiki/PtolemyToolPtconsole"><img src="http://ptolemy3d.s3.amazonaws.com/images/ptbutton2.png" /></a>
 
 ----

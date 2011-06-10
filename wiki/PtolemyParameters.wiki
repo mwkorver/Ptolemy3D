@@ -1,8 +1,9 @@
+#summary pTolemy3D Parameters
+
 = pTolemy3D Parameters =
 
 pTolemy3D can be configured using a wide range of parameters which includes: data server, initial camera configuration or the initial set of data to be shown. pTolemy3D is mainly designed to be used as an applet, those the required parameters can be configured using the {{{param}}} applet's tag.
 
-[[PageOutline(2-3,,inline)]]
 ----
 
 == Map Server ==
@@ -47,7 +48,7 @@ pTolemy3D can be configured using a wide range of parameters which includes: dat
 
 == Example configuration: Inside APPLET tag == 
 {{{
-#!text/html
+
         <applet code="com.sun.opengl.util.JOGLAppletLauncher"
                 align="center" width="95%" height="65%"
                 id="pTolemy3D" Name="pTolemy3D"
@@ -163,7 +164,7 @@ pTolemy3D can be configured using a wide range of parameters which includes: dat
 
 == Example configuration: Inside XML file == 
 {{{
-#!text/html
+
         <entity>
             <Orientation>132730000,35010000,1260000,0,-30</Orientation>
             <CenterX>0</CenterX>

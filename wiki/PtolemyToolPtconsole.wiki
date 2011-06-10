@@ -1,7 +1,8 @@
+#ptolemyToolPtconsole
+
 == Ptconsole App ==
 
-=== Tested on FF3 and IE6&7 on Windows, 
-and confirmed to run using FF3 on Linux and Mac OS X ===
+=== Tested on FF3 and IE6&7 on Windows, and confirmed to run using FF3 on Linux and Mac OS X ===
 
 ptconsole is a simple web application that allows you to encode jp2 file pyramids (layer by layer and area by area) by using 2D images pulled from WMS compliant servers such as [http://geoserver.org/ GeoServer] and [http://mapserver.org/ Mapserver].  You can point the web-app at your own servers or somebody else's as long as the servers comply with certain output specifications.  You can create jp2 files with the application, and then see the result in 3D in the 3D tab, via the pTolemy3D applet.  The download package includes an http server (Jetty), so if you wished, you could make some simple configuration changes to serve this data beyond your own desktop.
 

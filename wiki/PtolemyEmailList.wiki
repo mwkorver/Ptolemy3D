@@ -1,0 +1,62 @@
+= Get updates regarding pTolemy3d =
+
+=== The pTolemy3d team will only contact you with major announcements (such as releases, etc.). You can unsubscribe anytime. ===
+
+
+{{{
+#!html
+
+<form name="form" action="https://www.salesforce.com/servlet/servlet.WebToLead?encoding=UTF-8" onsubmit="return checkform(this);" method="POST">
+
+<input type="hidden" name="oid" value="00D700000009LEL">
+<input type="hidden" name="retURL" value="http://ptolemy3d.org/wiki/PtolemyEmailThanks">
+<input type="hidden" name="sfga" value="00D700000009LEL"/>
+<input type="hidden" name="lead_source" id="lead_source" value="pTolemy">
+<input type="hidden" id="00N40000001IMeh" name="00N40000001IMeh" title="Web Source" value="pTolemy3d.org" />
+<input type="hidden" id="00N700000029FMp" name="00N700000029FMp" title="Web Download" value="pTolemy3d E-List">
+
+<table border="0" cellspacing="0" cellpadding="2" width="100%">
+  <tr>
+    <td class="bold">First Name</td>
+    <td><input  id="first_name" maxlength="40" name="first_name" size="45" type="text" /></td>
+  </tr>
+  <tr>
+    <td class="bold">Last Name</td>
+    <td><input  id="last_name" maxlength="80" name="last_name" size="45" type="text" /></td>
+  </tr>
+  <tr>
+    <td>Title</td>
+    <td><input  id="title" maxlength="40" name="title" size="45" type="text" /></td>
+  </tr>
+  <tr>
+    <td>Company</td>
+    <td><input  id="company" maxlength="40" name="company" size="45" type="text" /></td>
+  </tr>
+  <tr>
+    <td>City</td>
+    <td><input  id="city" maxlength="40" name="city" size="45" type="text" /><br>
+</td>
+  </tr>
+  <tr>
+    <td>State</td>
+    <td><input  id="state" maxlength="20" name="state" size="45" type="text" /><br>
+</td>
+  </tr>
+  <tr>
+    <td class="bold">Email</td>
+    <td><input  id="email" maxlength="80" name="email" size="45" type="text" /></td>
+  </tr>
+<tr>
+    <td>&nbsp;</td>
+ <td><input type="submit" name="submit" value="Submit"></td>
+  </tr>
+
+</table>
+
+<p/>
+
+
+
+</form> 
+
+}}}

@@ -1,0 +1,61 @@
+XVRML Plugin
+
+Description
+
+Displays 3d objects stored in x3d formatted files. each object has a coordinate and a pointer to a x3d file.
+
+applet parameters
+
+plugin_type : xvrml
+
+plugin_parameters : STATUS,GetUrl?,GetVrml?,LAYER,QueryWidth?,DisplayRadius?,DISP_MAXZ
+
+
+    * status
+          o (0,1) layer on or off boolean 
+    * GetUrl?
+          o (string) tomcat servlet uri to query points 
+    * GetVrml?
+          o (string) tomcat servlet uri to query x3d files 
+    * LAYER
+          o (string) postgis table name that GetUrl? servlet can refer to 
+    * QueryWidth?
+          o (int) extents in meters of db query 
+    * DisplayRadius?
+          o (int) extents in meters of display. when display extents are no longer within query width, data will be requeried. 
+    * DISP_MAXZ
+          o (int) maximun altitude in meters that vector data will be displayed 
+
+
+pluginAction
+
+command
+parameters
+description
+
+|refresh|&nbsp; |drops current data and requeries|
+|status| 0,1 | 0 sets off, 1 sets on|
+
+Notes
+
+x3d to pTolemy3D viewer pipeline
+
+when the client makes a request for an x3d object the server finds the file and parses it. the server then writes out opengl friendly data back to the client. this is done because of the large amount of code needed to parse an x3d file. we basically reformat the data to an opengl renderable state and throw it back to the client. this keeps the code on the client light and simple and also allows for a graudual buildup of objects.
+
+to keep things fast on the server we use a caching system. the first time the x3d file is parsed it writes out the gl formatted binary data to a file on the server. all subsequent requests simply read and write this file back to the client rather than reparsing the x3d. also, at the beginning of each request 'last modified' times of the x3d file and cache file are compared to keep the cache files up to date.
+
+re-use of objects
+
+x3d objects are stored as opengl call lists. when displayed per point, we translate the object to the coordinate and then dump the list. when in sphere mode the translation consists of a translation up to the north pole and then a rotation down to the coordinate using the cross product vector, made using the north pole vector and the coordinate vector. this keeps the object flat with the surface, but also produces a counterintuative y axis rotation.
+
+gradual buildup of objects
+
+objects are parsed 1 shape at a time. each time the camera stops, it will build up 150ms worth of shapes per each rendering loop.
+
+Vrml1 to Vrml2 conversion
+
+We are using a convertor bundled with the cosmo vrml viewer. after installing the cosmo player, the exe vrml1tovrml2 will be copied into the WINNT\system32 directory.
+
+vrml2 to x3d conversion
+
+http://ovrt.nist.gov/v2_x3d.html 

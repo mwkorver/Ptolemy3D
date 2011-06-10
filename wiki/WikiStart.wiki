@@ -1,0 +1,118 @@
+
+= About pTolemy3D =
+
+[[Image(http://ptolemy3d.s3.amazonaws.com/images/demo_capture_25percnt.png, right, border=1)]]
+
+pTolemy3D project's goal is to make it easy to put a dynamic 3D world into any web page.  It's a tool kit that includes a 3D Java applet, server side components and tools that utilize standard technologies such as Jpeg 2000, OpenGL, and OpenGIS standards such as WMS and WFS to provide a 3D earth visualization experience - which you fully control. 
+
+pTolemy3D is a completely free, open source, and Java JOGL-based application. The Viewer core and plugins have been released under the [http://www.gnu.org/licenses/gpl-3.0.html GPLv3 License].  Please join the discussion and mailing list at [http://groups.google.com/group/ptolemy3d pTolemy3D Google Group] and let us know what you think. 
+
+Our intention is to follow OSGeo's incubation guidelines as noted in their [http://www.osgeo.org/incubator/process/project_graduation_checklist.html graduation checklist].
+
+Read our [http://www.spatialcloud.com/documents/021809_pTolemy3D.pdf official announcement press release (PDF)] at our primary sponsor's [http://www.SpatialCloud.com/ webpage (SpatialCloud.com)].
+
+Download the [http://trac.ptolemy3d.org/raw-attachment/wiki/WikiStart/pTolemy3D_WebFlyer.pdf pTolemy3D info flyer (PDF)] to share with others or for reference. 
+
+= Try the Demos =
+
+ * If you have the JRE installed you can go direct to [http://demo.ptolemy3d.org/ pTolemy3D javascript API tutorial] at the demo site.  [[BR]]
+Once you take a peak, look at [wiki:PtolemyViewerControls] to begin to understand how to control the viewers actions.
+
+    [http://www.java.com/en/download/manual.jsp download Java plugin here]
+
+ * Install ptconsole web application to '''create your own worlds'''.  Go [PtolemyToolPtconsole here to download] the Ready-2-Run zip file and see the setup guide.
+
+{{{
+#!html
+<center>
+<a href="http://demo.ptolemy3d.org/"><img src="http://trac.ptolemy3d.org/raw-attachment/wiki/WikiStart/ptbutton1.png" /></a>
+<a href="http://trac.ptolemy3d.org/wiki/PtolemyToolPtconsole"><img src="http://trac.ptolemy3d.org/raw-attachment/wiki/WikiStart/ptbutton2.png" /></a>
+</center>
+}}}
+
+----
+
+= Ptolemy Refoundation =
+
+Ptolemy goal is to build a good virtual globe SDK (open source project of course), easy to use and to extend by anyone.[[BR]]
+
+The current version has some serious design problems and complex code which makes difficult to understand and extend for anyone who wants to contribute.
+Because this, recently Ptolemy project authors has started a period or re-foundation to build the project again from scratch.[[BR]]
+
+'''The goal of re-foundation project are:
+ * Use a new working methodology (more ''agile''). 
+ * Improve the project documentation.
+ * Make a new implementation from scratch.'''
+
+After that, we want to have a basic Virtual Globe SDK with a good design, implementation and documentation and, of course, stable enough to be used in any production environment :)
+
+This way contributors will present their ideas, they will be discussed (using chat, email or [http://groups.google.com/group/ptolemy3d Ptolemy group]) and finally they will be briefly documented or explained and implemented.
+
+'''In the next link you can follow the evolution of this amazing stage of the project: [wiki:PtolemyRefoundation Ptolemy Refoundation].'''
+
+As always you are welcome to participate actively.
+
+
+----
+
+= Quick Start Guides & Information =
+ * [wiki:PtolemySettingUpApplet Setting up the applet on your HTML page]: Describes how to use the pTolemy3D in your web browser applet.
+ * [wiki:PtolemyHistory History & Intent of Project]: Why, Who, Where did pTolemy3D come from? 
+ * [wiki:PtolemyFAQ FAQ]: Quick answers to general questions.
+
+
+= Documentation =
+
+ * [wiki:PtolemyViewerControls Viewer Controls]: Controlling the viewer
+ * [wiki:PtolemyParameters Configuration]: Available configuration parameters
+ * [wiki:PtolemyPlugin Plugins]: Available plugins
+
+= Developer =
+
+ * [wiki:PtolemyDeveloperGuide Developer Guide]: Describes how to download the pTolemy3D source code and build binary files by yourself.
+  * [wiki:PtolemyDevelopTestDesktop Desktop test]: Offers a guide and a configuration file to test your pTolemy3D development as a desktop application.
+  * Plugins: 
+   * [wiki:PtolemyPluginCreate Basics to create a new plugin]: Learn the basics on extending pTolemy3D in your own way.
+   * [wiki:PtolemyCreatePluginDataLoad Load data in your own plugin]: Describe own to load your own data in your plugins.
+   * Tools:
+    * [wiki:PtolemyToolsDemCutter DemCutter]: Command line tool to create DEM files ready for pTolemy3D.
+  * Old
+   * [wiki:PtolemyOverview Overview]: Technical overview
+   * [wiki:PtolemyHowToStart How to start using pTolemy3D Core]: Brief introduction to pTolemy3D and how to use it, both as applet and as a Java desktop application.
+   * [http://www.ptolemy3d.org/javadocs/Ptolemy3D-Index.html Javadocs]
+
+ * Learn [PtolemyContributeHowTo how to contribute] to pTolemy3D.
+----
+
+= Interested in helping guide this project? Join e-mail list & discussion =
+
+{{{
+#!html
+
+<table border=0 style="background-color: #fff; padding: 5px;" cellspacing=0>
+  <form action="http://groups.google.com/group/ptolemy3d/boxsubscribe">
+  <tr><td style="padding-left: 5px;">
+  Email: <input type=text name=email>
+  <input type=submit name="sub" value="Subscribe">
+  </td></tr>
+</form>
+<tr><td><img src="http://groups.google.com/groups/img/3nb/groups_bar.gif"
+         height=15 alt="Google Groups" valign="bottom"> &nbsp; <a href="http://groups.google.com/group/ptolemy3d">Visit the group</a>
+</td></tr>
+</table>
+
+}}}
+
+Also, you are welcome to add any ideas in the [http://groups.google.com/group/ptolemy3d/browse_thread/thread/bf012e43b3115885 Feature Request/Wishlist] at pTolemy3D group.
+
+----
+
+= Sponsor pTolemy3D =
+pTolemy3D is developed and supported by a number of people around the world. The projects main sponsor is [http://spatialcloud.com SpatialCloud], but we are also looking for new strategic sponsors to help project grow. If you are in a position where you want to support the development of pTolemy3D, please contact us about sponsorship.
+
+----
+
+==== pTolemy3D Trac pages ====
+
+ * [TitleIndex Complete list of pTolemy3D wiki pages]
+

@@ -1,23 +1,23 @@
+#summary How to setup the ptolemy3d applet
+
 = How to setting up the pTolemy3D applet =
 
-[[PageOutline(2-3,,inline)]]
 ----
 
 To start using pTolemy3D as an applet in your HTML page, '''you need a signed version of the JAR files'''.  These are available as part of the download package or you can refer to the [wiki:PtolemyDeveloperGuide Developer's guide] to know how to biuld and sign with your own certificate.
 
-{{{
-#!div style="border: 2pt dashed darkgrey; margin: 5px; padding: 5px; background-color: #EEEEEE;"
+
 See:
- * [wiki:PtolemyToolHowSignJar How to sign a JAR file] with your own certificate.
- * [wiki:PtolemyOverview How Ptolemy3D is organized].
-}}}
+ * [PtolemyToolHowSignJar How to sign a JAR file] with your own certificate.
+ * [PtolemyOverview How Ptolemy3D is organized].
+
 
 == Creating the HTML page ==
 
 Start creating {{{index.html}}} file and add the next HTML code:
 
 {{{
-#!text/html
+
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -44,7 +44,7 @@ Start creating {{{index.html}}} file and add the next HTML code:
 Like other JOGL based applications, embedding the pTolemy3D viewer as an applet must be done via the [http://download.java.net/media/jogl/builds/nightly/javadoc_public/com/sun/opengl/util/JOGLAppletLauncher.html JOGLAppletLauncher].
 
 {{{
-#!div style="border: 2pt dashed darkgrey; margin: 5px; padding: 5px; background-color: #EEEEEE;"
+
 Following the link [http://download.java.net/media/jogl/builds/nightly/javadoc_public/com/sun/opengl/util/JOGLAppletLauncher.html JOGLAppletLauncher] you can find more information about attributes and parameters when using JOGLAppletLauncher.
 
 Very careful with the third paragraph which says:
@@ -62,7 +62,7 @@ Create an {{{applet}}} directory in the same place as the previous {{{index.html
 Now, add the following code to the {{{index.html}}} file:
 
 {{{
-#!text/html
+
         <applet code="com.sun.opengl.util.JOGLAppletLauncher"
                 align="center" width="95%" height="65%"
                 id="pTolemy3D" Name="pTolemy3D"
@@ -89,17 +89,17 @@ The important point is '''you must set an ID for the applet element''' so that y
 
 pTolemy3D viewer can be pre-configured in the HTML file using applet's {{{param}}} subelement. This way you can set the initial position of the camera or the initial data layers you want to show.
 
-{{{
-#!div style="border: 2pt dashed darkgrey; margin: 5px; padding: 5px; background-color: #EEEEEE;"
+
+
 You can find more information:
- * [wiki:PtolemyParameters Viewer parameters], to know more about the available parameters the viewer accepts.
- * [wiki:PtolemyPlugin Ptolemy3D plugins], to know how to set and configure the available plugins for pTolemy3D viewer.
-}}}
+ * [PtolemyParameters Viewer parameters], to know more about the available parameters the viewer accepts.
+ * [PtolemyPlugin Ptolemy3D plugins], to know how to set and configure the available plugins for pTolemy3D viewer.
+
 
 Add the following code to the {{{index.html}}} file:
 
 {{{
-#!text/html
+
         <applet code="com.sun.opengl.util.JOGLAppletLauncher"
                 align="center" width="95%" height="65%"
                 id="pTolemy3D" Name="pTolemy3D"
@@ -192,8 +192,7 @@ The {{{ptolemy3d.js}}} !JavaScript file which wraps the applet API to help worki
 
 Copy {{{ptolemy3d.js}}} in the same place as {{{index.html}}} and include it:
 {{{
-#!text/html
-    ...
+
     ...
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -211,7 +210,7 @@ s
 Now, we are going to add a form with three input texts to set the camera latitude, longitude and altitude position and one button. Add the next code after the applet element at the {{{index.html}}} file:
 
 {{{
-#!text/html
+
         <form name="flyForm">
             Latitude (decimal degrees): <input type="text" id="lat" name="lat" value="0" size="6" /><br/>
             Longitude (decimal degrees): <input type="text" id="lon" name="lon" value="0" size="6" /><br/>
@@ -222,7 +221,6 @@ Now, we are going to add a form with three input texts to set the camera latitud
 
 Also, in the {{{head}}} section add the code of the {{{flyTo()}}} function:
 {{{
-#!text/html
         ...
         ...
         <script type="text/javascript" src="ptolemy3d.js"></script>

@@ -19,7 +19,7 @@ copyright and patent licenses thereto.
 If you have not already done so, please complete and send an original
 signed Agreement to:
 
-   ptolemy3D care of Spatial Cloud LLC<br>
+   ptolemy3D c/o Spatial Cloud LLC<br>
    6221 Chancellor Drive<br>
    Cedar Falls, Iowa 50613 <br>
    U.S.A.<br>

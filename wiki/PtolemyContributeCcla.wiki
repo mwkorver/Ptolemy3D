@@ -1,5 +1,5 @@
 pTolemy3D Corporate Contributor License Agreement ("Agreement") v1.0
-http://www.ptolemy3d.org/ccla.txt
+http://code.google.com/p/ptolemy3d/wiki/PtolemyContributeCcla
 
 Thank you for your interest in the pTolemy3D project, which is
 presently maintained by Spatial Cloud LLC (the "Maintainer"). In order

@@ -6,7 +6,7 @@ pTolemy3D project's goal is to make it easy to put a dynamic 3D world into any w
 
 pTolemy3D is a completely free, open source, and Java JOGL-based application. The Viewer core and plugins have been released under the [http://www.gnu.org/licenses/gpl-3.0.html GPLv3 License].  Please join the discussion and mailing list at [http://groups.google.com/group/ptolemy3d pTolemy3D Google Group] and let us know what you think. 
 
-Download the [http://trac.ptolemy3d.org/raw-attachment/wiki/WikiStart/pTolemy3D_WebFlyer.pdf pTolemy3D info flyer (PDF)] to share with others or for reference. 
+Download the [http:///ptolemy3d.s3.amazonaws.com/wiki/attachment/WikiStart/pTolemy3D_WebFlyer.pdf pTolemy3D info flyer (PDF)] to share with others or for reference. 
 
 = Try the Demos =
 

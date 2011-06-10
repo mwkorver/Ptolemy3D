@@ -1,0 +1,39 @@
+
+== pTolemy3D Tile System ==
+
+pT uses map imagery in the Platte Carrée projection of the WGS84 
+longitude/latitude coordinates in decimal degrees (DD) with Greenwich as
+the central meridian.
+
+The SRS code is "[http://spatialreference.org/ref/epsg/4326/ EPSG:4326]"
+
+this allows pT to take rectangular image (2x1 ratio) and map it to a sphere.
+
+
+----
+In order satisfy the necessary LOD of the current view, map data is tiled and layered at successively higher resolutions.  Each higher resolution has 64x the number of tiles, forming an 8x8 grid of the previous tile.
+
+Each tile is 1024 pixel square jp2000 file that is internally layered 4x
+
+
+[[Image(1024tile.png)]]
+
+----
+
+The pT coordinate system uses longitude/latitude DD values directly in the path and filename to describe both the detail level and position of each tile.
+
+
+
+[[Image(pt_coordsys.png)]]
+
+(approximation, this image does not have the correct grid lines)
+
+----
+|| '''Layer'''         || '''DD Width'''         || '''Number Tiles'''         || '''Tile Width Meters''' || '''Width of Pixel''' ||
+|| Level 54428800|| 54.428800 Degrees ||             32 Tiles || 5,836,345 || 224,391.95 ||
+|| Level  6553600|| 06.553600 Degrees ||          1,568 Tiles ||  729,5432 ||  28,048.99 ||
+|| Level   819200|| 00.819200 Degrees ||         96,800 Tiles ||    91,193 ||      86.06 ||
+|| Level   102400|| 00.102400 Degrees ||      6,181,128 Tiles ||    11,399 ||      11.13 ||
+|| Level    12800|| 00.012800 Degrees ||    395,535,938 Tiles ||     1,425 ||       1.39 ||
+|| Level     1600|| 00.001600 Degrees || 25,312,500,000 Tiles ||       178 ||       0.17 ||
+

@@ -1,0 +1,12 @@
+
+== War Demo Release Notes ==
+
+The WAR file needs to be deployed using a standard J2EE server.
+Generally the demo will run if the WAR file is placed under the webapps directory of the J2EE server and the server is restarted.  Port 8080 needs to be available to the J2EE engine.  If you are not already running a local http server this should not be a problem.
+
+To run the demo point your browser at http://127.0.0.1:8080/demo
+
+Stub about servlet engines, with some general wording on [J2EE] and application servers.
+
+ * [PtolemyDemoWarJetty Jetty]
+ * [PtolemyDemoWarTomcat Apache Tomcat]

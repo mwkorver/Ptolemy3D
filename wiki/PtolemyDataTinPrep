@@ -1,0 +1,44 @@
+
+
+'''This page is out of date and needs to be updated and tools attached.'''
+
+== Source Data ==
+
+Tins are pregenerated using a DEM file. the tin program will take in an upper left x and y coordinate, as well as a tile width. it will then go to the DEM file and grab all of the values that lie in those extents. once it has those values it runs 1 of two algorithms (specified in the command line), a max points or a significance point elimination.
+
+== POINT ELIMINATION ==
+
+Both of these algorithms begin by giving a significance to each DEM point, significance is calculated by taking the perpendicular distance of each opposing point. max points takes the n maxpoints with the highest significance. significance drops anything below the significance value.
+
+in order to match up the edges of the DEM files, the edge points are dropped in a separate pass. edge points do not take into consideration inner points, so that the same points will be dropped for the next tile over. in the tin generation program a maxpoints/sig value can be set for the inner points, and the edges.
+
+see http://www.geog.ubc.ca/courses/klink/gis.notes/ncgia/u39.html#SEC39.2.2
+
+we implement - 2. VIP (Very Important Points) Algorithm
+
+
+== TRIANGULATION ==
+
+once the points have been dropped, the are then triangulated using fortunes algorithm.
+
+
+== STRIPING ==
+
+next the triangles are organized into triangle strips, in order to improve performance. 4 algorithms are run against the triangles and the one with the least amount of separate strips is used. the 4 algorithms are GREEDY, GENEROUS, HYBRID, and LONGEST PATH
+
+The first 3 are all similar, using a neighbor count to decide which triangle to move to next. GREEDY will move to the neighboring triangle with the most neighbors, etc.
+
+Longest path starts from each triangle and uses recursive calls to find the longest path. once all triangles have been used the algorithm is comes to an end.
+
+== FILE FORMAT ==
+
+A big-endian binary file is written in the following ordered manner:
+
+UL_X double(8)[[BR]]
+UL_Y double(8)[[BR]]
+Width int(4)[[BR]]
+NumPoints? int(4)[[BR]]
+-points float(4)*NumPoints*3[[BR]]
+NumStrips? int(4)[[BR]]
+-NumVerticies int(4)*NumStrips[[BR]]
+--vertex_index int(4)*NumVerticies

@@ -1,4 +1,4 @@
-#ptolemyToolPtconsole
+#summary ptolemyToolPtconsole
 
 == Ptconsole App ==
 

@@ -1,0 +1,244 @@
+# How to setting up the pTolemy3D applet #
+
+
+---
+
+
+To start using pTolemy3D as an applet in your HTML page, '''you need a signed version of the JAR files'''.  These are available as part of the download package or you can refer to the [wiki:PtolemyDeveloperGuide Developer's guide] to know how to biuld and sign with your own certificate.
+
+
+See:
+  * [How to sign a JAR file](PtolemyToolHowSignJar.md) with your own certificate.
+  * [How Ptolemy3D is organized](PtolemyOverview.md).
+
+
+## Creating the HTML page ##
+
+Start creating `index.html` file and add the next HTML code:
+
+```
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="keywords" content="Ptolemy3D" />
+        <meta name="description" content="Ptolemy3D Applet Viewer Test Page" />
+
+        <title>Ptolemy3D Test Page</title>
+    </head>
+
+    <body>
+
+        <h1>Ptolemy3D Test Page</h1>
+        
+        ...  
+        ...
+        ...
+
+    </body>
+</html>
+```
+
+## Adding the viewer applet ##
+
+Like other JOGL based applications, embedding the pTolemy3D viewer as an applet must be done via the [JOGLAppletLauncher](http://download.java.net/media/jogl/builds/nightly/javadoc_public/com/sun/opengl/util/JOGLAppletLauncher.html).
+
+
+Following the link [JOGLAppletLauncher](http://download.java.net/media/jogl/builds/nightly/javadoc_public/com/sun/opengl/util/JOGLAppletLauncher.html) you can find more information about attributes and parameters when using JOGLAppletLauncher.
+
+Very careful with the third paragraph which says:
+
+```
+
+> Second, the codebase directory on the server, which contains the applet's jar files, must also contain jogl.jar, gluegen-rt.jar, and 
+> all of the jogl-natives-*.jar and gluegen-rt-natives-*.jar files from the standard JOGL and GlueGen runtime distributions (provided in 
+> '''jogl-[version]-webstart.zip''' from the [http://jogl.dev.java.net/servlets/ProjectDocumentList JOGL release builds] and '''gluegen-rt-[version]-webstart.zip''' from the [http://gluegen.dev.java.net/servlets/ProjectDocumentList GlueGen runtime release builds]). 
+> Note that the codebase of the applet is currently the location from which the JOGL native library used by the applet is downloaded. All 
+> of the JOGL and GlueGen-related jars must be signed by the same entity, which is typically Sun Microsystems, Inc.[[BR]]
+> ...
+```
+
+Create an `applet` directory in the same place as the previous `index.html` file. Copy the Ptolemy3D JAR files into it. Download the above JOGL related packages, uncompress and copy files into the same `applet` directory.
+
+Now, add the following code to the `index.html` file:
+
+```
+
+        <applet code="com.sun.opengl.util.JOGLAppletLauncher"
+                align="center" width="95%" height="65%"
+                id="pTolemy3D" Name="pTolemy3D"
+                codebase="./applet/"
+                archive="./jogl.jar,./gluegen-rt.jar,./netscape.jar,./ptolemy3d.jar,./ptolemy3d-viewer.jar,./ptolemy3d-plugins.jar" MAYSCRIPT>
+            <param name="subapplet.classname" VALUE="org.ptolemy3d.viewer.Ptolemy3DApplet">
+            <param name="subapplet.displayname" VALUE="Ptolemy3D Applet">
+            <param name="progressbar" value="true">
+            <param name="noddraw.check" value="true">
+            <param name="noddraw.check.silent" value="true">
+            <param name="cache_archive" VALUE="jogl.jar,gluegen-rt.jar,netscape.jar,ptolemy3d.jar,ptolemy3d-viewer.jar,ptolemy3d-plugins.jar">
+            <param name="cache_archive_ex" VALUE="jogl.jar;preload,gluegen-rt.jar;preload,netscape.jar;preload,ptolemy3d.jar;preload,ptolemy3d-viewer.jar;preload,ptolemy3d-plugins.jar;preload">
+        ...
+        ...
+        ...
+        </applet>
+```
+
+As you can see, you must point to the pTolemy3D JAR files in addition to the required JOGL files.
+The important point is '''you must set an ID for the applet element''' so that you can reference it using Javascript later.
+
+
+## Setting up viewer parameters ##
+
+pTolemy3D viewer can be pre-configured in the HTML file using applet's `param` subelement. This way you can set the initial position of the camera or the initial data layers you want to show.
+
+You can find more information:
+  * [Viewer parameters](PtolemyParameters.md), to know more about the available parameters the viewer accepts.
+  * [Ptolemy3D plugins](PtolemyPlugin.md), to know how to set and configure the available plugins for pTolemy3D viewer.
+
+
+Add the following code to the `index.html` file:
+
+```
+
+        <applet code="com.sun.opengl.util.JOGLAppletLauncher"
+                align="center" width="95%" height="65%"
+                id="pTolemy3D" Name="pTolemy3D"
+                codebase="./applet/"
+                archive="./jogl.jar,./gluegen-rt.jar,./netscape.jar,./ptolemy3d.jar,./ptolemy3d-viewer.jar,./ptolemy3d-plugins.jar" MAYSCRIPT>
+            <param name="subapplet.classname" VALUE="org.ptolemy3d.viewer.Ptolemy3DApplet">
+            <param name="subapplet.displayname" VALUE="Ptolemy3D Applet">
+            <param name="progressbar" value="true">
+            <param name="noddraw.check" value="true">
+            <param name="noddraw.check.silent" value="true">
+            <param name="cache_archive" VALUE="jogl.jar,gluegen-rt.jar,netscape.jar,ptolemy3d.jar,ptolemy3d-viewer.jar,ptolemy3d-plugins.jar">
+            <param name="cache_archive_ex" VALUE="jogl.jar;preload,gluegen-rt.jar;preload,netscape.jar;preload,ptolemy3d.jar;preload,ptolemy3d-viewer.jar;preload,ptolemy3d-plugins.jar;preload">
+
+            <param name="Orientation" value="132730000,35010000,1260000,0,-30">
+            <param name="CenterX" value="0">
+            <param name="CenterY" value="0">
+            <param name="DisplayRatio" value="1">
+
+            <param name="Server" value="demo.spatialcloud.com">
+            <param name="nMapDataSvr" value="1">
+            <param name="MapDataSvr1" value="demo.spatialcloud.com">
+            <param name="MapJp2Store1" value="/mnt/shizuoka/">
+            <param name="MapDemStore1" value="/mnt/shizuoka/dem/">
+            <param name="MUrlAppend1" value="&streamID=class64">
+            <param name="MServerKey1" value="">
+
+            <param name="TILECOLOR" value="47,47,86">
+            <param name="Area" value="00">
+            <param name="HORIZON" value="10000">
+            <param name="FlightFrameDelay" value="200">
+            <param name="TIN" value="1">
+            <param name="FOLLOWDEM" value="0">
+
+            <param name="Units" value="DD">
+            <param name="BGCOLOR" value="0,0,0">
+            <param name="SubTextures" value="1">
+
+            <param name="NumLayers" value="6">
+
+            <param name="LayerWidth_1" value="52428800">
+            <param name="LayerDEM_1" value="9">
+            <param name="LayerMIN_1" value="50000">
+            <param name="LayerMAX_1" value="10000000">
+            <param name="LayerDIVIDER_1" value="0">
+
+            <param name="LayerWidth_2" value="6553600">
+            <param name="LayerDEM_2" value="9">
+            <param name="LayerMIN_2" value="10000">
+            <param name="LayerMAX_2" value="5000000">
+            <param name="LayerDIVIDER_2" value="0">
+
+            <param name="LayerWidth_3" value="819200">
+            <param name="LayerDEM_3" value="9">
+            <param name="LayerMIN_3" value="2000">
+            <param name="LayerMAX_3" value="500000">
+
+            <param name="LayerDIVIDER_3" value="0">
+            <param name="LayerWidth_4" value="102400">
+            <param name="LayerDEM_4" value="9">
+            <param name="LayerMIN_4" value="0">
+            <param name="LayerMAX_4" value="50000">
+            <param name="LayerDIVIDER_4" value="0">
+
+            <param name="LayerWidth_5" value="12800">
+            <param name="LayerDEM_5" value="9">
+            <param name="LayerMIN_5" value="0">
+            <param name="LayerMAX_5" value="10000">
+            <param name="LayerDIVIDER_5" value="1000000">
+
+            <param name="LayerWidth_6" value="1600">
+            <param name="LayerDEM_6" value="9">
+            <param name="LayerMIN_6" value="0">
+            <param name="LayerMAX_6" value="2000">
+            <param name="LayerDIVIDER_6" value="100000">
+
+            <param name="NumPlugins" value="1">
+  
+            <param name="PluginType_1" value="org.ptolemy3d.plugin.HudPlugin">
+            <param name="PluginParam_1" value="-hudPrefix1 Center: -hudPrefix2 Streaming%20Speed: -hudPrefix3 Altitude: -hudSuffix3 meters">
+
+        </applet>
+```
+
+Open `index.html` file in your browser and see the pTolemy3D in action.
+
+## pTolemy3D and JavaScript ##
+
+Now you have pTolemy3D in your browser probably you would like to execute some actions like fly to some place or get information like eye altitude.
+The `ptolemy3d.js` JavaScript file which wraps the applet API to help working.
+
+Copy `ptolemy3d.js` in the same place as `index.html` and include it:
+```
+
+    ...
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="keywords" content="Ptolemy3D" />
+        <meta name="description" content="Ptolemy3D Applet Viewer Test Page" />
+
+        <title>Ptolemy3D Test Page</title>
+        
+        <script type="text/javascript" src="ptolemy3d.js"></script>
+    </head>
+    ...
+    ...
+```
+s
+Now, we are going to add a form with three input texts to set the camera latitude, longitude and altitude position and one button. Add the next code after the applet element at the `index.html` file:
+
+```
+
+        <form name="flyForm">
+            Latitude (decimal degrees): <input type="text" id="lat" name="lat" value="0" size="6" /><br/>
+            Longitude (decimal degrees): <input type="text" id="lon" name="lon" value="0" size="6" /><br/>
+            Altitude (meters): <input type="text" id="alt" name="alt" value="1000000" size="6" /><br/>
+            <input type="button" value="Go..." name="go" onclick="flyTo();"/>
+        </form>
+```
+
+Also, in the `head` section add the code of the `flyTo()` function:
+```
+        ...
+        ...
+        <script type="text/javascript" src="ptolemy3d.js"></script>
+
+        <script type="text/javascript">
+            function flyTo(){
+                // Get values
+                var lat = document.getElementById("lat").value;
+                var lon = document.getElementById("lon").value;
+                var alt = document.getElementById("alt").value;
+
+                // Create a Ptolemy object passing the applet identifier.
+                var ptolemy = new Ptolemy('pTolemy3D');
+                var camera = ptolemy.getCamera();
+                camera.flyTo(lat, lon, alt);
+            }
+        </script>
+        ...
+        ...
+```
+
+Reload the `index.html` file in the browser, set some values and click the `Go` button.

@@ -1,0 +1,27 @@
+## JP2 Encoding ##
+
+
+You can use the java [JJ2000](http://jj2000.epfl.ch/) encoder or the the C-based [Jasper](http://www.ece.uvic.ca/~mdadams/jasper/) encoder to create image data for pTolemy3D.  However, the simplest way to do this is to use ptconsole app, [available here](PtolemyToolPtconsole.md).
+
+The attached JJ2000 jar file has been modified to read png files.
+
+Generally speaking, the encoding parameters are meant to output simple jpeg 2000 files with a 4 internal levels.  Normally use 24bit PNG files generated from WMS server from source TIFs provide the best output.  Using jpegs as input is generally a bad idea.
+
+'''Commandline Example:'''[[BR](BR.md)]
+
+jasper.exe --verbose -f 00x0y0.png -F 00x0y0.jp2 --output-option rate=0.03 --output-option numrlvls=4 --output-option tilewidth=1024 --output-option tileheight=1024 --output-option prg=rlcp
+
+
+you can get exe file [attachment:jasper.exe here] (win32 only)
+
+
+'''Commandline Example:'''[[BR](BR.md)]
+
+java -classpath jj2000-5.1-mod.jar JJ2KEncoder -i 00x0y0.png -o 00x0y0.jp2 -tiles 1024 1024 -pph\_tile on -rate 0.8 -Alayers 0.9 +1 -Qtype reversible -Wlev 3 -debug
+
+
+
+you can get jar file [export:/jetStream/branches/ptolemy3d/tools/jj2000-5.1-mod.jar here]
+
+
+In order to visually check data you can use a variety of jp2 capable viewers but the [OPJViewer JPEG 2000 viewer](http://dsplab.diei.unipg.it/software/opjviewer_jpeg_2000_viewer) will give show you detailed information on the internal structure of the jp2 file.

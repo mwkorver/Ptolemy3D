@@ -1,0 +1,26 @@
+# Ptolemy Refoundation #
+
+This is the Ptolemy Refoundation page. We will try to organize all the ideas, documents and any related work right here.[[BR](BR.md)]
+
+## Before to start ##
+The first think we need to note with the Ptolemy re-foundation is the rename from pTolemy to Ptolemy.
+
+  * [wiki:PtolemyConventions Ptolemy Conventions]: A mix of ideas and descriptions related with Ptolemy development.
+  * [wiki:WantToBuildVirtualGlobe I want to build a Virtual Globe]: This page tries to organize all the things and thoughts needed to build a virtual globe, in our case Ptolemy.
+
+
+---
+
+
+# Features & Specifications #
+
+  * [wiki:PtolemyRefoundationSpecification Specifications]: List of features and specifications.
+
+
+
+---
+
+
+# Steps #
+
+  * [wiki:PtolemyRefoundationStepOne Step one]: Basic Ptolemy class diagram.

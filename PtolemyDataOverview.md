@@ -1,0 +1,12 @@
+## Data Overview ##
+
+
+At the most basic level pTolemy3D requires 2 kinds of data to simulate worlds.  One is image data, usually data taken from aircraft and satellites, and the other DEM or height information, traditionally acquired via [photogrammetric](http://en.wikipedia.org/wiki/Stereophotogrammetry) techniques, but increasingly created from [LIDAR](http://en.wikipedia.org/wiki/LIDAR) data.
+
+In order to conserve the amount of data that needs to be sent from the source to the viewer, Level of Detail (LOD) techniques are used.  LOD techniques that attempt to show only needed data have a number of benefits including usability (faster to load scenes) and economic, less stress on server resources etc.
+
+Like many other map viewers, pTolemy3D uses tiled data pyramids as one of its two main LOD techniques.  Tiled pyramids do two things, One is that they breakup any one layer into many smaller tiles, allowing data to be served up more quickly than would a request to a smaller number of very large files.  The second is that data is arranged in [pyramids](http://en.wikipedia.org/wiki/Pyramid_(image_processing)) which are simply the original tiled image but at different scales.  Where there may have been many high resolution files to represent an area, a smaller number of lower resolution files are used.
+
+This essentially means that if you had 10 images to show the world at a given resolution (probably not so good if just 10) then the the opposite end of the pyramid, the point, would have just one image file, at much lesser resolution showing the whole world.  Imagine that as you start to view th world from afar, that one file will do, but as you zoom in, losing altitude, you are shown additional layers of the pyramid with higher resolution images, but always just a subset of those files.
+
+read more about pTs tile system PtolemyDataTileSystem

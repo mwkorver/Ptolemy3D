@@ -1,0 +1,81 @@
+DemMaker
+
+description
+
+this is a java program to generate .bdm and .tin files for pTolemy3D .
+
+command
+
+java -classpath ./js3dbatch.jar:lib/jj2000-4.1.jar:. com.aruke.batch.tool.DemMaker [options](options.md)
+
+options
+
+  * -minx [float8](float8.md)
+  * -miny [float8](float8.md)
+  * -maxx [float8](float8.md)
+  * -maxy [float8](float8.md)
+
+
+  * -tw [width float8](tile.md)
+  * -cw [width float8](cell.md)
+
+
+  * -units [METER|DD]
+
+
+  * -prefix [char file prefix, ex. use japangsi zone (01 - 19) use 00 for DD tiles.](2.md)
+
+
+  * -srcdir [of DEM data files](dir.md)
+  * -out [to save jp2](dir.md)
+
+
+  * -hdr [.hdr]      ''The ascii header file from the GRIDFLOAT output''
+  * -dat [file](data.md) ''The ESRI GRIDFLOAT Binary Grid -- used named as **.dat''**
+
+
+  * -isAscii
+> '''''What is -isAscii used for???'''''
+
+
+  * -outputType[0|1] 0-bdm, 1-tin
+
+
+  * -innersig[double](double.md) for tin procesing, in meters number to trim data on inside of dem
+  * -wallsig[double](double.md) for tin procesing, in meters number to trim data on edges of dem
+
+
+  * -divider [int](int.md)
+
+output
+
+"-out (directory)" specifies where the dem files will be saved. the output is a dem data file with a georeferenced name in the format (prefix)x(upper left x)y(upper right y).jp2
+
+Tile width
+
+The first logical step is to decide on the tile width for the dem tiles. this number specifies how many units across the tile will be. for example if i enter "-tw 250" and I intend to use a meter coordinate set this tile will be 250 meters across and down.
+
+lat lon data is multiplied by 1000000 to keep the values as integers. so a tile width of 0.0016 would be in directory 1600.
+
+Cell Width
+
+the width of each cell for each tile. to get a clean looking transfer from tile to tile divide the Tile Width by 8 and use that value. the very bottom level is more free since it does not encapsulate tiles. so if a 250m tile was my smallest layer width and I had a 50m dem, I could probably set cw to 50, even though it isn't a quotient of 250 and 8.
+
+
+Bounding Box
+
+the minx,miny,maxx,maxy parameters define the area that will be covered. the program will automatically align the tiles so they are cut in respect to a x=0,y=0 tile. this causes the tiles to always be lined up correctly.
+
+outputType
+
+default to 0, a regular grid .bdm file. set to 1 to output tin tiles.
+
+tin parameters
+
+innerSig and wallSig are numbers to decide how general or detailed to make TIN data. I usually set both to about 0.5 for a 10 meter dem. usually I will output some data, see how big the file comes out, and then make adjustments.
+
+examples
+
+java -classpath ./js3dbatch.jar:lib/jj2000-4.1.jar:. com.aruke.batch.tool.DemMaker -minx 132.6199 -maxx 132.75314 -miny 35.360118 -maxy 35.45623 -tw 0.0016 -cw 0.0002 -units DD -prefix 00 -out /data/js3ddata/shimane/dem/1600 -srcdir /home/MAPS/tkb\_dd\_dem/
+
+java -classpath ./js3dbatch.jar:lib/jj2000-4.1.jar:. com.aruke.batch.tool.DemMaker -minx 126 -maxx 142 -miny 25 -maxy 37 -tw 0.1024 -cw 0.0128 -units DD -prefix 00 -out /data/js3ddata/japandem/102400 -srcdir /home/MAPS/tkb\_dd\_dem/

@@ -1,0 +1,127 @@
+POI Plugin
+Description
+
+Used to display point data with a text label on the map. Currently points are queried through a tomcat postgis setup, but using a wfs server like mapserver is also possible. (WFS Version : POI WfsVersionPoi)
+
+plugin\_type : poi
+
+plugin\_parameters :
+
+usage
+
+
+
+&lt;param name="PluginType\_1" value="poi"&gt;
+
+
+
+
+&lt;param name="PluginParam\_1" value="P -parameter\_name parameter\_value -parameter\_name parameter\_value ..."&gt;
+
+
+
+parameters
+
+  * -position (ie. AL,BR,A,L...)
+> > o [A(above)|M(middle)|B(below)|L(left)|C(center)|R(right)]
+
+
+  * -status
+> > o [1|0]
+
+
+  * -pinpoint (draw a line down from the label to the ground)
+> > o [1|0]
+
+
+  * -jspquery (make requests to a servlet, works with parameter jspurl)
+> > o [1|0]
+
+
+  * -numicons
+> > o [int](int.md)
+
+
+  * -iconprefix (path and file prefix to icons ie. /ptolemylib/icons/icon_)
+> > o [String](String.md)_
+
+
+  * -mindistance (min distance of icon from camera ie. 75)
+> > o [int](int.md)
+
+
+  * -encoding
+> > o [UTF-8|SJIS| ...]
+
+
+  * -bgcolor (RGBA, 0-255)
+> > o [int:int:int:int]
+
+
+  * -fontcolor (RGBA, 0-255)
+> > o [int:int:int:int]
+
+
+  * -bordercolor (RGBA, 0-255)
+> > o [int:int:int:int]
+
+
+  * -minalt
+> > o [int](int.md)
+
+
+  * -maxalt
+> > o [int](int.md)
+
+
+  * -jspurl (if querying a servlet, path to servlet)
+> > o [String](String.md)
+
+
+  * -layer (if querying a servlet, table name)
+> > o [String](String.md)
+
+
+  * -iconquerywidth (extent of query to servlet)
+> > o [int](int.md)
+
+
+
+Interact with plugins through javascript by using
+document.getElementById("ptolemyAppletId").pluginAction(plugin\_id,pluginAction,params);
+
+pluginAction
+
+  * setIconIdFilter
+  * clearHighlights
+  * removeHighlightIds
+  * addHighlightIds
+  * refresh
+  * setCenterPoint
+  * status
+  * getInfo
+  * setInfo
+  * putIcon
+  * removeIcon
+
+
+Notes
+
+IMPORTANT
+
+If writing plugin over several lines e.g as follows
+
+<param name="PluginParam\_1" value="P -jspquery 0
+-status 1
+-numicons 10
+-iconprefix /JetStreamLib/icons/demo\_icons/icon\_1_-mindistance 75
+-encoding UTF-8
+-bgcolor 0:204:153:150
+-fontcolor 255:255:255:255
+-bordercolor 100:100:250:0
+-minalt 0
+-maxalt 0
+-position RM
+-pinpoint 1 ">_
+
+There must be an empty space at the end of each line, before going onto the next line.

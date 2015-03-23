@@ -1,0 +1,18 @@
+# Ptolemy Conventions #
+
+This document contains (more or less) the basic conventions to be used in the Ptolemy development.
+
+  * Use [yUML](http://yuml.me) to create simple and nice class diagrams.
+  * Make your attributes private and create getter/setter methods.
+  * Indent and use parenthesis in a Java way:
+```
+  String name = "John";
+  if(name.equals("John") {
+    // TODO - Action for John
+  } else {
+    // TODO - Action for no John
+  }
+```
+  * Write some lines on top of every method describing what it does.
+  * Spent some time documenting the relations and implications among classes. We want a FOS project not only with a nice code and that includes the comments on it.
+

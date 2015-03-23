@@ -1,0 +1,43 @@
+Building Plugin
+
+Description
+
+Displays polygon data on the map using a separate height value to draw a building. Vector data is currently gotten through a tomcat servlet that queries data on a postgis database. In the future data might be queried from Mapserver, using Mapserverâ€™s new GML output function.
+
+applet parameters
+
+plugin\_type : buildings
+
+plugin\_parameters : status,ht\_ref\_type,servleturl,db table name,query width,display width,max z
+
+optional : num walls,wall prefix url
+
+  * status
+> > o (0,1) layer on or off boolean
+  * ht\_ref\_type
+> > o (0,1) set to 0 to calc height from sea level, and 1 to set height from current terrain level.
+  * servleturl
+> > o (string) tomcat servlet uri
+  * db table name
+> > o (string) postgis table name that servlet can refer to
+  * query width
+> > o (int) extents in meters of db query
+  * display width
+> > o (int) extents in meters of display. when display extents are no longer within query width, data will be requeried.
+  * max z
+> > o (int) maximun altitude in meters that vector data will be displayed
+
+
+optional
+
+  * num wall textures
+> > o number of wall textures
+  * wallPrefix
+> > o uri prefix to wall png images
+
+
+
+pluginAction
+
+
+Notes
